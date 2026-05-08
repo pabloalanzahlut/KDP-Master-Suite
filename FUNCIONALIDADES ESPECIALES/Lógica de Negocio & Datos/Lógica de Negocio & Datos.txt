@@ -1,0 +1,79 @@
+Basándome en lo implementado y el contexto de KDP Master, aquí propongo los próximos pasos:
+
+---
+
+## 🎯 PRÓXIMOS PASOS (Opcionales - Nivel Elite Corporate)
+
+### Nivel 1: Precisión & Debugging (Alto ROI)
+| # | Funcionalidad | Descripción | Esfuerzo |
+|---|---------------|-------------|----------|
+| 1 | **Dashboard de métricas de filtros** | Ver: videos aceptados/rechazados por fase, tasa de falsos negativos, hits por keyword | 🟡 Medio |
+| 2 | **Logs de cooldown por canal** | Visualizar última notificación por canal, próximos allowed | 🟢 Bajo |
+| 3 | **Alertas de rendimiento** | Notificar si filtro híbrido activa >50% de veces (indicador de config mala) | 🟡 Medio |
+
+### Nivel 2: Workflow & Automatización
+| # | Funcionalidad | Descripción | Esfuerzo |
+|---|---------------|-------------|----------|
+| 4 | **Exportar/importar config de filtros** | JSON con keywords + configuraciones para backup/cientos de canales | 🟢 Bajo |
+| 5 | **Filtros por canal específicos** | Override de keywords por canal (canal X solo "kdp", canal Y "amazon fba") | 🟡 Medio |
+| 6 | **Modo batch asíncrono** | No fetch metadata en tiempo real; queue para procesamiento overnight | 🔴 Alto |
+
+### Nivel 3: Inteligencia & Escalabilidad
+| # | Funcionalidad | Descripción | Esfuerzo |
+|---|---------------|-------------|----------|
+| 7 | **Auto-tunning de keywords** | Suggesting keywords basándose en tags de videos aceptados historically | 🔴 Alto |
+| 8 | **Historial de decisiones de filtros** | DB logging: video_id → reason → accepted/rejected (para training) | 🟡 Medio |
+| 9 | **Filtros compuestos** | Soporte para regex, wildcards, proximity matching ("kdp~3marketing") | 🔴 Alto |
+
+---
+
+## 🎯 Mi recomendación de priorización
+
+| Prioridad | Por qué |
+|-----------|---------|
+| **1. Dashboard de métricas** | Sin datos, no puedes tunear el filtro. El 80% del valor viene de saber qué está pasando. |
+| **2. Filtros por canal** | Permite nichos específicos sin falsos positivos de otros canales |
+| **3. Export/import config** | Si tenés 50+ canales, mantener config manualmente es insostenible |
+| **4. Historial de decisiones** | Aprendizaje acumulativo para mejorar el filtro |
+
+---
+
+
+## Análisis honesto: ¿100% elite corporate?
+
+**Respuesta corta: 80-85%**
+
+Lo implementado cubre las 2 limitaciones críticas:
+- ✅ Cooldown por canal (corrige falsos negativos)
+- ✅ Filtro híbrido (precisión en nichos técnicos)
+
+---
+
+## Lo que falta para "elite corporate"
+
+| Área | Estado | Gap |
+|------|--------|-----|
+| **Métricas/Debugging** | ❌ No hay | No sabés si el filtro está funcionando bien |
+| **Configuración UI** | ❌ No hay | Editar JSON a mano = friction |
+| **Filtros por canal** | ❌ No hay | No podés customizar por canal |
+| **Historial de decisiones** | ❌ No hay | Sin aprendizaje acumulativo |
+| **Manejo de errores yt-dlp** | ✅ Básico existe | Pero sin dashboard ni alertas |
+
+---
+
+## Mi veredicto
+
+**Para uso personal (1-10 canales)**: ✅ 100% listo
+**Para uso "elite corporate" (50+ canales, workflow profesional)**: ❌ Faltan las 4 de arriba
+
+El filtro y cooldown funcionan, pero sin métricas no podés optimizar, y sin filtros por canal no escalás a muchos canales con necesidades distintas.
+
+---
+
+## Recomendación
+
+Si tu uso es personal (monitorear tus canales de nicho), **sí está completo**. Si planeás escalar o compartir la herramienta, agregá al menos:
+1. Dashboard de métricas básica
+2. Filtros por canal
+
+¿Quieres que profundice en cómo implementar esas 2 funcionalidades?

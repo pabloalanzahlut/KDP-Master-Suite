@@ -1,0 +1,66 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar "Sincronizar Lista" de un simple escáner de archivos a un **Motor de Sincronización Inteligente de Activos Textuales** garantiza detección instantánea, validación de integridad, deduplicación cognitiva y optimización de I/O. La separación determinista (escaneo, hashing, indexación) y cognitiva (clasificación semántica, predicción de estado, análisis de calidad) cumple estándares de gestión documental empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista de Sincronización)**
+
+1. **Escáner Recursivo de Directorio de Entrada** — Detecta archivos `.vtt`, `.srt`, `.txt` en carpeta principal y subcarpetas. *Uso real:* Sincronizar lotes organizados por fecha/canal automáticamente.
+2. **Validador de Extensiones Permitidas** — Filtra solo formatos soportados (`.vtt`, `.srt`, `.txt`, `.md`). *Uso real:* Ignorar archivos temporales o basura del sistema.
+3. **Detector de Archivos Ocultos/Sistema** — Excluye `.DS_Store`, `Thumbs.db`, `desktop.ini`. *Uso real:* Mantener lista limpia de artefactos del SO.
+4. **Generador de Hash SHA-256 por Archivo** — Calcula huella digital para cada archivo detectado. *Uso real:* Base para deduplicación y verificación de integridad.
+5. **Comparador de Hash vs Base de Datos** — Verifica si archivo ya fue procesado consultando DB. *Uso real:* Marcar automáticamente como "✅ Procesado" sin re-escanear contenido.
+6. **Validador de Tamaño de Archivo Mínimo/Máximo** — Filtra archivos <1KB (vacíos) o >100MB (anómalos). *Uso real:* Descartar descargas fallidas o corruptas automáticamente.
+7. **Detector de Encoding (UTF-8/Latin1/ASCII)** — Identifica codificación de texto sin abrir archivo completo. *Uso real:* Prevenir errores de lectura por encoding incorrecto.
+8. **Contador de Líneas y Palabras Rápido** — Obtiene estadísticas básicas sin cargar archivo en RAM. *Uso real:* Mostrar "1.2k palabras" en Treeview sin ralentizar UI.
+9. **Extractor de Metadata de Archivo (stat)** — Obtiene fecha creación, modificación, tamaño. *Uso real:* Ordenar por "Más reciente" o "Más antiguo".
+10. **Validador de Integridad de Archivo** — Verifica que archivo no esté truncado o corrupto. *Uso real:* Marcar "⚠️ Corrupto" antes de intentar procesar.
+11. **Detector de Archivos Bloqueados por Otro Proceso** — Verifica si archivo está en uso por otra aplicación. *Uso real:* Evitar errores de "Permission Denied" al sincronizar.
+12. **Generador de Nombre Limpio (Sanitization)** — Elimina caracteres inválidos de nombres de archivo. *Uso real:* Normalizar "video@#$.txt" → "video.txt".
+13. **Clasificador por Fecha de Modificación** — Agrupa archivos por "Hoy", "Esta semana", "Este mes". *Uso real:* Filtrado rápido por período temporal.
+14. **Agrupador por Canal/Origen (Parseo de Nombre)** — Extrae nombre de canal desde filename. *Uso real:* Agrupar "CanalX_video1.txt", "CanalX_video2.txt" juntos.
+15. **Validador de Consistencia de Pares (.vtt + .txt)** — Detecta si existen ambos archivos para mismo video. *Uso real:* Alertar "Falta transcripción limpia" si solo hay `.vtt`.
+16. **Detector de Duplicados por Nombre** — Identifica archivos con mismo nombre en diferentes carpetas. *Uso real:* Prevenir sobreescritura accidental.
+17. **Indexador FTS5 Inmediato Post-Sincronización** — Actualiza índice de búsqueda SQLite tras detectar nuevos archivos. *Uso real:* Búsqueda instantánea sin re-escaneo completo.
+18. **Generador de Vista Previa (Primeras 3 Líneas)** — Extrae snippet de contenido para tooltip. *Uso real:* Ver inicio de transcripción sin abrir archivo.
+19. **Validador de Ruta Relativa vs Absoluta** — Normaliza paths para consistencia en DB. *Uso real:* Evitar duplicados por diferentes formas de referencia.
+20. **Cache de Metadata en RAM (LRU)** — Almacena stat() de archivos recientes para respuesta rápida. *Uso real:* Sincronización subsequente 10x más rápida.
+21. **Detector de Cambios Incrementales (inotify/ReadDirectoryChanges)** — Monitorea cambios en tiempo real sin polling. *Uso real:* Auto-sincronización al agregar archivo.
+22. **Validador de Permisos de Lectura** — Verifica que archivo sea legible antes de listar. *Uso real:* Evitar errores al intentar procesar.
+23. **Generador de ID Único por Archivo** — Crea UUID basado en path+hash. *Uso real:* Referencia estable incluso si archivo se renombra.
+24. **Clasificador por Estado de Procesamiento** — Determina "Pendiente", "En Progreso", "Completado", "Fallido". *Uso real:* Filtrado por estado operativo.
+25. **Validador de Consistencia DB-FS** — Compara archivos en disco vs registros en DB. *Uso real:* Detectar archivos eliminados manualmente o huérfanos.
+26. **Limpiador de Referencias a Archivos Eliminados** — Elimina entradas de DB para archivos que ya no existen. *Uso real:* Mantener consistencia automática.
+27. **Generador de Reporte de Sincronización** — Crea resumen: "X nuevos, Y actualizados, Z eliminados". *Uso real:* Auditoría de cambios en cada sincronización.
+28. **Validador de Profundidad de Subcarpetas** — Limita niveles de recursión para evitar scans infinitos. *Uso real:* Controlar rendimiento en estructuras profundas.
+29. **Detector de Symlinks/Enlaces Simbólicos** — Identifica y resuelve enlaces a archivos reales. *Uso real:* Evitar duplicación por enlaces.
+30. **Validador de Espacio en Disco Disponible** — Verifica espacio suficiente antes de sincronizar lote grande. *Uso real:* Prevenir fallos por disco lleno.
+31. **Generador de Thumbnail de Texto (Primera Página)** — Crea imagen preview de contenido para vista visual. *Uso real:* Identificación rápida en vista de iconos.
+32. **Clasificador por Tipo de Contenido (VTT vs SRT vs TXT)** — Diferencia subtítulos crudos vs transcripciones limpias. *Uso real:* Aplicar pipeline de procesamiento adecuado.
+33. **Validador de Formato de Subtítulos (VTT/SRT Headers)** — Verifica estructura válida de headers. *Uso real:* Detectar archivos corruptos o mal formados.
+34. **Extractor de Duración desde Timestamps** — Calcula duración total desde timestamps en archivo. *Uso real:* Filtrar por "Videos > 30 min".
+35. **Generador de Ruta de Archivo Normalizada** — Convierte paths a formato consistente (UTF-8, forward slashes). *Uso real:* Compatibilidad cross-platform.
+36. **Validador de Consistencia de Timestamps** — Verifica que timestamps en VTT/SRT sean progresivos. *Uso real:* Detectar archivos con errores de sincronización.
+37. **Detector de Archivos Vacíos o Sin Contenido** — Identifica archivos con 0 bytes o solo whitespace. *Uso real:* Limpieza automática de descargas fallidas.
+38. **Generador de Checksum de Bloques (Chunk Hash)** — Calcula hash por bloques de 1MB para archivos grandes. *Uso real:* Verificación de integridad parcial sin leer archivo completo.
+39. **Validador de Compatibilidad de Nombre de Archivo** — Verifica que nombre sea válido en SO destino. *Uso real:* Prevenir errores en Windows/Linux/macOS.
+40. **Clasificador por Prioridad de Procesamiento** — Asigna prioridad basada en tamaño/fecha/tipo. *Uso real:* Procesar primero archivos pequeños o recientes.
+41. **Generador de Log de Sincronización Detallado** — Registra cada archivo detectado con timestamp. *Uso real:* Auditoría forense de cambios.
+42. **Validador de Consistencia de Encoding en Lote** — Verifica que todos archivos usen mismo encoding. *Uso real:* Prevenir errores de procesamiento mixto.
+43. **Detector de Archivos con Caracteres Especiales** — Identifica nombres con emojis, símbolos, caracteres Unicode. *Uso real:* Alertar posibles problemas de compatibilidad.
+44. **Generador de Vista Jerárquica (Árbol de Carpetas)** — Muestra estructura de directorios colapsable. *Uso real:* Navegación organizada por carpetas.
+45. **Validador de Acceso Concurrente** — Detecta si otro proceso está modificando archivo durante sync. *Uso real:* Prevenir race conditions.
+46. **Generador de Estadísticas de Sincronización** — Calcula total archivos, tamaño total, tiempo promedio. *Uso real:* Dashboard de métricas de repositorio.
+47. **Validador de Integridad de Base de Datos** — Verifica que DB no esté corrupta antes de sincronizar. *Uso real:* Prevenir corrupción en cascada.
+48. **Detector de Archivos Recién Creados (< 5 min)** — Identifica archivos muy recientes que podrían estar en escritura. *Uso real:* Esperar a que se complete escritura antes de procesar.
+49. **Generador de Backup de Estado de Sincronización** — Guarda snapshot de estado antes de sincronizar. *Uso real:* Rollback en caso de error crítico.
+50. **Validador de Consistencia de Timezone** — Normaliza timestamps a UTC. *Uso real:* Consistencia en entornos multi-zona horaria.
+51. **Clasificador por Estado de Descarga (Completo/Parcial)** — Detecta archivos `.part` o incompletos. *Uso real:* Filtrar descargas en progreso.
+52. **Generador de Índice Visual de Archivos** — Crea grid visual con iconos y previews. *Uso real:* Vista alternativa a lista/treeview.
+53. **Validador de Consistencia de Metadatos Extendidos** — Verifica xattrs, ACLs, permisos. *Uso real:* Mantener seguridad en entornos corporativos.
+54. **Detector de Archivos Duplicados por Contenido (Fuzzy)** — Identifica archivos con contenido similar (>90%). *Uso real:* Alertar posibles duplicados semánticos.
+55. **Generador de Ruta de Archivo Corta (Alias)** — Crea nombre corto para paths largos. *Uso real:* Mejor visualización en UI.
+56. **Validador de Consistencia de Referencias Cruzadas** — Verifica que referencias entre archivos sean válidas. *Uso real:* Detectar enlaces rotos entre transcripciones.
+57. **Clasificador por Complejidad de Contenido** — Estima complejidad basada en longitud/densidad. *Uso real:* Priorizar procesamiento de archivos simples.
+58. **Generador de Reporte de Errores de Sincronización** — Lista archivos que fallaron al sincronizar. *Uso real:* Diagnóstico rápido de problemas.
+59. **Validador de Consistencia de Versión de Archivo** — Detecta múltiples versiones de mismo archivo. *Uso real:* Mantener solo versión más reciente.
+60. **Generador de Checkpoint de Sincronización** — Guarda progreso para reanudar tras interrupción. *Uso real:* Sincronización resiliente a fallos.

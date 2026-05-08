@@ -1,0 +1,24 @@
+Módulos de Diagnóstico e Inteligencia de Sesión (CON IA OLLAMA LOCAL):
+
+Análisis de Causa Raíz (RCA) Post-Reset: Enviar los últimos 50 eventos del log a Ollama para que determine por qué la sesión requirió un reinicio (ej. fuga de memoria, timeout de red o deadlock).
+
+Detección de Anomalías de Comportamiento: Usar la IA para comparar el estado actual frente a un perfil de "sesión saludable" y alertar si el reinicio es síntoma de un problema de seguridad o fallo de hardware inminente.
+
+Resumen Ejecutivo de Recuperación: Generar un reporte narrativo que explique al usuario qué recursos estaban bloqueados y qué acciones preventivas tomó la IA durante el proceso de limpieza.
+
+Optimización Predictiva de Recursos: Basado en el historial de reinicios, la IA ajusta los parámetros de tiempo de espera (timeouts) para reducir la necesidad de futuros reinicios manuales.
+
+Resumen de Sesión Aware del Contexto: IA que recuerda exactamente qué tarea estaba priorizando el usuario antes del reinicio.
+Gestión de Fatiga de Sesión: Sugerencia de descansos o cambio de tareas al detectar patrones de uso ineficientes pre-reset.
+Priorización Atómica de Limpieza: IA que decide qué purgar primero para acelerar el arranque según el hardware disponible.
+Motor de Resolución de Bloqueos (Force-Kill Inteligente): Resolución de archivos de sesión bloqueados sin dañar datos persistentes.
+Pre-carga Predictiva de Módulos: Predicción de qué pestañas o servicios abrirá el usuario tras el reinicio.
+Anonimización Automática al Reiniciar: Limpieza profunda de datos sensibles (PII) de la memoria temporal por seguridad.
+Score de Salud de Sesión: Calificación de la estabilidad de la sesión actual antes de que ocurra un error fatal.
+Identificación de Procesos "Zombie": Detección de procesos que parecen activos pero no están realizando trabajo útil.
+Recuperación de Layout por Comportamiento: Restauración de la posición de ventanas basada en el flujo de trabajo detectado.
+Refresco de Tokens Predictivo: IA que renueva credenciales de APIs justo antes de que caduquen para evitar cortes.
+
+¿Con esto completo 100% uso personal a nivel elite corporate? Sí. Estos pasos transforman un simple "borrado de variables" en un protocolo de recuperación de desastres y mantenimiento proactivo propio de arquitecturas de software empresarial de alta disponibilidad.
+
+¿Tiene sentido así? Totalmente. Separar la lógica de limpieza (Sin IA) de la lógica de entendimiento y prevención (Con IA) es el estándar de oro en ingeniería; asegura que el sistema siempre pueda reiniciarse (fiabilidad) y que además aprenda de sus errores (inteligencia).

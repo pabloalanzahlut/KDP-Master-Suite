@@ -1,0 +1,67 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar "Ver Descargas" de un simple explorador de archivos a un **Centro de Gestión Visual de Activos Textuales** garantiza que el usuario pueda visualizar, filtrar, analizar y gestionar sus transcripciones de forma inteligente sin salir de la aplicación. La separación determinista (visualización, filtros, metadatos) y cognitiva (clasificación semántica, predicción de valor, análisis de contenido) cumple estándares de gestión documental empresarial.
+
+📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista de Visualización)**
+
+1. **Visor de Archivos de Texto Integrado** — Muestra contenido de `.txt`, `.vtt`, `.srt` en panel interno sin abrir aplicaciones externas. *Uso real:* Leer transcripciones rápidamente sin cambiar de ventana.
+2. **Navegador de Carpetas Jerárquico** — Árbol de directorios con expansión/contracción para navegar entre `data/`, `outputs/`, `knowledge/`. *Uso real:* Acceder rápidamente a diferentes carpetas de transcripciones.
+3. **Vista Previa de Metadatos en Panel Lateral** — Muestra tamaño, fecha, palabras, idioma del archivo seleccionado. *Uso real:* Ver información clave sin abrir el archivo completo.
+4. **Buscador de Texto en Tiempo Real** — Búsqueda incremental que filtra archivos mientras escribes. *Uso real:* Encontrar "Amazon Ads" entre 500 transcripciones en <1s.
+5. **Filtro por Extensión de Archivo** — Toggle para mostrar solo `.txt`, `.vtt`, `.srt` o todos. *Uso real:* Ver solo transcripciones limpias ignorando subtítulos crudos.
+6. **Ordenamiento Multi-Criterio** — Ordenar por nombre, fecha, tamaño, palabras, relevancia. *Uso real:* Ver las transcripciones más recientes primero.
+7. **Vista de Miniaturas de Contenido** — Muestra primeras 3 líneas de cada transcripción como preview. *Uso real:* Escanear rápidamente el contenido sin abrir cada archivo.
+8. **Selección Múltiple con Ctrl/Shift** — Seleccionar múltiples archivos para operaciones batch. *Uso real:* Abrir 5 transcripciones relacionadas simultáneamente.
+9. **Arrastrar y Soltar a Otras Pestañas** — Drag & drop de archivos a "Procesamiento" o "Inteligencia". *Uso real:* Mover transcripciones a procesamiento sin buscar manualmente.
+10. **Marcadores de Archivos Favoritos** — Sistema de bookmarks para archivos frecuentemente consultados. *Uso real:* Acceso rápido a transcripciones de referencia.
+11. **Historial de Archivos Recientes** — Lista de últimos 20 archivos abiertos. *Uso real:* Retomar trabajo donde se dejó sin buscar nuevamente.
+12. **Vista Dividida (Split View)** — Ver dos transcripciones lado a lado. *Uso real:* Comparar versiones o temas relacionados simultáneamente.
+13. **Resaltado de Sintaxis para Código** — Resalta código Python, SQL, HTML dentro de transcripciones. *Uso real:* Leer fragmentos de código mencionados en tutoriales.
+14. **Numeración de Líneas** — Muestra números de línea para referencia precisa. *Uso real:* Citar ubicación exacta de información importante.
+15. **Contador de Palabras en Tiempo Real** — Muestra word count del archivo seleccionado y total de selección. *Uso real:* Verificar longitud de transcripciones.
+16. **Detección de Idioma Automática** — Identifica idioma del texto y lo muestra en metadatos. *Uso real:* Filtrar transcripciones por idioma rápidamente.
+17. **Vista de Estadísticas por Carpeta** — Muestra total de archivos, palabras, tamaño por carpeta. *Uso real:* Ver qué carpetas tienen más contenido.
+18. **Búsqueda de Duplicados por Hash** — Detecta archivos idénticos por contenido. *Uso real:* Eliminar transcripciones duplicadas que ocupan espacio.
+19. **Filtro por Rango de Fechas** — Mostrar archivos creados/modificados entre fechas específicas. *Uso real:* Ver transcripciones de la última semana.
+20. **Filtro por Rango de Tamaño** — Mostrar archivos entre X y Y palabras/KB. *Uso real:* Encontrar transcripciones largas (>5000 palabras) para análisis profundo.
+21. **Exportación de Lista a CSV/Excel** — Exportar lista de archivos visibles con metadatos. *Uso real:* Crear inventario de transcripciones disponibles.
+22. **Impresión de Transcripción** — Imprimir contenido formateado directamente. *Uso real:* Tener copia física para revisión offline.
+23. **Copia Rápida de Ruta** — Copiar ruta completa del archivo al portapapeles. *Uso real:* Compartir ubicación con otros procesos o usuarios.
+24. **Apertura con Aplicación Externa** — Abrir archivo en editor preferido del sistema. *Uso real:* Editar con VS Code o Word si es necesario.
+25. **Renombrado Masivo** — Renombrar múltiples archivos con patrón definido. *Uso real:* Estandarizar nombres de transcripciones de un canal.
+26. **Compresión de Archivos Seleccionados** — Crear ZIP con archivos seleccionados. *Uso real:* Empaquetar transcripciones para compartir o backup.
+27. **Cálculo de Espacio en Disco** — Muestra espacio total ocupado por archivos visibles. *Uso real:* Monitorear uso de almacenamiento.
+28. **Detección de Archivos Huérfanos** — Identifica archivos sin registro en base de datos. *Uso real:* Limpiar archivos que no están indexados.
+29. **Validación de Integridad de Archivos** — Verifica que archivos no estén corruptos. *Uso real:* Detectar transcripciones incompletas o dañadas.
+30. **Vista de Árbol de Dependencias** — Muestra relaciones entre transcripciones y manuales. *Uso real:* Ver qué transcripciones alimentan qué manuales.
+31. **Filtro por Estado de Procesamiento** — Mostrar solo procesados, pendientes o fallidos. *Uso real:* Ver qué falta procesar.
+32. **Agrupación por Canal/Origen** — Agrupa archivos por canal de YouTube de origen. *Uso real:* Ver todo el contenido de un canal específico.
+33. **Agrupación por Fecha de Publicación** — Agrupa por año/mes de publicación del video. *Uso real:* Ver evolución temporal del contenido.
+34. **Vista de Timeline Visual** — Línea de tiempo visual de transcripciones por fecha. *Uso real:* Ver distribución temporal del contenido.
+35. **Búsqueda de Texto con Regex** — Búsqueda avanzada con expresiones regulares. *Uso real:* Encontrar patrones complejos como URLs, emails, fechas.
+36. **Resaltado de Términos de Búsqueda** — Resalta términos buscados en el contenido. *Uso real:* Ver rápidamente dónde aparece el término.
+37. **Navegación por Encabezados** — Salta entre secciones/títulos del documento. *Uso real:* Navegar rápidamente en transcripciones largas.
+38. **Vista de Solo Lectura vs Edición** — Toggle entre modo lectura y edición. *Uso real:* Prevenir modificaciones accidentales.
+39. **Comparador de Versiones** — Compara dos versiones del mismo archivo. *Uso real:* Ver cambios entre versiones de transcripción.
+40. **Detección de Cambios No Guardados** — Alerta si archivo fue modificado externamente. *Uso real:* Prevenir pérdida de cambios.
+41. **Autoguardado de Vista** — Guarda posición, scroll, filtros al cerrar. *Uso real:* Retomar exactamente donde se dejó.
+42. **Vista de Propiedades Extendidas** — Muestra EXIF, metadatos técnicos del archivo. *Uso real:* Ver información técnica detallada.
+43. **Generación de Hash MD5/SHA256** — Calcula y muestra hash de verificación. *Uso real:* Verificar integridad de archivos críticos.
+44. **Vista de Permisos de Archivo** — Muestra permisos de lectura/escritura. *Uso real:* Verificar accesos en entornos corporativos.
+45. **Búsqueda en Archivos Comprimidos** — Busca dentro de ZIP sin descomprimir. *Uso real:* Encontrar contenido en backups comprimidos.
+46. **Vista de Contenido Binario/Hex** — Muestra vista hexadecimal para debugging. *Uso real:* Diagnosticar problemas de encoding.
+47. **Detección de Encoding** — Detecta automáticamente UTF-8, ASCII, Latin-1. *Uso real:* Corregir problemas de caracteres especiales.
+48. **Conversión de Encoding** — Convierte entre diferentes codificaciones. *Uso real:* Estandarizar todos los archivos a UTF-8.
+49. **Vista de Estadísticas de Lectura** — Muestra tiempo estimado de lectura, complejidad. *Uso real:* Planificar tiempo de revisión.
+50. **Marcado de Archivos como Leídos/No Leídos** — Sistema de estado de lectura. *Uso real:* Trackear qué transcripciones ya revisaste.
+51. **Filtro por Etiquetas/Tags** — Filtra archivos por tags asignados. *Uso real:* Ver solo transcripciones de "Legalidad" o "Marketing".
+52. **Vista de Calificación/Score** — Muestra score de calidad si existe. *Uso real:* Priorizar transcripciones de alta calidad.
+53. **Búsqueda de Archivos por Similaridad** — Encuentra archivos similares por contenido. *Uso real:* Agrupar transcripciones de temas relacionados.
+54. **Vista de Relaciones Cruzadas** — Muestra qué archivos mencionan a otros. *Uso real:* Ver red de referencias entre transcripciones.
+55. **Generación de Reporte de Contenido** — Crea resumen estadístico de archivos visibles. *Uso real:* Reporte ejecutivo de contenido disponible.
+56. **Vista de Progreso de Lectura** — Muestra % leído de cada archivo. *Uso real:* Retomar lectura donde se dejó.
+57. **Sincronización de Scroll entre Vistas** — Sincroniza scroll en vista dividida. *Uso real:* Comparar secciones equivalentes.
+58. **Búsqueda de Archivos Sin Procesar** — Filtra solo archivos raw sin limpieza. *Uso real:* Identificar qué falta procesar.
+59. **Vista de Metadata de Video Original** — Muestra datos del video YouTube (título, canal, fecha). *Uso real:* Contextualizar transcripción con origen.
+60. **Exportación de Vista Actual a PDF/HTML** — Exporta lista visible con metadatos. *Uso real:* Crear catálogo documental de transcripciones.
+

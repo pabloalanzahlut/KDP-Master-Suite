@@ -1,0 +1,41 @@
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+Basándome en la implementación existente, estas son las mejoras potentials:
+
+### Alta Prioridad
+
+1. **Exportación programada**: Agregar opción `auto_export_on_exit=True` en settings.json para export automático al cerrar la app (ya está configurado pero no implementado completamente)
+
+2. **Exportación por categoría UI**: Selector en el diálogo de exportación para elegir qué categorías incluir (actualmente exporta todo)
+
+3. **Preview antes de exportar**: Mostrar preview del contenido con conteo de entradas/categorías antes de confirmar la exportación
+
+### Media Prioridad
+
+4. **Historial de exportaciones UI**: Panel en "Mantenimiento > Historial de Importaciones" para ver exportaciones previas (la tabla existe pero no hay UI)
+
+5. **Exportación incremental**: Solo exportar entradas nuevas desde última exportación (comparar `last_export_hash`)
+
+6. **Compresión ZIP automático**: Comprimir el HTML exportado para reducir tamaño
+
+7. **Buscar dentro del export**: Integrar búsqueda en tiempo real en el HTML generado (el TOC ya funciona, sería añadir search box)
+
+### BajaPrioridad (Futuro)
+
+8. **Plantillas de export**: Diferentes estilos/CSS (corporativo, minimal, etc.)
+
+9. **Export a otros formatos**: Markdown simple, JSON, o DOCX
+
+10. **Email del export**: Enviar por email el archivo exportado
+
+---
+
+## ❓ Preguntas de Aclaración
+
+1. ¿Cuál de estas prioriza? La **exportación por categoría** parece más útil para usuarios con mucho contenido.
+
+2. ¿El **historial UI** lo necesita visible o con consultar la DB es suficiente?
+
+3. ¿La **exportación incremental** es importante (solo cambios nuevos) o exportar todo cada vez está bien?
+
+¿Cuál te parece mejor agregar primero?

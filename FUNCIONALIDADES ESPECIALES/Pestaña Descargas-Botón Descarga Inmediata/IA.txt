@@ -1,0 +1,40 @@
+Módulos de Inteligencia Predictiva y Optimización (CON IA OLLAMA LOCAL):
+
+Estimador de Tiempo Real (ETA Predictivo): La IA analiza el histórico de descargas similares y el estado de la red para dar un tiempo de finalización exacto basado en probabilidad, no solo en velocidad actual.
+Naming Engine Semántico: Ollama analiza el título y descripción para generar un nombre de archivo normalizado bajo estándares corporativos (ej. YYYYMMDD_CATEGORIA_TITULO_ID.mp4) automáticamente.
+Filtro de Seguridad de Contenido (DLP IA): Escaneo rápido de los metadatos antes de la descarga para alertar si el contenido contiene palabras prohibidas o temas sensibles según la política de la empresa.
+Asistente de Priorización Inteligente: Si se pulsa el botón mientras hay una cola activa, la IA decide si este video debe "saltar la fila" basándose en la importancia estratégica del canal.
+Detector de Complejidad Lingüística: La IA analiza si el texto tiene vocabulario técnico denso o es solo relleno ("filler").
+Auto-Etiquetado de Nicho: Clasificación inmediata por IA del video dentro de la estructura de carpetas de la suite (ej. asignación automática a la carpeta /LEGAL o /MARKETING).
+Resumidor Pre-Descarga: Generación de un "Abstract" de 3 líneas mediante IA local antes de que termine la descarga para que el usuario sepa exactamente qué está bajando.
+Analista de Salud de Red Local: Ollama monitorea las fluctuaciones de descarga y sugiere ajustes en la configuración de hilos para no interrumpir otras aplicaciones críticas (como videollamadas).
+RCA Conversacional de Errores: Si la descarga falla, la IA traduce el error técnico (ej. Error 403) a una explicación ejecutiva y sugiere la solución (ej. "Es necesario actualizar los cookies de sesión").
+Predictor de Valor de Contenido: La IA compara el video con la base de conocimiento actual y califica del 1 al 10 cuánto "nuevo conocimiento" aportará este video antes de gastar recursos en bajarlo.
+
+44
+CC Schema Monitor con Auto-Adaptación de Parser
+CON IA
+Detecta cambios en la estructura de subtítulos de YouTube y adapta el parser automáticamente sin intervención humana
+
+## 🧠 LISTA 2: 20 MÓDULOS CON IA (Ollama Local - Cognición Textual)
+
+21. **Clasificador de Densidad Informativa** — Puntúa 1-10 la utilidad del texto extraído para tu nicho KDP basado en densidad de conceptos clave vs. ruido.
+22. **Detector de "Ruido vs. Señal"** — Identifica si el texto es contenido real educativo o solo spam/promocional/clickbait usando análisis semántico local.
+23. **Chunker Inteligente para Ventanas de Contexto** — Divide el texto en segmentos óptimos para prompts de Ollama (por ideas, no por caracteres) respetando coherencia temática.
+24. **Traductor de Jerga Técnica a Términos KDP** — Normaliza lenguaje del creador a terminología estandarizada de tu KB (ej. "funnel" → "embudo de ventas KDP").
+25. **Extractor de Entidades Nombradas (NER) Local** — Identifica nombres de herramientas, plataformas, métricas y personas mencionadas para indexación estructurada.
+26. **Clasificador de Tipo de Contenido** — Determina si es: Tutorial, Caso de Estudio, Teoría, Lista, Entrevista, etc., para enrutamiento a pipeline específico.
+27. **Predictor de Valor para Manual** — Estima si este texto merece ser incluido en manual "Legalidad", "Fórmulas" o "Matriz" basado en alineación temática.
+28. **Detector de Sesgo en Fuente** — Alerta si el texto tiene tono promocional excesivo, falta de objetividad o conflicto de interés no declarado.
+29. **Generador de Tags Semánticos Automáticos** — Crea 5-10 tags relevantes basados en contenido real (no título) para búsqueda y clasificación posterior.
+30. **Validador de Coherencia Temática** — Verifica que el texto mantenga foco en un solo tema (no mezcle 5 nichos) para evitar contaminación de KB.
+31. **Optimizador de Orden para Pipeline** — Reordena texto extraído para maximizar eficiencia de análisis posterior agrupando por complejidad y tema.
+32. **Detectivo de Plagio Interno** — Compara con tu KB local mediante embeddings y alerta si >85% del contenido ya está cubierto bajo otro título.
+33. **Generador de Resumen Ejecutivo Pre-Indexación** — Crea abstract de 3 líneas para vista rápida en dashboard de búsqueda sin abrir el texto completo.
+34. **Clasificador de Urgencia de Procesamiento** — Decide si procesar ahora (tema trending/deadline) o en lote nocturno (contenido evergreen) basado en contexto.
+35. **Traductor de Errores de Extracción a Soluciones** — Si falla el fetch, IA sugiere: "Intentar con otro user-agent", "Esperar 15 min" o "Verificar URL".
+36. **Predictor de Tiempo de Chunking + Análisis** — Estima minutos necesarios para procesar este texto según longitud, complejidad lingüística y carga de Ollama.
+37. **Asistente de Fusión con Contenido Existente** — Sugiere cómo integrar este texto con entradas similares ya en tu KB (fusionar, complementar o mantener separado).
+38. **Detectivo de Información Obsoleta** — Alerta si el texto menciona fechas, versiones de plataforma o políticas ya desactualizadas vs. tu KB actualizada.
+39. **Generador de Preguntas de Validación** — Crea 3 preguntas tipo quiz para verificar que el texto fue comprendido por el modelo antes de indexar.
+40. **Recomendador de Acción Post-Extracción** — Sugiere: "Indexar ahora", "Añadir a cola de revisión humana" o "Descartar por baja calidad" con justificación.

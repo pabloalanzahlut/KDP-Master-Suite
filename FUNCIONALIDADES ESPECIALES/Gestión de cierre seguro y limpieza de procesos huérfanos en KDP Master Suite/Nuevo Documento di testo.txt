@@ -1,0 +1,101 @@
+## 🎯 PRÓXIMOS PASOS (Opcionales - Elite Corporate)
+
+### 1. **Verificación de procesos huérfanos al inicio**
+- Al iniciar la app, escanear si hay procesos `dashboard_server.py` o instancias anteriores de KDP Master
+- Si detecta huérfanos, preguntar si desea limpiarlos o ignorarlos
+- Implementar con `psutil` o `tasklist`
+
+### 2. **Logging de cierre seguro**
+- Registrar en `logs/close_log.txt` cada vez que se cierra la app
+- Incluir: timestamp, qué procesos se detuvieron, duración del cierre
+- Útil para auditoría y debugging de cierres abruptos
+
+### 3. **Panel de configuración de cierre**
+- Crear sección en Settings para configurar:
+  - Timeout para cada tipo de proceso (dashboard, monitor, scheduler)
+  - Habilitar/deshabilitar "Nuclear Option" (taskkill)
+  -是否 confirmar cierre si hay descargas activas
+  - Minimizar a bandeja vs cerrar completamente
+
+### 4. **Auto-limpieza watchdog**
+- Hilo en background que cada 30-60 segundos verifique procesos huérfanos
+- Si la app no está corriendo pero hay procesos residual, ofrecer limpieza
+- Importante para casos de cierre forzado (Ctrl+Alt+Supr)
+
+### 5. **Modo Recovery para crashes**
+- Al iniciar, verificar si el cierre anterior fue limpio (lock file eliminado)
+- Si hay lock file restante, asumir crash y limpiar procesos huérfanos automáticamente
+- Notificar al usuario: "Se detecto cierre anormal anterior - procesos limpiados"
+
+### 6. **Indicador de estado de cierre**
+- En la UI, mostrar "Limpiando..." con barra de progreso durante `on_closing`
+- Mostrar qué procesos se están detiniendo en tiempo real
+
+### 7. **Exportar diagnóstico de cierre**
+- Generar reporte HTML/PDF con historial de cierres
+- Incluir: promedio de tiempo de cierre, procesos más comunes, advertencias
+
+### 8. **Niveles de cierre configurables**
+- **Rápido**: Solo detener procesos principales (dashboard, scheduler)
+- **Normal**: + Cola de descargas + Monitor
+- **Completo**: + Forzar kill a procesos resistentes + Limpiar caché temporal
+
+## 🎯 PRÓXIMOS PASOS (Opcionales - Mejoras Adicionales)
+
+### 1. **Atajos de teclado globales para cierre**
+-绑定 `Ctrl+Shift+Q` para cerrar la app desde cualquier aplicación
+- Configurable en Settings para cambiar la combinación
+- Útil para cierres rápidos sin volver a la ventana principal
+
+### 2. **Limpieza automática de caché al cerrar**
+- Vaciar caché de yt-dlp automáticamente al cerrar (`yt-dlp --rm-cache-dir`)
+- Eliminar archivos temporales de transcripciones pendientes
+-Liberar espacio en disco antes de salir
+
+### 3. **Registro estructurado de cierre en JSON**
+- Exportar log de cierre a `logs/close_YYYYMMDD_HHMMSS.json`
+- Incluir: timestamp, procesos detenidos, duración, errores, sistema operativo
+- Formato estructurado para parsing automático
+
+### 4. **Notificación nativa de Windows al cerrar**
+- Mostrar toast notification: "KDP Master Suite cerrado correctamente"
+- Incluir resumen: "X descargas completadas, Y procesos limpiados"
+- Solo si hay actividad significativa
+
+### 5. **Retry automático con fallback progresivo**
+- Si `terminate()` falla, intentar `kill()`
+- Si `kill()` falla, usar `taskkill`
+- Si todo falla, registrar error pero continuar cierre
+
+### 6. **Validación post-cierre**
+- Después de cerrar, verificar que no queden archivos .lock
+- Confirmar que los puertos están libres
+- Generar reporte de "salud del sistema" al cerrar
+
+### 7. **Historial de tiempos de cierre**
+- Guardar en settings el tiempo promedio de cierre
+- Alertar si el cierre actual es 2x más lento que el promedio
+- Útil para detectar problemas de rendimiento
+
+### 8. **Menú de bandeja mejorado**
+- En el icono de system tray, añadir submenú:
+  - "Cerrar inmediatamente (sin guardado)"
+  - "Cerrar y hacer backup"
+  - "Minimizar a bandeja"
+
+---
+
+## 🤔 PREGUNTAS PARA TI:
+
+1. **¿Cuáles de estos te parecen más útiles para tu flujo de trabajo?**
+
+2. **¿Prefieres que implemente solo los más críticos (1-3) o todos?**
+
+3. **¿Quieres que priorice algún aspecto específico?**
+   - Más automatización (watchdog, recovery)
+   - Más control (configuración UI)
+   - Más auditoría (logging, diagnósticos)
+
+ **¿Cuáles de estos son más útiles para tu flujo?**
+ **¿Prefieres优先级 (más importante primero)?**
+ **¿Algo que no esté en la lista pero sería útil?**

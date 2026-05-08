@@ -1,0 +1,67 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar el campo de directorio de salida de un simple selector de carpeta a un **Motor de Enrutamiento, Validación y Gobernanza de Activos Textuales** garantiza que cada transcripción procesada se almacene de forma segura, organizada, auditable y optimizada. La separación determinista (rutas, permisos, integridad, I/O) y cognitiva (clasificación, calidad, estructura predictiva) cumple estándares de gestión documental corporativa y opera 100% bajo tu flujo TEXT-FIRST.
+
+📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Gobernanza de Salida)**
+
+1.  **Validador de Ruta Absoluta y Normalización Multi-OS** — Convierte rutas relativas a absolutas y normaliza separadores (`/` vs `\`). *Uso real:* Evitar errores de path en Windows/Linux/macOS al guardar transcripciones.
+2.  **Verificador de Permisos ACL (Escritura/Creación)** — Valida permisos del SO antes de permitir la escritura de archivos procesados. *Uso real:* Prevenir `PermissionDenied` en entornos corporativos restringidos.
+3.  **Detección de Tipo de Almacenamiento de Salida (SSD/NVMe/HDD/Red)** — Identifica medio físico y ajusta buffers de escritura. *Uso real:* Optimizar I/O según latencia del disco de destino para archivos `.txt`.
+4.  **Monitor de Espacio Libre con Umbrales Críticos** — Alerta si el directorio de salida supera 80/90/95% de capacidad. *Uso real:* Detener procesamiento preventivamente para evitar corrupción de archivos finales.
+5.  **Sistema de Cuotas de Archivos por Hora/Día** — Limita cantidad de archivos escritos para evitar saturación de I/O. *Uso real:* Controlar picos de escritura masiva en servidores compartidos.
+6.  **Validador de Extensiones de Salida (.txt/.md/.json)** — Asegura que solo se guarden formatos soportados y estandarizados. *Uso real:* Mantener pipeline de salida libre de basura binaria o formatos inconsistentes.
+7.  **Hook de Integración con Antivirus/EDR en Escritura** — Escanea archivos antes de finalizar escritura en salida. *Uso real:* Cumplir políticas de seguridad empresarial ante generación de contenido.
+8.  **Protocolo de Encriptación en Reposo para Salida** — Cifra archivos sensibles al guardar en carpeta de salida. *Uso real:* Proteger transcripciones con PII o datos estratégicos en destino.
+9.  **Normalizador de Nombres de Archivo al Guardar** — Sanitiza nombres largos, caracteres prohibidos o emojis antes de escribir. *Uso real:* Evitar fallos de escritura en NTFS/ext4 al nombrar transcripciones finales.
+10. **Watcher/Inotify para Confirmación de Escritura Exitosa** — Monitorea sistema de archivos para confirmar que archivo se guardó completamente. *Uso real:* Verificar integridad post-procesamiento sin polling.
+11. **Generador de Hash SHA-256/BLAKE3 al Finalizar** — Calcula huella digital del archivo procesado inmediatamente. *Uso real:* Base para auditoría y verificación de integridad de transcripciones finales.
+12. **Deduplicador por Hash antes de Escribir en Salida** — Mueve duplicados exactos a carpeta `_duplicates` en salida. *Uso real:* Ahorrar almacenamiento en destino final.
+13. **Compresor Automático de Archivos Antiguos en Salida (LZ4/ZSTD)** — Comprime archivos >30 días en carpeta de salida sin perder búsqueda. *Uso real:* Liberar espacio manteniendo accesibilidad de historial.
+14. **Archivador de Lote con Marca de Tiempo en Salida** — Agrupa archivos por fecha de procesamiento en subcarpetas. *Uso real:* Facilitar backups incrementales y auditorías de producción.
+15. **Validador de Encoding y Conversor Silencioso a UTF-8 Final** — Detecta y convierte encoding antes de guardar archivo definitivo. *Uso real:* Evitar errores de lectura futura por mojibakes en transcripciones.
+16. **Limpiador de Metadatos Externos Pre-Guardado** — Elimina información de autor/sistema por privacidad antes de escribir. *Uso real:* Cumplir GDPR/LOPD al guardar archivos procesados de terceros.
+17. **Sistema de Cola de Escritura Asíncrona (Buffer RAM)** — Encola archivos para escritura por lotes optimizados. *Uso real:* Evitar bloqueos de UI durante picos de procesamiento de texto.
+18. **Validador de Integridad de Archivo Final (EOF/BOM Check)** — Verifica que archivo no esté truncado tras escritura. *Uso real:* Descartar archivos procesados incompletos automáticamente.
+19. **Separador de Archivos Corruptos a Cuarentena de Salida** — Mueve archivos ilegibles a `_quarantine` en carpeta de destino. *Uso real:* Mantener directorio principal limpio y funcional.
+20. **Indexador FTS5 Inmediato Post-Guardado** — Actualiza índice de búsqueda al guardar archivo final. *Uso real:* Búsqueda instantánea en transcripciones procesadas sin re-escaneo.
+21. **Generador de Manifiesto de Salida (JSON Sidecar)** — Crea `.json` con metadatos técnicos por archivo procesado. *Uso real:* Trazabilidad completa para auditorías de producción.
+22. **Sincronizador con Backup Service (Snapshots Incrementales)** — Vincula directorio de salida con rutina de respaldo. *Uso real:* Garantizar recoverability ante fallos de disco de salida.
+23. **Limitador de Tamaño Máximo por Archivo de Salida** — Rechaza archivos >50MB (configurable) para evitar anomalías. *Uso real:* Prevenir congelamientos por archivos de texto anómalos.
+24. **Rotador de Logs de Actividad de Salida** — Archiva logs de escritura diarios/semanales. *Uso real:* Cumplir retención de auditoría sin saturar disco de salida.
+25. **Validador de Ruta Relativa vs Absoluta para Portabilidad** — Asegura compatibilidad en modos portable/instalado al guardar. *Uso real:* Funcionar en USB o servidores sin reconfigurar rutas.
+26. **Sistema de Alias/Nombres Amigables para Rutas Largas** — Mapea rutas profundas a accesos rápidos en salida. *Uso real:* Mejorar UX en selección y navegación de directorios finales.
+27. **Detector de Símbolos/Enlaces Simbólicos y Resolución Segura** — Resuelve symlinks y valida destino real en salida. *Uso real:* Prevenir bypass de seguridad o loops infinitos al guardar.
+28. **Control de Concurrencia de Acceso (File Locking en Salida)** — Bloquea archivo mientras se escribe para evitar sobrescritura. *Uso real:* Evitar race conditions en procesamiento paralelo de texto.
+29. **Optimizador de Escritura Secuencial vs Aleatoria** — Ajusta estrategia según patrón de acceso al disco de salida. *Uso real:* Maximizar throughput en HDDs vs SSDs al guardar lotes.
+30. **Cache de Metadatos de Directorio de Salida en RAM** — Almacena stat() de archivos recientes para respuesta rápida. *Uso real:* Reducir llamadas al sistema operativo en UI de lista.
+31. **Validador de Compatibilidad con Sistemas de Archivos de Salida** — Verifica límites de nombre/tamaño por FS destino. *Uso real:* Evitar errores en FAT32/exFAT vs NTFS/ext4 al guardar.
+32. **Sistema de Notificación de Cambios Estructurales en Salida** — Alerta si se crean/borran subcarpetas en destino. *Uso real:* Mantener consistencia de rutas configuradas.
+33. **Generador de Reporte de Estado del Directorio de Salida** — Resumen de archivos, tamaño, errores, espacio en destino. *Uso real:* Dashboard rápido de salud de producción.
+34. **Validador de Profundidad de Subcarpetas en Salida** — Limita niveles de anidamiento para evitar estructuras caóticas. *Uso real:* Prevenir scans infinitos o rutas excesivamente largas.
+35. **Escáner de Archivos Huérfanos en Salida (sin registro en DB)** — Identifica archivos físicos no indexados en destino. *Uso real:* Sincronizar estado real con base de datos de producción.
+36. **Protocolo de Recuperación ante Interrupción de Escritura en Salida** — Restaura archivos parcialmente escritos tras fallo. *Uso real:* Evitar corrupción por cortes de energía al guardar texto.
+37. **Validador de Timestamps de Creación/Modificación en Salida** — Normaliza fechas a UTC para consistencia. *Uso real:* Consistencia temporal en entornos multi-zona al guardar.
+38. **Sistema de Priorización de Escritura por Carpeta de Salida** — Asigna prioridad según ruta de destino configurada. *Uso real:* Procesar primero `/urgent/` vs `/archive/` en salida.
+39. **Compresor de Logs de Error de Escritura en Salida** — Comprime errores recurrentes para análisis post-mortem. *Uso real:* Facilitar debugging sin ocupar espacio en disco.
+40. **Validador de Consistencia entre Entrada y Salida** — Verifica que ruta de salida sea accesible desde entrada para validaciones cruzadas. *Uso real:* Prevenir fallos de pipeline por rutas rotas.
+41. **Generador de Ruta de Fallback Automática en Salida** — Crea ruta temporal si principal falla al escribir. *Uso real:* Continuar operación durante mantenimiento de disco de salida.
+42. **Sistema de Cuotas de Archivos por Usuario/Perfil en Salida** — Limita escritura según rol en carpeta de destino. *Uso real:* Controlar recursos en equipos multi-usuario.
+43. **Validador de Nombre de Archivo vs Contenido en Salida** — Verifica coherencia básica entre nombre y contenido del texto. *Uso real:* Detectar archivos renombrados incorrectamente al guardar.
+44. **Limpiador de Espacios en Blanco y Caracteres Invisibles en Nombres de Salida** — Sanitiza nombres finales antes de escribir. *Uso real:* Evitar errores de parsing futuro por caracteres ocultos.
+45. **Detector de Archivos de Sistema/Ocultos en Salida y Filtrado** — Ignora `.DS_Store`, `Thumbs.db`, etc., en conteos y scans. *Uso real:* Mantener ingesta limpia de basura del SO en destino.
+46. **Sistema de Respaldo Local en Tiempo Real (Mirror en Salida)** — Replica archivos a ruta secundaria mientras escribe. *Uso real:* Redundancia ante fallo de disco primario de salida.
+47. **Validador de Path Traversal y Sanitización en Salida** — Bloquea `../` o inyecciones de ruta al guardar. *Uso real:* Prevenir vulnerabilidades de seguridad en escritura.
+48. **Optimizador de Buffer de Escritura (4KB/64KB/1MB) en Salida** — Ajusta tamaño según hardware de destino. *Uso real:* Maximizar velocidad de guardado inicial.
+49. **Generador de Índice Visual de Archivos en Salida (Preview de Texto)** — Muestra primeras 3 líneas en UI para archivos finales. *Uso real:* Identificación rápida sin abrir archivo completo.
+50. **Validador de Consistencia de Fecha de Publicación Original vs Guardado** — Extrae fecha de metadatos o nombre y la compara con fecha de salida. *Uso real:* Ordenar ingesta cronológicamente en destino.
+51. **Sistema de Etiquetado Automático por Carpeta de Salida** — Asigna tag según ruta de destino al guardar. *Uso real:* Clasificación inicial sin intervención manual en producción.
+52. **Escáner de Duplicados Semánticos en Salida (Hash de contenido limpio)** — Detecta contenido idéntico tras limpiar ruido antes de guardar. *Uso real:* Evitar almacenamiento redundante de transcripciones.
+53. **Validador de Estructura de Subtítulos/Texto Final (.txt/.md headers)** — Verifica formato válido antes de cerrar escritura. *Uso real:* Filtrar archivos de salida rotos o mal formados.
+54. **Protocolo de Migración de Ruta de Salida sin Pérdida de Datos** — Mueve archivos manteniendo hashes y registros si se cambia carpeta. *Uso real:* Reorganizar directorios sin romper pipeline de producción.
+55. **Generador de Alias DNS/Network para Rutas de Salida Compartidas** — Resuelve UNC/SMB a rutas estables para escritura remota. *Uso real:* Guardar en NAS sin fallos de desconexión.
+56. **Validador de Acceso Remoto/NAS y Latencia en Salida** — Mide tiempo de respuesta de red antes de escribir lote grande. *Uso real:* Ajustar timeouts según latencia de destino remoto.
+57. **Sistema de Compensación de Reloj/Timezone en Salida** — Sincroniza timestamps de guardado con servidor NTP. *Uso real:* Consistencia en logs distribuidos de producción.
+58. **Validador de Consistencia de Permisos tras Movimiento en Salida** — Verifica ACLs después de operaciones de organización. *Uso real:* Mantener seguridad tras reorganizaciones automáticas.
+59. **Generador de Checklist de Pre-Guardado en Salida** — Verifica espacio, permisos, formato, encoding antes de escribir. *Uso real:* Diagnóstico rápido antes de procesar lote final.
+60. **Sistema de Rollback de Configuración de Ruta de Salida** — Restaura ruta anterior si nueva falla al escribir. *Uso real:* Recuperar operación tras error de configuración de destino.
+

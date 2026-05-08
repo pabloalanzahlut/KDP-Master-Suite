@@ -1,0 +1,150 @@
+🎯 **PRÓXIMOS PASOS (Opcionales)**
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar el "Visor Última Verificación" de un simple timestamp estático a un **Sistema Inteligente de Trazabilidad Temporal y Auditoría de Monitoreo** garantiza visibilidad completa del historial de verificaciones, predicción de próximos escaneos, detección de patrones de actividad y optimización de intervalos de monitoreo para canales de Amazon KDP. La separación determinista (timestamps, logs, estadísticas) y cognitiva (análisis predictivo, optimización de intervalos, detección de anomalías) cumple estándares de auditoría empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+---
+
+## 📊 **VISOR ÚLTIMA VERIFICACIÓN - ARQUITECTURA ELITE CORPORATE**
+
+### 🎯 **PROPÓSITO CENTRAL**
+Transformar el "Nunca" en un **Dashboard Inteligente de Cronología de Verificaciones** que proporcione trazabilidad completa de cuándo se verificaron los canales, predicción de próximos escaneos, análisis de frecuencia óptima y alertas sobre desviaciones en el cronograma de monitoreo de canales KDP.
+
+**🛠️ Caso de Uso Real y Solución al Usuario Final:**
+*   **Problema:** El usuario monitorea 20 canales de Amazon KDP pero no sabe cuándo se verificó cada uno por última vez. Algunos canales publican diario, otros semanalmente. Sin un historial claro, no puede optimizar los intervalos de verificación ni detectar si algún canal dejó de publicar. Además, no tiene visibilidad de patrones temporales (ej. "los canales de Ads publican más los lunes").
+*   **Solución Elite:** El Visor Última Verificación muestra no solo "hace 2 horas", sino un **historial cronológico completo** con análisis de frecuencia, predicción de próxima publicación, alertas si un canal no publica en su horario habitual, y recomendaciones de intervalos óptimos basadas en patrones históricos. El usuario ve: *"Canal X: última verificación hace 2h, publica cada 24h ±2h, próxima publicación estimada: mañana 10am. Alerta: Canal Y no publica desde hace 5 días (patrón habitual: cada 2 días)"*.
+
+---
+
+## 📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Trazabilidad Temporal)**
+
+### **Pilar 1: Visualización de Timestamps y Cronología (1-12)**
+
+1.  **Timestamp Relativo Inteligente** — Muestra "Hace 2 horas", "Hace 3 días", "Nunca" con actualización automática cada 60s. *Caso de uso real:* Usuario ve rápidamente cuánto tiempo pasó desde la última verificación sin calcular mentalmente.
+
+2.  **Timestamp Absoluto con Zona Horaria** — Muestra fecha/hora exacta: "2026-01-15 14:30:22 UTC-5". *Caso de uso:* Auditoría precisa para compliance o reportes empresariales.
+
+3.  **Historial de Verificaciones (Timeline)** — Lista cronológica de últimas 50 verificaciones con fecha/hora. *Caso de uso:* Revisar patrón histórico: "Este canal se verificó ayer a las 10am, anteayer a las 11am...".
+
+4.  **Indicador de Estado de Verificación** — Colores: 🟢 Verificado hoy, 🟡 Hace 1-3 días, 🔴 >3 días, ⚫ Nunca. *Caso de uso:* Identificación visual rápida de canales desactualizados.
+
+5.  **Contador de Tiempo en Tiempo Real** — Cuenta regresiva/ascendente: "Última verificación: 02:15:33 atrás". *Caso de uso:* Monitoreo preciso del tiempo transcurrido.
+
+6.  **Calendario de Verificaciones** — Vista mensual con días marcados cuando se verificó. *Caso de uso:* Ver patrones mensuales: "Este canal se verificó 25 días del mes".
+
+7.  **Heatmap de Actividad por Hora** — Mapa de calor mostrando horas del día con más verificaciones. *Caso de uso:* Identificar cuándo se verifica más: "80% de verificaciones entre 9am-12pm".
+
+8.  **Gráfico de Frecuencia de Verificación** — Gráfico de barras mostrando verificaciones por día/semana. *Caso de uso:* Visualizar consistencia: "Lunes: 15 verificaciones, Domingo: 2".
+
+9.  **Badge de "Recién Verificado"** — Destaca canales verificados en últimos 30 min con animación. *Caso de uso:* Atención inmediata a contenido fresco.
+
+10. **Indicador de Próxima Verificación Programada** — Muestra "Próxima verificación: en 45 minutos". *Caso de uso:* Planificación de trabajo: "Esperaré 45 min para ver si hay contenido nuevo".
+
+11. **Comparador de Tiempos entre Verificaciones** — Calcula delta entre última y penúltima verificación. *Caso de uso:* Detectar inconsistencias: "Última verificación fue hace 2h, anterior fue hace 24h → posible error".
+
+12. **Exportación de Log de Verificaciones a CSV** — Descarga historial completo con timestamps. *Caso de uso:* Auditoría externa o análisis en Excel.
+
+### **Pilar 2: Estadísticas y Métricas de Verificación (13-24)**
+
+13. **Promedio de Tiempo entre Verificaciones** — Calcula media: "Cada 24h ±3h". *Caso de uso:* Entender frecuencia real vs configurada.
+
+14. **Contador Total de Verificaciones** — Suma acumulada: "1,247 verificaciones realizadas". *Caso de uso:* Métrica de uso del sistema.
+
+15. **Distribución de Verificaciones por Canal** — Muestra cuántas verificaciones por cada canal. *Caso de uso:* Identificar canales más/monitoreados: "Canal A: 340 verificaciones, Canal B: 12".
+
+16. **Tasa de Éxito de Verificaciones** — % de verificaciones exitosas vs fallidas. *Caso de uso:* Detectar problemas: "95% éxito, 5% fallo (posibles problemas de red/API)".
+
+17. **Tiempo Promedio de Respuesta de API** — Cuánto tarda YouTube API en responder. *Caso de uso:* Optimización de rendimiento: "API responde en 2.3s promedio".
+
+18. **Contador de Verificaciones Fallidas** — Suma de errores de verificación. *Caso de uso:* Diagnosticar problemas técnicos: "15 verificaciones fallidas esta semana".
+
+19. **Estadísticas por Rango de Fechas** — Filtra stats por "últimos 7/30/90 días". *Caso de uso:* Análisis temporal: "Este mes se verificó 40% más que el anterior".
+
+20. **Ranking de Canales por Frecuencia de Verificación** — Top canales más verificados. *Caso de uso:* Identificar prioridades: "Top 3: Canal X (50 verif), Canal Y (45), Canal Z (40)".
+
+21. **Distribución de Verificaciones por Hora del Día** — Histograma de horas. *Caso de uso:* Optimizar intervalos: "70% de verificaciones entre 9am-6pm".
+
+22. **Contador de Días Consecutivos Verificados** — Racha actual: "15 días consecutivos". *Caso de uso:* Consistencia de monitoreo: "Racha de 15 días → buen hábito".
+
+23. **Tiempo Total de Verificaciones** — Suma de tiempo invertido en verificar. *Caso de uso:* ROI de tiempo: "12 horas totales este mes en verificaciones".
+
+24. **Métrica de Cobertura Temporal** — % de días del mes con al menos 1 verificación. *Caso de uso:* Completitud: "85% de días cubiertos → buen monitoreo".
+
+### **Pilar 3: Alertas y Notificaciones Temporales (25-36)**
+
+25. **Alerta de Verificación Atrasada** — Notifica si no se verificó en tiempo configurado. *Caso de uso:* "Canal X debía verificarse hace 2h → alerta inmediata".
+
+26. **Alerta de Canal Sin Verificar >7 Días** — Detecta abandono de monitoreo. *Caso de uso:* "Canal Y sin verificar desde hace 10 días → posible olvido".
+
+27. **Alerta de Cambio de Patrón de Verificación** — Detecta desviaciones de frecuencia habitual. *Caso de uso:* "Canal Z usualmente cada 24h, ahora cada 48h → investigar".
+
+28. **Recordatorio de Verificación Programada** — Notificación antes de próxima verificación. *Caso de uso:* "Verificación de Canal A en 15 minutos".
+
+29. **Alerta de Verificación Fallida Repetida** — Detecta fallos consecutivos. *Caso de uso:* "3 verificaciones fallidas seguidas en Canal B → problema técnico".
+
+30. **Notificación de Verificación Completada** — Toast al finalizar verificación. *Caso de uso:* Feedback inmediato: "Verificación de 5 canales completada".
+
+31. **Alerta de Inconsistencia de Timestamps** — Detecta saltos temporales anómalos. *Caso de uso:* "Verificación hace 1h, luego hace 5min → posible error de sistema".
+
+32. **Recordatorio de Revisión Semanal** — Alerta semanal para revisar stats. *Caso de uso:* "Revisión semanal: verifica que todos los canales estén actualizados".
+
+33. **Alerta de Canal con Baja Frecuencia** — Detecta canales verificados muy poco. *Caso de uso:* "Canal C solo se verificó 2 veces este mes → aumentar frecuencia".
+
+34. **Notificación de Récord de Verificaciones** — Alerta cuando se alcanza máximo histórico. *Caso de uso:* "Récord: 50 verificaciones hoy → alta productividad".
+
+35. **Alerta de Verificación en Horario Inusual** — Detecta verificaciones fuera de horario normal. *Caso de uso:* "Verificación a las 3am → posible error de programación".
+
+36. **Recordatorio de Auditoría Mensual** — Alerta mensual para revisar logs completos. *Caso de uso:* "Auditoría mensual: revisa logs de verificaciones del mes".
+
+### **Pilar 4: Configuración y Programación de Verificaciones (37-48)**
+
+37. **Configuración de Intervalo por Canal** — Permite setear frecuencia individual. *Caso de uso:* "Canal A: cada 1h, Canal B: cada 24h, Canal C: cada 7 días".
+
+38. **Programación de Verificaciones Masivas** — Agenda verificaciones para múltiples canales. *Caso de uso:* "Verificar todos los canales de Ads a las 9am diario".
+
+39. **Calendario de Programación** — Vista visual de verificaciones programadas. *Caso de uso:* "Lunes 9am: 5 canales, Martes 10am: 3 canales".
+
+40. **Plantillas de Frecuencia** — Presets: "Alto (cada 1h)", "Medio (cada 6h)", "Bajo (cada 24h)". *Caso de uso:* Configuración rápida sin calcular manualmente.
+
+41. **Excepciones de Horario** — Configurar días/horas sin verificación. *Caso de uso:* "No verificar domingos ni festivos".
+
+42. **Sincronización de Intervalos** — Alinear verificaciones de canales relacionados. *Caso de uso:* "Verificar canales de mismo nicho juntos para análisis comparativo".
+
+43. **Programación Inteligente por Zona Horaria** — Ajusta horarios según zona del canal. *Caso de uso:* "Canal en USA: verificar a las 9am EST, Canal en España: 9am CET".
+
+44. **Configuración de Ventanas de Verificación** — Define rangos de tiempo permitidos. *Caso de uso:* "Solo verificar entre 8am-8pm para no saturar API".
+
+45. **Priorización de Verificaciones** — Ordena cola por importancia. *Caso de uso:* "Canales prioritarios primero, luego el resto".
+
+46. **Configuración de Reintentos Automáticos** — Setea intentos tras fallo. *Caso de uso:* "Reintentar 3 veces con 5min de espera tras fallo".
+
+47. **Programación de Verificaciones Únicas** — One-time verification. *Caso de uso:* "Verificar canal X mañana a las 3pm (una sola vez)".
+
+48. **Sincronización con Calendario Externo** — Integra con Google Calendar/Outlook. *Caso de uso:* "Verificaciones aparecen en mi calendario personal".
+
+### **Pilar 5: Auditoría y Logs de Verificación (49-60)**
+
+49. **Log Detallado de Cada Verificación** — Registro con timestamp, resultado, duración. *Caso de uso:* Auditoría forense: "Verificación del 15/01: 2.3s, 5 videos nuevos, éxito".
+
+50. **Exportación de Logs a JSON** — Formato estructurado para análisis. *Caso de uso:* Integración con sistemas de BI externos.
+
+51. **Filtro de Logs por Fecha/Canal/Estado** — Búsqueda avanzada en logs. *Caso de uso:* "Mostrar solo fallos de Canal X en enero 2026".
+
+52. **Resumen Ejecutivo de Verificaciones** — Reporte automático semanal/mensual. *Caso de uso:* "Resumen semanal: 145 verificaciones, 98% éxito, 2 canales sin verificar".
+
+53. **Traza de Errores Detallada** — Stack trace de verificaciones fallidas. *Caso de uso:* Debugging técnico: "Error 429: Rate limit excedido a las 14:30:22".
+
+54. **Contador de Cambios de Configuración** — Registra modificaciones de intervalos. *Caso de uso:* Auditoría de cambios: "Intervalo cambiado de 24h a 12h el 10/01".
+
+55. **Log de Acciones del Usuario** — Quién configuró/verificó/cuándo. *Caso de uso:* Accountability en equipos: "Usuario Juan configuró intervalo el 15/01 14:30".
+
+56. **Backup Automático de Logs** — Respaldo periódico de historial. *Caso de uso:* Recuperación ante desastres: "Logs respaldados en backup_2026_01.zip".
+
+57. **Rotación de Logs** — Elimina logs antiguos automáticamente. *Caso de uso:* Gestión de espacio: "Logs >90 días eliminados automáticamente".
+
+58. **Firma Digital de Logs** — Hash SHA-256 para integridad. *Caso de uso:* Compliance legal: "Log verificado con hash abc123...".
+
+59. **Auditoría de Accesos a Logs** — Registra quién consultó logs. *Caso de uso:* Seguridad: "Usuario María consultó logs el 15/01 16:45".
+
+60. **Reporte de Cumplimiento de SLA** — Métricas de cumplimiento de intervalos. *Caso de uso:* "SLA: 95% verificaciones en tiempo, 5% atrasadas → dentro de tolerancia".
+
+---

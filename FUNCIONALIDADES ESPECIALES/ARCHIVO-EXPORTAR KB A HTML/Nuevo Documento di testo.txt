@@ -1,0 +1,25 @@
+PLAN DE MEJORAS: Exportar KB a HTML (Elite Corporate 100%)
+
+🎯 PRÓXIMOS PASOS (Opcionales - Mejoras Específicas)
+
+Motor de Búsqueda Cliente (FUSE.js): Integrar un buscador indexado dentro del HTML exportado que permita filtrar contenido instantáneamente sin necesidad de un servidor.
+Layout Responsive Multi-Dispositivo: Uso de frameworks CSS modernos (Tailwind/Bootstrap) para asegurar que el manual sea perfectamente legible en móviles, tablets y estaciones de trabajo.
+Barra de Navegación Lateral Dinámica: Menú colapsable con jerarquía de categorías que rastrea la posición de lectura (ScrollSpy).
+Incrustación de Activos en Base64: Opción para incrustar miniaturas y fuentes directamente en el archivo HTML, creando un documento único y portable sin dependencias externas.
+Sistema de Paginación y Carga Diferida: Optimización del DOM para permitir la visualización fluida de bases de conocimiento con miles de entradas.
+Soporte para PWA (Progressive Web App): Generar un manifest.json y Service Workers para que el manual HTML pueda "instalarse" y consultarse sin conexión a internet.
+Esquema de Microdatos (JSON-LD): Inserción de metadatos estructurados para que el contenido sea indexable y categorizable por herramientas de gestión documental corporativa.
+Selector de Temas en Tiempo Real: Botón dentro del HTML para alternar entre modo claro, oscuro y alto contraste directamente por el lector final.
+Historial de Navegación (Breadcrumbs): Ruta de migas de pan dinámica para facilitar la orientación del usuario dentro de estructuras de categorías profundas.
+Panel de Comentarios y Notas Locales: Permitir al usuario guardar anotaciones en el navegador (LocalStorage) sobre secciones específicas del manual exportado.
+
+Table of Contents (TOC) Dinámico: Generar índice navegable flotante con anclaje suave
+Filtros por Categoría: Sidebar con checkboxes para filtrar seccionesen tiempo real
+Búsqueda Avanzada: Search highlight con coincidencias en todo el documento
+Estilos CSS Premium: Modernizar a diseño flat/Corporate con gradientes sutiles, sombras y tipografía profesional
+Imágenes Offline: Embebido base64 para portabilidad total sin dependencias
+Meta Tags SEO: Open Graph, Twitter Cards para compartir en redes
+Paginación Inteligente: Dividir consolidado en chunks de N secciones para rendimiento
+Barra de Progreso Visual: during generation para archivos grandes
+Responsive Mobile-First: Breakpoints optimizados para tablet/mobile
+Tema Oscuro/Claro: Toggle en el HTML exportado para preferencia de usuario

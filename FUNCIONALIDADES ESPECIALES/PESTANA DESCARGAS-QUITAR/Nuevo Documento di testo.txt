@@ -1,0 +1,25 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Funcionalidad: Gestión de Cola / Botón Quitar (Downloads Tab)
+Módulos de Infraestructura y Control (SIN IA)
+Sistema de Transacciones con Deshacer (Undo/Redo): Implementar un búfer temporal para recuperar elementos eliminados por error (Ctrl+Z), garantizando que no se pierdan URLs críticas.
+Protección de Procesos Activos: Bloqueo dinámico del botón "Quitar" si el elemento está en estado de escritura de disco o multiplexación de audio/video para evitar corrupción de archivos.
+Auditoría de Eliminación en Tiempo Real: Registro detallado en el audit.log y en la base de datos kdp_master.db indicando qué video fue quitado, por qué usuario y en qué estado se encontraba.
+Limpieza Selectiva de Residuos (.part): Al quitar un elemento, el sistema debe ofrecer borrar automáticamente los archivos temporales asociados para mantener la higiene del almacenamiento.
+Eliminación Masiva por Patrones: Módulo para quitar múltiples elementos basados en criterios técnicos (ej: quitar todos los que fallaron por "403 Forbidden" o todos los de un canal específico).
+Validación de Dependencias de KB: Advertencia visual si se intenta quitar un video que ya tiene metadatos indexados o relaciones en la base de conocimiento.
+Sincronización de Sesiones Multicliente: En entornos de red, asegurar que la eliminación de un ítem se refleje en el Dashboard Web instantáneamente mediante SSE.
+Módulo de "Papelera de Reciclaje" de Cola: En lugar de borrado permanente, mover a una pestaña oculta de "Eliminados" con expiración de 24 horas.
+Control de Prioridad Dinámica: Al quitar un ítem, el sistema debe recalcular automáticamente los tiempos estimados de finalización de los elementos restantes.
+Liberación de Recursos a Nivel de Sistema: Forzar la terminación de subprocesos yt-dlp específicos y liberación de memoria RAM asociada al ítem removido.
+
+Quitar con Confirmación Selectiva: Diálogo que muestra preview del elemento antes de eliminar, evitando errores
+Quitar y Archivar: Mover elementos quitados a carpeta "Eliminados" con posibilidad de restauración en 7 días
+Quitar por Patrón de URL: Eliminar todos los elementos que coincidan con un patrón regex específico
+Quitar Duplicados Automáticos: Detectar y eliminar URLs idénticas o muy similares en la cola
+Quitar con Límite de Deshacer: Stack de 50 operaciones de "quitar" que se pueden revertir con Ctrl+Z
+Quitar por Criterios Múltiples: Interfaz para eliminar batch según estado/canal/duración/fecha de forma atómica
+Protección contra Eliminación Accidental: Bloqueo de "quitar" si el elemento está en procesamiento activo
+Exportar antes de Quitar: Opción automática de guardar metadatos del elemento eliminado en log estructurado
+Quitar con Cascada de Dependencias: Si un video es parte de playlist, preguntar si quitar los relacionados
+Auditoría de Eliminaciones: Registro permanente en removal_audit.db con timestamp, razón y usuario

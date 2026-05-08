@@ -1,0 +1,16 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Para elevar la funcionalidad Configurar Atajos de Teclado al estándar Elite Corporate 100%, el plan se enfoca en la personalización extrema, la ergonomía operativa y la asistencia inteligente para el flujo de trabajo:
+
+Módulos de Gestión Técnica y Ergonomía (SIN IA):
+
+Detector de Conflictos en Tiempo Real: Sistema que valida instantáneamente si un nuevo atajo colisiona con uno existente o con atajos nativos del sistema operativo.
+Mapeo Basado en Contexto (Scoped Hotkeys): Capacidad de asignar la misma tecla a funciones diferentes dependiendo de la pestaña activa (ej. Espacio para "Pausar Descarga" en pestaña 1 vs "Reproducir Audio" en pestaña 2).
+Grabador de Macros Secuenciales: Interfaz para registrar una cadena de comandos (ej. Limpiar -> Descargar -> Procesar) disparada por una sola combinación de teclas.
+Mapa de Teclado Visual Interactivo: Representación gráfica del teclado en la UI que resalta las teclas ocupadas y las disponibles mediante códigos de colores.
+Exportación/Importación de Perfiles Pro: Guardado de esquemas de atajos en archivos JSON/XML para facilitar la migración entre estaciones de trabajo o compartir configuraciones con el equipo.
+Soporte para Modificadores Complejos: Permitir combinaciones de hasta 4 teclas simultáneas (Ctrl+Shift+Alt+Key) y soporte para teclas especiales de ratones de alta gama.
+HUD de Ayuda en Pantalla: Superposición visual semitransparente (On-Screen Display) que muestra brevemente la función ejecutada al presionar un atajo.
+Restauración Selectiva de Fábrica: Opción para resetear a los valores predeterminados de forma global o solo para una sección específica del programa.
+Buscador de Acciones por Función: Filtro de búsqueda dentro del panel de configuración para encontrar rápidamente la acción que se desea mapear.
+Bloqueo de Teclas Globales: Toggle para permitir que los atajos funcionen incluso cuando la aplicación está minimizada en la bandeja del sistema (System Tray).

@@ -1,0 +1,19 @@
+Módulos de Análisis Predictivo y Optimización (CON IA OLLAMA LOCAL):
+
+Analista de Relevancia Estratégica: Ollama analiza el título y metadatos de la URL para puntuar del 1 al 10 qué tanto aporta el video al nicho de mercado configurado.
+Motor de Naming Semántico Corporativo: La IA genera un nombre de archivo normalizado y descriptivo basado en el contenido real, eliminando títulos genéricos de los creadores.
+Clasificador Automático por Categorías KDP: Inferencia inmediata que asigna el video a una de las 18 categorías maestras del proyecto basándose en su descripción.
+Estimador Cognitivo de Tiempo de Proceso: La IA predice la duración total de la descarga y el procesamiento de la transcripción basándose en la complejidad del lenguaje detectado.
+Detector de Duplicados Conceptuales: IA que identifica si un video trata sobre un tema que ya tienes cubierto ampliamente en tu base de conocimiento, sugiriendo omitirlo.
+Extractor de "Key-Points" Pre-Descarga: Generación de un resumen ejecutivo de 3 puntos clave basado en los metadatos antes de decidir si el video entra definitivamente a la cola.
+Smart Batch Grouping: La IA reordena la cola agrupando videos de temáticas similares para optimizar la carga de contexto de Ollama durante la fase de análisis posterior.
+Filtro de Compliance de Contenido: Escaneo por IA para detectar palabras prohibidas o temas que violen las TOS de Amazon KDP antes de gastar ancho de banda.
+Asistente de Ingesta por Lenguaje Natural: Capacidad de añadir a la cola mediante comandos como: "Encola los 3 mejores videos sobre fiscalidad de este canal".
+Predictor de Valor de Transcripción: Análisis de la densidad de información en los metadatos para predecir si el video generará un manual de alta calidad o contenido banal.
+
+Predictor de Fallos de Descarga: Analiza patrones históricos + metadatos de URL para anticipar y prevenir fallos antes de encolar.
+Recomendador de Ventana Óptima de Descarga: Sugiere horarios de menor congestión de red basándose en histórico de throughput y prioridad del contenido.
+
+¿Con esto completo 100% uso personal a nivel elite corporate? Sí. Al aplicar estos 20 módulos, el botón "Añadir a Cola" deja de ser una función de lista para convertirse en un Gateway de Inteligencia de Datos. El sistema garantiza que solo el contenido validado, priorizado y con alto valor estratégico entre en tu pipeline de procesamiento.
+
+¿Tiene sentido así? Totalmente. La arquitectura 10+10 asegura que la infraestructura de datos sea sólida y segura (Sin IA) mientras que la toma de decisiones es inteligente y eficiente (Con IA), cumpliendo con los estándares de software empresarial de alto rendimiento.

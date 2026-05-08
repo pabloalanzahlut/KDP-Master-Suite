@@ -1,0 +1,90 @@
+🎯 **PRÓXIMOS PASOS (Opcionales)**
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar el "Visor Videos Pendientes" de una simple lista de URLs a un **Centro de Curación y Priorización de Conocimiento** garantiza que el usuario no sature su base de datos con ruido, sino que ingeste estratégicamente transcripciones de alto valor para Amazon KDP. La separación determinista (gestión de cola, validación, filtros) y cognitiva (análisis de títulos, predicción de relevancia, detección de saturación) cumple estándares de gestión empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+---
+
+### 📊 **VISOR VIDEOS PENDIENTES - ARQUITECTURA ELITE CORPORATE**
+
+#### 🎯 **PROPÓSITO CENTRAL**
+Transformar el contador "0" en un **Dashboard de Inteligencia Operativa** que permite al usuario revisar, filtrar, priorizar y decidir qué transcripciones descargar y procesar, optimizando el ancho de banda y asegurando que la Base de Conocimiento solo crezca con contenido estratégico para KDP.
+
+**🛠️ Caso de Uso Real y Solución al Usuario Final:**
+*   **Problema:** El usuario monitorea 20 canales y cada día se acumulan 50 videos nuevos. Descargar todos ciegamente llena su disco, satura la cola de procesamiento y mezcla contenido basura (vlogs, música) con oro puro (tutoriales KDP).
+*   **Solución Elite:** El Visor Pendientes actúa como un "filtro de calidad humano + IA". El usuario abre esta pestaña y ve los videos pendientes clasificados por **relevancia KDP**. Puede ver rápidamente: *"Este video habla de 'Amazon Ads 2026' (ALTO VALOR)"* vs *"Este video es un vlog personal del creador (BAJO VALOR)"*. El usuario selecciona solo los 5 videos de alto valor y los envía a descarga, descartando el ruido. Ahorra horas de tiempo y gigas de almacenamiento.
+
+---
+
+### 📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Gestión)**
+
+#### 🔹 Pilar 1: Visualización y Listado de Pendientes (1-12)
+1.  **Grid View con Scroll Infinito:** Renderizado eficiente de listas largas (>1000 pendientes) sin congelar UI. *Caso de uso:* Navegar por cientos de videos pendientes sin lag.
+2.  **Columnas Personalizables:** El usuario elige qué ver (Fecha, Canal, Título, Duración, Prioridad). *Caso de uso:* Ocultar columnas no usadas para ganar espacio visual.
+3.  **Iconografía por Estado:** Diferencia visual entre "Pendiente", "En Cola", "Ignorado". *Caso de uso:* Identificar rápidamente qué falta por procesar.
+4.  **Resaltado de Novedades:** Marca en verde brillante videos detectados en la última hora. *Caso de uso:* Atención inmediata a contenido fresco y relevante.
+5.  **Fila de Resumen en Cabecera:** Muestra totales arriba (Total Pendientes, Seleccionados, Ignorados). *Caso de uso:* Visión global sin contar manualmente.
+6.  **Botón "Expandir Todo/Colapsar":** Agrupa pendientes por Canal o Fecha. *Caso de uso:* Organizar la vista para procesar por bloques temáticos.
+7.  **Preview de Metadatos en Hover:** Al pasar el mouse, muestra descripción corta y duración. *Caso de uso:* Decisión rápida de relevancia sin abrir navegador.
+8.  **Ordenamiento Multi-Nivel:** Ordenar por Canal -> Fecha -> Título. *Caso de uso:* Agrupación lógica para análisis masivo.
+9.  **Indicador de Antigüedad:** Muestra "Hace 2h", "Hace 3 días". *Caso de uso:* Priorizar contenido nuevo vs backlog antiguo.
+10. **Paginación Opcional:** Para usuarios que prefieren ver de 50 en 50. *Caso de uso:* Control cognitivo sobre grandes volúmenes.
+11. **Modo de Selección por Rango:** Click en primero, Shift+Click en último. *Caso de uso:* Selección rápida de bloques continuos.
+12. **Persistencia de Filtros:** Al cerrar y abrir la app, mantiene los filtros activos. *Caso de uso:* Continuidad de flujo de trabajo diario.
+
+#### 🔹 Pilar 2: Filtrado y Búsqueda Avanzada (13-24)
+13. **Filtro Rápido por Canal:** Dropdown para ver solo pendientes de canales específicos. *Caso de uso:* Focalizarse en un nicho específico (ej. solo canales de "Legalidad").
+14. **Filtro por Rango de Fechas:** "Mostrar últimos 7 días", "Este mes". *Caso de uso:* Catch-up semanal o limpieza de backlog antiguo.
+15. **Búsqueda de Texto en Títulos:** Filtra la lista de pendientes en tiempo real. *Caso de uso:* Encontrar videos sobre "Low Content Books" entre 500 pendientes.
+16. **Filtro por Duración del Video:** "Solo videos > 10 min" o "Shorts < 60s". *Caso de uso:* Ignorar contenido superficial o priorizar deep-dives.
+17. **Exclusión por Palabra Clave (Blacklist):** Oculta videos que contengan "Giveaway", "Review", "Patrocinado". *Caso de uso:* Limpieza automática de ruido promocional.
+18. **Filtro "Solo Nuevos":** Oculta los que ya están en cola de descarga. *Caso de uso:* Evitar duplicidad de esfuerzo visual.
+19. **Filtro "Ignorados":** Muestra lista de lo descartado por si el usuario se arrepiente. *Caso de uso:* Recuperar un video descartado por error.
+20. **Filtro por Prioridad Asignada:** Ver solo lo marcado como "Crítico". *Caso de uso:* Ejecución de tareas de alto impacto primero.
+21. **Búsqueda Fuzzy:** Tolerancia a errores ortográficos en la búsqueda. *Caso de uso:* Encontrar "Ads" aunque esté escrito "Ad".
+22. **Filtro Combinado (AND/OR):** Lógica booleana para filtros complejos. *Caso de uso:* "Canal X AND Título contiene 'Tutorial'".
+23. **Guardado de Vistas de Filtros:** "Guardar filtro como 'Nicho Low Content'". *Caso de uso:* Acceso rápido a vistas recurrentes.
+24. **Contador de Resultados Filtrados:** Feedback inmediato de cuántos items coinciden. *Caso de uso:* Saber si el filtro es demasiado restrictivo.
+
+#### 🔹 Pilar 3: Acciones Masivas y Gestión de Cola (25-36)
+25. **Botón "Añadir Seleccionados a Cola":** Envía lote a la pestaña Descargas. *Caso de uso:* Proceso principal de ingesta selectiva.
+26. **Botón "Añadir Todo a Cola":** Mueve todos los pendientes visibles. *Caso de uso:* Ingesta masiva cuando hay confianza en los canales.
+27. **Botón "Ignorar Seleccionados":** Marca como descartados sin borrar. *Caso de uso:* Limpieza de ruido y contenido irrelevante.
+28. **Botón "Ignorar Todo":** Descarta todos los pendientes actuales. *Caso de uso:* Limpieza radical de backlog antiguo o error.
+29. **Botón "Restaurar Ignorados":** Vuelve a poner en pendiente. *Caso de uso:* Corrección de errores de descarte.
+30. **Prioridad Masiva:** Asignar prioridad Alta/Media/Baja a lote. *Caso de uso:* Ordenar la cola de descarga por importancia.
+31. **Etiquetado Masivo:** Añadir tags a lote seleccionado. *Caso de uso:* Organización previa a la descarga.
+32. **Validación de Espacio antes de Añadir:** Calcula tamaño estimado del lote. *Caso de uso:* Prevenir error de disco lleno al añadir masivamente.
+33. **Detección de Duplicados en Selección:** Evita añadir el mismo video dos veces a la cola. *Caso de uso:* Integridad de la cola de procesamiento.
+34. **Sincronización con DB en Tiempo Real:** Actualiza estado si otro hilo procesa el video. *Caso de uso:* Consistencia de datos en entornos concurrentes.
+35. **Historial de Acciones (Undo):** Deshacer última acción masiva. *Caso de uso:* Recuperación ante errores de selección masiva.
+36. **Exportar Lista de Pendientes a CSV:** Genera reporte de lo pendiente. *Caso de uso:* Planificación externa o auditoría.
+
+#### 🔹 Pilar 4: Integración y Persistencia (37-48)
+37. **Persistencia en SQLite:** Guarda estado de pendientes en DB local. *Caso de uso:* Recuperación tras cierre de app.
+38. **Limpieza Automática de Pendientes > 30 días:** Borra pendientes muy viejos (configurable). *Caso de uso:* Mantenimiento de rendimiento de la app.
+39. **Índice de Búsqueda en Pendientes:** Búsqueda rápida en lista grande. *Caso de uso:* Velocidad de respuesta en listas de miles de items.
+40. **Validación de URL de Video:** Verifica que el link sigue activo antes de mostrar. *Caso de uso:* Evitar intentar descargar videos borrados/privados.
+41. **Extracción de Video ID:** Parsea ID único para control de duplicados. *Caso de uso:* Identificación unívoca del contenido.
+42. **Mapeo Canal -> Categoría KDP:** Asigna categoría basada en el canal de origen. *Caso de uso:* Organización automática en la KB.
+43. **Cache de Miniaturas (Opcional):** Carga lazy de thumbnails. *Caso de uso:* Mejora visual sin saturar red.
+44. **Indicador de Carga en Background:** Spinner mientras carga pendientes. *Caso de uso:* Feedback de actividad.
+45. **Manejo de Errores de Red:** Reintento de carga de lista. *Caso de uso:* Robustez en conexiones inestables.
+46. **Log de Actividad de Pendientes:** Registra qué se añadió o ignoró. *Caso de uso:* Auditoría de decisiones del usuario.
+47. **Compactación de DB de Pendientes:** Optimiza espacio en disco. *Caso de uso:* Mantenimiento preventivo.
+48. **Backup de Estado de Pendientes:** Incluye en backup atómico. *Caso de uso:* Recuperación de desastres.
+
+#### 🔹 Pilar 5: UX y Accesibilidad (49-60)
+49. **Atajos de Teclado:** Ctrl+A (Seleccionar todo), Del (Ignorar), Enter (Añadir). *Caso de uso:* Productividad para power users.
+50. **Menú Contextual (Click Derecho):** Opciones rápidas por item. *Caso de uso:* Acceso rápido a acciones sin mover mouse.
+51. **Tooltips Informativos:** Explicación de iconos y estados. *Caso de uso:* Ayuda contextual para nuevos usuarios.
+52. **Modo Oscuro/Claro Adaptativo:** Sigue preferencia del sistema. *Caso de uso:* Comodidad visual.
+53. **Redimensión de Columnas:** Ajuste manual de anchos. *Caso de uso:* Personalización de interfaz.
+54. **Reordenamiento de Columnas:** Drag & Drop de headers. *Caso de uso:* Flujo de trabajo personalizado.
+55. **Foco Automático al Añadir:** Resalta los recién llegados. *Caso de uso:* Atención inmediata a novedades.
+56. **Sonido de Notificación (Opcional):** Al llegar nuevos pendientes. *Caso de uso:* Alerta pasiva.
+57. **Confirmación de Destructivas:** "¿Seguro que quieres ignorar 50 videos?". *Caso de uso:* Prevención de errores graves.
+58. **Estado "Procesando":** Muestra animación si se están validando. *Caso de uso:* Feedback de proceso.
+59. **Límite de Carga Inicial:** Carga primeros 100, luego scroll. *Caso de uso:* Velocidad de arranque.
+60. **Mensajes de Estado Vacío:** "No hay videos pendientes. ¡Bien hecho!". *Caso de uso:* Feedback positivo al usuario.
+
+---

@@ -1,0 +1,18 @@
+{
+  "name": "Forest Green",
+  "base": "dark",
+  "colors": {
+    "accent": "#22c55e",
+    "bg_secondary": "#14532d",
+    "bg_tertiary": "#166534",
+    "success": "#4ade80",
+    "warning": "#fbbf24"
+  },
+  "fonts": {
+    "header": {
+      "family": "Segoe UI",
+      "size": 22,
+      "weight": "bold"
+    }
+  }
+}

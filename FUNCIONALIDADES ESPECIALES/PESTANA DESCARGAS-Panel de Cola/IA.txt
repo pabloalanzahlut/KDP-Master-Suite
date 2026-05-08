@@ -1,0 +1,49 @@
+## 🧠 40 MÓDULOS CON IA — Panel de Cola (TEXT-FIRST)
+
+### 🔹 Predicción y Optimización de Texto (1-10)
+1. **Predictor de Tiempo de Finalización para Pipeline de Texto:** Ollama analiza histórico de extracciones y hardware para dar ETA preciso de parsing+chunking+análisis.
+2. **Optimizador de Memoria RAM para Chunking de Texto:** Advierte si la cola actual excederá RAM disponible durante fase de chunking simultáneo para Ollama.
+3. **Estimador de Coste de Tokens para Análisis de Texto:** Calcula tokens Ollama estimados para la cola actual basado en longitud y complejidad lingüística.
+4. **Predictor de Recursos por Ítem de Texto:** Estima RAM/CPU/tiempo específico para cada transcripción según longitud y densidad conceptual.
+5. **Sugeridor de "Mejor Momento de Extracción" para Texto:** Basado en historial de velocidad de red, sugiere horario óptimo para fetch de subtítulos.
+6. **Predictor de Fallo de Servidor Origen para CC:** Analiza patrones de errores recientes de dominios específicos y advierte inestabilidad de YouTube/CC.
+7. **Generador de "Resumen de Riesgo" para Cola de Texto:** Calcula score de riesgo (fallos probables, rate-limit, espacio) para la cola completa de extracciones.
+8. **Clasificador de Densidad Informativa del Texto:** Puntúa 1-10 la utilidad del texto extraído para tu nicho KDP basado en densidad de conceptos clave.
+9. **Detector de "Ruido vs. Señal" en Transcripciones:** Identifica si el texto es contenido real educativo o solo spam/promocional/clickbait.
+10. **Chunker Inteligente para Ventanas de Contexto de Ollama:** Divide el texto en segmentos óptimos para prompts de Ollama (por ideas, no por caracteres).
+
+### 🔹 Priorización y Orquestación Cognitiva de Texto (11-20)
+11. **Auto-Priorización Inteligente por Huecos de Conocimiento:** Reordena la cola colocando al principio contenido que rellena lagunas detectadas en tu KB local.
+12. **Clasificador de "Urgencia Temporal" en Texto:** Detecta fechas límite en títulos/descripciones y prioriza automáticamente esos ítems textuales.
+13. **Optimizador de Orden para Pipeline de Texto:** Reordena texto extraído para maximizar eficiencia de análisis agrupando por complejidad y tema.
+14. **Asistente de Reordenamiento Natural para Texto:** "Mueve los tutoriales de fiscalidad al inicio" → ejecuta acción de reordenamiento semántico.
+15. **Clasificador Automático de Prioridad por Relevancia Textual:** Asigna urgencia basada en alineación temática con tus 18 categorías KDP maestras.
+16. **Detector de "Contenido Efímero" en Transcripciones:** Identifica noticias o tendencias pasajeras y sugiere extraerlas inmediatamente antes de que pierdan relevancia.
+17. **Asistente de "Limpieza de Cola Muerta" para Texto:** Sugiere eliminar ítems que llevan >7 días en cola sin éxito de extracción, probabilidad de fallo >90%.
+18. **Recomendador de Eliminación por Redundancia Textual:** Sugiere quitar duplicados conceptuales o contenido de bajo valor informativo ya cubierto.
+19. **Traductor de Jerga Técnica a Términos KDP:** Normaliza lenguaje del creador a terminología estandarizada de tu KB antes de chunking.
+20. **Extractor de Entidades Nombradas (NER) Local para Texto:** Identifica nombres de herramientas, plataformas, métricas mencionadas para indexación estructurada.
+
+### 🔹 Análisis Semántico y Calidad de Texto (21-30)
+21. **Análisis de Valor Estratégico para Transcripciones:** Asigna "Score de Relevancia" a cada ítem basado en potencial para completar tus 18 categorías KDP.
+22. **Detector de Redundancia Semántica en Texto:** Advierte: "Este texto trata los mismos 5 puntos que el video [X] ya presente en tu Base de Conocimiento".
+23. **Filtro de Ruido Cognitivo para Transcripciones:** Marca textos que detecta como "Clickbait" o con bajo contenido informativo basado en análisis semántico local.
+24. **Detector de "Contenido Promocional Oculto" en Texto:** Identifica transcripciones que parecen tutoriales pero son ventas encubiertas, marcándolas para revisión.
+25. **Clasificador de Idioma Automático para Enrutamiento de Texto:** Detecta idioma hablado probable y añade tag automático para filtrar posteriormente por idioma de análisis.
+26. **Identificador de "Speaker Principal" en Metadatos de Texto:** Extrae nombre del ponente principal para indexación futura en la Base de Conocimiento.
+27. **Predictor de Necesidad de Limpieza Avanzada para Texto:** Detecta si el texto contiene muchos artefactos de auto-captions y marca para limpieza intensiva previa a análisis.
+28. **Clasificador de "Calidad de Audio Inferida" desde Metadatos de Texto:** Analiza patrones de errores en timestamps para predecir calidad de transcripción y sugerir revisión.
+29. **Detector de "Series Temporales" en Transcripciones:** Agrupa automáticamente textos que son parte de una serie numerada (Capítulo 1, 2, 3) para asegurar orden secuencial de análisis.
+30. **Sugeridor de "Merge Post-Proceso" para Textos Cortos:** Identifica transcripciones cortas del mismo tema (<500 palabras) y sugiere unirlas en un solo archivo de análisis consolidado.
+
+### 🔹 Diagnóstico, Seguridad y Recuperación de Texto (31-40)
+31. **Diagnóstico de Fallos por Lenguaje Natural para Parsing de Texto:** Ante error complejo, IA analiza log y explica: "YouTube bloqueó tu IP temporalmente; sugiero esperar 15 minutos".
+32. **Predictor de Colisión de IP para Fetching de Subtítulos:** Analiza frecuencia de solicitudes y sugiere pausas automáticas para evitar baneos por exceso de peticiones de CC.
+33. **Detectivo de URLs Problemáticas para Extracción de Texto:** Predice fallos antes de descargar (privado/bloqueado/sin CC disponible).
+34. **Detector de Patrones de Fallo en Parsing de Texto:** Aprende qué tipos de URLs/canales fallan en extracción de CC y alerta preventivamente.
+35. **Asistente de "Recuperación Inteligente" para Cola de Texto:** Tras fallo masivo, IA reconstruye orden óptimo de reintentos basándose en causa raíz detectada.
+36. **Alerta de "Cambio de Formato de Subtítulos" Súbito:** Si un canal cambia repentinamente de formato de CC (VTT→SRT), IA alerta para ajustar parser.
+37. **Traductor de Errores de Extracción a Soluciones para Texto:** Si falla el fetch, IA sugiere: "Intentar con otro user-agent", "Esperar 15 min" o "Verificar URL".
+38. **Predictor de Tiempo de Chunking + Análisis para Texto:** Estima minutos necesarios para procesar este texto según longitud, complejidad lingüística y carga de Ollama.
+39. **Asistente de Fusión con Contenido Existente en KB de Texto:** Sugiere cómo integrar este texto con entradas similares ya en tu KB (fusionar, complementar o mantener separado).
+40. **Detectivo de Información Obsoleta en Transcripciones:** Alerta si el texto menciona fechas, versiones de plataforma o políticas ya desactualizadas vs. tu KB actualizada.

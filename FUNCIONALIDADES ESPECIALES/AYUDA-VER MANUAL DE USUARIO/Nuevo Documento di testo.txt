@@ -1,0 +1,71 @@
+## 📦 LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Gobernanza Documental TEXT-FIRST)
+
+#### 🔹 Pilar 1: Renderizado y Visualización de Texto (1-12)
+1. **Renderizador Nativo Markdown en UI Tkinter**: Convierte `.md` a interfaz nativa con soporte para tablas, código resaltado y listas sin abrir lectores externos. *Uso real:* Consultar pasos de configuración de Ollama en ventana modal integrada sin salir de la suite.
+2. **Motor de Búsqueda Full-Text Indexado (FTS5)**: Indexa todo el contenido del manual para búsquedas en <10ms con resaltado de coincidencias. *Uso real:* Encontrar "configurar proxy" instantáneamente en un manual de 200 páginas sobre transcripciones.
+3. **Generador de Índice Jerárquico Colapsable**: Parsea automáticamente headers y crea sidebar navegable con expansión/contraído. *Uso real:* Navegar rápidamente entre "Configuración Inicial", "Procesamiento de Texto" y "Solución de Errores de Parsing".
+4. **Sistema de Navegación por Anclajes (Anchor Links)**: Permite saltar a secciones específicas vía URL interna (#seccion). *Uso real:* Compartir enlace directo a "Configuración de FTS5" con equipo remoto sin que busquen manualmente.
+5. **Visualizador de Código con Resaltado de Sintaxis**: Muestra fragmentos de código Python/SQL con colores según lenguaje. *Uso real:* Leer ejemplos de consultas SQLite FTS5 con sintaxis claramente diferenciada para copy-paste seguro.
+6. **Renderizador de Diagramas Mermaid/ASCII Nativo**: Convierte código Mermaid en gráficos vectoriales o ASCII en UI. *Uso real:* Visualizar flujo "Transcripción → Limpieza → Chunking → Ollama" sin dependencia externa.
+7. **Sistema de Zoom Tipográfico Dinámico**: Permite ajustar tamaño de fuente del manual sin afectar resto de UI. *Uso real:* Aumentar texto para lectura en pantallas 4K o reducir para laptops con espacio limitado.
+8. **Modo de Lectura Sin Distracciones (Zen Mode)**: Expande manual a pantalla completa ocultando resto de interfaz. *Uso real:* Estudiar "Protocolos de Backup" sin notificaciones o widgets distractores.
+9. **Navegación por Historial de Secciones (Back/Forward)**: Botones para avanzar/retroceder entre secciones visitadas. *Uso real:* Volver a "Configuración de IA" después de leer "Solución de Errores Ollama" sin buscar manualmente.
+10. **Marcadores Persistentes por Sesión**: Permite guardar secciones favoritas accesibles desde barra lateral. *Uso real:* Acceder rápido a "Comandos de Limpieza de Texto" cada vez que se procesan nuevas transcripciones.
+11. **Sistema de Breadcrumbs de Navegación**: Muestra ruta jerárquica actual (Inicio > Procesamiento > Limpieza). *Uso real:* Saber exactamente dónde estás en manual de 500+ secciones sin perder contexto.
+12. **Previsualización de Enlaces al Hover**: Muestra tooltip con título/resumen del destino al pasar mouse sobre enlace. *Uso real:* Verificar que enlace "Configurar Ollama" lleva a sección correcta antes de hacer clic.
+
+#### 🔹 Pilar 2: Gestión de Contenido y Versiones (13-24)
+13. **Sistema de Control de Versiones con Snapshots**: Guarda copias inmutables del manual cada vez que se modifica. *Uso real:* Recuperar guía de configuración de v3.2 tras actualización que cambió parámetros críticos de parsing.
+14. **Comparador Visual de Versiones (Diff Viewer)**: Muestra diferencias entre versiones del manual con resaltado de cambios. *Uso real:* Ver exactamente qué cambió en "Configuración de FTS5" entre v3.4 y v3.5 antes de actualizar.
+15. **Validador de Enlaces Internos/Externos en Tiempo Real**: Escanea URLs del manual y reporta rotos o desactualizados. *Uso real:* Evitar frustración al hacer clic en enlaces a documentación de yt-dlp ya removida.
+16. **Sincronizador Delta Offline/Online**: Descarga solo párrafos modificados del manual en lugar de archivo completo. *Uso real:* Actualizar documentación en laptops de campo con conectividad intermitente sin consumir GB innecesarios.
+17. **Gestor de Actualización Automática de Manual**: Verifica nueva versión del manual al iniciar y notifica cambios relevantes. *Uso real:* Saber que "Nuevo método de chunking" está documentado sin buscar manualmente en changelog.
+18. **Exportador de Secciones a PDF/HTML On-Demand**: Genera versión descargable de sección específica con un clic. *Uso real:* Entregar "Guía de Configuración de Proxy" en PDF a equipo remoto sin enviar manual completo.
+19. **Sistema de Traducción de Interfaz (No Contenido)**: Traduce menús/botones del visor sin alterar contenido del manual. *Uso real:* Usar interfaz en español mientras el manual técnico permanece en inglés para precisión terminológica.
+20. **Validador de Integridad Criptográfica del Manual (SHA-256)**: Verifica hash del manual descargado contra registro oficial. *Uso real:* Evitar ejecución de instrucciones manipuladas por ataques de intermediario en redes públicas.
+21. **Gestor de Plantillas de Manual por Rol**: Muestra/oculta secciones según perfil de usuario (Operador, Admin, Auditor). *Uso real:* Bloquear acceso a documentación de "Pánico/Restauración DB" para usuarios estándar.
+22. **Sistema de Auditoría de Lectura**: Registra qué secciones leyó cada usuario con timestamp para trazabilidad. *Uso real:* Demostrar a auditor que operador completó formación de "Seguridad de Transcripciones" antes de operar.
+23. **Generador de Reporte de Progreso de Lectura**: Muestra % de manual leído y secciones pendientes por usuario. *Uso real:* Supervisor verifica que equipo completó "Protocolos de Compliance" antes de auditoría externa.
+24. **Protocolo de Actualización Silenciosa (Silent Patch)**: Aplica correcciones ortográficas o de formato en segundo plano sin interrupciones. *Uso real:* Mantener documentación impecable sin requerir confirmación del usuario en turnos de alta carga.
+
+#### 🔹 Pilar 3: Accesibilidad y Experiencia de Usuario (25-36)
+25. **Validador de Accesibilidad WCAG 2.2 Nativo**: Asegura contraste, tamaño tipográfico escalable, navegación 100% por teclado. *Uso real:* Cumplir normativas de accesibilidad en licitaciones gubernamentales o corporativas.
+26. **Soporte para Lectores de Pantalla (Screen Reader)**: Etiquetas ARIA y orden de lectura lógico para NVDA/JAWS. *Uso real:* Operadores con discapacidad visual consultan manual de "Configuración de Ollama" mediante lector de pantalla.
+27. **Sistema de Navegación por Voz (Comandos Básicos)**: Permite "ir a sección X" o "buscar Y" mediante comandos de voz. *Uso real:* Consultar manual mientras las manos están ocupadas procesando archivos físicos.
+28. **Adaptador de Contraste para Daltonismo**: Ajusta paleta de colores para usuarios con daltonismo sin perder jerarquía visual. *Uso real:* Distinguir claramente enlaces, advertencias y código en manual para usuarios con daltonismo rojo-verde.
+29. **Sistema de Texto a Voz Integrado (TTS)**: Lee secciones del manual en voz alta con control de velocidad. *Uso real:* Escuchar "Protocolos de Backup" mientras se realizan otras tareas manuales de organización.
+30. **Modo de Alto Contraste forzado**: Override de colores para máxima legibilidad en entornos con luz intensa. *Uso real:* Consultar manual en exteriores o salas con iluminación brillante sin fatiga visual.
+31. **Sistema de Atajos de Teclado Personalizables**: Permite definir combinaciones para navegar/secciones frecuentes. *Uso real:* Operador avanzado accede a "Configuración de FTS5" con Ctrl+Shift+F sin buscar manualmente.
+32. **Gestor de Preferencias de Visualización Persistentes**: Guarda zoom, tema, modo lectura por usuario para sesiones futuras. *Uso real:* Volver a encontrar manual con mismo zoom y tema configurado la sesión anterior sin reajustar.
+33. **Sistema de Notificaciones Contextuales No Intrusivas**: Muestra tips breves en esquina sin interrumpir lectura. *Uso real:* Recordar "Presiona F5 para actualizar índice" sin modal que interrumpa flujo de estudio.
+34. **Indicador Visual de Progreso de Lectura**: Barra sutil que muestra % de sección actual leído. *Uso real:* Saber cuánto falta para terminar "Guía de Chunking" sin contar páginas manualmente.
+35. **Sistema de Pausa Automática por Inactividad**: Detecta inactividad y pausa TTS o animaciones para ahorrar recursos. *Uso real:* No consumir CPU con animaciones si usuario dejó manual abierto mientras atendía otra tarea.
+36. **Adaptador de Densidad de Información por Pantalla**: Ajusta cantidad de contenido visible según resolución/tamaño de pantalla. *Uso real:* Mostrar más contenido en monitor 4K, menos en laptop 13" para evitar scroll excesivo.
+
+#### 🔹 Pilar 4: Integración con la Aplicación y Contexto (37-48)
+37. **Detector de Contexto de UI para Sugerencias**: Detecta pestaña activa y sugiere sección relevante del manual automáticamente. *Uso real:* Al abrir pestaña "Monitor", sugerir "Configuración de Intervalos Adaptativos" sin que usuario busque.
+38. **Enlazador Bidireccional Manual↔UI**: Click en botón de UI abre sección correspondiente del manual y viceversa. *Uso real:* Desde manual, click en "Configurar Proxy" abre directamente ventana de configuración sin navegar menús.
+39. **Sistema de Tooltips Enriquecidos desde Manual**: Hover sobre término en UI muestra definición extraída del manual. *Uso real:* Pasar mouse sobre "Chunking" en UI y ver definición técnica sin abrir manual completo.
+40. **Generador de Ejemplos Contextuales desde Config Actual**: Muestra ejemplos usando valores reales de settings.json del usuario. *Uso real:* Ver ejemplo de query FTS5 con tu ruta de output real, no genérica.
+41. **Validador de Configuración vs Manual**: Compara settings.json actual con recomendaciones del manual y alerta desviaciones. *Uso real:* Alertar "Tu interval=600 difiere de recomendado 300 para canales de alto tráfico".
+42. **Sistema de Logging de Consultas al Manual**: Registra qué buscó el usuario para mejorar documentación futura. *Uso real:* Detectar que 70% busca "proxy" en sección errónea y reorganizar manual.
+43. **Integración con Sistema de Logs de la App**: Permite copiar error de consola y buscar solución en manual con un clic. *Uso real:* Copiar "Error 403" y que manual abra automáticamente sección "Rotación de Cookies".
+44. **Sistema de Feedback In-Context para Documentación**: Botón "¿Fue útil esta sección?" con comentarios anclados a párrafo específico. *Uso real:* Reportar que "Guía de Ollama" está desactualizada sin salir del manual.
+45. **Gestor de Sesiones de Aprendizaje Guiado**: Crea rutas temáticas ("Onboarding", "Troubleshooting") que guían lectura secuencial. *Uso real:* Nuevo empleado sigue ruta "Primeros Pasos" sin perderse en manual de 500 páginas.
+46. **Sistema de Logros por Completitud de Lectura**: Badges o reconocimientos por leer secciones críticas. *Uso real:* Motivar equipo a completar "Protocolos de Seguridad" con badge "Certificado en Compliance".
+47. **Integración con Sistema de Tickets de Soporte**: Adjunta automáticamente sección de manual consultada al crear ticket. *Uso real:* Soporte técnico ve que usuario ya leyó "Solución de Error 403" antes de escalar.
+48. **Sistema de Sincronización de Estado entre Manual y App**: Si app cambia de estado, manual sugiere sección relevante automáticamente. *Uso real:* Al activar "Modo Offline", manual sugiere "Configuración para Entornos sin Red".
+
+#### 🔹 Pilar 5: Seguridad, Auditoría y Cumplimiento (49-60)
+49. **Registro Inmutable de Consultas al Manual**: Log forense de qué secciones leyó cada usuario con hash criptográfico. *Uso real:* Auditoría ISO 27001 demuestra que operador consultó "Protocolos de Seguridad" antes de incidente.
+50. **Validador de Cumplimiento de Plantilla Corporativa**: Verifica que manual respete estándares de branding, estructura y terminología. *Uso real:* Rechazar manuales externos que no sigan guía de estilo de KDP Master Solutions.
+51. **Sistema de Firmas Digitales de Autoría**: Permite al desarrollador/admin firmar criptográficamente el manual. *Uso real:* Auditar que guía de seguridad fue autorizada por líder de arquitectura con firma digital válida.
+52. **Gestor de Anotaciones Persistentes Cifradas**: Permite a usuarios añadir notas locales ancladas a párrafos, almacenadas cifradas. *Uso real:* Registrar "Este paso requiere privilegios de Admin en Windows Server 2022" visible solo para equipo autorizado.
+53. **Protocolo de Actualización con Aprobación Multi-Rol**: Requiere aprobación de Admin/Legal para cambios en secciones críticas del manual. *Uso real:* Evitar que operador junior modifique "Protocolos de Pánico" sin autorización.
+54. **Sistema de Cuotas de Acceso por Rol**: Limita qué secciones puede ver/editar cada perfil de usuario. *Uso real:* Solo Admin ve "Configuración de Claves API", operadores ven solo guías de uso.
+55. **Validador de Consistencia Terminológica**: Escanea manual y alerta términos inconsistentes o no estandarizados. *Uso real:* Detectar que "chunking" y "segmentación" se usan indistintamente y sugerir estandarización.
+56. **Generador de Reporte de Cumplimiento de Documentación**: Crea documento que demuestra que manual cumple normativas internas/externas. *Uso real:* Entregar a auditor documento que demuestra manual cumple WCAG 2.2 y estándares de documentación técnica.
+57. **Sistema de Backup Automático del Manual**: Copia manual a ubicación segura antes de cada actualización de la app. *Uso real:* Recuperar manual anterior si actualización corrompe documentación actual.
+58. **Validador de Enlaces a Recursos Externos Seguros**: Verifica que enlaces a yt-dlp/Ollama/SQLite usen HTTPS y dominios oficiales. *Uso real:* Prevenir phishing mediante enlaces a documentación falsa de librerías críticas.
+59. **Sistema de Detección de Contenido Sensible**: Escanea manual y alerta si contiene información sensible (API keys, rutas internas). *Uso real:* Evitar que manual distribuido externamente exponga configuración interna de la empresa.
+60. **Protocolo de Archivado Histórico con Retención**: Mueve versiones antiguas del manual a almacenamiento frío con política de retención. *Uso real:* Cumplir política de retención de documentación técnica por 7 años para auditorías futuras.

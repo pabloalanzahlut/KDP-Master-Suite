@@ -1,0 +1,228 @@
+Entendido. Estoy en **MODO PLAN** (sólo lectura). Presento el plan híbrido completo:
+
+---
+
+# 📋 PLAN HÍBRIDO: CI/CD, Persistencia y Packaging Corporativo
+
+## 🎯 OBJETIVO
+
+Automatización diaria robusta + Robustez (rollback/recovery) + Packaging enterprise
+
+---
+
+## 📦 ARQUITECTURA DEL PLAN
+
+### BLOQUE 1: AUTOMATIZACIÓN DIARIA (CI/CD)
+
+| # | Módulo | Descripción | Prioridad |
+|---|--------|------------|----------|
+| 1.1 | **Test Runner** | pytest + coverage + HTML reports | Alta |
+| 1.2 | **Smoke Test** | Post-build validation script | Alta |
+| 1.3 | **Clean Build Script** | `run_build.py` centralizado | Alta |
+| 1.4 | **Cron Scheduler** | Programador diario (opcional) | Media |
+
+### BLOQUE 2: ROBUSTNESS (Rollback + Recovery)
+
+| # | Módulo | Descripción | Prioridad |
+|---|--------|------------|----------|
+| 2.1 | **Backup Manager** | Incremental + rotación | Alta |
+| 2.2 | **Restore Script** | Recovery automatizado | Alta |
+| 2.3 | **Integrity Check** | Validación al inicio | Alta |
+| 2.4 | **Health Endpoint** | `/health` en dashboard | Media |
+
+### BLOQUE 3: PACKAGING ENTERPRISE
+
+| # | Módulo | Descripción | Prioridad |
+|---|--------|------------|----------|
+| 3.1 | **Silent Install** | Sin prompts interactivos | Alta |
+| 3.2 | **Portable Mode** | Detección auto | Alta |
+| 3.3 | **Checksum** | SHA256 del .exe | Media |
+| 3.4 | **Config Sync** | Migración entre versiones | Media |
+
+---
+
+---
+
+## 🎯 PRÓXIMOS PASOS (Opcionales) - CI/CD, Persistencia y Packaging
+
+Basándome en lo ya implementado, propongo las siguientes mejoras para alcanzar nivel **elite corporate**:
+
+---
+
+### 1. **Scheduler Automático**
+```
+- Programar ejecución diaria/semanal del pipeline
+- Cron-like configurable (ej: "0 2 * * *" = 2am diario)
+- Ejecutar backup automático periódico
+- Notificaciones de scheduling
+```
+
+### 2. **Dashboard Web de CI/CD**
+```
+- Vista visual del estado de builds
+- Histórico de ejecuciones con duración
+- Stats:成功率, tiempo promedio, fallos recientes
+- Botones para ejecutar/reintentar pipelines
+```
+
+### 3. **Webhooks y Notificaciones**
+```
+- Integración con Slack/Discord/Telegram
+- Alertas automáticas en build FAIL/SUCCESS
+- Notificaciones de backup completado
+- Custom webhooks (URL configurable)
+```
+
+### 4. **Rollback Automático**
+```
+- Si smoke test falla → revertir al .exe anterior
+- Mantener último build funcional como fallback
+- Restore point antes de cada deployment
+```
+
+### 5. **Reportes Enriquecidos**
+```
+- HTML reports con charts de coverage
+- Exportar a PDF/HTML post-build
+- Incluir changelog automático
+- Adjuntar checksums en reporte
+```
+
+### 6. **Métricas y Analytics**
+```
+- Track de duración de cada step
+- Tasa de éxito por módulo
+- Uso de disco/tiempo a lo largo del tiempo
+- Alertas si métricas degradean
+```
+
+### 7. **Configuración desde UI**
+```
+- Panel en Settings para configurar pipeline
+- Habilitar/deshabilitar steps
+- Configurar max_backups, schedule, etc.
+- Guardar preferencias en JSON
+```
+
+### 8. **Audit Logs Detallados**
+```
+- Log estructurado de TODAS las operaciones
+- Quién ejecutó qué y cuándo
+- Exportar logs a archivo separado
+- Rotación de logs por tamaño/fecha
+```
+
+### 9. **Multi-Environment Support**
+```
+- Profiles: dev/staging/prod
+- Diferentes configs por ambiente
+- Testing en ambiente aislado
+```
+
+### 10. **Integración con Git**
+```
+- Auto-tag en release (git tag v2.5.7)
+- Changelog automático desde commits
+- Branch detection para skip CI
+```
+
+---
+
+## 📊 PROPUESTA PRIORIZADA
+
+| # | Feature | Complejidad | Valor |
+|---|---------|------------|-------|
+| 1 | Scheduler Automático | Media | Alto |
+| 2 | Dashboard Web CI/CD | Alta | Alto |
+| 3 | Notificaciones (Slack/Discord) | Media | Alto |
+| 4 | Rollback Automático | Alta | Medio |
+| 5 | Reportes HTML Enriquecidos | Media | Medio |
+| 6 | Métricas y Analytics | Media | Medio |
+| 7 | Config desde UI | Baja | Alto |
+| 8 | Audit Logs | Baja | Medio |
+| 9 | Multi-Environment | Alta | Bajo |
+| 10 | Git Integration | Media | Medio |
+
+---
+
+## ❓ PREGUNTA DE ACLARACIÓN
+
+Para priorización, ¿cuál de estos te interesa más?
+
+1. **Scheduler** → Automatización diaria sin intervención
+2. **Dashboard CI/CD** → Visibilidad completa del pipeline
+3. **Notificaciones** → Alertas en tiempo real
+4. **UI Config** → Config sin editar JSON manualmente
+
+También: ¿Cuál consideras **prioridad máxima** para uso personal elite?
+
+## 🏗️ ESTRUCTURA DE ARCHIVOS A CREAR
+
+```
+tools/
+├── ci_cd/
+│   ├── run_tests.py          # Test runner + coverage
+│   ├── run_build.py        # Build pipeline centralizado
+│   ├── smoke_test.py      # Post-build validation
+│   └── scheduler.py      # Programador (opcional)
+├── backup/
+│   ├── backup_manager.py # Backup incremental
+│   ├── restore.py       # Recovery script
+│   └── integrity.py    # Validación de estado
+├── packaging/
+│   ├── silent_install.py # Instalador silencioso
+│   ├── portable_check.py # Modo portable
+│   └── checksum.py     # SHA256 generator
+└── scripts/
+    ├── health_check.py   # Health endpoint
+    └── version.py     # Semver auto-increment
+```
+
+---
+
+## 🔄 FLUJO DE EJECUCIÓN PLANIFICADO
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  MUNDO DÍA (Automático)                 │
+├─────────────────────────────────────────────────────────┤
+│ 1. Scheduler → run_tests.py                            │
+│ 2. Si PASS → smoke_test.py                           │
+│ 3. Si PASS → run_build.py                           │
+│ 4. Si PASS → backup_manager.py (incremental)         │
+│ 5. Si PASS → checksum.py                             │
+│ 6. Generate release notes                          │
+│ 7. Health check disponible 24/7                   │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## ✅ INCLUYE LAS 7 OPCIONES MENCIONADAS
+
+| # | Opción original | Incluida en Plan | Módulo |
+|---|---------------|----------------|-------|
+| 1 | pytest + coverage | ✅ BLOQUE 1.1 | `run_tests.py` |
+| 2 | Test reports HTML | ✅ BLOQUE 1.1 | `pytest-html` |
+| 3 | Quality gates | ✅ BLOQUE 1.2 | `smoke_test.py` |
+| 4 | Mock servicios | ✅ BLOQUE 1.1 | `conftest.py` |
+| 5 | Auto-incremento | ✅ BLOQUE 3.4 | `version.py` |
+| 6 | Backup incremental | ✅ BLOQUE 2.1 | `backup_manager.py` |
+| 7 | Rotación backups | ✅ BLOQUE 2.1 | `backup_manager.py` |
+| 8 | Restore script | ✅ BLOQUE 2.2 | `restore.py` |
+| 9 | Checksum SHA256 | ✅ BLOQUE 3.3 | `checksum.py` |
+| 10 | Rollback script | ✅ BLOQUE 2.2 | `restore.py` |
+| 11 | Migration config | ✅ BLOQUE 3.4 | `config_sync.py` |
+| 12 | Portable detection | ✅ BLOQUE 3.2 | `portable_check.py` |
+| 13 | Silent install | ✅ BLOQUE 3.1 | `silent_install.py` |
+| 14 | Health check | ✅ BLOQUE 2.4 | `health_check.py` |
+
+---
+
+## ⚠️ NOTA IMPORTANTE
+
+**Actualmente en MODO PLAN (sólo lectura)**
+
+Este plan está listo para ejecutarse cuando me indiques. ¿Confirmas proceder con la implementación del plan híbrido completo?
+
+**Incluye las 14 funcionalidades listadas arriba + las 3 bloques arquitectónicos.**

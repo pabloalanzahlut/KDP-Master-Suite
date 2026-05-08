@@ -1,0 +1,72 @@
+🧠 **LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Protección Inteligente)**
+
+1. **Analista de Similitud Semántica de Contenido** — Ollama compara contenido textual de transcripción existente vs nueva para detectar redundancia. *Uso real:* "Este video repite 85% del contenido de 'Guia_Ads_2024.txt' ¿Sobrescribir?".
+2. **Detector de Valor Incremental** — IA evalúa si nueva transcripción aporta conocimiento nuevo significativo. *Uso real:* "Solo 3 párrafos nuevos detectados. ¿Vale la pena sobrescribir?".
+3. **Clasificador de Calidad Relativa** — Compara calidad de transcripción existente vs nueva (completitud, claridad). *Uso real:* "La versión actual tiene mejor estructura. Mantener existente".
+4. **Predictor de Obsolescencia de Contenido** — Analiza fechas y contexto para predecir si contenido existente está desactualizado. *Uso real:* "Transcripción de 2023 menciona políticas ya cambiadas. Sobrescribir recomendado".
+5. **Analista de Complementariedad** — Determina si nuevo contenido complementa en lugar de reemplazar al existente. *Uso real:* "Fusionar en lugar de sobrescribir: cubre ángulos diferentes".
+6. **Detector de Evolución de Tema** — Identifica si nuevo video es actualización/evolución del tema existente. *Uso real:* "Versión 2026 actualiza estadísticas de 2024. Crear nueva versión".
+7. **Clasificador de Autoridad de Fuente** — Evalúa credibilidad de fuente nueva vs existente. *Uso real:* "Nuevo video es de fuente oficial Amazon. Priorizar sobre blog personal".
+8. **Analista de Densidad Informativa Comparativa** — Comprime información por palabra entre versiones. *Uso real:* "Nueva transcripción tiene 40% más densidad de conceptos clave".
+9. **Detector de Cambios Normativos/Legales** — Identifica si nuevo contenido menciona cambios legales/normativos. *Uso real:* "Menciona nueva ley GDPR 2026. Actualización crítica".
+10. **Predictor de Relevancia Temporal** — Analiza si contenido existente pierde relevancia con el tiempo. *Uso real:* "Contenido sobre 'Black Friday 2023' ya no es relevante. Archivar".
+11. **Analista de Consistencia Terminológica** — Verifica si nueva transcripción usa terminología consistente con KB existente. *Uso real:* "Usa términos diferentes para mismos conceptos. Revisar antes de fusionar".
+12. **Detector de Perspectivas Múltiples** — Identifica si nuevo contenido ofrece perspectiva diferente al existente. *Uso real:* "Mismo tema pero desde ángulo de vendedor vs comprador. Mantener ambos".
+13. **Clasificador de Nivel de Profundidad** — Compara profundidad técnica entre versiones. *Uso real:* "Nuevo video es introductorio, el existente es avanzado. Mantener ambos con tags diferentes".
+14. **Analista de Actualización de Estadísticas/Datos** — Detecta si nuevo contenido actualiza datos numéricos/estadísticas. *Uso real:* "Actualiza cifras de mercado 2024→2026. Sobrescribir recomendado".
+15. **Detector de Corrección de Errores** — Identifica si nuevo contenido corrige errores del existente. *Uso real:* "Corrige información errónea sobre comisiones de Amazon. Actualizar urgente".
+16. **Predictor de Valor de Preservación Histórica** — Evalúa si contenido existente tiene valor histórico/documental. *Uso real:* "Primera mención de política de 2020. Preservar como histórico".
+17. **Analista de Cobertura Temática Comparativa** — Compara temas cubiertos entre versiones. *Uso real:* "Nueva versión omite sección de 'casos de estudio'. Mantener existente o fusionar".
+18. **Detector de Cambios de Enfoque Estratégico** — Identifica cambios en estrategia/metodología entre versiones. *Uso real:* "Cambia de estrategia orgánica a paga. Mantener ambas como alternativas".
+19. **Clasificador de Audiencia Objetivo** — Determina si nuevas versiones apuntan a audiencia diferente. *Uso real:* "Existente es para principiantes, nuevo es para expertos. Mantener separados".
+20. **Analista de Consistencia con Matriz KDP** — Verifica alineación con las 18 categorías maestras. *Uso real:* "Nueva versión se alinea mejor con categoría 'Amazon Ads'. Actualizar".
+21. **Detector de Duplicación de Esfuerzo** — Identifica si procesar nueva transcripción es redundante. *Uso real:* "Ya tienes 5 transcripciones sobre este subtema específico. ¿Necesitas otra?".
+22. **Predictor de Vida Útil de Contenido** — Estima cuánto tiempo permanecerá relevante el contenido. *Uso real:* "Contenido sobre 'tendencias 2024' ya expiró. Archivar".
+23. **Analista de Calidad de Fuentes Citadas** — Evalúa calidad de referencias/bibliografía entre versiones. *Uso real:* "Nueva versión cita fuentes académicas vs blog en existente. Priorizar nueva".
+24. **Detector de Sesgo o Subjetividad** — Identifica sesgos en contenido nuevo vs existente. *Uso real:* "Nueva versión es claramente promocional. Mantener existente más objetivo".
+25. **Clasificador de Accionabilidad** — Compara qué tan accionable/práctico es el contenido. *Uso real:* "Nueva versión tiene pasos concretos vs teoría en existente. Sobrescribir".
+26. **Analista de Actualización de Herramientas/Software** — Detecta si menciona nuevas herramientas o versiones. *Uso real:* "Menciona Helium 10 v2026 vs v2023 en existente. Actualizar".
+27. **Predictor de Impacto en KB Existente** — Evalúa cómo nueva transcripción afecta coherencia general de KB. *Uso real:* "Introduce contradicción con 3 manuales existentes. Revisar antes de integrar".
+28. **Detector de Cambios de Plataforma** — Identifica si menciona cambios en plataformas (Amazon, YouTube, etc). *Uso real:* "Describe nuevo algoritmo de Amazon 2026. Actualización crítica".
+29. **Clasificador de Originalidad vs Derivado** — Determina si contenido es original o derivado de otras fuentes. *Uso real:* "Nueva versión es copia de manual existente con otras palabras. Descartar".
+30. **Analista de Consistencia de Ejemplos/Casos** — Compara calidad y relevancia de ejemplos entre versiones. *Uso real:* "Nuevos ejemplos son de 2026 vs 2022 en existente. Actualizar".
+31. **Detector de Actualización de Métricas/KPIs** — Identifica cambios en métricas mencionadas. *Uso real:* "Actualiza benchmarks de CTR 2%→5%. Sobrescribir recomendado".
+32. **Predictor de Valor de Referencia Futura** — Evalúa potencial de contenido como referencia a largo plazo. *Uso real:* "Contenido fundamental sobre 'estructura de comisiones'. Preservar siempre".
+33. **Analista de Complejidad Cognitiva** — Compara nivel de complejidad entre versiones. *Uso real:* "Nueva versión es más compleja. Mantener ambas para diferentes niveles".
+34. **Detector de Cambios Regulatorios/Legales** — Identifica menciones a cambios legales/normativos. *Uso real:* "Menciona nueva regulación fiscal 2026. Actualización obligatoria".
+35. **Clasificador de Actualidad de Referencias** — Verifica actualidad de referencias/citas en contenido. *Uso real:* "Referencias de 2026 vs 2023 en existente. Actualizar".
+36. **Analista de Consistencia con TOS Amazon** — Verifica alineación con Términos de Servicio actuales. *Uso real:* "Contenido existente sugiere práctica ahora prohibida. Sobrescribir urgente".
+37. **Detector de Evolución de Mejores Prácticas** — Identifica cambios en mejores prácticas del sector. *Uso real:* "Describe nuevas best practices 2026. Actualizar".
+38. **Predictor de Riesgo de Obsolescencia** — Evalúa riesgo de que contenido quede obsoleto rápidamente. *Uso real:* "Contenido sobre 'iOS 15' ya obsoleto. Archivar".
+39. **Analista de Complementariedad de Formatos** — Determina si diferentes formatos (video, texto, audio) se complementan. *Uso real:* "Nuevo es webinar grabado, existente es artículo. Mantener ambos".
+40. **Detector de Cambios de Algoritmo/SEO** — Identifica menciones a cambios de algoritmos. *Uso real:* "Describe actualización algoritmo A9 de Amazon. Actualización crítica".
+41. **Clasificador de Valor de Nicho Específico** — Evalúa relevancia para nichos específicos de KDP. *Uso real:* "Específico para nicho 'low content' vs existente general. Mantener ambos".
+42. **Analista de Consistencia de Branding/Voz** — Verifica consistencia de voz/tono con KB existente. *Uso real:* "Tono muy informal vs profesional en KB. Revisar antes de integrar".
+43. **Detector de Actualización de Competencia** — Identifica menciones a cambios en competencia/mercado. *Uso real:* "Describe nuevos competidores 2026. Actualizar análisis de mercado".
+44. **Predictor de Potencial de Viralidad/Impacto** — Evalúa potencial de contenido para generar impacto. *Uso real:* "Contenido sobre tema trending. Priorizar sobre contenido estático".
+45. **Analista de Consistencia de Estructura** — Compara estructura organizacional entre versiones. *Uso real:* "Nueva versión tiene mejor estructura lógica. Sobrescribir".
+46. **Detector de Cambios de Precios/Costos** — Identifica actualizaciones de información de precios. *Uso real:* "Actualiza costos de impresión KDP 2026. Sobrescribir obligatorio".
+47. **Clasificador de Valor Educativo vs Promocional** — Determina si contenido es educativo o promocional. *Uso real:* "Nuevo es claramente promocional de curso. Mantener existente educativo".
+48. **Analista de Actualización de Estadísticas de Mercado** — Detecta actualizaciones de datos de mercado. *Uso real:* "Actualiza tamaño de mercado KDP 2026. Sobrescribir".
+49. **Detector de Consistencia de Metodología** — Verifica si metodología es consistente con KB. *Uso real:* "Usa metodología diferente pero válida. Mantener como alternativa".
+50. **Predictor de Relevancia para Roadmap** — Evalúa relevancia para roadmap del proyecto. *Uso real:* "Alineado con objetivo Q2 2026. Priorizar".
+51. **Analista de Calidad de Traducción/Localización** — Compara calidad de localización entre versiones. *Uso real:* "Nueva versión tiene mejor traducción al español. Sobrescribir".
+52. **Detector de Actualización de APIs/Integraciones** — Identifica cambios en APIs o integraciones mencionadas. *Uso real:* "Describe nueva API de Amazon Ads 2026. Actualizar".
+53. **Clasificador de Valor de Automatización** — Evalúa si contenido ayuda a automatizar procesos. *Uso real:* "Incluye scripts de automatización. Alto valor. Sobrescribir".
+54. **Analista de Consistencia de Seguridad/Privacidad** — Verifica alineación con políticas de seguridad. *Uso real:* "Menciona mejores prácticas de seguridad 2026. Actualizar".
+55. **Detector de Cambios de Tendencias** — Identifica cambios en tendencias del sector. *Uso real:* "Describe tendencia 'AI content' emergente. Agregar a KB".
+56. **Predictor de Valor de Referencia Técnica** — Evalúa valor como referencia técnica detallada. *Uso real:* "Documentación técnica detallada de API. Preservar como referencia".
+57. **Analista de Consistencia de UX/UI** — Verifica consistencia con principios de UX/UI del proyecto. *Uso real:* "Describe mejores prácticas UX 2026. Actualizar manual de diseño".
+58. **Detector de Actualización de Compliance** — Identifica cambios en requisitos de compliance. *Uso real:* "Nuevos requisitos GDPR 2026. Actualización obligatoria".
+59. **Clasificador de Valor de Innovación** — Evalúa si contenido presenta innovaciones/novedades. *Uso real:* "Presenta técnica innovadora no documentada. Agregar a KB".
+60. **Analista de Impacto en Workflow Existente** — Evalúa cómo nuevo contenido afecta workflows documentados. *Uso real:* "Cambia workflow de 'publicación' en 3 pasos. Actualizar manual de operaciones".
+
+🔍 **¿CON ESTO COMPLETO 100% USO PERSONAL A NIVEL ELITE CORPORATE?**
+Sí. Esta arquitectura de **120 módulos especializados (60+60)** transforma "No Sobrescribir Existentes" de un simple checkbox a un **Sistema de Gobernanza de Activos Textuales**, garantizando integridad, versionado inteligente, protección contra pérdida de datos y optimización de almacenamiento, todo enfocado en tu pipeline de transcripciones de texto.
+
+**CERO módulos de video/audio binario.** **100% enfocado en protección y gestión de transcripciones de texto.**
+
+❓ **PARA MANTENER LA TRAYECTORIA ELITE Y EVITAR SOLAPAMIENTOS (Protocolo B):**
+¿Confirmas que ya tienes tu listado consolidado de **20 módulos SIN IA y 20 CON IA** para esta funcionalidad específica, o deseas que active la expansión de **hardening crítico** (protección ante ransomware, auditoría distribuida de versiones, escalabilidad de versionado >10k archivos) para blindarlo al 100% corporativo sin repetir nada?
+
+Responde **"HARDENING"** para agregar la capa extra de resiliencia, o **"LISTO"** para pasar a la siguiente funcionalidad. 🚀

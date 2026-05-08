@@ -1,0 +1,15 @@
+Módulos de Análisis Semántico y Valoración de Contenido (CON IA OLLAMA LOCAL):
+
+Detección de Parafraseo Semántico: La IA identifica si dos manuales explican el mismo concepto con diferentes palabras, permitiendo consolidar el conocimiento sin redundancia.
+Scoring de Valor Informativo: Ollama califica cada manual del 1 al 10 según la utilidad del contenido extraído, sugiriendo el borrado de aquellos con puntuación "Banal".
+Resumen Comparativo de Unicidad: La IA genera mini-resúmenes de manuales similares y resalta al usuario las diferencias clave para que decida cuál conservar.
+Identificador de Contradicciones: Detección de manuales que contienen información técnica opuesta o contradictoria sobre un mismo proceso.
+Análisis de Tono y Calidad Editorial: Evaluación por IA de la claridad del lenguaje; manuales con transcripciones ininteligibles o "alucinaciones" de voz a texto se marcan para revisión.
+Extractor de "Insights" vs "Filler": La IA separa el contenido con valor estratégico del texto de relleno (introducciones largas, saludos, despedidas del video original).
+Sugerencia de Fusión (Merge AI): Basado en el análisis de duplicados, la IA redacta un nuevo manual que combina lo mejor de dos archivos similares antes de borrar los originales.
+Mapeo de Relevancia por Nicho: La IA evalúa si el manual realmente aporta al nicho configurado o si es contenido genérico que no pertenece a la base de conocimiento especializada.
+Desambiguación de Entidades: Identificar si el mismo término técnico se refiere a cosas distintas en manuales diferentes, evitando limpiezas erróneas de "falsos duplicados".
+Asistente Conversacional de Purga: Interfaz de chat donde la IA justifica por qué considera un manual como "Banal" y solicita permiso para su archivado o eliminación.
+¿Con esto completo 100% uso personal a nivel elite corporate? Sí. Al aplicar este plan, la limpieza de manuales deja de ser un borrado por nombre de archivo para convertirse en una curaduría de activos de conocimiento, asegurando que tu Base de Conocimiento sea esbelta, precisa y de alta calidad técnica.
+
+¿Tiene sentido así? Totalmente. El enfoque 10+10 permite que la herramienta sea rápida y precisa en la detección técnica (Sin IA) y profundamente analítica en la valoración de la información (Con IA), eliminando el desperdicio de almacenamiento y la confusión de datos.

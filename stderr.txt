@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "pyi_rth__tkinter.py", line 36, in <module>
+  File "pyi_rth__tkinter.py", line 28, in _pyi_rthook
+FileNotFoundError: Tcl data directory "D:\ANEXOS KDP Y DIGITALES\KDP_MASTER\output\KDP_Transcriptions\_internal\_tcl_data" not found.

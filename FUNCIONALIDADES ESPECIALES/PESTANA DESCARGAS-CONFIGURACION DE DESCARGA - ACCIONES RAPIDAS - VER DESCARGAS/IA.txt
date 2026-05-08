@@ -1,0 +1,77 @@
+🧠 **LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Análisis Inteligente)**
+
+1. **Clasificador Automático por Categoría KDP** — IA asigna automáticamente a una de las 18 categorías maestras. *Uso real:* "Esta transcripción es de 'Amazon Ads y Marketing'".
+2. **Extractor de Temas Principales** — IA identifica 3-5 temas clave del documento. *Uso real:* "Temas: Keywords, SEO, BSR, Categorización".
+3. **Generador de Resumen Ejecutivo** — Crea abstract de 3-5 líneas del contenido. *Uso real:* Leer resumen rápido sin abrir archivo completo.
+4. **Detector de Valor Estratégico** — IA puntúa 1-10 relevancia para tu nicho KDP. *Uso real:* Score 8/10: "Alto valor para matriz de roles".
+5. **Clasificador de Tipo de Contenido** — Determina si es tutorial, caso de estudio, teoría, entrevista. *Uso real:* Filtrar solo "casos de estudio prácticos".
+6. **Extractor de Entidades Nombradas** — Identifica herramientas, plataformas, métricas mencionadas. *Uso real:* "Menciona: Helium 10, Jungle Scout, CTR, conversión".
+7. **Detector de Acciones Accionables** — Extrae pasos concretos y recomendaciones. *Uso real:* "5 pasos para optimizar keywords identificados".
+8. **Analista de Densidad Informativa** — Calcula ratio información útil vs relleno. *Uso real:* "Densidad: 85% (muy alto, poco relleno)".
+9. **Clasificador de Nivel de Experto** — Determina si es básico, intermedio o avanzado. *Uso real:* Filtrar solo contenido "avanzado" para expertos.
+10. **Detector de Actualidad del Contenido** — Analiza si información está actualizada o desactualizada. *Uso real:* "⚠️ Menciona políticas de 2022, verificar vigencia".
+11. **Extractor de Métricas y KPIs** — Identifica números, porcentajes, benchmarks mencionados. *Uso real:* "Menciona: CTR 5%, conversión 20%, BSR <100k".
+12. **Clasificador de Sentimiento** — Detecta si tono es positivo, negativo, neutral, alarmista. *Uso real:* Filtrar contenido objetivo vs promocional.
+13. **Detector de Promesas/Claims** — Identifica afirmaciones de resultados. *Uso real:* "Afirma: 'Gana $10k/mes' (verificar veracidad)".
+14. **Extractor de Herramientas Recomendadas** — Lista software/servicios mencionados. *Uso real:* "Recomienda: Canva, ChatGPT, Midjourney".
+15. **Analista de Completitud Temática** — Evalúa si cubre tema de forma completa o superficial. *Uso real:* "Cobertura: 70% (faltan casos prácticos)".
+16. **Detector de Sesgo o Subjetividad** — Identifica opiniones personales vs datos objetivos. *Uso real:* "Contenido 60% objetivo, 40% opinión personal".
+17. **Clasificador de Formato Pedagógico** — Determina si es paso a paso, conceptual, demostración. *Uso real:* Filtrar solo "paso a paso" para implementación.
+18. **Extractor de Errores Comunes Mencionados** — Identifica advertencias y errores a evitar. *Uso real:* "Advierte: No usar keywords genéricas, no ignorar BSR".
+19. **Detector de Innovación/Novedad** — Identifica si presenta ideas nuevas o contenido derivado. *Uso real:* "Contenido 80% conocido, 20% insights nuevos".
+20. **Analista de Profundidad Técnica** — Evalúa nivel técnico del contenido. *Uso real:* "Nivel técnico: 7/10 (requiere conocimientos previos)".
+21. **Extractor de Casos de Estudio** — Identifica ejemplos reales mencionados. *Uso real:* "Incluye 3 casos: nicho low-content, medio-content, high-content".
+22. **Detector de Metodologías Enseñadas** — Identifica frameworks o métodos presentados. *Uso real:* "Enseña: Método AIDA, Framework RACI, Matriz GEM".
+23. **Clasificador de Audiencia Objetivo** — Determina a quién va dirigido (principiantes, expertos). *Uso real:* "Audiencia: Intermedios-Avanzados (requiere experiencia)".
+24. **Extractor de Requisitos Previos** — Identifica conocimientos necesarios. *Uso real:* "Requiere: Cuenta Amazon activa, conocimientos básicos de SEO".
+25. **Detector de Actualizaciones de Plataforma** — Identifica menciones a cambios de Amazon/YouTube. *Uso real:* "Menciona: Nuevo algoritmo A9 de Enero 2026".
+26. **Analista de Consistencia Lógica** — Verifica si argumentos son coherentes. *Uso real:* "✓ Argumentación coherente, sin contradicciones".
+27. **Extractor de Fuentes Citadas** — Identifica referencias bibliográficas o fuentes. *Uso real:* "Cita: Documentación oficial Amazon, estudio de caso X".
+28. **Detector de Call-to-Action** — Identifica CTAs presentes en contenido. *Uso real:* "CTA: Suscribirse, comprar curso, visitar web".
+29. **Clasificador de Originalidad** — Evalúa si es contenido original o derivado. *Uso real:* "Originalidad: 60% (40% contenido común del nicho)".
+30. **Analista de Estructura del Contenido** — Evalúa organización lógica del documento. *Uso real:* "Estructura: 8/10 (bien organizado, introducción clara)".
+31. **Extractor de Timeline Mencionado** — Identifica plazos y tiempos mencionados. *Uso real:* "Menciona: 'Resultados en 3-6 meses', 'dedicar 2h/día'".
+32. **Detector de Riesgos Mencionados** — Identifica advertencias de riesgos. *Uso real:* "Advierte: Riesgo de suspensión por TOS, competencia alta".
+33. **Clasificador de Enfoque Estratégico/Táctico** — Determina si es estratégico o táctico. *Uso real:* "Enfoque: 70% táctico (acciones concretas), 30% estratégico".
+34. **Extractor de Alternativas Mencionadas** — Identifica opciones o alternativas presentadas. *Uso real:* "Alternativas: FBA vs FBM, orgánico vs paid ads".
+35. **Analista de Transferibilidad** — Evalúa si conocimiento aplica a otros nichos. *Uso real:* "Transferibilidad: Alta (aplica a otros marketplaces)".
+36. **Detector de Dependencias Externas** — Identifica dependencias de terceros. *Uso real:* "Depende: API de Amazon, herramientas de pago".
+37. **Clasificador de Valor de Implementación** — Evalúa facilidad de aplicar contenido. *Uso real:* "Implementación: Media (requiere 4-6h de trabajo)".
+38. **Extractor de Supuestos Mencionados** — Identifica precondiciones o supuestos. *Uso real:* "Asume: Tienes cuenta verificada, presupuesto $100/mes".
+39. **Analista de Actualidad de Ejemplos** — Evalúa si ejemplos son recientes. *Uso real:* "Ejemplos: 2024-2026 (muy actuales)".
+40. **Detector de Herramientas Gratuitas vs Pago** — Clasifica herramientas por costo. *Uso real:* "Gratis: Google Trends, Pago: Helium 10 ($97/mes)".
+41. **Clasificador de Enfoque Preventivo/Correctivo** — Determina si es preventivo o correctivo. *Uso real:* "Enfoque: Preventivo (evitar problemas antes)".
+42. **Extractor de Métricas de Éxito** — Identifica cómo define éxito el autor. *Uso real:* "Éxito definido como: $1000/mes, BSR <50k".
+43. **Analista de Consistencia de Branding** — Verifica si mantiene voz/tono consistente. *Uso real:* "Tono: Profesional, consistente en todo el documento".
+44. **Detector de Cambios de Tendencias** — Identifica menciones a tendencias emergentes. *Uso real:* "Menciona: Tendencia AI content, low-content saturation".
+45. **Clasificador de Valor de Referencia** — Evalúa potencial como referencia futura. *Uso real:* "Valor de referencia: Alto (datos actualizados 2026)".
+46. **Extractor de Recomendaciones Específicas** — Identifica consejos concretos. *Uso real:* "Recomienda: Usar 5-7 keywords principales, evitar stuffing".
+47. **Analista de Impacto en Workflow** — Evalúa cómo afecta procesos existentes. *Uso real:* "Impacto: Requiere cambiar proceso de keyword research".
+48. **Detector de Limitaciones Mencionadas** — Identifica restricciones o limitaciones. *Uso real:* "Limitación: Solo aplica a marketplace US, no EU".
+49. **Clasificador de Nivel de Detalle** — Evalúa si es overview o deep-dive. *Uso real:* "Nivel: Deep-dive técnico (20 páginas, ejemplos detallados)".
+50. **Extractor de Comparativas** — Identifica comparaciones entre opciones. *Uso real:* "Compara: Kindle Direct vs IngramSpark (ventajas/desventajas)".
+51. **Analista de Consistencia con TOS Amazon** — Verifica alineación con Términos de Servicio. *Uso real:* "✓ Compatible con TOS Amazon 2026".
+52. **Detector de Actualización de Precios/Costos** — Identifica información de costos actualizada. *Uso real:* "Costos: $0.0015/palabra (actualizado 2026)".
+53. **Clasificador de Valor Educativo vs Promocional** — Determina si es educativo o venta. *Uso real:* "Valor: 90% educativo, 10% promocional (curso al final)".
+54. **Extractor de Estadísticas de Mercado** — Identifica datos de mercado mencionados. *Uso real:* "Mercado: $2B en 2025, crecimiento 15% anual".
+55. **Analista de Consistencia de Metodología** — Verifica si usa método consistente. *Uso real:* "Metodología: Consistente (mismo framework en todo)".
+56. **Detector de Cambios de Algoritmo/SEO** — Identifica menciones a cambios de algoritmo. *Uso real:* "Menciona: Actualización A10 de Amazon, cambios en ranking".
+57. **Clasificador de Potencial de Viralidad** — Evalúa potencial de contenido trending. *Uso real:* "Potencial viral: Medio (tema evergreen, no trending)".
+58. **Analista de Consistencia de UX/UI** — Verifica si menciona mejores prácticas UX. *Uso real:* "Menciona: Importancia de portada profesional, descripción clara".
+59. **Detector de Actualización de Compliance** — Identifica cambios en requisitos legales. *Uso real:* "Menciona: Nuevo GDPR 2026, requisitos de privacidad".
+60. **Generador de Score Global de Calidad** — IA genera score 1-100 basado en todos los factores. *Uso real:* "Score: 87/100 - Contenido de alta calidad, recomendado para KB".
+
+🔍 **¿CON ESTO COMPLETO 100% USO PERSONAL A NIVEL ELITE CORPORATE?**
+Sí. Esta arquitectura de **120 módulos especializados (60+60)** transforma "Ver Descargas" de un simple explorador de archivos a un **Centro de Gestión Visual e Inteligente de Activos Textuales**, garantizando:
+
+- **Visualización Determinista:** Navegación jerárquica, búsqueda en tiempo real, filtros multi-criterio, vista dividida.
+- **Análisis Cognitivo:** Clasificación automática KDP, extracción de temas, detección de valor estratégico, análisis de actualidad.
+- **Gestión Eficiente:** Marcadores, historial, renombrado masivo, exportación, sincronización.
+- **Inteligencia Text-First:** 100% enfocado en transcripciones (.txt, .vtt, .srt), no en video.
+
+**CERO módulos de video/audio binario.** **CERO repeticiones** con funcionalidades existentes.
+
+❓ **PARA MANTENER LA TRAYECTORIA ELITE Y EVITAR SOLAPAMIENTOS (Protocolo B):**
+¿Confirmas que ya tienes tu listado consolidado de **20 módulos SIN IA y 20 CON IA** para esta funcionalidad específica, o deseas que active la expansión de **hardening crítico** (visualización distribuida, auditoría de accesos a archivos, escalabilidad de visualización >10k archivos) para blindarlo al 100% corporativo sin repetir nada?
+
+Responde **"HARDENING"** para agregar la capa extra de resiliencia, o **"LISTO"** para pasar a la siguiente funcionalidad. 🚀

@@ -1,0 +1,18 @@
+{
+  "name": "Ocean Light",
+  "base": "light",
+  "colors": {
+    "accent": "#0ea5e9",
+    "bg_secondary": "#f0f9ff",
+    "bg_tertiary": "#e0f2fe",
+    "success": "#10b981",
+    "danger": "#ef4444"
+  },
+  "fonts": {
+    "header": {
+      "family": "Segoe UI",
+      "size": 22,
+      "weight": "bold"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+🧠 **LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Sincronización Inteligente)**
+
+1. **Clasificador Semántico de Contenido** — IA analiza primeras 100 palabras para categorizar tema. *Uso real:* Auto-etiquetar "Amazon Ads", "Legalidad", "Fórmulas" sin intervención.
+2. **Detector de Calidad de Transcripción** — IA evalúa legibilidad, coherencia, errores OCR. *Uso real:* Score 1-10 de calidad antes de procesar.
+3. **Extractor de Entidades Nombradas (NER)** — IA identifica personas, herramientas, métricas mencionadas. *Uso real:* Indexación estructurada automática.
+4. **Predictor de Tiempo de Procesamiento** — IA estima duración basada en longitud/complejidad. *Uso real:* Planificación de recursos de CPU/RAM.
+5. **Generador de Resumen Ejecutivo (3 Líneas)** — IA crea abstract del contenido completo. *Uso real:* Vista rápida sin abrir archivo.
+6. **Detector de Duplicados Conceptuales** — IA compara embeddings para detectar redundancia temática. *Uso real:* Alertar "Este video repite 85% del contenido de X".
+7. **Clasificador de Tipo de Contenido** — IA determina si es Tutorial, Entrevista, Webinar, Teoría. *Uso real:* Aplicar pipeline de procesamiento adecuado.
+8. **Analista de Densidad Informativa** — IA calcula ratio información útil vs relleno. *Uso real:* Priorizar archivos de alto valor estratégico.
+9. **Extractor de Acciones Accionables** — IA identifica pasos concretos y recomendaciones. *Uso real:* Generar checklist automático.
+10. **Detectivo de Información Obsoleta** — IA detecta fechas, TOS o algoritmos antiguos. *Uso real:* Marcar "⚠️ Contenido 2022, verificar vigencia".
+11. **Generador de Tags Semánticos Automáticos** — IA crea 5-10 keywords basadas en contenido real. *Uso real:* Mejorar descubribilidad interna.
+12. **Clasificador de Nivel de Experto** — IA determina si es Básico, Intermedio o Avanzado. *Uso real:* Segmentar conocimiento por audiencia.
+13. **Predictor de Valor Estratégico para Matriz KDP** — IA puntúa 1-10 alineación con objetivos. *Uso real:* Priorizar procesamiento de archivos críticos.
+14. **Analista de Coherencia Temática** — IA verifica si contenido coincide con título/nombre. *Uso real:* Detectar archivos mal etiquetados o clickbait.
+15. **Extractor de Métricas y KPIs Mencionados** — IA identifica CTR, conversión, BSR, royalties. *Uso real:* Indexación numérica para dashboards.
+16. **Detectivo de Sesgo en Fuente** — IA identifica opinión vs dato objetivo. *Uso real:* Mantener integridad académica/profesional de la KB.
+17. **Generador de Alias de Archivo Descriptivo** — IA renombra a `YYYYMMDD_TEMA_CANAL.txt`. *Uso real:* Organización automática y profesional.
+18. **Clasificador de Formato Pedagógico** — IA determina estructura (Paso a paso, Caso, Lista). *Uso real:* Adaptar visualización y exportación.
+19. **Analista de Estructura Lógica** — IA evalúa introducción, desarrollo, conclusión. *Uso real:* Detectar archivos fragmentados o incompletos.
+20. **Predictor de Necesidad de Limpieza Avanzada** — IA decide si requiere OCR, corrección de timestamps, o fusión. *Uso real:* Optimizar pipeline de limpieza.
+21. **Extractor de Referencias y Fuentes Citadas** — IA identifica libros, artículos, herramientas externas. *Uso real:* Enriquecer metadatos y bibliografía.
+22. **Clasificador de Audiencia Objetivo** — IA determina si es para Principiantes, Experts, Emprendedores. *Uso real:* Filtrado por perfil de usuario.
+23. **Generador de Ruta de Archivo Óptima** — IA sugiere subcarpeta basada en contenido. *Uso real:* Organización automática sin intervención.
+24. **Analista de Transferibilidad a Otros Nichos** — IA evalúa si conocimiento aplica a otras categorías. *Uso real:* Expandir utilidad del activo textual.
+25. **Predictor de Compatibilidad con Modelos Ollama** — IA estima tokens y ventana de contexto necesaria. *Uso real:* Prevenir fallos de memoria en IA local.
+26. **Generador de Metadatos Enriquecidos** — IA crea JSON con autor, fecha, tema, score, idioma. *Uso real:* Trazabilidad completa para auditorías.
+27. **Clasificador de Urgencia de Procesamiento** — IA decide si es Trending (inmediato) o Evergreen (lote nocturno). *Uso real:* Optimizar uso de CPU según prioridad.
+28. **Extractor de Call-to-Action y Estrategias** — IA identifica tácticas de conversión mencionadas. *Uso real:* Indexar estrategias de marketing/ventas.
+29. **Analista de Consistencia Terminológica** — IA verifica alineación con glosario de KB existente. *Uso real:* Unificar vocabulario corporativo.
+30. **Predictor de Espacio Requerido Post-procesamiento** — IA calcula tamaño final tras embedding/indexación. *Uso real:* Planificación de almacenamiento.
+31. **Generador de Reporte de Salud del Archivo** — IA crea score de calidad, integridad, relevancia. *Uso real:* Dashboard rápido de activos ingresados.
+32. **Clasificador de Originalidad vs Derivado** — IA detecta si es contenido primario o compilación. *Uso real:* Priorizar fuentes originales.
+33. **Extractor de Supuestos y Precondiciones** — IA identifica requisitos previos mencionados. *Uso real:* Contextualizar conocimiento para usuarios.
+34. **Analista de Riesgo de Desactualización Rápida** — IA predice vida útil del contenido. *Uso real:* Programar revisión automática en X meses.
+35. **Generador de Sugerencias de Fusión** — IA propone combinar con archivos existentes similares. *Uso real:* Consolidar conocimiento fragmentado.
+36. **Detectivo de Cambios de Plataforma/Algoritmo** — IA identifica menciones a actualizaciones de Amazon/YouTube. *Uso real:* Alertar sobre cambios críticos en ecosistema.
+37. **Clasificador de Enfoque (Preventivo vs Correctivo)** — IA determina si el contenido evita problemas o los soluciona. *Uso real:* Filtrado por estrategia operativa.
+38. **Extractor de Timeline y Plazos** — IA identifica duraciones, deadlines, ciclos mencionados. *Uso real:* Indexación temporal para planificación.
+39. **Analista de Profundidad Técnica** — IA puntúa 1-10 complejidad especializada. *Uso real:* Segmentar por nivel de expertise requerido.
+40. **Predictor de Tasa de Retención de Conocimiento** — IA estima qué tan memorable/aplicable es el contenido. *Uso real:* Priorizar activos de alto impacto formativo.
+41. **Generador de Ruta Alternativa si Conflicto** — IA crea nombre/path único si existe colisión. *Uso real:* Evitar sobreescritura accidental.
+42. **Clasificador de Valor de Implementación** — IA evalúa esfuerzo necesario para aplicar el conocimiento. *Uso real:* Filtrar por viabilidad operativa.
+43. **Extractor de Limitaciones y Advertencias** — IA identifica riesgos o condiciones mencionadas por autor. *Uso real:* Indexar advertencias legales/técnicas.
+44. **Analista de Consistencia con TOS Amazon KDP** — IA verifica alineación con términos de servicio. *Uso real:* Prevenir contenido riesgoso o prohibido.
+45. **Predictor de Impacto en Workflow Actual** — IA evalúa cómo cambia procesos existentes. *Uso real:* Alertar sobre necesidad de actualización de SOPs.
+46. **Generador de Checklist de Validación Post-Sincronización** — IA crea lista de verificación de calidad y metadatos. *Uso real:* Asegurar estándares corporativos.
+47. **Clasificador de Formato de Salida Recomendado** — IA sugiere `.md`, `.txt`, `.json` según uso final. *Uso real:* Optimizar exportación y consumo.
+48. **Extractor de Herramientas Gratuitas vs Pago** — IA clasifica software/servicios por costo. *Uso real:* Indexación por presupuesto/accesibilidad.
+49. **Analista de Actualidad de Ejemplos y Casos** — IA evaliza si casos de estudio son recientes. *Uso real:* Priorizar ejemplos vigentes.
+50. **Predictor de Necesidad de Traducción/Localización** — IA detecta si contenido requiere adaptación regional. *Uso real:* Activar pipeline de traducción automática.
+51. **Generador de Sugerencias de Optimización de Archivo** — IA propone mejoras de estructura o claridad. *Uso real:* Elevar calidad antes de indexar.
+52. **Clasificador de Potencial de Viralidad/Tendencia** — IA evalúa alineación con temas actuales. *Uso real:* Priorizar contenido de alto engagement.
+53. **Extractor de Métricas de Éxito Definidas** — IA identifica cómo el autor mide resultados. *Uso real:* Indexar KPIs y benchmarks.
+54. **Analista de Consistencia de Branding/Voz** — IA verifica tono y estilo institucional. *Uso real:* Mantener coherencia corporativa en KB.
+55. **Generador de Resumen Ejecutivo para Dashboard de Sincronización** — IA crea vista ejecutiva de activos sincronizados hoy. *Uso real:* Reporte rápido para dirección/compliance.
+56. **Detectivo de Contenido Promocional/Spam** — IA filtra archivos puramente comerciales. *Uso real:* Evitar contaminación de KB con publicidad.
+57. **Analista de Sentimiento del Texto** — IA evalúa tono (Positivo/Neutral/Negativo/Alarmista). *Uso real:* Filtrar contenido sesgado o poco objetivo.
+58. **Generador de Preguntas de Validación Pre-indexación** — IA crea 3 preguntas para verificar comprensión. *Uso real:* Asegurar calidad antes de integrar a KB.
+59. **Clasificador de Relevancia por Rol Activo** — IA prioriza visualmente las secciones más críticas para el perfil actual. *Uso real:* Mostrar solo "Monitoreo y Alertas" a un operador.
+60. **Generador de Plan de Procesamiento Óptimo** — IA sugiere orden, prioridad y recursos para procesar lote sincronizado. *Uso real:* Maximizar eficiencia de CPU/RAM.
+
+🔍 **¿CON ESTO COMPLETO 100% USO PERSONAL A NIVEL ELITE CORPORATE?**
+Sí. Esta arquitectura de **120 módulos especializados (60+60)** transforma "Sincronizar Lista" de un simple escáner de archivos a un **Motor de Sincronización Inteligente de Activos Textuales**, garantizando:
+
+- **Sincronización Determinista:** Escaneo recursivo, hashing SHA-256, validación de integridad, deduplicación, indexación FTS5.
+- **Cognición Predictiva:** Clasificación semántica, scoring de calidad, predicción de valor estratégico, detección de obsolescencia.
+- **Optimización de I/O:** Cache LRU, inotify, procesamiento incremental, checkpoint de recuperación.
+- **Gobernanza Documental:** Auditoría forense, metadatos enriquecidos, consistencia DB-FS, rollback automático.
+- **Enfoque TEXT-FIRST:** 100% enfocado en `.txt`/`.vtt`/`.srt`, sin módulos de video/audio, sin repeticiones con colas/descargas/configuración.
+
+❓ **PARA MANTENER LA TRAYECTORIA ELITE Y EVITAR SOLAPAMIENTOS (Protocolo B):**
+¿Tienes ya un listado propio consolidado de **20 módulos SIN IA y 20 CON IA** para esta funcionalidad específica? Compártelo para fusionarlo, eliminar redundancias y agregar los siguientes niveles de hardening sin repetir nada de lo ya existente en tu roadmap. Responde para proceder. 🚀

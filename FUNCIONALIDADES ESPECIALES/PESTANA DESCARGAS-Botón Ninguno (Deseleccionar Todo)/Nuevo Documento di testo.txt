@@ -1,0 +1,83 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **ANÁLISIS DE CERO SOLAPAMIENTOS:** He revisado el método `panic_backup()` en `gui_app.py`. Actualmente, solo realiza un ciclo `zip` básico sobre carpetas sin detener servicios, sin validación de integridad, sin cifrado y sin gestión de versiones. **TUS 120 MÓDULOS SON TOTALMENTE NUEVOS Y NO REPETIDOS.**
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Elevar el botón de pánico a un **Sistema de Continuidad de Negocio (BCM) y Recuperación de Desastres (DR)** garantiza que el conocimiento textual (transcripciones, manuales, configs JSON/DB) esté inmutable, cifrado, validado y disponible en caso de catástrofe, sin depender de servicios externos y manteniendo el enfoque **TEXT-FIRST**.
+
+---
+
+### 📦 LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Gobernanza)
+
+#### 🔹 Pilar 1: Pre-Backup y Aislamiento (1-10)
+1.  **Validador de Cuotas de Almacenamiento en Tiempo Real:** Calcula el tamaño exacto de los archivos de texto a respaldar y bloquea si el disco destino tiene <10% libre. *Uso real:* Prevenir corrupción de disco durante la creación del ZIP de emergencia.
+2.  **Bloqueo Atómico de Operaciones de Escritura:** Pausa temporalmente las colas de descarga y el monitoreo de canales durante el backup. *Uso real:* Garantizar que ningún archivo `.txt` o `.db` se esté modificando mientras se lee.
+3.  **Flush Forzado de Buffers de RAM a Disco:** Ejecuta comandos de sistema para forzar la escritura de caché pendiente antes de iniciar. *Uso real:* Asegurar que la última transcripción procesada esté en el disco, no solo en RAM.
+4.  **Verificador de Integridad de Rutas Críticas:** Valida que las carpetas `knowledge`, `data` y `outputs` existan y sean accesibles antes de empezar. *Uso real:* Evitar errores de "File Not Found" en entornos portables o rutas mapeadas.
+5.  **Escáner de Permisos de Lectura/Escritura:** Verifica que el proceso tenga permisos absolutos sobre los archivos de texto y la base de datos. *Uso real:* Prevenir fallos de acceso denegado en sistemas Linux/Windows Server estrictos.
+6.  **Validador de Salud del Disco (SMART/S.M.A.R.T):** Consulta el estado S.M.A.R.T del disco duro para predecir fallos inminentes antes de confiar en él. *Uso real:* Alertar si el disco está fallando y sugerir backup externo inmediato.
+7.  **Monitor de Temperatura de Hardware:** Verifica que la CPU/Disc no estén en thermal throttling crítico. *Uso real:* Pausar backup intensivo si el hardware está sobrecalentado para evitar daños.
+8.  **Verificador de Conexión de Medios Externos:** Detecta si hay USB/NAS montado y accesible para copia redundante. *Uso real:* Sugerir "Backup en USB" si se detecta un dispositivo extraíble conectado.
+9.  **Validador de Consistencia de Base de Datos SQLite:** Ejecuta `PRAGMA integrity_check` antes de copiar el `.db`. *Uso real:* Asegurar que no se respalde una base de datos corrupta ("database disk image is malformed").
+10. **Detector de Archivos Bloqueados por Otros Procesos:** Identifica si `yt-dlp` u otra app tiene lock sobre archivos `.part`. *Uso real:* Evitar copiar archivos incompletos o corruptos.
+
+#### 🔹 Pilar 2: Ejecución Atómica y Copia (11-20)
+11. **Motor de Clonado Atómico de Archivos de Texto:** Copia archivos usando buffers optimizados para evitar truncamientos. *Uso real:* Copiar manuales de 500MB sin riesgo de que el sistema operativo interrumpa la lectura.
+12. **Gestor de Transacciones de Copia (All-or-Nothing):** Si falla la copia del archivo 50 de 100, elimina los 49 anteriores y revierte. *Uso real:* Evitar dejar carpetas de backup a medio llenar e inconsistentes.
+13. **Sincronizador de Estado de Colas (Queue Snapshot):** Guarda una imagen JSON exacta del estado de la cola en el momento del backup. *Uso real:* Poder restaurar no solo los archivos, sino saber qué estaba pendiente de descargar.
+14. **Copiador de Configuraciones de Entorno (.env):** Incluye específicamente archivos ocultos de configuración y credenciales locales. *Uso real:* No perder las claves API o configuraciones de proxy al formatear.
+15. **Validador de Tamaño de Archivos Post-Copia:** Compara el tamaño original vs. el tamaño copiado byte por byte. *Uso real:* Detectar silenciosamente si un archivo se copió incompleto.
+16. **Generador de Hash SHA-256 Individual por Archivo:** Genera checksum para cada `.txt` y `.md` respaldado. *Uso real:* Permitir restaurar solo un archivo específico verificando que no fue alterado.
+17. **Motor de Compresión ZSTD (Nivel Ultra):** Usa compresión más eficiente que ZIP estándar para archivos de texto. *Uso real:* Reducir el tamaño del backup de transcripciones en un 60% más que ZIP normal.
+18. **Segmentador de Archivos Grandes (Split Archives):** Divide el backup en partes de 2GB si excede el límite. *Uso real:* Facilitar el traslado a memorias USB FAT32 o servicios de correo.
+19. **Validador de Estructura de Directorios:** Recrea la jerarquía de carpetas (`knowledge/legal`, `data/transcriptions`) en el backup. *Uso real:* Mantener la organización lógica al restaurar.
+20. **Verificador de Archivos Ocultos/Sistema:** Incluye archivos `.git`, `.DS_Store` o configs ocultas si son relevantes. *Uso real:* Backup completo del entorno de desarrollo, no solo del usuario.
+
+#### 🔹 Pilar 3: Cifrado y Seguridad (21-30)
+21. **Cifrado AES-256-GCM del Paquete Final:** Encripta el archivo ZIP resultante con contraseña maestra. *Uso real:* Proteger la propiedad intelectual (textos, manuales) si el backup es robado.
+22. **Gestor de Derivación de Claves (PBKDF2):** Genera la clave de cifrado desde la contraseña del usuario con salt aleatorio. *Uso real:* Prevenir ataques de fuerza bruta sobre la contraseña del backup.
+23. **Almacenamiento Seguro de Claves en OS Keyring:** Guarda la clave de cifrado en el gestor de claves de Windows/Mac/Linux. *Uso real:* Permitir restauración automática sin pedir contraseña si el usuario es el propietario del equipo.
+24. **Enmascarado de Datos Sensibles en Logs de Backup:** Oculta rutas completas o nombres de archivos sensibles en el log del proceso. *Uso real:* Evitar que el log de backup exponga la estructura de carpetas del usuario.
+25. **Verificador de Integridad del Cifrado:** Verifica que el archivo cifrado sea desbloqueable antes de finalizar. *Uso real:* Evitar crear un backup cifrado que nadie pueda abrir (corrupción de header).
+26. **Protocolo de Borrado Seguro de Temporales:** Sobreescritura múltiple de archivos temporales de backup tras éxito. *Uso real:* Evitar recuperación forense de datos intermedios no cifrados.
+27. **Firma Digital del Manifiesto de Backup:** Firma el índice de archivos con certificado del desarrollador. *Uso real:* Garantizar que el backup no fue manipulado por malware.
+28. **Validador de Firma Digital al Iniciar:** Verifica la firma antes de permitir cualquier operación con el backup. *Uso real:* Bloquear backups falsos inyectados por ransomware.
+29. **Detección de Ransomware en Ruta de Backup:** Analiza patrones de nombres de archivo (ej. `.locked`, `.encrypted`) en la ruta destino. *Uso real:* Abortar backup si se detecta que la carpeta destino está siendo atacada.
+30. **Aislamiento de Backup en Sandbox:** Ejecuta el proceso de creación en un entorno restringido si es posible. *Uso real:* Prevenir que un fallo en el script de backup afecte al sistema operativo.
+
+#### 🔹 Pilar 4: Gestión de Versiones y Retención (31-40)
+31. **Sistema de Versionado Semántico de Backups:** Etiqueta backups con versión de la app y tipo (Daily, Weekly, Panic). *Uso real:* Saber que este backup corresponde a la versión v3.4.7 con parche X.
+32. **Política de Retención Rotativa (GFS):** Aplica regla Abuelo-Padre-Hijo para conservar backups. *Uso real:* Mantener 7 diarios, 4 semanales, 12 mensuales automáticamente.
+33. **Detector de Backups Redundantes (Delta):** Detecta si el backup actual es idéntico al anterior y omite guardarlo. *Uso real:* Ahorrar espacio si no ha habido cambios en las transcripciones.
+34. **Compresor de Logs Históricos:** Comprime logs de ejecución de más de 7 días. *Uso real:* Mantener el historial de auditoría sin consumir espacio excesivo.
+35. **Archivador de Backups Antiguos:** Mueve backups viejos a carpeta `_archive`. *Uso real:* Limpiar la vista principal de backups recientes sin borrar datos históricos.
+36. **Validador de Antigüedad Máxima:** Alerta si no hay backups recientes (ej. >7 días). *Uso real:* Recordar al usuario que su última copia es vieja y riesgosa.
+37. **Gestor de Cuotas de Espacio por Proyecto:** Permite asignar límites de backup por carpeta de conocimiento. *Uso real:* Evitar que un proyecto ocupe todo el espacio de backup.
+38. **Sincronizador con Nube Privada (Nextcloud/S3):** Opción de subir el backup a repositorio propio. *Uso real:* Redundancia off-site controlada por el usuario, no por terceros.
+39. **Verificador de Integridad de Red para Sync:** Valida checksum tras subida a nube. *Uso real:* Asegurar que el backup en la nube es idéntico al local.
+40. **Generador de Reporte de Estado de Backups:** Crea resumen visual de salud del sistema de copias. *Uso real:* Ver en dashboard si los backups están al día y sanos.
+
+#### 🔹 Pilar 5: UI, Feedback y Post-Proceso (41-50)
+41. **Indicador de Progreso Realista (Tiempo Restante):** Calcula ETA basado en velocidad de escritura real. *Uso real:* Que el usuario sepa cuánto falta realmente, no un cálculo falso.
+42. **Feedback Háptico/Visual en Barra de Estado:** Cambia color de barra a verde/rojo según éxito. *Uso real:* Feedback instantáneo sin leer mensajes.
+43. **Notificación Toast de Éxito/Fallo:** Mensaje emergente no intrusivo. *Uso real:* Informar sin bloquear el trabajo actual.
+44. **Registro en Log de Auditoría (Audit Trail):** Anota quién, cuándo y qué se respaldó. *Uso real:* Trazabilidad para cumplimiento corporativo.
+45. **Actualización de "Último Backup Exitoso" en Config:** Guarda timestamp en `settings.json`. *Uso real:* Que la app recuerde el estado tras reinicio.
+46. **Reactivación Automática de Servicios:** Reanuda monitor y descargas tras éxito. *Uso real:* Que el usuario no tenga que volver a activar el monitoreo manualmente.
+47. **Verificador Post-Backup de Espacio Libre:** Confirma que quedó espacio tras crear el archivo. *Uso real:* Evitar que el sistema se quede sin espacio tras el backup.
+48. **Abre Carpeta de Destino Automáticamente:** Opción configurable para ir al archivo. *Uso real:* Ahorrar clics para verificar el archivo.
+49. **Validador de Permisos en Archivo Resultante:** Asegura que el usuario puede leer/escribir el backup creado. *Uso real:* Evitar backups creados como "Solo Lectura" por error de sistema.
+50. **Generador de Hash Global del Backup:** Hash único del archivo ZIP final. *Uso real:* Verificación rápida de integridad externa.
+
+#### 🔹 Pilar 6: Escalabilidad y Rendimiento (51-60)
+51. **Multi-Hilo para Lectura de Archivos:** Lee múltiples archivos de texto en paralelo. *Uso real:* Acelerar backup en discos SSD NVMe.
+52. **Buffer Management Dinámico:** Ajusta tamaño de buffer según RAM disponible. *Uso real:* No saturar la RAM del sistema durante backup.
+53. **Prioridad de E/S Baja (Idle I/O):** Configura el proceso con prioridad baja para no afectar al usuario. *Uso real:* Que el PC no se congele mientras se hace backup.
+54. **Compresión Diferencial de Texto:** Comprime repeticiones en archivos de texto grandes. *Uso real:* Mayor eficiencia en logs y transcripciones largas.
+55. **Indexación Rápida de Archivos:** Usa índice del sistema operativo para listar archivos rápido. *Uso real:* Evitar escaneo lento de carpetas con miles de archivos.
+56. **Gestión de Excepciones Granular:** Captura error por archivo, no falla todo el proceso. *Uso real:* Si un archivo está corrupto, salta y sigue con el siguiente.
+57. **Retry Logic con Backoff:** Reintenta operaciones fallidas con espera. *Uso real:* Recuperarse de bloqueos temporales de disco.
+58. **Optimización para Discos Mecánicos (HDD):** Ajusta algoritmos para HDD. *Uso real:* Mejor rendimiento en equipos antiguos.
+59. **Soporte para Rutas UNC/Red:** Manejo robusto de rutas de red. *Uso real:* Backup en servidor de archivos corporativo.
+60. **Modo Silencioso (Headless):** Ejecución sin UI para scripts. *Uso real:* Backups automáticos programados por cron/task scheduler.
+
+---

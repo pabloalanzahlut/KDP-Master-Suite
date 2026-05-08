@@ -1,0 +1,21 @@
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+Motor de Tipografía Corporativa Avanzada: Soporte para fuentes OTF/TTF con gestión de kerning y ligaduras para una presentación visual de nivel editorial.
+Generación de Índices Analíticos: Creación automática de un índice de términos técnicos al final del documento con referencias cruzadas a los números de página.
+Soporte de Estándar PDF/A (Archivado): Cumplimiento con la norma ISO 19005 para asegurar que el documento sea legible y preserve su integridad a largo plazo.
+Firmado Digital con Certificados .p12: Capacidad de aplicar firmas electrónicas para garantizar la autenticidad y el origen del documento exportado.
+Optimización de Gráficos Vectoriales (SVG a PDF): Renderizado de diagramas y estadísticas en formato vectorial para garantizar nitidez absoluta en cualquier nivel de zoom o impresión.
+Gestor de Capas de Documento (Layers): Inclusión de capas opcionales en el PDF que permitan ocultar o mostrar comentarios técnicos y metadatos sensibles.
+Maquetación Multi-Columna Dinámica: Motor de renderizado capaz de alternar entre una y dos columnas para optimizar el espacio según la densidad del texto.
+Incrustación de Metadatos XMP: Inserción de metadatos estructurados dentro del archivo para facilitar la indexación en sistemas de gestión documental empresariales.
+Validación de Hipervínculos Externos: Verificador que comprueba la validez de todas las URLs mencionadas en el texto antes de finalizar la generación del PDF.
+Ajuste de DPI Diferencial por Canal: Sistema que comprime imágenes secundarias mientras mantiene la alta resolución en gráficos críticos para optimizar el peso final.
+
+1. **Habilitar PDF por defecto**: Cambiar SKIP_PDF=False en export_kb.py si GTK3 detectado
+2. **Detección automática GTK3**: Verificar libgobject-2.0-0.dll antes de exportar
+3. **Diálogo de instalación GTK3**:Mostrar instructions si no détectado
+4. **Estilos PDF profesionales**: Header/footer, numeración páginas, marcas de agua
+5. **Compresión ZIP del PDF**: Opción para generar ZIP del PDF exportado
+6. **Exportación programada PDF**: Scheduler (daily/weekly) para PDFs automáticos
+7. **Notificación toast**: Toast cuando PDF exportado termina
+8. **Historial de exports PDF**: Guardar en DB cada exportación PDF

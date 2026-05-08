@@ -1,0 +1,36 @@
+{
+  "name": "dark",
+  "base": null,
+  "colors": {
+    "bg_primary": "#0a0e1a",
+    "bg_secondary": "#1e293b",
+    "bg_tertiary": "#334155",
+    "fg_primary": "#f1f5f9",
+    "fg_secondary": "#cbd5e1",
+    "accent": "#3b82f6",
+    "success": "#10b981",
+    "warning": "#f59e0b",
+    "danger": "#ef4444",
+    "info": "#06b6d4"
+  },
+  "fonts": {
+    "header": {
+      "family": "Segoe UI",
+      "size": 22,
+      "weight": "bold"
+    },
+    "subheader": {
+      "family": "Segoe UI",
+      "size": 16,
+      "weight": "bold"
+    },
+    "body": {
+      "family": "Segoe UI",
+      "size": 10
+    },
+    "code": {
+      "family": "Consolas",
+      "size": 9
+    }
+  }
+}

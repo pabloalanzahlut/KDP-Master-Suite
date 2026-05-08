@@ -1,0 +1,1051 @@
+Te ayudo a programar la funcionalidad del botón **"SISTEMA OK"** para que sea un verificador completo del estado del sistema en tiempo real.
+
+## SOLUCIÓN COMPLETA:
+
+### **Paso 1: Crear el módulo de verificación del sistema**
+
+Crea el archivo `app/utils/system_checker.py`:
+
+```python
+import os
+import sys
+import json
+import sqlite3
+import subprocess
+import platform
+import psutil
+from pathlib import Path
+from datetime import datetime
+from typing import Dict, List, Tuple
+import threading
+import time
+
+class SystemChecker:
+    """Verificador completo del estado del sistema"""
+    
+    def __init__(self, base_dir: Path):
+        self.base_dir = base_dir
+        self.status_cache = {}
+        self.last_check = None
+        
+    def check_all(self) -> Dict:
+        """Ejecuta todas las verificaciones del sistema"""
+        results = {
+            'timestamp': datetime.now().isoformat(),
+            'overall_status': 'OK',
+            'components': {},
+            'warnings': [],
+            'errors': [],
+            'recommendations': []
+        }
+        
+        # Verificar componentes críticos
+        results['components']['database'] = self.check_database()
+        results['components']['directories'] = self.check_directories()
+        results['components']['files'] = self.check_essential_files()
+        results['components']['python'] = self.check_python_environment()
+        results['components']['disk_space'] = self.check_disk_space()
+        results['components']['memory'] = self.check_memory()
+        results['components']['network'] = self.check_network()
+        results['components']['youtube_api'] = self.check_youtube_connectivity()
+        results['components']['yt_dlp'] = self.check_yt_dlp()
+        results['components']['channels'] = self.check_channels_database()
+        results['components']['downloads'] = self.check_downloads_folder()
+        
+        # Determinar estado general
+        error_count = sum(1 for comp in results['components'].values() if comp['status'] == 'ERROR')
+        warning_count = sum(1 for comp in results['components'].values() if comp['status'] == 'WARNING')
+        
+        if error_count > 0:
+            results['overall_status'] = 'ERROR'
+        elif warning_count > 0:
+            results['overall_status'] = 'WARNING'
+        else:
+            results['overall_status'] = 'OK'
+            
+        self.last_check = results
+        return results
+    
+    def check_database(self) -> Dict:
+        """Verifica el estado de la base de datos"""
+        db_path = self.base_dir / "data" / "kdp_master.db"
+        
+        result = {
+            'name': 'Base de Datos',
+            'status': 'OK',
+            'details': {},
+            'message': ''
+        }
+        
+        try:
+            if not db_path.exists():
+                result['status'] = 'ERROR'
+                result['message'] = 'La base de datos no existe'
+                return result
+                
+            conn = sqlite3.connect(str(db_path))
+            cursor = conn.cursor()
+            
+            # Verificar tablas existentes
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            tables = [row[0] for row in cursor.fetchall()]
+            result['details']['tables'] = tables
+            result['details']['table_count'] = len(tables)
+            
+            # Verificar conteo de canales
+            if 'channels' in tables:
+                cursor.execute("SELECT COUNT(*) FROM channels")
+                channel_count = cursor.fetchone()[0]
+                result['details']['channels_count'] = channel_count
+                
+            # Verificar conteo de videos
+            if 'videos' in tables:
+                cursor.execute("SELECT COUNT(*) FROM videos")
+                video_count = cursor.fetchone()[0]
+                result['details']['videos_count'] = video_count
+                
+            # Verificar integridad
+            cursor.execute("PRAGMA integrity_check")
+            integrity = cursor.fetchone()[0]
+            result['details']['integrity'] = integrity
+            
+            if integrity != 'ok':
+                result['status'] = 'WARNING'
+                result['message'] = 'Problemas de integridad en la base de datos'
+                
+            conn.close()
+            result['message'] = f'Base de datos OK - {len(tables)} tablas'
+            
+        except Exception as e:
+            result['status'] = 'ERROR'
+            result['message'] = f'Error: {str(e)}'
+            
+        return result
+    
+    def check_directories(self) -> Dict:
+        """Verifica que los directorios necesarios existan"""
+        result = {
+            'name': 'Directorios',
+            'status': 'OK',
+            'details': {},
+            'message': ''
+        }
+        
+        required_dirs = [
+            'data',
+            'data/transcriptions',
+            'outputs',
+            'outputs/transcriptions_processed',
+            'knowledge',
+            'knowledge/manuals',
+            'knowledge/playbooks',
+            'themes',
+            'logs'
+        ]
+        
+        existing = 0
+        missing = []
+        
+        for dir_path in required_dirs:
+            full_path = self.base_dir / dir_path
+            if full_path.exists():
+                existing += 1
+                # Verificar permisos de escritura
+                try:
+                    test_file = full_path / '.test_write_permission'
+                    test_file.touch()
+                    test_file.unlink()
+                except:
+                    result['status'] = 'WARNING'
+                    result['details'][dir_path] = 'Sin permisos de escritura'
+            else:
+                missing.append(dir_path)
+                # Crear directorio
+                try:
+                    full_path.mkdir(parents=True, exist_ok=True)
+                    existing += 1
+                except:
+                    result['status'] = 'ERROR'
+                    
+        result['details']['total'] = len(required_dirs)
+        result['details']['existing'] = existing
+        result['details']['missing_created'] = missing if missing else []
+        
+        if missing:
+            result['message'] = f'{len(missing)} directorios creados'
+        else:
+            result['message'] = f'Todos los directorios OK ({existing}/{len(required_dirs)})'
+            
+        return result
+    
+    def check_essential_files(self) -> Dict:
+        """Verifica archivos esenciales del sistema"""
+        result = {
+            'name': 'Archivos Esenciales',
+            'status': 'OK',
+            'details': {},
+            'message': ''
+        }
+        
+        essential_files = [
+            'knowledge/manuals/MATRIZ MAESTRA.md',
+            'knowledge/manuals/MANUAL_LEGALIDAD.md',
+            'knowledge/manuals/MANUAL de FÓRMULAS.md',
+            'data/kdp_master.db'
+        ]
+        
+        existing = 0
+        missing = []
+        
+        for file_path in essential_files:
+            full_path = self.base_dir / file_path
+            if full_path.exists():
+                existing += 1
+                size_kb = full_path.stat().st_size / 1024
+                result['details'][Path(file_path).name] = f'{size_kb:.1f} KB'
+            else:
+                missing.append(file_path)
+                
+        result['details']['total'] = len(essential_files)
+        result['details']['existing'] = existing
+        result['details']['missing'] = missing if missing else []
+        
+        if missing:
+            result['status'] = 'WARNING'
+            result['message'] = f'{len(missing)} archivos faltantes'
+        else:
+            result['message'] = f'Todos los archivos esenciales presentes'
+            
+        return result
+    
+    def check_python_environment(self) -> Dict:
+        """Verifica el entorno de Python"""
+        result = {
+            'name': 'Entorno Python',
+            'status': 'OK',
+            'details': {},
+            'message': ''
+        }
+        
+        try:
+            result['details']['python_version'] = sys.version
+            result['details']['platform'] = platform.platform()
+            result['details']['architecture'] = platform.architecture()[0]
+            
+            # Verificar módulos críticos
+            critical_modules = [
+                'customtkinter',
+                'tkinterdnd2',
+                'yt_dlp',
+                'psutil',
+                'requests'
+            ]
+            
+            missing_modules = []
+            for module in critical_modules:
+                try:
+                    __import__(module)
+                    result['details'][module] = 'OK'
+                except ImportError:
+                    missing_modules.append(module)
+                    result['status'] = 'WARNING'
+                    
+            if missing_modules:
+                result['message'] = f'Módulos faltantes: {", ".join(missing_modules)}'
+            else:
+                result['message'] = f'Python {platform.python_version()} - Todos los módulos OK'
+                
+        except Exception as e:
+            result['status'] = 'ERROR'
+            result['message'] = f'Error: {str(e)}'
+            
+        return result
+    
+    def check_disk_space(self) -> Dict:
+        """Verifica espacio en disco"""
+        result = {
+            'name': 'Espacio en Disco',
+            'status': 'OK',
+            'details': {},
+            'message': ''
+        }
+        
+        try:
+            disk = psutil.disk_usage(str(self.base_dir))
+            
+            result['details']['total_gb'] = f'{disk.total / (1024**3):.1f} GB'
+            result['details']['used_gb'] = f'{disk.used / (1024**3):.1f} GB'
+            result['details']['free_gb'] = f'{disk.free / (1024**3):.1f} GB'
+            result['details']['percent_used'] = f'{disk.percent}%'
+            
+            if disk.percent > 95:
+                result['status'] = 'ERROR'
+                result['message'] = '¡Espacio en disco crítico! (>95%)'
+            elif disk.percent > 85:
+                result['status'] = 'WARNING'
+                result['message'] = 'Espacio en disco bajo (<15% libre)'
+            else:
+                result['message'] = f'{disk.free / (1024**3):.1f} GB libres ({100-disk.percent:.1f}%)'
+                
+        except Exception as e:
+            result['status'] = 'ERROR'
+            result['message'] = f'Error: {str(e)}'
+            
+        return result
+    
+    def check_memory(self) -> Dict:
+        """Verifica uso de memoria RAM"""
+        result = {
+            'name': 'Memoria RAM',
+            'status': 'OK',
+            'details': {},
+            'message': ''
+        }
+        
+        try:
+            mem = psutil.virtual_memory()
+            
+            result['details']['total_gb'] = f'{mem.total / (1024**3):.1f} GB'
+            result['details']['available_gb'] = f'{mem.available / (1024**3):.1f} GB'
+            result['details']['used_percent'] = f'{mem.percent}%'
+            
+            if mem.percent > 95:
+                result['status'] = 'ERROR'
+                result['message'] = '¡Memoria crítica! (>95% usada)'
+            elif mem.percent > 85:
+                result['status'] = 'WARNING'
+                result['message'] = 'Memoria baja (<15% disponible)'
+            else:
+                result['message'] = f'{mem.available / (1024**3):.1f} GB disponibles ({100-mem.percent:.1f}%)'
+                
+        except Exception as e:
+            result['status'] = 'ERROR'
+            result['message'] = f'Error: {str(e)}'
+            
+        return result
+    
+    def check_network(self) -> Dict:
+        """Verifica conectividad de red"""
+        result = {
+            'name': 'Conectividad',
+            'status': 'OK',
+            'details': {},
+            'message': ''
+        }
+        
+        try:
+            import requests
+            
+            # Verificar conexión a internet
+            test_urls = [
+                ('Google', 'https://www.google.com', 5),
+                ('YouTube', 'https://www.youtube.com', 5)
+            ]
+            
+            connected = 0
+            for name, url, timeout in test_urls:
+                try:
+                    response = requests.get(url, timeout=timeout)
+                    if response.status_code == 200:
+                        connected += 1
+                        result['details'][name] = 'OK'
+                    else:
+                        result['details'][name] = f'Error {response.status_code}'
+                except:
+                    result['details'][name] = 'Sin conexión'
+                    result['status'] = 'WARNING'
+                    
+            if connected == 0:
+                result['status'] = 'ERROR'
+                result['message'] = 'Sin conexión a internet'
+            elif connected < len(test_urls):
+                result['message'] = f'Conexión parcial ({connected}/{len(test_urls)})'
+            else:
+                result['message'] = 'Conexión a internet OK'
+                
+        except Exception as e:
+            result['status'] = 'ERROR'
+            result['message'] = f'Error: {str(e)}'
+            
+        return result
+    
+    def check_youtube_connectivity(self) -> Dict:
+        """Verifica conectividad específica con YouTube"""
+        result = {
+            'name': 'YouTube API',
+            'status': 'OK',
+            'details': {},
+            'message': ''
+        }
+        
+        try:
+            import requests
+            
+            # Verificar si YouTube responde
+            response = requests.get('https://www.youtube.com', timeout=10)
+            
+            if response.status_code == 200:
+                result['message'] = 'YouTube accesible'
+                result['details']['status_code'] = response.status_code
+            else:
+                result['status'] = 'WARNING'
+                result['message'] = f'YouTube responde con error {response.status_code}'
+                
+        except Exception as e:
+            result['status'] = 'WARNING'
+            result['message'] = f'No se puede conectar con YouTube: {str(e)}'
+            
+        return result
+    
+    def check_yt_dlp(self) -> Dict:
+        """Verifica yt-dlp"""
+        result = {
+            'name': 'yt-dlp',
+            'status': 'OK',
+            'details': {},
+            'message': ''
+        }
+        
+        try:
+            import yt_dlp
+            
+            result['details']['version'] = yt_dlp.version.__version__
+            
+            # Probar versión
+            with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+                result['details']['status'] = 'Funcional'
+                
+            result['message'] = f'yt-dlp v{yt_dlp.version.__version__} OK'
+            
+        except ImportError:
+            result['status'] = 'ERROR'
+            result['message'] = 'yt-dlp no está instalado'
+        except Exception as e:
+            result['status'] = 'ERROR'
+            result['message'] = f'Error en yt-dlp: {str(e)}'
+            
+        return result
+    
+    def check_channels_database(self) -> Dict:
+        """Verifica la base de datos de canales"""
+        result = {
+            'name': 'Canales',
+            'status': 'OK',
+            'details': {},
+            'message': ''
+        }
+        
+        try:
+            db_path = self.base_dir / "data" / "kdp_master.db"
+            
+            if not db_path.exists():
+                result['status'] = 'ERROR'
+                result['message'] = 'Base de datos no existe'
+                return result
+                
+            conn = sqlite3.connect(str(db_path))
+            cursor = conn.cursor()
+            
+            # Verificar tabla channels
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='channels'")
+            if not cursor.fetchone():
+                result['status'] = 'ERROR'
+                result['message'] = 'Tabla channels no existe'
+                conn.close()
+                return result
+                
+            # Contar canales
+            cursor.execute("SELECT COUNT(*) FROM channels")
+            total_channels = cursor.fetchone()[0]
+            
+            cursor.execute("SELECT COUNT(*) FROM channels WHERE active=1")
+            active_channels = cursor.fetchone()[0]
+            
+            result['details']['total'] = total_channels
+            result['details']['active'] = active_channels
+            result['details']['inactive'] = total_channels - active_channels
+            
+            if total_channels == 0:
+                result['status'] = 'WARNING'
+                result['message'] = 'No hay canales registrados'
+            else:
+                result['message'] = f'{active_channels}/{total_channels} canales activos'
+                
+            conn.close()
+            
+        except Exception as e:
+            result['status'] = 'ERROR'
+            result['message'] = f'Error: {str(e)}'
+            
+        return result
+    
+    def check_downloads_folder(self) -> Dict:
+        """Verifica la carpeta de descargas"""
+        result = {
+            'name': 'Descargas',
+            'status': 'OK',
+            'details': {},
+            'message': ''
+        }
+        
+        try:
+            transcriptions_dir = self.base_dir / "data" / "transcriptions"
+            
+            if not transcriptions_dir.exists():
+                transcriptions_dir.mkdir(parents=True, exist_ok=True)
+                
+            # Contar archivos
+            vtt_files = list(transcriptions_dir.glob("*.vtt"))
+            json_files = list(transcriptions_dir.glob("*.json"))
+            
+            total_size = sum(f.stat().st_size for f in transcriptions_dir.glob("*"))
+            
+            result['details']['vtt_count'] = len(vtt_files)
+            result['details']['json_count'] = len(json_files)
+            result['details']['total_size_mb'] = f'{total_size / (1024**2):.1f} MB'
+            
+            if len(vtt_files) == 0:
+                result['message'] = 'Sin transcripciones descargadas'
+            else:
+                result['message'] = f'{len(vtt_files)} transcripciones ({total_size / (1024**2):.1f} MB)'
+                
+        except Exception as e:
+            result['status'] = 'WARNING'
+            result['message'] = f'Error: {str(e)}'
+            
+        return result
+    
+    def get_system_report(self) -> str:
+        """Genera un reporte de texto del estado del sistema"""
+        results = self.check_all()
+        
+        report = []
+        report.append("=" * 60)
+        report.append("REPORTE DE ESTADO DEL SISTEMA - KDP MASTER SUITE")
+        report.append("=" * 60)
+        report.append(f"Fecha: {results['timestamp']}")
+        report.append(f"Estado General: {results['overall_status']}")
+        report.append("")
+        
+        for comp_name, comp_data in results['components'].items():
+            status_icon = {
+                'OK': '✅',
+                'WARNING': '⚠️',
+                'ERROR': '❌'
+            }.get(comp_data['status'], '❓')
+            
+            report.append(f"{status_icon} {comp_data['name']}: {comp_data['message']}")
+            
+        if results['warnings']:
+            report.append("")
+            report.append("⚠️ ADVERTENCIAS:")
+            for warning in results['warnings']:
+                report.append(f"  - {warning}")
+                
+        if results['errors']:
+            report.append("")
+            report.append("❌ ERRORES:")
+            for error in results['errors']:
+                report.append(f"  - {error}")
+                
+        if results['recommendations']:
+            report.append("")
+            report.append("💡 RECOMENDACIONES:")
+            for rec in results['recommendations']:
+                report.append(f"  - {rec}")
+                
+        report.append("")
+        report.append("=" * 60)
+        
+        return "\n".join(report)
+```
+
+### **Paso 2: Crear la interfaz gráfica del verificador**
+
+Crea el archivo `app/ui/dialogs/system_status_dialog.py`:
+
+```python
+import customtkinter as ctk
+from tkinter import ttk, messagebox
+import threading
+import webbrowser
+from pathlib import Path
+import json
+from datetime import datetime
+
+class SystemStatusDialog(ctk.CTkToplevel):
+    """Diálogo de estado del sistema"""
+    
+    def __init__(self, parent, system_checker):
+        super().__init__(parent)
+        
+        self.title("🔍 Estado del Sistema - KDP Master Suite")
+        self.geometry("1000x800")
+        self.resizable(True, True)
+        
+        self.system_checker = system_checker
+        self.current_results = None
+        self.auto_refresh_enabled = False
+        self.auto_refresh_interval = 60  # segundos
+        
+        self.setup_ui()
+        self.run_system_check()
+        
+    def setup_ui(self):
+        """Configura la interfaz de usuario"""
+        # Frame principal
+        self.main_frame = ctk.CTkFrame(self)
+        self.main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # Header
+        self.header_frame = ctk.CTkFrame(self.main_frame)
+        self.header_frame.pack(fill="x", pady=(0, 10))
+        
+        title_label = ctk.CTkLabel(
+            self.header_frame,
+            text="🔍 Verificador de Estado del Sistema",
+            font=ctk.CTkFont(size=20, weight="bold")
+        )
+        title_label.pack(side="left", padx=10, pady=10)
+        
+        # Botones de acción
+        self.btn_refresh = ctk.CTkButton(
+            self.header_frame,
+            text="🔄 Verificar Ahora",
+            command=lambda: threading.Thread(target=self.run_system_check).start(),
+            width=150
+        )
+        self.btn_refresh.pack(side="right", padx=5, pady=10)
+        
+        self.btn_export = ctk.CTkButton(
+            self.header_frame,
+            text="📄 Exportar Reporte",
+            command=self.export_report,
+            width=150
+        )
+        self.btn_export.pack(side="right", padx=5, pady=10)
+        
+        self.btn_auto_refresh = ctk.CTkButton(
+            self.header_frame,
+            text="⏱️ Auto-Refresh: OFF",
+            command=self.toggle_auto_refresh,
+            width=150,
+            fg_color="gray"
+        )
+        self.btn_auto_refresh.pack(side="right", padx=5, pady=10)
+        
+        # Panel de estado general
+        self.status_frame = ctk.CTkFrame(self.main_frame)
+        self.status_frame.pack(fill="x", pady=(0, 10))
+        
+        self.status_label = ctk.CTkLabel(
+            self.status_frame,
+            text="● Verificando sistema...",
+            font=ctk.CTkFont(size=16, weight="bold"),
+            text_color="yellow"
+        )
+        self.status_label.pack(pady=10)
+        
+        self.timestamp_label = ctk.CTkLabel(
+            self.status_frame,
+            text="",
+            text_color="gray"
+        )
+        self.timestamp_label.pack()
+        
+        # Notebook para tabs
+        self.notebook = ttk.Notebook(self.main_frame)
+        self.notebook.pack(fill="both", expand=True, pady=10)
+        
+        # Tab de resumen
+        self.summary_tab = ctk.CTkFrame(self.notebook)
+        self.notebook.add(self.summary_tab, text="📊 Resumen")
+        
+        # Tab de componentes detallados
+        self.components_tab = ctk.CTkFrame(self.notebook)
+        self.notebook.add(self.components_tab, text="🔧 Componentes")
+        
+        # Tab de logs
+        self.logs_tab = ctk.CTkFrame(self.notebook)
+        self.notebook.add(self.logs_tab, text="📝 Logs")
+        
+        # Configurar tabs
+        self.setup_summary_tab()
+        self.setup_components_tab()
+        self.setup_logs_tab()
+        
+    def setup_summary_tab(self):
+        """Configura el tab de resumen"""
+        # Grid de indicadores
+        self.indicators_frame = ctk.CTkFrame(self.summary_tab)
+        self.indicators_frame.pack(fill="x", padx=10, pady=10)
+        
+        # Crear indicadores placeholder (se actualizarán después)
+        self.indicators = {}
+        indicator_names = [
+            ("Base de Datos", "database"),
+            ("Directorios", "directories"),
+            ("Archivos", "files"),
+            ("Python", "python"),
+            ("Disco", "disk"),
+            ("Memoria", "memory"),
+            ("Red", "network"),
+            ("YouTube", "youtube")
+        ]
+        
+        for i, (name, key) in enumerate(indicator_names):
+            row = i // 4
+            col = i % 4
+            
+            indicator_frame = ctk.CTkFrame(self.indicators_frame, width=200, height=100)
+            indicator_frame.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
+            indicator_frame.pack_propagate(False)
+            
+            icon_label = ctk.CTkLabel(
+                indicator_frame,
+                text="⏳",
+                font=ctk.CTkFont(size=30)
+            )
+            icon_label.pack(pady=10)
+            
+            name_label = ctk.CTkLabel(
+                indicator_frame,
+                text=name,
+                font=ctk.CTkFont(weight="bold")
+            )
+            name_label.pack()
+            
+            status_label = ctk.CTkLabel(
+                indicator_frame,
+                text="Verificando...",
+                text_color="yellow"
+            )
+            status_label.pack()
+            
+            self.indicators[key] = {
+                'frame': indicator_frame,
+                'icon': icon_label,
+                'status': status_label
+            }
+            
+        # Configurar grid weights
+        for i in range(4):
+            self.indicators_frame.grid_columnconfigure(i, weight=1)
+            
+    def setup_components_tab(self):
+        """Configura el tab de componentes detallados"""
+        # Treeview para componentes
+        self.components_tree = ttk.Treeview(
+            self.components_tab,
+            columns=("Componente", "Estado", "Detalle"),
+            show="headings",
+            height=20
+        )
+        
+        self.components_tree.heading("Componente", text="Componente")
+        self.components_tree.heading("Estado", text="Estado")
+        self.components_tree.heading("Detalle", text="Detalle")
+        
+        self.components_tree.column("Componente", width=200)
+        self.components_tree.column("Estado", width=100)
+        self.components_tree.column("Detalle", width=600)
+        
+        scrollbar = ttk.Scrollbar(self.components_tab, orient="vertical", command=self.components_tree.yview)
+        self.components_tree.configure(yscrollcommand=scrollbar.set)
+        
+        self.components_tree.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Bind para doble clic
+        self.components_tree.bind("<Double-1>", self.on_component_double_click)
+        
+    def setup_logs_tab(self):
+        """Configura el tab de logs"""
+        # Text widget para logs
+        self.logs_text = ctk.CTkTextbox(self.logs_tab, state="disabled")
+        self.logs_text.pack(fill="both", expand=True, padx=10, pady=10)
+        
+    def run_system_check(self):
+        """Ejecuta la verificación del sistema"""
+        try:
+            self.update_status_label("● Verificando sistema...", "yellow")
+            
+            # Ejecutar verificación
+            results = self.system_checker.check_all()
+            self.current_results = results
+            
+            # Actualizar UI en el thread principal
+            self.after(0, lambda: self.update_ui_with_results(results))
+            
+        except Exception as e:
+            self.after(0, lambda: self.update_status_label(f"● Error: {str(e)}", "red"))
+            
+    def update_ui_with_results(self, results):
+        """Actualiza la interfaz con los resultados"""
+        # Actualizar estado general
+        status_colors = {
+            'OK': 'green',
+            'WARNING': 'orange',
+            'ERROR': 'red'
+        }
+        
+        status_icons = {
+            'OK': '✅',
+            'WARNING': '⚠️',
+            'ERROR': '❌'
+        }
+        
+        overall_status = results['overall_status']
+        self.update_status_label(
+            f"{status_icons[overall_status]} SISTEMA {overall_status}",
+            status_colors[overall_status]
+        )
+        
+        self.timestamp_label.configure(
+            text=f"Última verificación: {datetime.fromisoformat(results['timestamp']).strftime('%Y-%m-%d %H:%M:%S')}"
+        )
+        
+        # Actualizar indicadores
+        component_keys = {
+            'database': 'database',
+            'directories': 'directories',
+            'files': 'files',
+            'python': 'python',
+            'disk_space': 'disk',
+            'memory': 'memory',
+            'network': 'network',
+            'youtube_api': 'youtube'
+        }
+        
+        for comp_key, indicator_key in component_keys.items():
+            if comp_key in results['components'] and indicator_key in self.indicators:
+                comp_data = results['components'][comp_key]
+                indicator = self.indicators[indicator_key]
+                
+                icon = status_icons.get(comp_data['status'], '❓')
+                indicator['icon'].configure(text=icon)
+                indicator['status'].configure(
+                    text=comp_data['message'],
+                    text_color=status_colors.get(comp_data['status'], 'gray')
+                )
+                
+                # Cambiar color del frame según estado
+                frame_colors = {
+                    'OK': '#2d5016',
+                    'WARNING': '#7d5a00',
+                    'ERROR': '#7d1a1a'
+                }
+                indicator['frame'].configure(fg_color=frame_colors.get(comp_data['status'], '#333333'))
+                
+        # Actualizar treeview de componentes
+        for item in self.components_tree.get_children():
+            self.components_tree.delete(item)
+            
+        for comp_name, comp_data in results['components'].items():
+            self.components_tree.insert("", "end", values=(
+                comp_data['name'],
+                comp_data['status'],
+                comp_data['message']
+            ))
+            
+        # Actualizar logs
+        self.logs_text.configure(state="normal")
+        self.logs_text.delete("1.0", "end")
+        self.logs_text.insert("1.0", self.system_checker.get_system_report())
+        self.logs_text.configure(state="disabled")
+        
+        # Mostrar notificación si hay errores
+        if overall_status == 'ERROR':
+            messagebox.showwarning(
+                "Errores Detectados",
+                "Se han detectado errores en el sistema. Revise el tab de Componentes para más detalles."
+            )
+            
+    def update_status_label(self, text, color):
+        """Actualiza la etiqueta de estado"""
+        self.status_label.configure(text=text, text_color=color)
+        
+    def toggle_auto_refresh(self):
+        """Activa/desactiva el auto-refresh"""
+        self.auto_refresh_enabled = not self.auto_refresh_enabled
+        
+        if self.auto_refresh_enabled:
+            self.btn_auto_refresh.configure(
+                text=f"⏱️ Auto-Refresh: ON ({self.auto_refresh_interval}s)",
+                fg_color="green"
+            )
+            self.auto_refresh_loop()
+        else:
+            self.btn_auto_refresh.configure(
+                text="⏱️ Auto-Refresh: OFF",
+                fg_color="gray"
+            )
+            
+    def auto_refresh_loop(self):
+        """Bucle de auto-refresh"""
+        if self.auto_refresh_enabled:
+            threading.Thread(target=self.run_system_check).start()
+            self.after(self.auto_refresh_interval * 1000, self.auto_refresh_loop)
+            
+    def on_component_double_click(self, event):
+        """Maneja doble clic en un componente"""
+        selection = self.components_tree.selection()
+        if not selection:
+            return
+            
+        item = self.components_tree.item(selection[0])
+        component_name = item['values'][0]
+        
+        if self.current_results:
+            for comp_key, comp_data in self.current_results['components'].items():
+                if comp_data['name'] == component_name:
+                    details = json.dumps(comp_data.get('details', {}), indent=2, ensure_ascii=False)
+                    messagebox.showinfo(
+                        f"Detalles: {component_name}",
+                        f"{comp_data['message']}\n\nDetalles:\n{details}"
+                    )
+                    break
+                    
+    def export_report(self):
+        """Exporta el reporte a archivo"""
+        if not self.current_results:
+            messagebox.showwarning("Advertencia", "No hay resultados para exportar")
+            return
+            
+        from tkinter import filedialog
+        
+        file_path = filedialog.asksaveasfilename(
+            title="Exportar Reporte",
+            defaultextension=".txt",
+            filetypes=[("Archivos de texto", "*.txt"), ("JSON", "*.json"), ("Todos los archivos", "*.*")]
+        )
+        
+        if file_path:
+            try:
+                if file_path.endswith('.json'):
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        json.dump(self.current_results, f, indent=2, ensure_ascii=False)
+                else:
+                    with open(file_path, 'w', encoding='utf-8') as f:
+                        f.write(self.system_checker.get_system_report())
+                        
+                messagebox.showinfo("Éxito", f"Reporte exportado a:\n{file_path}")
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo exportar el reporte:\n{str(e)}")
+```
+
+### **Paso 3: Integrar con el botón "SISTEMA OK"**
+
+Modifica el archivo principal (`gui_app.py` o donde esté el botón):
+
+```python
+# En la clase principal de la aplicación
+
+from app.utils.system_checker import SystemChecker
+from app.ui.dialogs.system_status_dialog import SystemStatusDialog
+
+class KDPMasterSuite(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        
+        # Inicializar system checker
+        self.base_dir = Path(__file__).parent.parent
+        self.system_checker = SystemChecker(self.base_dir)
+        
+        # Crear UI
+        self.create_ui()
+        
+        # Verificación inicial después de 2 segundos
+        self.after(2000, self.initial_system_check)
+        
+    def create_ui(self):
+        """Crea la interfaz de usuario"""
+        # ... tu código existente de UI ...
+        
+        # Botón SISTEMA OK (en la esquina superior derecha)
+        self.system_ok_button = ctk.CTkButton(
+            self,
+            text="● SISTEMA OK",
+            command=self.open_system_status,
+            width=150,
+            height=30,
+            fg_color="green",
+            hover_color="darkgreen"
+        )
+        self.system_ok_button.place(relx=0.98, rely=0.02, anchor="ne")
+        
+    def open_system_status(self):
+        """Abre el diálogo de estado del sistema"""
+        dialog = SystemStatusDialog(self, self.system_checker)
+        dialog.grab_set()  # Modal
+        
+    def initial_system_check(self):
+        """Verificación inicial del sistema al iniciar"""
+        results = self.system_checker.check_all()
+        
+        # Actualizar botón según estado
+        if results['overall_status'] == 'OK':
+            self.system_ok_button.configure(
+                text="✅ SISTEMA OK",
+                fg_color="green",
+                hover_color="darkgreen"
+            )
+        elif results['overall_status'] == 'WARNING':
+            self.system_ok_button.configure(
+                text="⚠️ SISTEMA WARNING",
+                fg_color="orange",
+                hover_color="darkorange"
+            )
+        else:
+            self.system_ok_button.configure(
+                text="❌ SISTEMA ERROR",
+                fg_color="red",
+                hover_color="darkred"
+            )
+            
+    def periodic_system_check(self):
+        """Verificación periódica cada 5 minutos"""
+        results = self.system_checker.check_all()
+        
+        # Actualizar botón
+        if results['overall_status'] == 'OK':
+            self.system_ok_button.configure(
+                text="✅ SISTEMA OK",
+                fg_color="green"
+            )
+        elif results['overall_status'] == 'WARNING':
+            self.system_ok_button.configure(
+                text="⚠️ SISTEMA WARNING",
+                fg_color="orange"
+            )
+        else:
+            self.system_ok_button.configure(
+                text="❌ SISTEMA ERROR",
+                fg_color="red"
+            )
+            
+        # Programar siguiente verificación (5 minutos)
+        self.after(300000, self.periodic_system_check)
+        
+# Iniciar verificación periódica después de crear la ventana principal
+app = KDPMasterSuite()
+app.after(2000, app.periodic_system_check)  # Iniciar después de 2 segundos
+app.mainloop()
+```
+
+---
+
+## CARACTERÍSTICAS IMPLEMENTADAS:
+
+✅ **Verificación en tiempo real** de todos los componentes  
+✅ **Indicadores visuales** (colores verde/naranja/rojo)  
+✅ **Auto-refresh** configurable  
+✅ **Reporte detallado** por componentes  
+✅ **Exportación** a TXT o JSON  
+✅ **Verificación periódica** automática (cada 5 min)  
+✅ **Detección temprana** de problemas  
+✅ **Logs completos** del estado  
+✅ **Acceso rápido** desde el botón "SISTEMA OK"  
+
+Ahora el botón **"SISTEMA OK"** será un verificador completo y siempre estará funcional.

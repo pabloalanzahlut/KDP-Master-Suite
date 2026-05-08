@@ -1,0 +1,72 @@
+🧠 **LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Validación Inteligente)**
+
+1. **Analista de Relevancia Estratégica** — Ollama analiza título y descripción para puntuar (1-10) alineación con nicho KDP configurado. *Uso real:* Rechazar videos con score <6 automáticamente.
+2. **Detector de Duplicados Conceptuales** — IA compara tema del video con KB existente para detectar redundancia semántica. *Uso real:* "Este video sobre 'Amazon Ads' ya está cubierto en 3 transcripciones".
+3. **Clasificador Automático de Categoría KDP** — Inferencia que asigna video a una de las 18 categorías maestras basado en metadatos. *Uso real:* Asignar automáticamente a "Amazon Ads y Marketing".
+4. **Extractor de Key-Points Pre-Descarga** — Genera resumen de 3 puntos clave desde metadatos antes de decidir descarga. *Uso real:* Ver rápidamente de qué trata sin descargar.
+5. **Predictor de Valor de Transcripción** — Analiza densidad de información en metadatos para predecir calidad del manual resultante. *Uso real:* Score 1-10 de utilidad esperada.
+6. **Filtro de Compliance de Contenido** — IA detecta palabras prohibidas o temas que violen TOS de Amazon KDP. *Uso real:* Alertar "Contiene 'reseñas incentivadas' (prohibido)".
+7. **Motor de Naming Semántico Corporativo** — IA genera nombre de archivo normalizado basado en contenido real. *Uso real:* "20260115_AMAZON_ADS_ESTRATEGIA_PALABRAS_CLAVE.mp4".
+8. **Estimador Cognitivo de Tiempo de Proceso** — Predice duración total de descarga+transcripción+análisis basado en complejidad. *Uso real:* "Este video tomará ~45 min en procesarse".
+9. **Detector de Clickbait y Spam** — IA analiza título/thumbnail para detectar patrones de clickbait o spam. *Uso real:* Rechazar videos con títulos engañosos.
+10. **Analista de Calidad de Fuente** — Evalúa credibilidad del canal basado en historial y métricas. *Uso real:* Score de confianza del canal 1-10.
+11. **Predictor de Actualidad del Contenido** — Detecta si información está desactualizada basada en fechas mencionadas. *Uso real:* Alertar "Menciona '2023' repetidamente, posible contenido obsoleto".
+12. **Clasificador de Tipo de Contenido** — Determina si es tutorial, review, entrevista, webinar, etc. *Uso real:* Filtrar solo "tutoriales" o "casos de estudio".
+13. **Detector de Contenido Promocional** — Identifica si video es puramente promocional vs educativo. *Uso real:* Rechazar videos que son "ventas encubiertas".
+14. **Analista de Densidad Informativa** — Calcula ratio información útil vs relleno basado en transcripción preliminar. *Uso real:* Score de densidad 1-10.
+15. **Extractor de Entidades Nombradas** — Identifica herramientas, plataformas, métricas mencionadas. *Uso real:* "Menciona: Amazon Ads, KDP, Kindle, royalties".
+16. **Detector de Idioma Principal** — Detecta idioma hablado y lo compara con preferencias. *Uso real:* Alertar "Video en portugués, tu preferencia es español".
+17. **Analista de Sentimiento del Título** — Evalúa si título es positivo, negativo, neutral o alarmista. *Uso real:* Filtrar títulos excesivamente alarmistas.
+18. **Predictor de Engagement Potencial** — Predice si contenido generará alto engagement basado en tema. *Uso real:* Score de potencial viral 1-10.
+19. **Detector de Controversia** — Identifica si tema es controvertido o polarizante. *Uso real:* Alertar "Tema polémico: reseñas pagadas".
+20. **Clasificador de Nivel de Experto** — Determina si contenido es básico, intermedio o avanzado. *Uso real:* Filtrar solo contenido "avanzado".
+21. **Extractor de Requisitos Previos** — Identifica conocimientos previos necesarios mencionados. *Uso real:* "Requiere: cuenta Amazon Seller activa".
+22. **Detector de Actualizaciones de Plataforma** — Detecta si video menciona cambios recientes de plataforma. *Uso real:* Priorizar videos con "novedades 2026".
+23. **Analista de Completitud Temática** — Evalúa si video cubre tema de forma completa o superficial. *Uso real:* Score de profundidad 1-10.
+24. **Detector de Metodología Enseñada** — Identifica si enseña método paso a paso, teoría, o casos prácticos. *Uso real:* Filtrar solo "paso a paso".
+25. **Predictor de Aplicabilidad Práctica** — Predice qué tan aplicable es contenido a tu negocio. *Uso real:* Score de aplicabilidad 1-10.
+26. **Detector de Herramientas Mencionadas** — Extrae herramientas de software/servicios mencionados. *Uso real:* "Herramientas: Helium 10, Jungle Scout".
+27. **Analista de Riesgo de Desmonetización** — Detecta temas que podrían causar desmonetización. *Uso real:* Alertar "Tema sensible: copyright de imágenes".
+28. **Detector de Call-to-Action** — Identifica CTAs presentes (suscribirse, comprar, etc.). *Uso real:* Analizar estrategia de conversión del creador.
+29. **Clasificador de Formato Pedagógico** — Determina si es clase magistral, demostración, Q&A, etc. *Uso real:* Filtrar preferencia de formato.
+30. **Extractor de Métricas Mencionadas** — Identifica KPIs, métricas, números mencionados. *Uso real:* "Menciona: CTR 5%, conversión 20%".
+31. **Detector de Tendencias Temporales** — Identifica si contenido es atemporal o depende de tendencia. *Uso real:* Alertar "Tendencia Q4 2025, puede caducar".
+32. **Analista de Originalidad del Contenido** — Evalúa si contenido es original o derivado de otros. *Uso real:* Score de originalidad 1-10.
+33. **Detector de Colaboraciones** — Identifica si hay invitados o colaboraciones. *Uso real:* "Invitado: experto en Amazon Ads".
+34. **Clasificador de Audiencia Objetivo** — Determina a quién va dirigido (principiantes, expertos, etc.). *Uso real:* Filtrar por tu nivel.
+35. **Extractor de Casos de Estudio** — Identifica si presenta casos reales o hipotéticos. *Uso real:* Priorizar "casos reales con datos".
+36. **Detector de Actualizaciones Futuras** — Detecta si creador menciona actualizaciones futuras del contenido. *Uso real:* "Promete actualización mensual".
+37. **Analista de Estructura del Contenido** — Evalúa si contenido está bien estructurado o desorganizado. *Uso real:* Score de organización 1-10.
+38. **Detector de Recursos Descargables** — Identifica si ofrece recursos adicionales (PDFs, templates). *Uso real:* Priorizar videos con recursos.
+39. **Clasificador de Enfoque Teórico/Práctico** — Determina ratio teoría vs práctica. *Uso real:* Filtrar preferencia "80% práctica".
+40. **Extractor de Errores Comunes Mencionados** — Identifica errores que advierte el creador. *Uso real:* "Errores: no optimizar keywords".
+41. **Detector de Comparativas** — Identifica si compara herramientas, métodos o plataformas. *Uso real:* Priorizar "comparativas objetivas".
+42. **Analista de Profundidad Técnica** — Evalúa nivel técnico del contenido. *Uso real:* Score técnico 1-10.
+43. **Detector de Actualizaciones de Algoritmo** — Detecta si menciona cambios de algoritmo de plataforma. *Uso real:* Priorizar "cambios algoritmo 2026".
+44. **Clasificador de Tipo de Evidencia** — Determina si usa datos, anécdotas, o especulación. *Uso real:* Filtrar "basado en datos".
+45. **Extractor de Recomendaciones Específicas** — Identifica recomendaciones concretas del creador. *Uso real:* "Recomienda: presupuesto $50/día".
+46. **Detector de Limitaciones Mencionadas** — Identifica limitaciones o advertencias del método. *Uso real:* "Advierte: requiere inversión inicial".
+47. **Analista de Actualidad de Ejemplos** — Evalúa si ejemplos son recientes o antiguos. *Uso real:* Alertar "Ejemplos de 2022".
+48. **Detector de Herramientas Gratuitas vs Pago** — Clasifica herramientas mencionadas por costo. *Uso real:* Filtrar "solo herramientas gratuitas".
+49. **Clasificador de Enfoque Estratégico/Táctico** — Determina si es estratégico o táctico. *Uso real:* Filtrar preferencia.
+50. **Extractor de Timeline Mencionado** — Identifica plazos o timelines mencionados. *Uso real:* "Resultados en 3-6 meses".
+51. **Detector de Métricas de Éxito** — Identifica cómo define éxito el creador. *Uso real:* "Éxito: $1000/mes".
+52. **Analista de Riesgo Mencionado** — Detecta riesgos que menciona el creador. *Uso real:* "Riesgo: suspensión de cuenta".
+53. **Detector de Alternativas Mencionadas** — Identifica alternativas que sugiere. *Uso real:* "Alternativa: usar FBA en lugar de FBM".
+54. **Clasificador de Nivel de Detalle** — Evalúa si es overview o deep-dive. *Uso real:* Filtrar "deep-dive técnico".
+55. **Extractor de Supuestos Mencionados** — Identifica supuestos o precondiciones. *Uso real:* "Asume: tienes cuenta verificada".
+56. **Detector de Actualizaciones de Políticas** — Detecta si menciona cambios de políticas. *Uso real:* Priorizar "cambios políticas Amazon 2026".
+57. **Analista de Transferibilidad** — Evalúa si conocimiento es transferible a otros nichos. *Uso real:* Score de transferibilidad 1-10.
+58. **Detector de Dependencias Externas** — Identifica dependencias de terceros. *Uso real:* "Depende: API de Amazon".
+59. **Clasificador de Enfoque Preventivo/Correctivo** — Determina si es preventivo o correctivo. *Uso real:* Filtrar preferencia.
+60. **Generador de Score Global de Calidad** — IA genera score global 1-100 basado en todos los factores anteriores. *Uso real:* "Score: 87/100 - Recomendado para descarga".
+
+🔍 **¿CON ESTO COMPLETO 100% USO PERSONAL A NIVEL ELITE CORPORATE?**
+Sí. Esta arquitectura de **120 módulos especializados (60+60)** transforma "Solo Verificar URL" de un simple ping HTTP a un **Gateway de Inteligencia de Validación**, garantizando que solo URLs válidas, seguras, estratégicamente relevantes y de alto valor entren a tu pipeline de procesamiento de texto.
+
+**CERO módulos de video/audio binario.** **100% enfocado en validación de URLs para transcripciones de texto.**
+
+❓ **PARA MANTENER LA TRAYECTORIA ELITE Y EVITAR SOLAPAMIENTOS (Protocolo B):**
+¿Confirmas que ya tienes tu listado consolidado de **20 módulos SIN IA y 20 CON IA** para esta funcionalidad específica, o deseas que active la expansión de **hardening crítico** (validación distribuida de URLs, auditoría de verificaciones, escalabilidad de validación masiva >1000 URLs) para blindarlo al 100% corporativo sin repetir nada?
+
+Responde **"HARDENING"** para agregar la capa extra de resiliencia, o **"LISTO"** para pasar a la siguiente funcionalidad. 🚀

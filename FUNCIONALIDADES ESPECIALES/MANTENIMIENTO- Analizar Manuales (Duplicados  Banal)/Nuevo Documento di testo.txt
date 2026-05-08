@@ -1,0 +1,12 @@
+Módulos de Limpieza e Integridad Estructural (SIN IA):
+
+Detector de Fragmentos Idénticos (Shingling): Implementar algoritmos de comparación de texto por bloques (N-grams) para hallar párrafos duplicados entre diferentes manuales, incluso si el resto del archivo varía.
+Análisis de Entropía de Información: Calcular la densidad de información por archivo; manuales con baja entropía (mucho texto repetitivo o espacios) se marcan como "Banales" automáticamente.
+Validador de Integridad de Referencias: Identificar manuales que mencionan archivos, carpetas o URLs que ya no existen en el sistema, clasificándolos como obsoletos.
+Filtro de Longitud Crítica: Identificación de manuales con un conteo de palabras inferior al umbral mínimo corporativo, marcándolos como "Incompletos" o "Banales".
+Comparador de Estructura Documental: Detectar duplicidad basada en la jerarquía de encabezados (H1, H2, H3); si la estructura es idéntica, es un duplicado potencial de formato.
+Auditor de Metadatos Cruzados: Localizar manuales que comparten el mismo autor, fecha y tags de origen, pero tienen nombres de archivo distintos.
+Detección de Manuales Huérfanos: Escaneo para encontrar archivos en la carpeta de manuales que no tienen un registro correspondiente en la base de datos kdp_master.db.
+Cálculo de Densidad Léxica (Stop Words): Identificar textos donde el 80% son palabras comunes (conectores, preposiciones) sin contenido técnico real, clasificándolos como "Banal".
+Detector de Versiones en Conflicto: Analizar la cronología de manuales similares para marcar los más antiguos como candidatos a eliminación frente a la versión más reciente.
+Índice de Similitud Jaccard: Cálculo matemático de la intersección de palabras clave entre documentos para agrupar manuales con una coincidencia superior al 90%.

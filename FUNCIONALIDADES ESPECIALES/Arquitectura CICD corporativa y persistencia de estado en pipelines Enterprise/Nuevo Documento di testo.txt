@@ -1,0 +1,136 @@
+## 🎯 PRÓXIMOS PASOS: Arquitectura CI/CD Corporativa & Persistencia Enterprise
+
+Basado en mi análisis, el proyecto tiene **build manual + tests locales**, pero **NO tiene** pipelines automatizados. Aquí están las funcionalidades que completarían el ecosistema:
+
+---
+
+### 1. **Pipeline CI/CD como Código**
+
+| Ítem | Descripción | Prioridad |
+|------|-------------|-----------|
+| `azure-pipelines.yml` | Pipeline Azure DevOps para builds automatizados | 🔴 Alta |
+| `.github/workflows/build.yml` | GitHub Actions para CI automático | 🔴 Alta |
+| `gitlab-ci.yml` | Pipeline GitLab CI | 🟡 Media |
+| `Jenkinsfile` | Pipeline Jenkins Declarativo | 🟡 Media |
+
+**Beneficio:** Build automático en push/PR, sin intervención manual.
+
+---
+
+### 2. **Versionado Semántico Automatizado**
+
+| Ítem | Descripción | Prioridad |
+|------|-------------|-----------|
+| `setup.py` con version automático | Lectura de VERSION desde archivo único | 🔴 Alta |
+| `bumpversion` config | Incremento automático de major/minor/patch | 🟡 Media |
+| `changelog自动生成` | CHANGELOG.md generado desde commits | 🟡 Media |
+
+**Beneficio:** Un solo comando `bump2minor` actualiza versión + genera changelog.
+
+---
+
+### 3. **Artifact Management & Release Automation**
+
+| Ítem | Descripción | Prioridad |
+|------|-------------|-----------|
+| `publish.yml` | Publicación automática a GitHub Releases | 🟡 Media |
+| `artifact签名` | Checksum SHA-256 para verificación de integridad | 🔴 Alta |
+| `nightly_build.sh` | Build nocturno automático con notifications | 🟢 Baja |
+
+**Beneficio:** Releases automáticos con checksums verificados.
+
+---
+
+### 4. **Testing Automation Pipeline**
+
+| Ítem | Descripción | Prioridad |
+|------|-------------|-----------|
+| `run_tests.py` script autónomo | Ejecuta tests sin pytest CLI | 🔴 Alta |
+| `coverage.xml` | Reporte de cobertura en formato CI | 🟡 Media |
+| `test_matrix.yml` | Matriz de testing (Python 3.9/3.10/3.11) | 🟡 Media |
+| `lint_check.sh` | Ejecución automática de linters | 🔴 Alta |
+
+**Beneficio:** Tests + lint + coverage en cada commit.
+
+---
+
+### 5. **Persistencia de Estado en Pipeline Enterprise**
+
+| Ítem | Descripción | Prioridad |
+|------|-------------|-----------|
+| `pipeline_state.json` | Estado del pipeline persistido entre ejecuciones | 🔴 Alta |
+| `build_history.json` | Historial de builds con timestamps + resultados | 🔴 Alta |
+| `artifact_registry.json` | Registro de artifacts subidos con URLs | 🟡 Media |
+| `rollback_stack.json` | Stack de rollbacks para recuperación | 🟡 Media |
+
+**Beneficio:** Pipeline state survives restarts + rollback automático.
+
+---
+
+### 6. **Health Checks & Monitoring**
+
+| Ítem | Descripción | Prioridad |
+|------|-------------|-----------|
+| `health_check.py` | Endpoint de health para containers | 🟡 Media |
+| `metrics_export.py` | Exportación de métricas Prometheus | 🟢 Baja |
+| `alert_webhook.py` | Webhook para alertas de failure | 🟢 Baja |
+
+**Beneficio:** El pipeline se autocorrige cuando detecta fallos.
+
+---
+
+### 7. **Docker Containerization**
+
+| Ítem | Descripción | Prioridad |
+|------|-------------|-----------|
+| `Dockerfile` | Container reproducible para builds | 🟡 Media |
+| `docker-compose.yml` | Orquestación de servicios | 🟢 Baja |
+| `.dockerignore` | Optimización de imagen | 🟢 Baja |
+
+**Beneficio:** Builds reproducibles en cualquier ambiente.
+
+---
+
+## 📊 Matriz de Propuesta
+
+| # | Funcionalidad CI/CD | Estado Actual | Complejidad | Impacto |
+|---|---------------------|--------------|-------------|---------|
+| 1 | GitHub Actions build.yml | ❌ No existe | Alta | 🔴 Alto |
+| 2 | Versionado semántico | ❌ Manual | Media | 🔴 Alto |
+| 3 | Artifact management | ❌ No existe | Media | 🟡 Medio |
+| 4 | Testing automation | ⚠️ Parcial | Alta | 🔴 Alto |
+| 5 | Pipeline state persistence | ❌ No existe | Alta | 🔴 Alto |
+| 6 | Health checks | ❌ No existe | Media | 🟡 Medio |
+| 7 | Docker container | ❌ No existe | Media | 🟡 Medio |
+
+---
+
+## ❓ PREGUNTAS DE CLARIFICACIÓN
+
+1. **¿Cuál pipeline prefieres?** GitHub Actions / Azure DevOps / GitLab CI / Jenkins (puedo implementar varios)
+
+2. **¿Necesitas versionado automático o prefieres control manual?** (bumpversion vs. edits manuales)
+
+3. **¿Docker es necesario?** (si solo necesitas .exe standalone, puedo omitirlo)
+
+4. **¿Qué nivel de automation?** 
+   - Básico: CI solo con tests
+   - Intermedio: CI + versionado + artifact management
+   - Completo: CI/CD completo con Docker + health checks
+
+---
+
+## 🎯 RECOMENDACIÓN (Nivel Elite Corporate)
+
+| Prioridad | Implementar |
+|----------|--------------|
+| 🔴 Alta | 1. GitHub Actions (`build.yml`) |
+| 🔴 Alta | 2. `run_tests.py` autónomo |
+| 🔴 Alta | 3. Pipeline state persistence |
+| 🟡 Media | 4. Artifact signing (SHA-256) |
+| 🟡 Media | 5. Versionado con `bump2version` |
+| 🟢 Baja | 6. Docker (si hay demanda) |
+
+**Esto te daría un ecosistema CI/CD completo equivalente a proyectos enterprise de Fortune 500.**
+
+¿Procedo con alguno de estos o necesitas ajustes en el plan?

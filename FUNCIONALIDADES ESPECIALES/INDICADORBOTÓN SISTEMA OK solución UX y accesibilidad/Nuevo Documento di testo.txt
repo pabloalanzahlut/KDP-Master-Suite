@@ -1,0 +1,65 @@
+Basándome en el análisis del proyecto, propongo estas mejoras potenciales:
+
+---
+
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+### 1. **Health Check Automático Programado**
+   - Añadir opción en Settings para ejecutar health check automáticamente cada N minutos/horas
+   - Guardar último estado en memoria y mostrar "OK" sin necesidad de click
+
+### 2. **Panel de Métricas en Tiempo Real**
+   - Expandir el botón a un mini-panel en el header mostrando:
+     - 💾 Espacio en disco (actualizado cada 5 seg)
+     - 📊 Videos pendientes
+     - 🟢 Estado de conexión
+   - Integrar con现有的 `update_disk_space_status()` existente
+
+### 3. **Historial de Health Check**
+   - Guardar resultados en `logs/health_history.json`
+   - Mostrar tendencia (OK/Advertencia/Error) en tooltip
+   - Permite diagnose de problemas recurrentes
+
+### 4. **Integración con Dashboard**
+   - El health check podría publicar estado al endpoint `/health` del dashboard
+   - Mostrar estado global en la UI web del dashboard
+
+### 5. **Notificaciones de Estado Crítico**
+   - Si health check detecta problema (FFmpeg faltante, DB corrupta, poco disco):
+     - Enviar notificación nativa del SO (Windows toast)
+     - Notificación interna en la app
+   - Extender existente `Notifier` para esto
+
+### 6. **Configuración UI en Settings**
+   - Panel para configurar behavior del health check:
+     - Intervalo de auto-check
+     - Qué componentes verificar (FFmpeg, DB, disco, internet)
+     - Umbral de advertencia de disco
+
+### 7. **Modo Silencioso / Solo Indicador**
+   - Opción para que el botón NO muestre popup, solo actualice estado en tooltip
+   - Useful para monitorización pasiva
+
+---
+
+## 📋 Priorización Sugerida
+
+| # | Feature | Complejidad | Impacto UX |
+|---|---------|-------------|------------|
+| 1 | Historial de Health Check | Baja | Alto |
+| 2 | Métricas en Tiempo Real (header) | Media | Alto |
+| 3 | Health Check Automático | Media | Medio |
+| 4 | Configuración en Settings | Baja | Medio |
+| 5 | Notificaciones de Estado Crítico | Media | Alto |
+| 6 | Integración Dashboard | Baja | Medio |
+| 7 | Modo Silencioso | Baja | Bajo |
+
+---
+
+## ❓ Preguntas para Ti
+
+1. ¿Cuáles de estas features priorizas?
+2. ¿Quieres que el health check corra automáticamente (cada X minutos)?
+3. ¿Prefieres un panel expandido en el header o mantener el botón simple?
+
+Con tu dirección, puedo crear el plan detallado de implementación.

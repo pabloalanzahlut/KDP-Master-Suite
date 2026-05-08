@@ -1,0 +1,77 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar el panel vacío de "Metadatos e Inspección" en un **Centro de Diagnóstico Profundo y Validación Cognitiva de Transcripciones** garantiza que cada archivo seleccionado sea escrutado en tiempo real con precisión forense, alineación estratégica y control de calidad automatizado. La separación determinista (parsing estructural, validación técnica, métricas heurísticas) y cognitiva (análisis semántico, scoring predictivo, compliance inteligente) cumple estándares de gestión documental empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Validación Técnica)**
+
+#### 🔹 Pilar 1: UI/UX, Renderizado y Estado (1-10)
+1. **Renderizado Asíncrono con Debounce** — Actualiza el panel solo tras 300ms de inactividad en selección. *Uso real:* Evitar parpadeo y consumo innecesario al navegar rápido.
+2. **Persistencia de Scroll y Posición** — Guarda posición de lectura al cambiar de archivo y regresa al mismo punto. *Uso real:* Continuar inspección sin perder contexto visual.
+3. **Modo Compacto vs Extendido Toggle** — Alterna entre vista resumida (solo claves) y vista detallada (JSON/YAML plano). *Uso real:* Adaptar densidad informativa según pantalla o preferencia.
+4. **Copiado Rápido al Portapapeles (Un Clic)** — Copia metadatos completos o sección específica sin menú contextual. *Uso real:* Pegar rápidamente en reportes o tickets de soporte.
+5. **Búsqueda Inline con Resaltado** — Busca términos dentro del panel y resalta coincidencias en tiempo real. *Uso real:* Encontrar rápidamente "encoding", "timestamps" o "palabra clave".
+6. **Formateador Automático de Salida** — Detecta si el texto es JSON, YAML o plano y aplica sangría automática. *Uso real:* Lectura limpia sin importar el formato crudo del archivo.
+7. **Indicador de Estado de Carga** — Muestra spinner sutil mientras se parsea el archivo seleccionado. *Uso real:* Feedback visual preciso para archivos >50MB.
+8. **Validador de Ruta y Permisos Pre-Inspección** — Verifica accesibilidad antes de intentar lectura. *Uso real:* Mostrar "🔒 Acceso Denegado" en lugar de crash.
+9. **Sistema de Fallback ante Parseo Fallido** — Muestra metadatos básicos del SO si el parser especializado falla. *Uso real:* Siempre tener información mínima disponible.
+10. **Exportación de Metadatos a TXT/CSV/JSON** — Permite guardar el reporte de inspección actual. *Uso real:* Auditoría externa o archivo de control de calidad.
+
+#### 🔹 Pilar 2: Parsing Estructural y Validación de Formato (11-20)
+11. **Parser de Headers `.vtt`/`.srt` (WEBVTT, Kind, Language)** — Extrae y valida cabeceras técnicas. *Uso real:* Confirmar que el archivo es un subtítulo válido antes de procesar.
+12. **Validador de Encoding (UTF-8, BOM, Latin1)** — Detecta codificación y alerta si es incompatible. *Uso real:* Prevenir mojibakes en pipeline downstream.
+13. **Contador Preciso de Palabras/Caracteres/Líneas** — Calcula métricas base ignorando espacios y marcas vacías. *Uso real:* Verificar densidad mínima para indexación.
+14. **Validador de Estructura de Párrafos/Saltos** — Verifica coherencia de `\n`, `\r\n` y bloques de texto. *Uso real:* Detectar archivos corruptos o mal exportados.
+15. **Detección de Timestamps Rotos/Solapados** — Valida secuencia `00:00:00 --> 00:00:05` en `.vtt`/`.srt`. *Uso real:* Alertar sobre sincronización defectuosa antes de limpieza.
+16. **Validador de Longitud Mínima/Máxima Configurable** — Alerta si el archivo excede límites operativos. *Uso real:* Prevenir saturación de memoria en archivos anómalos.
+17. **Detector de Caracteres Invisibles/Control** — Identifica `\u200B`, `\uFEFF`, `\x00` ocultos. *Uso real:* Limpieza preventiva para evitar errores de FTS5.
+18. **Validador de Consistencia de Numerales** — Verifica que bloques `.srt` estén numerados secuencialmente. *Uso real:* Detectar fragmentos fusionados o corruptos.
+19. **Detección de Formato de Fechas/Menciones Temporales** — Extrae y valida patrones `DD/MM/YYYY`, `Q1 2026`, etc. *Uso real:* Indexación temporal precisa para búsqueda.
+20. **Validador de Ausencia de Marcas de Tiempo Residuales** — Confirma que limpieza eliminó `00:xx:xx -->` si aplica. *Uso real:* Garantizar pureza del `.txt` final.
+
+#### 🔹 Pilar 3: Métricas Heurísticas y Calidad Técnica (21-30)
+21. **Score de Legibilidad (Flesch-Kincaid Adaptado)** — Calcula complejidad lingüística básica. *Uso real:* Identificar textos excesivamente técnicos o simplistas.
+22. **Distribución de Longitudes de Párrafo** — Grafica/Lista varianza para detectar bloques monolíticos. *Uso real:* Alertar sobre párrafos >500 palabras que dificultan chunking.
+23. **Contador de Secciones Vacías/Repetitivas** — Identifica bloques sin contenido sustancial. *Uso real:* Limpieza automática de relleno estructural.
+24. **Densidad de Información (Palabras/Minuto)** — Calcula ratio basado en duración implícita o explícita. *Uso real:* Filtrar transcripciones de baja sustancia.
+25. **Validador de Coherencia de Listas/Viñetas** — Verifica consistencia de `-`, `*`, `1.`, `a)`. *Uso real:* Mantener formato profesional en manuales exportados.
+26. **Detector de Cortes Abruptos o Truncamiento** — Alerta si el texto termina en mitad de frase/párrafo. *Uso real:* Detectar descargas incompletas o fallos de OCR.
+27. **Validador de Estructura de Índice/Headers** — Verifica jerarquía `#`, `##`, `###` en `.md`/`.txt`. *Uso real:* Garantizar navegabilidad en exportación final.
+28. **Detección de Inconsistencias de Capitalización** — Identifica mezcla de MAYÚSCULAS/minúsculas no intencional. *Uso real:* Estandarización visual automática.
+29. **Validador de Formato de Citas/Referencias** — Verifica patrones `(Autor, Año)`, `[1]`, etc. *Uso real:* Cumplimiento de estándares académicos/corporativos.
+30. **Score de Integridad Estructural (0-100)** — Compuesto heurístico basado en reglas anteriores. *Uso real:* Decisión rápida de "Aprobado/Revisar/Descartar".
+
+#### 🔹 Pilar 4: Contenido, Entidades y Patrones (31-40)
+31. **Extracción de Entidades por Regex (Emails, URLs, Teléfonos)** — Lista elementos sensibles o útiles. *Uso real:* Alertar PII o enlaces externos antes de indexar.
+32. **Detector de Patrones de Repetición Léxica** — Identifica palabras/frases repetidas >X veces en ventana corta. *Uso real:* Detectar errores de dictado o transcripción automática.
+33. **Validador de Consistencia Terminológica Interna** — Verifica uso uniforme de acrónimos o jerga. *Uso real:* Unificar vocabulario corporativo automáticamente.
+34. **Detección de Marcas de Agua/Attribution** — Identifica "Transcrito por...", "© Canal X". *Uso real:* Limpieza automática para pureza de KB.
+35. **Validador de Formato de Preguntas/Respuestas** — Detecta estructuras `P: / R:` o `Q: / A:`. *Uso real:* Preparación automática para generación de quizzes.
+36. **Contador de Entidades Nombradas Básicas** — Lista nombres propios, empresas, productos detectados. *Uso real:* Indexación rápida sin IA.
+37. **Detector de Inyección de Código/Scripts** — Identifica `<script>`, `eval()`, `exec(` en texto plano. *Uso real:* Seguridad preventiva contra XSS en exportación HTML.
+38. **Validador de Ausencia de Ruido Promocional** — Regex para "suscríbete", "link en bio", "patrocinado". *Uso real:* Filtro automático de contenido no educativo.
+39. **Detección de Posibles Plagios Textuales Locales** — Coincidencias exactas >50 caracteres con KB existente. *Uso real:* Alerta de redundancia antes de procesamiento.
+40. **Validador de Estructura de Manuales** — Verifica presencia de Intro, Desarrollo, Conclusión. *Uso real:* Cumplimiento de plantillas corporativas.
+
+#### 🔹 Pilar 5: Rendimiento, Estado y Gobernanza (41-50)
+41. **Cache LRU de Metadatos Inspeccionados** — Almacena últimos 50 resultados en RAM. *Uso real:* Inspección instantánea al navegar hacia atrás.
+42. **Límite de Procesamiento por Archivo (Timeout)** — Aborta parseo si tarda >5s. *Uso real:* Proteger UI de archivos corruptos gigantes.
+43. **Logger Interno de Inspecciones** — Registra qué archivos se inspeccionaron y cuándo. *Uso real:* Trazabilidad para auditorías de uso.
+44. **Validador de Tamaño Seguro para Carga** — Rechaza archivos >100MB en inspección síncrona. *Uso real:* Prevenir bloqueo del hilo principal.
+45. **Sistema de Colas de Inspección Prioritaria** — Procesa primero archivos seleccionados, luego el resto. *Uso real:* Responsividad garantizada.
+46. **Manejo Graceful de Archivos Bloqueados** — Reintenta 3 veces con backoff si está en uso. *Uso real:* Evitar falsos positivos de corrupción.
+47. **Validador de Consistencia Cross-Platform** — Verifica que metadatos sean legibles en Win/Mac/Linux. *Uso real:* Portabilidad empresarial.
+48. **Protocolo de Cierre/Liberación de Recursos** — Cierra handles de archivo tras inspección. *Uso real:* Prevenir leaks de memoria en sesiones largas.
+49. **Sistema de Alertas Visuales por Umbral** — Cambia color de borde/ícono si score <60. *Uso real:* Identificación rápida de problemas sin leer todo.
+50. **Exportación de Reporte de Salud del Archivo** — Genera PDF/JSON con todas las validaciones. *Uso real:* Entrega a compliance o control de calidad.
+
+#### 🔹 Pilar 6: Integración y Flujo Operativo (51-60)
+51. **Sincronización con Selección de Treeview** — Actualiza automáticamente al hacer clic en archivo. *Uso real:* Flujo continuo sin botones adicionales.
+52. **Botón de "Marcar para Revisión Manual"** — Añade flag en DB para escalamiento. *Uso real:* Workflow de aprobación para archivos borderline.
+53. **Integración con Pipeline de Limpieza** — Envía reglas detectadas automáticamente al motor de limpieza. *Uso real:* Automatización de correcciones estructurales.
+54. **Validador de Compatibilidad con FTS5** — Verifica que texto sea indexable (sin caracteres prohibidos). *Uso real:* Prevenir fallos silenciosos de búsqueda.
+55. **Detector de Versiones de Documento** — Extrae `v1.0`, `2024-01-15` del contenido. *Uso real:* Gestión de ciclos de vida de manuales.
+56. **Sistema de Comparación Lado a Lado (Diff)** — Compara metadatos de dos archivos seleccionados. *Uso real:* Identificar diferencias entre versiones o fuentes.
+57. **Validador de Cumplimiento de Plantilla Corporativa** — Verifica presencia de headers, disclaimers, logos textuales. *Uso real:* Estandarización de salida profesional.
+58. **Detección de Dependencias Externas** — Lista menciones a "ver video X", "descargar Y". *Uso real:* Alertar sobre contenido incompleto o referencias rotas.
+59. **Sistema de Fallback a Metadatos del SO** — Si el archivo es binario/corrupto, muestra `stat()` info. *Uso real:* Siempre tener contexto técnico disponible.
+60. **Protocolo de Auditoría de Inspecciones Masivas** — Registra lotes inspeccionados para análisis de patrones. *Uso real:* Mejora continua de reglas heurísticas.

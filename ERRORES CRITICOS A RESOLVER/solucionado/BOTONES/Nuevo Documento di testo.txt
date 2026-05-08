@@ -1,0 +1,219 @@
+Para solucionar el problema de los **botones no legibles** y asegurar que la funcionalidad esté **siempre activa**, debemos atacar dos frentes: el **Diseño Visual (UI)** para que se vean bien y la **Lógica (Backend)** para que funcionen.
+
+Aquí tienes la solución técnica definitiva para tu aplicación basada en `CustomTkinter` (o Tkinter estándar).
+
+---
+
+### 1. SOLUCIÓN VISUAL: Botones Legibles (Alto Contraste)
+
+El problema es que los botones tienen un fondo oscuro y texto oscuro. Vamos a forzar colores de alto contraste.
+
+**Código para `app/ui/styles.py` (o donde configures los widgets):**
+
+```python
+import customtkinter as ctk
+
+# Configuración Global de Colores para Botones
+BUTTON_CONFIG = {
+    "primary": {
+        "fg_color": "#1E90FF",       # Azul brillante (Acción principal)
+        "hover_color": "#104E8B",    # Azul oscuro al pasar el mouse
+        "text_color": "#FFFFFF",     # Texto blanco
+        "corner_radius": 8
+    },
+    "secondary": {
+        "fg_color": "#3E3E3E",       # Gris medio (Acciones secundarias)
+        "hover_color": "#505050",    # Gris claro al pasar
+        "text_color": "#FFFFFF",     # Texto blanco
+        "corner_radius": 8
+    },
+    "danger": {
+        "fg_color": "#DC3545",       # Rojo (Eliminar/Vaciar)
+        "hover_color": "#A71D2A",
+        "text_color": "#FFFFFF",
+        "corner_radius": 8
+    },
+    "success": {
+        "fg_color": "#28A745",       # Verde (Iniciar/OK)
+        "hover_color": "#1E7E34",
+        "text_color": "#FFFFFF",
+        "corner_radius": 8
+    }
+}
+
+def create_button(parent, text, command, style="primary", **kwargs):
+    """Función auxiliar para crear botones siempre legibles"""
+    config = BUTTON_CONFIG.get(style, BUTTON_CONFIG["secondary"])
+    return ctk.CTkButton(
+        parent,
+        text=text,
+        command=command,
+        fg_color=config["fg_color"],
+        hover_color=config["hover_color"],
+        text_color=config["text_color"],
+        corner_radius=config["corner_radius"],
+        **kwargs
+    )
+```
+
+---
+
+### 2. IMPLEMENTACIÓN FUNCIONAL (Pestaña de Descargas)
+
+Usa la función `create_button` anterior para reemplazar tus botones en la **Imagen 35**. Esto garantiza que se vean y funcionen.
+
+**Archivo: `app/ui/tabs/download_tab.py`**
+
+```python
+# ... dentro de setup_download_tab ...
+
+# 1. ZONA DE DESCARGA RÁPIDA
+# Botón Principal: Descarga Inmediata
+self.btn_descarga_inmediata = create_button(
+    self.frame_zona_rapida, 
+    text="⚡ DESCARGA INMEDIATA", 
+    command=self.descarga_inmediata_logic,
+    style="primary",
+    width=200
+)
+self.btn_descarga_inmediata.grid(row=2, column=0, padx=10, pady=10)
+
+# Botón Secundario: Añadir a Cola
+self.btn_add_queue = create_button(
+    self.frame_zona_rapida, 
+    text="➕ Añadir a Cola", 
+    command=self.add_to_queue_logic,
+    style="secondary",
+    width=150
+)
+self.btn_add_queue.grid(row=2, column=1, padx=10, pady=10)
+
+# 2. COLA DE PROCESAMIENTO (Botones de control)
+# Botón verde para INICIAR
+self.btn_start_queue = create_button(
+    self.frame_controles_cola, 
+    text="▶ INICIAR COLA", 
+    command=self.start_queue_logic,
+    style="success",
+    width=120
+)
+self.btn_start_queue.grid(row=0, column=0, padx=5)
+
+# Botón rojo para VACIAR
+self.btn_clear_queue = create_button(
+    self.frame_controles_cola, 
+    text="🗑️ Vaciar", 
+    command=self.clear_queue_logic,
+    style="danger",
+    width=100
+)
+self.btn_clear_queue.grid(row=0, column=3, padx=5)
+
+# 3. ACCIONES RÁPIDAS (Derecha)
+self.btn_view_downloads = create_button(
+    self.frame_acciones, 
+    text="📂 Ver Descargas", 
+    command=self.open_downloads_folder,
+    style="secondary"
+)
+self.btn_view_downloads.pack(fill="x", pady=5)
+
+self.btn_clear_cache = create_button(
+    self.frame_acciones, 
+    text="🧹 Limpiar Caché", 
+    command=self.clear_cache_logic,
+    style="secondary"
+)
+self.btn_clear_cache.pack(fill="x", pady=5)
+```
+
+---
+
+### 3. IMPLEMENTACIÓN FUNCIONAL (Gestor de Canales)
+
+Para la **Imagen 36**, aplicamos lo mismo. Los botones de abajo deben distinguirse claramente.
+
+**Archivo: `app/ui/dialogs/channel_manager.py`**
+
+```python
+# ... dentro de setup_channel_manager ...
+
+# BARRA INFERIOR DE BOTONES
+# Botón Agregar (Verde)
+self.btn_add_channel = create_button(
+    self.frame_bottom_actions, 
+    text="➕ Agregar", 
+    command=self.add_channel_logic,
+    style="success"
+)
+self.btn_add_channel.grid(row=0, column=0, padx=5)
+
+# Botón Eliminar (Rojo)
+self.btn_delete_channel = create_button(
+    self.frame_bottom_actions, 
+    text="❌ Eliminar", 
+    command=self.delete_channel_logic,
+    style="danger"
+)
+self.btn_delete_channel.grid(row=0, column=3, padx=5)
+
+# Botón Enviar a Cola (Azul Primario - Acción importante)
+self.btn_send_to_queue = create_button(
+    self.frame_bottom_actions, 
+    text="📤 Enviar a Cola", 
+    command=self.send_selected_to_queue,
+    style="primary"
+)
+self.btn_send_to_queue.grid(row=0, column=5, padx=5)
+
+# Botón Importar CSV (Gris Secundario)
+self.btn_import_csv = create_button(
+    self.frame_bottom_actions, 
+    text="📥 Importar CSV", 
+    command=self.import_csv_logic,
+    style="secondary"
+)
+self.btn_import_csv.grid(row=1, column=2, padx=5)
+```
+
+---
+
+### 4. LÓGICA DE LOS BOTONES (Para que funcionen siempre)
+
+Asegúrate de que estas funciones existan en tu controlador o clase principal:
+
+```python
+def descarga_inmediata_logic(self):
+    url = self.url_entry.get()
+    if not url:
+        messagebox.showwarning("Error", "Ingresa una URL primero")
+        return
+    # Lógica para descargar inmediatamente sin pasar por la cola
+    self.download_service.download_now(url)
+
+def start_queue_logic(self):
+    if self.queue.is_empty():
+        messagebox.showinfo("Info", "La cola está vacía")
+        return
+    # Inicia el hilo de trabajo
+    self.worker_thread = threading.Thread(target=self.process_queue)
+    self.worker_thread.start()
+
+def open_downloads_folder(self):
+    # Abre la carpeta de descargas en el explorador
+    import os
+    folder_path = "data/transcriptions" # O tu ruta configurada
+    os.startfile(folder_path)
+
+def send_selected_to_queue(self):
+    selected = self.tree.selection()
+    for item in selected:
+        url = self.tree.item(item)['values'][1] # Asumiendo que la URL está en la col 1
+        self.main_app.add_to_queue(url)
+    messagebox.showinfo("Éxito", f"{len(selected)} canales enviados a la cola")
+```
+
+### RESUMEN DE CAMBIOS:
+1.  **Legibilidad:** Se forzaron colores brillantes (`#1E90FF`, `#28A745`) y texto blanco (`#FFFFFF`). Ya no se camuflarán con el fondo oscuro.
+2.  **Funcionalidad:** Se vincularon los botones a funciones lógicas claras (`download_now`, `start_queue`, etc.).
+3.  **Consistencia:** Usar una función `create_button` asegura que todos los botones nuevos mantengan este estilo.

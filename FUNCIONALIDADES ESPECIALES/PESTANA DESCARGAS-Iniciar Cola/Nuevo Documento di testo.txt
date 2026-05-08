@@ -1,0 +1,25 @@
+Para elevar la funcionalidad Iniciar Cola (en el Sector de Procesamiento por Lotes) al estándar Elite Corporate 100%, el plan se enfoca en la robustez industrial, la gestión de recursos críticos y la orquestación inteligente de flujos de trabajo masivos:
+
+Módulos de Infraestructura y Gestión de Cargas (SIN IA):
+
+Gestor de Persistencia Atómica de Sesión: Implementar un sistema que guarde el puntero exacto de descarga (byte-range) para que, ante un apagón, el proceso continúe exactamente donde quedó sin re-descargar archivos parciales.
+Balanceador de Carga de Red (Throttling Industrial): Limitador dinámico de ancho de banda por hilo de descarga para evitar saturar la red corporativa, permitiendo configurar límites de subida/bajada globales.
+Asignador de Afinidad de CPU: Control técnico para limitar el número de núcleos que utiliza el proceso de descarga y extracción, asegurando que el resto de la suite (y el sistema operativo) no se bloqueen durante procesos masivos.
+Protocolo de Reintentos de Grado Industrial: Implementación de Exponential Backoff (esperas incrementales) ante errores de red 403 o 429, aumentando drásticamente la tasa de éxito en colas de más de 100 elementos.
+Validador de Integridad Post-Proceso (Checksum Manifest): Generación automática de un manifiesto SHA-256 de todos los archivos generados en el lote para garantizar que no hubo corrupción de datos durante el movimiento entre carpetas.
+Motor de Priorización Dinámica "On-the-Fly": Capacidad de reordenar la cola mediante arrastrar y soltar (Drag & Drop) mientras la cola ya está en ejecución, moviendo tareas críticas al principio de la fila.
+Monitor de Pre-asignación de Almacenamiento: Módulo que realiza una reserva física de espacio en disco basada en el tamaño estimado del lote total antes de permitir el inicio, evitando fallos catastróficos a mitad del proceso.
+Ejecutor de Hooks Post-Lote: Interfaz para definir acciones automáticas tras finalizar la cola (ej. apagar el equipo, mover archivos a un NAS, o ejecutar un script de limpieza personalizado).
+Auditoría de Transacciones de Lote: Registro detallado en base de datos de cada ítem de la cola con IDs de transacción únicos, permitiendo rastrear el origen, duración y resultado técnico de cada descarga.
+Sincronizador de Reloj de Sesión: Sistema que mide el tiempo real de procesamiento neto frente al tiempo de espera, generando métricas de eficiencia (throughput) de la estación de trabajo.
+
+Pre-Verificación de Recursos del Sistema: Antes de iniciar, validar RAM disponible, espacio en disco, ancho de banda y CPU libre
+Modo de Ejecución Configurable: Seleccionar entre secuencial, paralelo (N hilos), o adaptativo según carga del sistema
+Puntos de Control (Checkpoints) Automáticos: Guardar estado cada N elementos procesados para recuperación ante fallos
+Límites de Reintentos Inteligentes: Configurar reintentos automáticos por elemento fallido con backoff exponencial
+Notificaciones Multi-Canal: Alertas de finalización vía sonido del sistema, email, webhook o notificación de escritorio
+Estimador de Tiempo Dinámico: Mostrar ETA actualizado en tiempo real basado en velocidad actual de procesamiento
+Sistema de Prioridades en Ejecución: Ejecutar primero elementos marcados como urgentes aunque estén al final de la cola
+Pausa Inteligente con Snapshot: Al pausar, capturar estado exacto (descarga parcial incluida) para reanudación perfecta
+Registro de Telemetría de Ejecución: Log detallado de cada inicio de cola con métricas (velocidad, fallos, recursos consumidos)
+Rollback Transaccional Completo: Si falla crítico, revertir estado previo de archivos/DB sin corrupción de datos

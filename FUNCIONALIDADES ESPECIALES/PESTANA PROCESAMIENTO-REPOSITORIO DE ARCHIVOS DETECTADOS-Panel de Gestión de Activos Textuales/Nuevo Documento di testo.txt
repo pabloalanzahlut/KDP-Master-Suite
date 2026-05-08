@@ -1,0 +1,76 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar el "Repositorio de Archivos Detectados" de un simple Treeview a un **Panel de Gestión Inteligente de Activos Textuales** garantiza visualización enriquecida, filtrado cognitivo, análisis de calidad, organización automática y métricas de valor del conocimiento. La separación determinista (renderizado, estadísticas, validación) y cognitiva (clasificación semántica, scoring de calidad, predicción de utilidad) cumple estándares de gestión documental empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Visualización)**
+
+#### 🔹 Pilar 1: Renderizado y Visualización Avanzada (1-12)
+1. **Treeview Virtual con Lazy Loading** — Renderiza solo filas visibles para listas >10,000 archivos. *Uso real:* Sin lag al mostrar 50k transcripciones.
+2. **Columnas Redimensionables y Reordenables** — Permite ajustar ancho y orden de columnas (Nombre, Tipo, Tamaño, Fecha, Estado). *Uso real:* Personalizar vista según preferencia del usuario.
+3. **Agrupación Visual por Carpeta/Origen** — Agrupa archivos por directorio padre con iconos expandibles. *Uso real:* Navegación jerárquica sin scans repetidos.
+4. **Iconos Diferenciados por Tipo de Archivo** — Muestra iconos distintos para `.vtt`, `.srt`, `.txt`, `.md`. *Uso real:* Identificación visual rápida del formato.
+5. **Badges de Estado con Colores** — Muestra badges "✅ Procesado", "⏳ Pendiente", "⚠️ Error" con colores. *Uso real:* Estado visual inmediato sin leer texto.
+6. **Tooltips Enriquecidos por Fila** — Muestra metadata completa (ruta, palabras, encoding) al pasar mouse. *Uso real:* Información detallada sin abrir archivos.
+7. **Búsqueda Incremental en Treeview** — Filtra resultados mientras escribes en tiempo real. *Uso real:* Encontrar "Amazon Ads" entre miles de archivos instantáneamente.
+8. **Ordenamiento Multi-Criterio** — Ordena por nombre, tamaño, fecha, tipo con un clic. *Uso real:* Organizar por "Más recientes" o "Más grandes".
+9. **Selección Múltiple con Ctrl/Shift** — Permite seleccionar múltiples archivos para operaciones batch. *Uso real:* Procesar 50 archivos simultáneamente.
+10. **Vista Previa Inline de Contenido** — Muestra primeras 3 líneas del archivo en columna expandible. *Uso real:* Ver contenido sin abrir archivo externo.
+11. **Indicador de Progreso de Carga** — Muestra barra de progreso mientras se sincronizan archivos. *Uso real:* Feedback visual durante scans largos.
+12. **Paginación o Scroll Infinito** — Carga archivos en bloques de 100 para rendimiento. *Uso real:* Sin congelamiento con repositorios masivos.
+
+#### 🔹 Pilar 2: Estadísticas y Métricas en Tiempo Real (13-24)
+13. **Contador Total de Archivos Detectados** — Muestra "X archivos detectados" en header. *Uso real:* Saber volumen total rápidamente.
+14. **Distribución por Tipo de Archivo** — Gráfico o texto mostrando "% VTT, % SRT, % TXT". *Uso real:* Ver composición del repositorio.
+15. **Espacio Total Ocupado** — Calcula y muestra GB/MB totales del repositorio. *Uso real:* Monitorear uso de almacenamiento.
+16. **Promedio de Palabras por Archivo** — Calcula word count promedio. *Uso real:* Estimar densidad de contenido.
+17. **Archivos por Estado (Procesado/Pendiente)** — Contador separado por estado. *Uso real:* Saber cuántos faltan procesar.
+18. **Archivos por Fecha (Hoy/Semana/Mes)** — Agrupación temporal automática. *Uso real:* Ver actividad reciente.
+19. **Tamaño Promedio de Archivo** — Calcula tamaño medio en KB/MB. *Uso real:* Detectar anomalías de tamaño.
+20. **Archivos Más Grandes/Pequeños** — Top 5 por tamaño. *Uso real:* Identificar outliers.
+21. **Tiempo Estimado de Procesamiento** — Calcula tiempo total para procesar pendientes. *Uso real:* Planificación de recursos.
+22. **Porcentaje de Completitud** — Muestra "% completado" del repositorio. *Uso real:* Medir progreso global.
+23. **Archivos Duplicados Detectados** — Contador de duplicados por nombre/hash. *Uso real:* Identificar redundancia.
+24. **Archivos Corruptos o Inválidos** — Contador de archivos con errores. *Uso real:* Diagnóstico de calidad.
+
+#### 🔹 Pilar 3: Filtrado y Búsqueda Avanzada (25-36)
+25. **Filtro por Extensión de Archivo** — Checkbox para mostrar solo `.vtt`, `.srt`, `.txt`. *Uso real:* Enfocarse en formato específico.
+26. **Filtro por Rango de Fechas** — Seleccionar archivos entre fechas específicas. *Uso real:* Ver actividad de período determinado.
+27. **Filtro por Rango de Tamaño** — Filtrar por tamaño mínimo/máximo. *Uso real:* Encontrar archivos muy grandes o pequeños.
+28. **Filtro por Estado de Procesamiento** — Mostrar solo "Pendientes", "Procesados" o "Fallidos". *Uso real:* Enfocarse en trabajo pendiente.
+29. **Filtro por Carpeta/Origen** — Seleccionar solo archivos de carpeta específica. *Uso real:* Trabajar con subconjunto de repositorio.
+30. **Búsqueda por Regex** — Búsqueda avanzada con expresiones regulares. *Uso real:* Patrones complejos de búsqueda.
+31. **Filtro por Palabras en Nombre** — Filtrar archivos que contengan texto en nombre. *Uso real:* "Mostrar solo 'Amazon_Ads'".
+32. **Filtro por Encoding Detectado** — Filtrar por UTF-8, Latin1, etc. *Uso real:* Identificar problemas de codificación.
+33. **Filtro por Número de Palabras** — Rango de word count mínimo/máximo. *Uso real:* Encontrar archivos muy cortos o largos.
+34. **Filtro por Fecha de Modificación** — Archivos modificados en últimas X horas/días. *Uso real:* Ver cambios recientes.
+35. **Filtro Combinado (AND/OR)** — Combinar múltiples filtros con lógica booleana. *Uso real:* Búsquedas complejas y precisas.
+36. **Guardar Cargas de Filtros** — Permitir guardar y cargar configuraciones de filtros. *Uso real:* Reutilizar filtros frecuentes.
+
+#### 🔹 Pilar 4: Operaciones Batch y Gestión Masiva (37-48)
+37. **Selección Rápida "Todos/Ninguno"** — Botones para seleccionar/deseleccionar todo. *Uso real:* Operaciones masivas rápidas.
+38. **Selección por Patrón** — Seleccionar archivos que coincidan con patrón. *Uso real:* "Seleccionar todos los de 'CanalX'".
+39. **Operación Batch: Eliminar** — Eliminar múltiples archivos seleccionados. *Uso real:* Limpieza masiva.
+40. **Operación Batch: Mover a Carpeta** — Mover selección a otra carpeta. *Uso real:* Reorganización masiva.
+41. **Operación Batch: Renombrar** — Renombrar múltiples archivos con patrón. *Uso real:* Estandarización de nombres.
+42. **Operación Batch: Cambiar Encoding** — Convertir encoding de múltiples archivos. *Uso real:* Estandarización a UTF-8.
+43. **Operación Batch: Procesar** — Enviar selección a pipeline de procesamiento. *Uso real:* Procesamiento masivo.
+44. **Operación Batch: Exportar Metadata** — Exportar metadata de selección a CSV/JSON. *Uso real:* Reportes y auditorías.
+45. **Operación Batch: Verificar Integridad** — Verificar hash/integridad de selección. *Uso real:* Control de calidad masivo.
+46. **Operación Batch: Marcar como Leído/No Leído** — Cambiar estado de lectura. *Uso real:* Gestión de revisión.
+47. **Operación Batch: Asignar Tags** — Asignar etiquetas múltiples a selección. *Uso real:* Clasificación masiva.
+48. **Operación Batch: Crear Backup** — Crear backup de selección. *Uso real:* Respaldo selectivo.
+
+#### 🔹 Pilar 5: Validación y Control de Calidad (49-60)
+49. **Validador de Integridad de Archivo** — Verifica que archivo no esté corrupto. *Uso real:* Detectar archivos dañados.
+50. **Validador de Encoding Consistente** — Verifica que encoding sea legible. *Uso real:* Prevenir errores de lectura.
+51. **Validador de Tamaño Mínimo/Máximo** — Alerta si archivo es muy pequeño/grande. *Uso real:* Detectar anomalías.
+52. **Validador de Contenido Vacío** — Detecta archivos sin contenido útil. *Uso real:* Limpieza de basura.
+53. **Validador de Duplicados por Hash** — Detecta duplicados exactos por contenido. *Uso real:* Eliminar redundancia.
+54. **Validador de Nombre de Archivo** — Verifica que nombre sea válido y seguro. *Uso real:* Prevenir problemas de SO.
+55. **Validador de Permisos de Lectura** — Verifica que archivo sea legible. *Uso real:* Detectar problemas de permisos.
+56. **Validador de Consistencia de Metadata** — Verifica que metadata coincida con archivo. *Uso real:* Detectar inconsistencias.
+57. **Validador de Formato de Subtítulos** — Verifica que VTT/SRT tenga estructura válida. *Uso real:* Detectar archivos mal formados.
+58. **Validador de Fecha Coherente** — Verifica que fecha de archivo sea lógica. *Uso real:* Detectar anomalías temporales.
+59. **Validador de Ruta Accesible** — Verifica que ruta de archivo exista. *Uso real:* Detectar archivos movidos/eliminados.
+60. **Generador de Reporte de Calidad** — Crea reporte de validación de repositorio. *Uso real:* Auditoría de calidad.
+

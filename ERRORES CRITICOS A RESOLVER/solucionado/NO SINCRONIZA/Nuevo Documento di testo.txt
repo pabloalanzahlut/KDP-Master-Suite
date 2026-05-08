@@ -1,0 +1,551 @@
+# ✅ SÍ, CONSERVA ESTA SOLUCIÓN - ES CORRECTA
+
+El enfoque es **quirúrgico y eficiente**. Solo necesitas el **código completo integrado** para que funcione de inmediato.
+
+Aquí tienes el archivo `dashboard_server.py` **completo y listo para usar**:
+
+```python
+#!/usr/bin/env python3
+"""
+KDP Master Suite - Dashboard Web Server
+Puerto: 8000 | Actualización en tiempo real cada 10s
+"""
+
+import http.server
+import socketserver
+import sqlite3
+import json
+import os
+from pathlib import Path
+from datetime import datetime
+from urllib.parse import urlparse, parse_qs
+
+# ================= CONFIGURACIÓN =================
+PORT = 8000
+# Ruta a tu base de datos principal (AJUSTA SI ES NECESARIO)
+BASE_DIR = Path("D:/ANEXOS KDP Y DIGITALES/KDP_MASTER")
+DB_PATH = BASE_DIR / "data" / "kdp_master.db"
+# =================================================
+
+def get_dashboard_stats():
+    """Obtiene estadísticas reales de la BD local"""
+    try:
+        if not DB_PATH.exists():
+            return {'error': f'Base de datos no encontrada: {DB_PATH}'}, 500
+            
+        conn = sqlite3.connect(str(DB_PATH))
+        conn.row_factory = sqlite3.Row  # Permite acceso por nombre de columna
+        cursor = conn.cursor()
+        
+        # Canales activos
+        cursor.execute("SELECT COUNT(*) FROM channels WHERE active = 1")
+        canales_activos = cursor.fetchone()[0]
+        
+        # Videos totales detectados
+        cursor.execute("SELECT COUNT(*) FROM videos")
+        videos_totales = cursor.fetchone()[0]
+        
+        # Videos NUEVOS (no descargados aún)
+        cursor.execute("""
+            SELECT COUNT(*) FROM videos 
+            WHERE downloaded = 0 OR downloaded IS NULL
+        """)
+        videos_pendientes = cursor.fetchone()[0]
+        
+        # Videos en procesamiento
+        cursor.execute("SELECT COUNT(*) FROM videos WHERE status = 'processing'")
+        videos_procesando = cursor.fetchone()[0]
+        
+        # Videos completados
+        cursor.execute("""
+            SELECT COUNT(*) FROM videos 
+            WHERE status = 'completed' OR downloaded = 1
+        """)
+        videos_completados = cursor.fetchone()[0]
+        
+        # Videos fallidos
+        cursor.execute("SELECT COUNT(*) FROM videos WHERE status = 'failed'")
+        videos_fallidos = cursor.fetchone()[0]
+        
+        # Actividad reciente (últimos 5 videos)
+        cursor.execute("""
+            SELECT title, channel_name, created_at, status 
+            FROM videos 
+            ORDER BY created_at DESC 
+            LIMIT 5
+        """)
+        actividad_reciente = [
+            {
+                'title': row['title'] or 'Sin título',
+                'channel': row['channel_name'] or 'Desconocido',
+                'date': row['created_at'],
+                'status': row['status']
+            }
+            for row in cursor.fetchall()
+        ]
+        
+        conn.close()
+        
+        return {
+            'canales_activos': canales_activos,
+            'videos_totales': videos_totales,
+            'pendientes': videos_pendientes,
+            'procesando': videos_procesando,
+            'completados': videos_completados,
+            'fallidos': videos_fallidos,
+            'actividad_reciente': actividad_reciente,
+            'ultima_actualizacion': datetime.now().strftime('%H:%M:%S'),
+            'db_path': str(DB_PATH)
+        }, 200
+        
+    except sqlite3.Error as e:
+        return {'error': f'Error de base de datos: {str(e)}'}, 500
+    except Exception as e:
+        return {'error': f'Error inesperado: {str(e)}'}, 500
+
+
+class DashboardHandler(http.server.SimpleHTTPRequestHandler):
+    """Manejador personalizado para el dashboard"""
+    
+    def do_GET(self):
+        parsed_path = urlparse(self.path)
+        
+        # Endpoint API para estadísticas
+        if parsed_path.path == '/api/dashboard/stats':
+            self.send_json_response(*get_dashboard_stats())
+            return
+            
+        # Servir archivo estático (HTML, CSS, JS)
+        super().do_GET()
+    
+    def send_json_response(self, data, status_code=200):
+        """Envía respuesta JSON con headers CORS"""
+        self.send_response(status_code)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        self.wfile.write(json.dumps(data, ensure_ascii=False).encode('utf-8'))
+    
+    def log_message(self, format, *args):
+        """Silencia logs innecesarios"""
+        print(f"[Dashboard] {args[0]}")
+
+
+def generate_dashboard_html():
+    """Genera el HTML completo del dashboard con CSS y JS integrados"""
+    return '''<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDP Master - Dashboard</title>
+    <style>
+        :root {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent-blue: #1E90FF;
+            --accent-green: #28A745;
+            --accent-red: #DC3545;
+            --accent-orange: #FFA500;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--bg-secondary);
+            margin-bottom: 20px;
+        }
+        h1 { font-size: 1.5rem; }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .status-ok { background: var(--accent-green); color: white; }
+        .status-warning { background: var(--accent-orange); color: white; }
+        .status-error { background: var(--accent-red); color: white; }
+        
+        /* Grid de métricas */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .metric-card {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .metric-card:hover { transform: translateY(-3px); }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+        }
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        .metric-card.pending .metric-value { color: var(--accent-orange); }
+        .metric-card.completed .metric-value { color: var(--accent-green); }
+        .metric-card.failed .metric-value { color: var(--accent-red); }
+        
+        /* Actividad reciente */
+        .activity-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .activity-item {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 15px;
+            padding: 12px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            align-items: center;
+        }
+        .activity-item .titulo {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .activity-item .fecha {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .activity-item .estado {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        .estado.pending { background: var(--accent-orange); color: white; }
+        .estado.completed { background: var(--accent-green); color: white; }
+        .estado.failed { background: var(--accent-red); color: white; }
+        .estado.processing { background: var(--accent-blue); color: white; }
+        
+        /* Notificaciones toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent-blue);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .activity-item {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 KDP Master Dashboard</h1>
+            <div>
+                <span class="status-badge status-ok" id="connection-status">● Conectado</span>
+            </div>
+        </header>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value" data-canales>0</div>
+                <div class="metric-label">Canales Activos</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" data-videos-totales>0</div>
+                <div class="metric-label">Videos Totales</div>
+            </div>
+            <div class="metric-card pending">
+                <div class="metric-value" data-pendientes>0</div>
+                <div class="metric-label">⏳ Pendientes</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" data-procesando>0</div>
+                <div class="metric-label">🔄 Procesando</div>
+            </div>
+            <div class="metric-card completed">
+                <div class="metric-value" data-completados>0</div>
+                <div class="metric-label">✅ Completados</div>
+            </div>
+            <div class="metric-card failed">
+                <div class="metric-value" data-fallidos>0</div>
+                <div class="metric-label">❌ Fallidos</div>
+            </div>
+        </div>
+        
+        <div class="activity-section">
+            <div class="activity-header">
+                <h3>📋 Actividad Reciente</h3>
+                <span class="text-secondary" data-timestamp>Última actualización: --:--:--</span>
+            </div>
+            <div class="activity-list" data-actividad>
+                <div style="text-align:center;color:var(--text-secondary);padding:20px;">
+                    Esperando datos...
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Dashboard KDP Master Suite | Auto-refresh: 10s | 
+               <a href="http://localhost:8000" style="color:var(--accent-blue);">Recargar</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // ================= LÓGICA DEL DASHBOARD =================
+        
+        function actualizarDashboard() {
+            fetch('/api/dashboard/stats')
+                .then(response => {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        console.error('Error del servidor:', data.error);
+                        document.getElementById('connection-status').className = 'status-badge status-error';
+                        document.getElementById('connection-status').textContent = '● Error de conexión';
+                        return;
+                    }
+                    
+                    // Actualizar estado de conexión
+                    document.getElementById('connection-status').className = 'status-badge status-ok';
+                    document.getElementById('connection-status').textContent = '● Conectado';
+                    
+                    // Actualizar contadores con animación suave
+                    animateValue('[data-canales]', data.canales_activos);
+                    animateValue('[data-videos-totales]', data.videos_totales);
+                    animateValue('[data-pendientes]', data.pendientes);
+                    animateValue('[data-procesando]', data.procesando);
+                    animateValue('[data-completados]', data.completados);
+                    animateValue('[data-fallidos]', data.fallidos);
+                    
+                    // Actualizar timestamp
+                    document.querySelector('[data-timestamp]').textContent = 
+                        `Última actualización: ${data.ultima_actualizacion}`;
+                    
+                    // Actualizar actividad reciente
+                    actualizarActividad(data.actividad_reciente);
+                    
+                    // Notificación si hay videos pendientes
+                    if (data.pendientes > 0 && !window.pendientesNotificados) {
+                        mostrarNotificacion(`📥 ${data.pendientes} videos nuevos pendientes de descargar`);
+                        window.pendientesNotificados = true;
+                    }
+                    if (data.pendientes === 0) {
+                        window.pendientesNotificados = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al actualizar dashboard:', error);
+                    document.getElementById('connection-status').className = 'status-badge status-error';
+                    document.getElementById('connection-status').textContent = '● Sin conexión';
+                });
+        }
+        
+        function animateValue(selector, newValue) {
+            const element = document.querySelector(selector);
+            if (!element) return;
+            
+            const currentValue = parseInt(element.textContent) || 0;
+            if (currentValue === newValue) return;
+            
+            // Animación simple de conteo
+            const duration = 300;
+            const steps = 10;
+            const increment = (newValue - currentValue) / steps;
+            let step = 0;
+            
+            const timer = setInterval(() => {
+                step++;
+                const displayValue = Math.round(currentValue + increment * step);
+                element.textContent = displayValue;
+                
+                if (step >= steps) {
+                    element.textContent = newValue;
+                    clearInterval(timer);
+                }
+            }, duration / steps);
+        }
+        
+        function actualizarActividad(videos) {
+            const container = document.querySelector('[data-actividad]');
+            if (!videos || videos.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:20px;">Sin actividad reciente</div>';
+                return;
+            }
+            
+            container.innerHTML = videos.map(video => {
+                const fecha = video.date ? new Date(video.date).toLocaleString('es-ES', {
+                    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+                }) : 'N/A';
+                
+                return `
+                    <div class="activity-item">
+                        <span class="titulo" title="${video.title}">${video.title}</span>
+                        <span class="fecha">${fecha}</span>
+                        <span class="estado ${video.status || 'pending'}">${video.status || 'pendiente'}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function mostrarNotificacion(mensaje) {
+            // Remover notificaciones anteriores
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            
+            const notif = document.createElement('div');
+            notif.className = 'toast';
+            notif.textContent = mensaje;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => notif.remove(), 300);
+            }, 5000);
+        }
+        
+        // ================= INICIALIZACIÓN =================
+        
+        // Ejecutar inmediatamente al cargar
+        actualizarDashboard();
+        
+        // Actualizar cada 10 segundos
+        setInterval(actualizarDashboard, 10000);
+        
+        // Permitir recarga manual con F5
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F5') {
+                e.preventDefault();
+                actualizarDashboard();
+            }
+        });
+        
+        console.log('📊 Dashboard KDP Master cargado - Actualizando cada 10s');
+    </script>
+</body>
+</html>'''
+
+
+def main():
+    """Inicia el servidor del dashboard"""
+    # Crear archivo HTML temporal para servir
+    html_path = BASE_DIR / "dashboard.html"
+    
+    try:
+        with open(html_path, 'w', encoding='utf-8') as f:
+            f.write(generate_dashboard_html())
+        print(f"✅ Dashboard HTML generado: {html_path}")
+    except Exception as e:
+        print(f"⚠️ No se pudo generar HTML: {e}")
+    
+    # Configurar servidor
+    with socketserver.TCPServer(("", PORT), DashboardHandler) as httpd:
+        print(f"🚀 Dashboard disponible en: http://localhost:{PORT}")
+        print(f"📁 Base de datos: {DB_PATH}")
+        print("🔁 Auto-refresh: cada 10 segundos")
+        print("ℹ️  Presiona Ctrl+C para detener")
+        
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\n🛑 Servidor detenido")
+            # Limpiar archivo temporal si existe
+            if html_path.exists():
+                html_path.unlink()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+## 📋 INSTRUCCIONES DE USO:
+
+1. **Guarda** este código como `dashboard_server.py` en tu carpeta principal
+2. **Verifica** que `DB_PATH` apunte a tu base de datos real
+3. **Ejecuta**:
+   ```bash
+   python dashboard_server.py
+   ```
+4. **Abre en navegador**: `http://localhost:8000`
+
+---
+
+## ✅ QUÉ ARREGLA ESTE CÓDIGO:
+
+| Problema | Solución |
+|----------|----------|
+| Dashboard muestra 0 videos | Consulta directa a `kdp_master.db` con `COUNT(*)` |
+| No se actualiza en tiempo real | Auto-refresh JavaScript cada 10s |
+| No avisa de videos nuevos | Notificación toast cuando `pendientes > 0` |
+| Diseño básico | CSS moderno con tema oscuro y animaciones |
+| Sin feedback de conexión | Badge de estado que cambia según respuesta del servidor |
+
+---
+
+## 🔧 SI NECESITAS AJUSTAR:
+
+- **Cambiar puerto**: Modifica `PORT = 8000` al inicio del archivo
+- **Ruta de BD diferente**: Actualiza `DB_PATH = Path("TU/RUTA/AQUI")`
+- **Frecuencia de actualización**: Cambia `setInterval(actualizarDashboard, 10000)` (10000 = 10 segundos)
+
+**¿Necesitas que ajuste algo específico o que explique alguna parte?**

@@ -1,0 +1,74 @@
+### 🧠 LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Estrategia)
+
+#### 🔹 Pilar 1: Selección Semántica y Valor del Conocimiento (1-10)
+1.  **Clasificador Semántico de Valor de Conocimiento:** Analiza el contenido de los `.txt` para determinar su "valor estratégico". *Uso real:* Priorizar el backup de manuales "Legalidad" sobre logs temporales si el espacio es limitado.
+2.  **Detector de Contenido Basura/Spam:** Identifica transcripciones que son puro ruido o promocionales. *Uso real:* No gastar recursos respaldando archivos que no aportan conocimiento.
+3.  **Predictor de Relevancia Temporal:** Decide qué archivos son "urgentes" de respaldar por fecha y tema. *Uso real:* Respaldar primero lo más reciente y activo.
+4.  **Organizador Automático por Tópicos:** Sugiere estructura de carpetas basada en contenido. *Uso real:* Mover archivos sueltos a carpetas temáticas antes de respaldar.
+5.  **Detección de Duplicados Conceptuales:** Identifica textos que dicen lo mismo con otras palabras. *Uso real:* Evitar respaldar redundancias semánticas.
+6.  **Resumidor de Estado de Conocimiento:** Genera un resumen de "qué se está respaldando" hoy. *Uso real:* Reporte: "Backup contiene 50% Legal, 30% Marketing, 20% General".
+7.  **Etiquetado Automático por Nicho KDP:** Asigna etiquetas a los archivos para búsqueda futura. *Uso real:* Poder buscar "backup de fiscalidad" en el futuro.
+8.  **Validador de Coherencia de Manuales:** Verifica que los manuales tengan inicio, nudo y desenlace lógico. *Uso real:* Asegurar integridad semántica, no solo de bytes.
+9.  **Detector de Lagunas de Información:** Identifica qué temas faltan en el backup vs. lo esperado. *Uso real:* Alertar "Falta contenido de Amazon Ads 2024 en el backup".
+10. **Priorizador de Archivos Críticos:** Aprende qué archivos usa más el usuario y los protege primero. *Uso real:* Backup prioritario de `settings.json` y `knowledge_base.db`.
+
+#### 🔹 Pilar 2: Predicción de Riesgos y Salud del Sistema (11-20)
+11. **Predictor de Riesgo de Caída de Sistema:** Analiza uso de CPU/RAM para predecir crash inminente. *Uso real:* Disparar backup automático si detecta inestabilidad severa.
+12. **Analista de Patrones de Fallo de Disco:** Aprende de errores de I/O para predecir muerte del disco. *Uso real:* Alertar "Probabilidad de fallo de disco 90% en 48h, haz backup ya".
+13. **Monitor de Anomalías en Tamaño de Archivos:** Detecta si un archivo de texto cambia drásticamente de tamaño. *Uso real:* Prevenir corrupción o borrado accidental masivo.
+14. **Detector de Actividad Sospechosa:** Identifica borrado masivo o encriptación externa. *Uso real:* Respuesta rápida ante ransomware o error humano grave.
+15. **Predictor de Necesidad de Backup:** Sugiere backup basado en volumen de cambios. *Uso real:* "Has añadido 500 transcripciones hoy, se recomienda backup".
+16. **Analizador de Salud de Base de Datos Semántica:** Evalúa si las relaciones en la DB tienen sentido. *Uso real:* Detectar corrupción lógica en las tablas de conocimiento.
+17. **Detector de Inconsistencias en Configuración:** Verifica que `settings.json` tenga valores válidos. *Uso real:* Respaldar config solo si es válida, no corrupta.
+18. **Monitor de Integridad de Librerías:** Verifica que las dependencias de texto (NLTK, etc.) estén sanas. *Uso real:* Asegurar que el entorno de procesamiento se puede restaurar.
+19. **Alerta de Espacio Proyectado:** Predice cuándo se llenará el disco según tasa de ingesta. *Uso real:* Planificar limpieza o ampliación antes del desastre.
+20. **Diagnóstico Automático de Errores:** Si falla backup, IA analiza logs y sugiere solución. *Uso real:* "Fallo por permiso denegado, ejecuta como Admin".
+
+#### 🔹 Pilar 3: Organización, Metadatos y Búsqueda (21-30)
+21. **Generador de Metadatos Enriquecidos:** Añade autor, fecha, tema y resumen a cada archivo. *Uso real:* Archivos auto-descriptivos para el futuro.
+22. **Buscador Natural de Puntos de Restauración:** "Encuentra el backup donde arreglé el error de legalidad". *Uso real:* Encontrar versiones específicas sin saber la fecha exacta.
+23. **Indexador Semántico de Backups:** Permite buscar dentro de los archivos ZIP sin descomprimir. *Uso real:* "Busca 'cláusula de responsabilidad' en mis backups".
+24. **Generador de Línea de Tiempo de Conocimiento:** Crea mapa visual de evolución de los textos. *Uso real:* Ver cómo ha crecido la base de conocimiento mes a mes.
+25. **Clasificador de Sensibilidad de Datos:** Detecta PII (datos personales) en textos. *Uso real:* Alertar "Este backup contiene emails de clientes, ¿cifrar con nivel extra?".
+26. **Enmascarado Automático de PII:** Oculta datos sensibles antes de respaldar si se configura. *Uso real:* Cumplir GDPR al respaldar en nubes menos seguras.
+27. **Traductor de Nombres de Archivos:** Traduce nombres crípticos a descriptivos. *Uso real:* `file_123.txt` → `guia_fiscalidad_2024.txt`.
+28. **Agrupador por Autor/Canal:** Organiza backups por origen del contenido. *Uso real:* Separar conocimiento propio vs. conocimiento de terceros.
+29. **Detector de Versiones de Documentos:** Identifica si un archivo es v1, v2, v3. *Uso real:* Mantener solo la última versión estable para ahorrar espacio.
+30. **Generador de Resumen Ejecutivo del Backup:** Informe natural de qué se guardó. *Uso real:* "Backup completado: 2GB, 500 archivos, tema principal: Legalidad".
+
+#### 🔹 Pilar 4: Restauración Inteligente y Recuperación (31-40)
+31. **Asistente de Restauración Guiada:** Chat que pregunta qué se quiere recuperar. *Uso real:* "¿Quieres restaurar todo o solo la configuración?".
+32. **Predicción de Impacto de Restauración:** Analiza qué se sobrescribirá. *Uso real:* "Cuidado, restaurar esto borrará 50 transcripciones nuevas".
+33. **Verificador de Compatibilidad de Versión:** Chequea si el backup es compatible con la versión actual de la app. *Uso real:* Evitar restaurar backup de v2.0 en v3.4 y romper todo.
+34. **Migrador Automático de Esquemas:** Adapta datos viejos al formato nuevo. *Uso real:* Convertir estructura de DB antigua a nueva automáticamente.
+35. **Validador Semántico Post-Restauración:** Verifica que los textos restaurados tengan sentido. *Uso real:* Detectar si la restauración trajo archivos corruptos o vacíos.
+36. **Reconstructor de Archivos Fragmentados:** Une partes de archivos si el backup estaba dividido. *Uso real:* Facilitar recuperación de archivos grandes.
+37. **Priorizador de Restauración Crítica:** Restaura primero lo vital (DB, Configs). *Uso real:* Tener el sistema operativo mínimamente funcional lo antes posible.
+38. **Generador de Reporte de Diferencias:** Muestra qué cambió entre backup y estado actual. *Uso real:* Saber qué se ha perdido o ganado.
+39. **Asistente de Fusión de Conocimiento:** Sugiere cómo mezclar backup con datos actuales. *Uso real:* No perder lo nuevo, pero recuperar lo viejo valioso.
+40. **Simulador de Restauración:** Prueba el backup en entorno aislado. *Uso real:* Verificar que el backup funciona antes de aplicar en producción.
+
+#### 🔹 Pilar 5: Cumplimiento, Auditoría y Seguridad Cognitiva (41-50)
+41. **Auditor de Cumplimiento Normativo:** Verifica GDPR/LOPD en contenidos respaldados. *Uso real:* Asegurar legalidad de los datos almacenados.
+42. **Detector de Violaciones de Copyright:** Escanea textos por contenido protegido. *Uso real:* Evitar respaldar material con derechos de autor restringidos.
+43. **Generador de Certificado de Integridad:** Documento firmado por IA que atestigua la validez. *Uso real:* Prueba legal de que el backup no fue alterado.
+44. **Analista de Acceso y Uso:** Monitorea quién accede a los backups. *Uso real:* Detectar accesos no autorizados a copias de seguridad.
+45. **Recomendador de Política de Retención:** Sugiere tiempos de guarda según tipo de dato. *Uso real:* "Guarda datos legales 5 años, logs 1 mes".
+46. **Detector de Anomalías en Auditoría:** Identifica intentos de borrar logs de backup. *Uso real:* Prevenir encubrimiento de actividades maliciosas.
+47. **Generador de Política de Privacidad:** Crea documento basado en datos respaldados. *Uso real:* Actualizar políticas de privacidad automáticamente.
+48. **Validador de Cifrado Robusto:** Verifica que el cifrado sea fuerte y actual. *Uso real:* Alertar si se usa algoritmo obsoleto.
+49. **Asistente de Destrucción Segura:** Guía para borrar backups obsoletos definitivamente. *Uso real:* Asegurar que datos viejos no sean recuperables.
+50. **Monitor de Threat Intelligence:** Cruza datos con feeds de amenazas externas. *Uso real:* Alertar si hay vulnerabilidades conocidas en los componentes respaldados.
+
+#### 🔹 Pilar 6: UX Cognitiva y Automatización (51-60)
+51. **Chatbot de Soporte de Backups:** Responde dudas sobre cómo funciona. *Uso real:* "¿Cómo restauro un solo archivo?".
+52. **Generador de Tutoriales Contextuales:** Crea guías paso a paso según el problema. *Uso real:* Ayuda visual interactiva para usuarios novatos.
+53. **Predictor de Tiempo de Ejecución:** Estima duración basada en historial y hardware. *Uso real:* Planificar backups largos fuera de horario laboral.
+54. **Optimizador de Horario de Backup:** Sugiere mejor hora según uso del PC. *Uso real:* "Haz backup a las 3 AM cuando no usas el PC".
+55. **Adaptador de Interfaz por Nivel de Usuario:** Simplifica opciones para novatos, expande para expertos. *Uso real:* UX personalizada.
+56. **Generador de Notificaciones Inteligentes:** Decide cuándo notificar para no molestar. *Uso real:* No avisar a medianoche si no es crítico.
+57. **Asistente de Configuración Automática:** Configura parámetros óptimos según el equipo. *Uso real:* Ajustar compresión y cifrado automáticamente.
+58. **Detector de Errores de Usuario:** Identifica malas prácticas y sugiere corrección. *Uso real:* "Sueles cancelar backups, ¿activar modo automático?".
+59. **Generador de Gamificación de Mantenimiento:** Incentiva al usuario a mantener backups al día. *Uso real:* Badges o puntuación por disciplina de backup.
+60. **Evolución del Asistente de IA:** Mejora sus sugerencias con el tiempo. *Uso real:* Aprende las preferencias del usuario para ser más preciso.
+

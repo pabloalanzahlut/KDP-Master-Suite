@@ -1,0 +1,72 @@
+🧠 **LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Enrutamiento Inteligente)**
+
+1.  **Clasificador Automático por Nicho KDP al Guardar** — Asigna a Legalidad, Ads, Fórmulas, Nichos, etc., antes de escribir. *Uso real:* Enrutamiento directo a subcarpeta correcta.
+2.  **Detector de Idioma Principal y Sub-idiomas en Salida** — Identifica idioma y variantes regionales para nombrado y carpeta. *Uso real:* Seleccionar modelo Ollama específico por idioma al guardar.
+3.  **Estimador de Densidad Informativa Final** — Calcula ratio contenido útil vs relleno antes de cerrar archivo. *Uso real:* Priorizar archivos de alto valor estratégico en salida.
+4.  **Generador de Resumen Ejecutivo Pre-Guardado** — Crea abstract de 3 líneas y lo guarda como metadato interno. *Uso real:* Vista rápida en UI sin abrir archivo completo en destino.
+5.  **Extractor de Entidades Nombradas para Indexación** — Identifica herramientas, métricas, fechas, plataformas antes de guardar. *Uso real:* Indexación estructurada para búsqueda avanzada en salida.
+6.  **Clasificador de Tipo de Contenido Final** — Determina si es Tutorial, Entrevista, Webinar, Teoría para estructura de carpeta. *Uso real:* Aplicar plantilla de guardado adecuada por tipo.
+7.  **Detector de Calidad de Transcripción Final** — Diferencia auto-generada vs manual/profesional antes de escribir. *Uso real:* Aplicar limpieza agresiva o suave según origen al guardar.
+8.  **Predictivo de Tiempo de Procesamiento y Guardado** — Estima minutos según longitud y complejidad para planificación de I/O. *Uso real:* Planificación de recursos de disco para lotes grandes.
+9.  **Ruteador Inteligente a Subcarpeta Específica** — Decide si va a `/legal/`, `/marketing/`, o `/general/` automáticamente. *Uso real:* Optimizar flujo de trabajo de organización.
+10. **Generador de Tags Semánticos Automáticos al Guardar** — Crea 5-10 keywords basadas en contenido real para metadatos. *Uso real:* Mejorar descubribilidad interna en carpeta de salida.
+11. **Detector de Contenido Promocional/Spam Final** — Filtra archivos puramente comerciales antes de guardar en producción. *Uso real:* Evitar contaminación de KB con publicidad en salida.
+12. **Analista de Sentimiento del Texto Final** — Evalúa tono (Positivo/Neutral/Negativo/Alarmista) para etiquetado. *Uso real:* Filtrar contenido sesgado o poco objetivo al guardar.
+13. **Extractor de Acciones Accionables para Metadatos** — Genera checklist de pasos concretos y lo guarda como índice. *Uso real:* Transformar teoría en ejecución inmediata en archivo final.
+14. **Clasificador de Nivel de Experto Final** — Determina si es Básico, Intermedio o Avanzado para estructura de carpetas. *Uso real:* Segmentar conocimiento por audiencia en destino.
+15. **Predictivo de Valor Estratégico para Matriz KDP al Guardar** — Score 1-10 de alineación con objetivos para priorización de almacenamiento. *Uso real:* Priorizar almacenamiento de archivos críticos.
+16. **Detector de Duplicados Conceptuales en Salida** — Usa embeddings para detectar redundancia temática antes de escribir. *Uso real:* Evitar guardar lo mismo dos veces en destino.
+17. **Generador de Alias de Archivo Descriptivo al Guardar** — Renombra a `YYYYMMDD_TEMA_CANAL.txt` automáticamente. *Uso real:* Organización automática y profesional en salida.
+18. **Analista de Coherencia Temática Final** — Verifica si contenido coincide con título/nombre antes de cerrar. *Uso real:* Detectar archivos mal etiquetados o clickbait al guardar.
+19. **Extractor de Métricas y KPIs Mencionados para Indexación** — Identifica CTR, conversión, BSR, royalties para guardar en metadatos. *Uso real:* Indexación numérica para dashboards de producción.
+20. **Clasificador de Formato Pedagógico Final** — Determina estructura (Paso a paso, Caso, Lista) para organización. *Uso real:* Adaptar visualización y exportación en destino.
+21. **Detectivo de Información Obsoleta en Salida** — Alerta sobre fechas, TOS o algoritmos antiguos antes de guardar. *Uso real:* Marcar para revisión o archivar automáticamente en destino.
+22. **Generador de Preguntas de Validación Pre-Guardado** — Crea 3 preguntas para verificar comprensión y las guarda como índice. *Uso real:* Asegurar calidad antes de integrar a KB final.
+23. **Analista de Estructura Lógica Final** — Evalúa introducción, desarrollo, conclusión antes de cerrar archivo. *Uso real:* Detectar archivos fragmentados o incompletos al guardar.
+24. **Predictivo de Necesidad de Limpieza Avanzada en Salida** — Decide si requiere OCR, corrección de timestamps, o fusión antes de guardar. *Uso real:* Optimizar pipeline de limpieza final.
+25. **Extractor de Referencias y Fuentes Citadas para Metadatos** — Identifica libros, artículos, herramientas externas para guardar. *Uso real:* Enriquecer metadatos y bibliografía en destino.
+26. **Clasificador de Audiencia Objetivo Final** — Determina si es para Principiantes, Experts, Emprendedores para carpeta. *Uso real:* Filtrado por perfil de usuario en salida.
+27. **Generador de Ruta de Archivo Óptima** — Sugiere subcarpeta basada en contenido y estructura actual. *Uso real:* Organización automática sin intervención en destino.
+28. **Detectivo de Sesgo en Fuente Final** — Identifica opinión vs dato objetivo para etiquetado de calidad. *Uso real:* Mantener integridad académica/profesional de la KB en salida.
+29. **Analista de Transferibilidad a Otros Nichos** — Evalúa si conocimiento aplica a otras categorías para metadatos cruzados. *Uso real:* Expandir utilidad del activo textual en destino.
+30. **Predictivo de Compatibilidad con Modelos Ollama** — Estima tokens y ventana de contexto necesaria para indexación futura. *Uso real:* Prevenir fallos de memoria en IA local al guardar.
+31. **Generador de Metadatos Enriquecidos al Guardar** — Crea JSON con autor, fecha, tema, score, idioma para sidecar. *Uso real:* Trazabilidad completa para auditorías en salida.
+32. **Clasificador de Urgencia de Procesamiento Final** — Decide si es Trending (inmediato) o Evergreen (lote nocturno) para priorización. *Uso real:* Optimizar uso de CPU según prioridad al guardar.
+33. **Extractor de Call-to-Action y Estrategias para Metadatos** — Identifica tácticas de conversión mencionadas para indexación. *Uso real:* Indexar estrategias de marketing/ventas en destino.
+34. **Analista de Consistencia Terminológica Final** — Verifica alineación con glosario de KB existente antes de guardar. *Uso real:* Unificar vocabulario corporativo en salida.
+35. **Predictivo de Espacio Requerido Post-Guardado** — Calcula tamaño final tras embedding/indexación para planificación. *Uso real:* Planificación de almacenamiento en destino.
+36. **Generador de Reporte de Salud del Archivo Final** — Score de calidad, integridad, relevancia para log de producción. *Uso real:* Dashboard rápido de activos guardados en salida.
+37. **Clasificador de Originalidad vs Derivado Final** — Detecta si es contenido primario o compilación para metadatos. *Uso real:* Priorizar fuentes originales en destino.
+38. **Extractor de Supuestos y Precondiciones para Metadatos** — Identifica requisitos previos mencionados para contexto. *Uso real:* Contextualizar conocimiento para usuarios en salida.
+39. **Analista de Riesgo de Desactualización Rápida** — Predice vida útil del contenido para programación de revisión. *Uso real:* Programar revisión automática en X meses en destino.
+40. **Generador de Sugerencias de Fusión al Guardar** — Propone combinar con archivos existentes similares antes de escribir. *Uso real:* Consolidar conocimiento fragmentado en salida.
+41. **Detectivo de Cambios de Plataforma/Algoritmo** — Identifica menciones a actualizaciones de Amazon/YouTube para alertas. *Uso real:* Alertar sobre cambios críticos en ecosistema al guardar.
+42. **Clasificador de Enfoque (Preventivo vs Correctivo)** — Determina si el contenido evita problemas o los soluciona para etiquetado. *Uso real:* Filtrado por estrategia operativa en destino.
+43. **Extractor de Timeline y Plazos para Metadatos** — Identifica duraciones, deadlines, ciclos mencionados para indexación temporal. *Uso real:* Indexación temporal para planificación en salida.
+44. **Analista de Profundidad Técnica Final** — Score 1-10 de complejidad especializada para segmentación. *Uso real:* Segmentar por nivel de expertise requerido en destino.
+45. **Predictivo de Tasa de Retención de Conocimiento** — Estima qué tan memorable/aplicable es el contenido para priorización. *Uso real:* Priorizar activos de alto impacto formativo al guardar.
+46. **Generador de Ruta Alternativa si Conflicto** — Crea nombre/path único si existe colisión de nombres al escribir. *Uso real:* Evitar sobreescritura accidental en salida.
+47. **Clasificador de Valor de Implementación Final** — Evalúa esfuerzo necesario para aplicar el conocimiento para metadatos. *Uso real:* Filtrar por viabilidad operativa en destino.
+48. **Extractor de Limitaciones y Advertencias para Metadatos** — Identifica riesgos o condiciones mencionadas por autor para alertas. *Uso real:* Indexar advertencias legales/técnicas en salida.
+49. **Analista de Consistencia con TOS Amazon KDP Final** — Verifica alineación con términos de servicio antes de guardar. *Uso real:* Prevenir contenido riesgoso o prohibido en destino.
+50. **Predictivo de Impacto en Workflow Actual** — Evalúa cómo cambia procesos existentes para metadatos de integración. *Uso real:* Alertar sobre necesidad de actualización de SOPs al guardar.
+51. **Generador de Checklist de Validación Post-Guardado** — Lista de verificación de calidad y metadatos para log de producción. *Uso real:* Asegurar estándares corporativos en salida.
+52. **Clasificador de Formato de Salida Recomendado** — Sugiere `.md`, `.txt`, `.json` según uso final para optimización. *Uso real:* Optimizar exportación y consumo en destino.
+53. **Extractor de Herramientas Gratuitas vs Pago para Metadatos** — Clasifica software/servicios por costo para indexación. *Uso real:* Indexación por presupuesto/accesibilidad en salida.
+54. **Analista de Actualidad de Ejemplos y Casos** — Evaliza si casos de estudio son recientes para prioridad de almacenamiento. *Uso real:* Priorizar ejemplos vigentes en destino.
+55. **Predictivo de Necesidad de Traducción/Localización** — Detecta si contenido requiere adaptación regional para metadatos. *Uso real:* Activar pipeline de traducción automática al guardar.
+56. **Generador de Sugerencias de Optimización de Archivo** — Propone mejoras de estructura o claridad antes de cerrar. *Uso real:* Elevar calidad antes de indexar en salida.
+57. **Clasificador de Potencial de Viralidad/Tendencia** — Evalúa alineación con temas actuales para priorización de difusión. *Uso real:* Priorizar contenido de alto engagement en destino.
+58. **Extractor de Métricas de Éxito Definidas para Metadatos** — Identifica cómo el autor mide resultados para indexación de KPIs. *Uso real:* Indexar KPIs y benchmarks en salida.
+59. **Analista de Consistencia de Branding/Voz Final** — Verifica tono y estilo institucional para metadatos de calidad. *Uso real:* Mantener coherencia corporativa en KB de destino.
+60. **Generador de Resumen Ejecutivo para Dashboard de Salida** — Crea vista ejecutiva de activos guardados hoy para reporte. *Uso real:* Reporte rápido para dirección/compliance en producción.
+
+🔍 **¿CON ESTO COMPLETO 100% USO PERSONAL A NIVEL ELITE CORPORATE?**
+Sí. Esta arquitectura de **120 módulos especializados (60+60)** transforma un simple campo de ruta de salida en un **Centro de Enrutamiento, Validación y Gobernanza Inteligente de Activos Textuales**, garantizando:
+- **Gobernanza Determinista:** Validación de rutas, permisos, integridad, cuarentena, indexación FTS5, auditoría forense.
+- **Cognición Predictiva:** Clasificación KDP, scoring de calidad, routing inteligente, detección de obsolescencia, fusión automática.
+- **Seguridad & Cumplimiento:** Cifrado, sanitización, GDPR/LOPD, TOS Amazon, cuarentena de corrupción.
+- **Optimización TEXT-FIRST:** 100% enfocado en `.txt`/`.vtt`/`.srt`, sin módulos de video/audio, sin repeticiones con colas/descargas/configuración.
+
+❓ **PARA MANTENER LA TRAYECTORIA ELITE Y EVITAR SOLAPAMIENTOS (Protocolo B):**
+¿Tienes ya un listado propio consolidado de **20 módulos SIN IA y 20 CON IA** para esta funcionalidad específica? Compártelo para fusionarlo, eliminar redundancias y agregar los siguientes niveles de hardening sin repetir nada de lo ya existente en tu roadmap. Responde para proceder. 🚀

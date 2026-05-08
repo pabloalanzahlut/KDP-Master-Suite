@@ -1,0 +1,78 @@
+## 🎯 Próximos Pasos - Pestaña Configuración (Nivel Elite Corporate)
+
+Basándome en el análisis del código actual, aquí están las mejoras potenciales organizadas por prioridad:
+
+---
+
+### **NIVEL 1: ESENCIALES (Core functionality)**
+
+| # | Mejora | Descripción | Complejidad |
+|---|--------|-------------|-------------|
+| 1 | **Panel de Notificaciones UI** | Integrar configuración de notificaciones (enable, native, internal, cooldown) desde `notification_router.py` a la pestaña de Settings | Media |
+| 2 | **Configuración de Canales** | Panel para gestionar canales (añadir/editar/eliminar URLs de YouTube) sin usar JSON manualmente | Alta |
+| 3 | **Opciones de Descarga** | Quality, format, concurrent downloads, retry logic | Media |
+
+---
+
+### **NIVEL 2: PRODUCTIVIDAD (Workflow enhancement)**
+
+| # | Mejora | Descripción | Complejidad |
+|---|--------|-------------|-------------|
+| 4 | **Modo Resumen (Summary Mode)** | Agrupar notificaciones de múltiples videos nuevos en ventana de 15 min (ya existe en notification_router) | Baja |
+| 5 | **Historial de Notificaciones** | Guardar últimas N notificaciones en DB/SQLite para consulta | Media |
+| 6 | **Sonido Personalizado** | Opción para sonido de notificación (seleccionar archivo .wav/.mp3) | Baja |
+
+---
+
+### **NIVEL 3: AVANZADO (Enterprise features)**
+
+| # | Mejora | Descripción | Complejidad |
+|---|--------|-------------|-------------|
+| 7 | **Configuración de Dashboard** | Puerto, host, auto-start, path de DB (ya existe en `settings.get("dashboard")`) | Baja |
+| 8 | **Backup/Restore Manual** | Exportar/importar settings.json completo | Media |
+| 9 | **Filtros por Canal** | Notificaciones solo de canales específicos ( whitelist) | Alta |
+
+---
+
+### **NIVEL 4: ELITE CORPORATE (Full automation)**
+
+| # | Mejora | Descripción | Complejidad |
+|---|--------|-------------|-------------|
+| 10 | **Notificaciones Programables** | Scheduler de recordatorios (ej: "recordarme revisar descargas cada 2 horas") | Alta |
+| 11 | **Perfiles de Configuración** | Guardar/cargar múltiples configuraciones (ej: "Modo KDP Nicho" vs "Modo Investigación") | Alta |
+| 12 | **Configuración de Base de Datos** | Path de SQLite, auto-vacuum, backup automático | Media |
+| 13 | **Logs y Debug** | Nivel de logging, path de logs, rotation policy | Baja |
+
+---
+
+## 📊 Propuesta de Implementación (Orden Sugerido)
+
+```
+FASE 1 (Esta semana):
+├── 1. Panel de Notificaciones UI ← Más valioso
+├── 3. Opciones de Descarga
+└── 7. Configuración Dashboard
+
+FASE 2 (Próxima semana):
+├── 4. Modo Resumen
+├── 6. Sonido Personalizado
+└── 8. Backup/Restore Manual
+
+FASE 3 (Este mes):
+├── 2. Configuración de Canales
+├── 5. Historial de Notificaciones
+└── 9. Filtros por Canal
+
+FASE 4 (Q2 2026):
+├── 10-13. Features Elite
+```
+
+---
+
+## ❓ PREGUNTAS PARA TI
+
+1. **¿Cuáles de estas priorizas?** (dime los primeros 3-5)
+2. **¿Tienes necesidades específicas** que no están en la lista?
+3. **¿Prefieres que genere el código** de algún feature específico ahora?
+
+Si me dices cuáles implementar, puedo generar el plan detallado para cada uno.

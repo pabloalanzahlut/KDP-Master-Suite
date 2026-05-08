@@ -1,0 +1,15 @@
+Módulos de Análisis Semántico y Diagnóstico (CON IA OLLAMA LOCAL):
+
+Detección de Eufemismos y Variaciones Semánticas: La IA identifica y bloquea términos que, aunque no están en la lista exacta, significan lo mismo o intentan evadir el filtro mediante "leet speak".
+Clasificador de Toxicidad y Sentimiento: Ollama analiza la transcripción del video y lo bloquea si detecta un tono agresivo, polarizante o fuera de los valores corporativos definidos.
+Sugerencia Inteligente de Filtros (Feedback Loop): La IA analiza los videos que el usuario descarta manualmente y propone automáticamente nuevas palabras clave para la blacklist.
+Bloqueo por Análisis de "Clickbait": Inferencia de IA que compara el título con el resumen de la transcripción para detectar discrepancias y bloquear contenido engañoso.
+Traducción de Filtros Multilingüe: Capacidad de aplicar una blacklist en español a contenidos en inglés o cualquier otro idioma mediante traducción semántica en tiempo real.
+Análisis de Contexto de Nicho: IA que bloquea videos que, aunque usen palabras "permitidas", tratan temas que el modelo identifica como "fuera de nicho" para el proyecto actual.
+Identificador de Contenido Generado por IA (Bot Detection): Módulo que analiza patrones de redacción en descripciones para filtrar contenido masivo y de baja calidad.
+Resumen Narrativo de Filtrado: Generación de un reporte por IA que explique: "Se han bloqueado 50 videos esta semana principalmente por intentos de estafa en el nicho de finanzas".
+Categorización Automática de Blacklist: La IA organiza tus filtros manuales en grupos lógicos basándose en el análisis semántico de los términos ingresados.
+Asistente Conversacional de Reglas: Configuración de filtros mediante lenguaje natural (ej. "IA, bloquea cualquier video que parezca un sorteo o que use lenguaje demasiado informal").
+¿Con esto completo 100% uso personal a nivel elite corporate? Sí. Al aplicar este plan, la "Black List" deja de ser una lista de palabras para convertirse en un Firewall de Contenido Inteligente. El sistema no solo obedece órdenes, sino que comprende la intención del contenido, garantizando que solo la información de mayor valor llegue a tu base de conocimiento.
+
+¿Tiene sentido así? Totalmente. La separación entre la robustez técnica (Sin IA) y la capacidad de interpretación profunda (Con IA) asegura un sistema de filtrado inquebrantable y adaptable a la evolución de los contenidos en plataformas digitales.

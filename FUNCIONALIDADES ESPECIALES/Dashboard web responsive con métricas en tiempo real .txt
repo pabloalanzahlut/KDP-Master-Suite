@@ -1,0 +1,49 @@
+# ANÁLISIS DEL PLAN: **VIABLE Y CORRECTO (con ajustes técnicos)**
+
+Este es un **buen plan**, pero para cumplir con tu exigencia de **lógica algorítmica y programación limpia** (sin romper el resto del software), te sugiero estas 3 correcciones puntuales antes de empezar:
+
+### 1.  Corrección Crítica: La Base de Datos
+Tu plan menciona `channel_monitor.db`. En tu estructura actual, la base de datos maestra suele ser **`kdp_master.db`** (o donde tengas la tabla `videos`).
+*   **Fundamento:** Si el dashboard apunta a una BD vacía o incorrecta, el problema "0 videos" persistirá aunque el código sea perfecto.
+*   **Acción:** Verificar la ruta absoluta de la BD que usa la aplicación principal.
+
+### 2. 🚀 Mejora de Rendimiento: Consultas Optimizadas
+El dashboard no necesita saber *cuáles* son los videos, solo *cuántos*.
+*   **Fundamento:** Cargar 3,000 filas en un dashboard web cada 5 segundos es ineficiente (O(n) vs O(1)).
+*   **Acción:** En `dashboard_server.py`, usa `SELECT COUNT(*)` para las métricas. Solo carga la lista detallada si es estrictamente necesario.
+
+### 3. 🎨 Coherencia Visual
+Ya arreglamos la legibilidad de los botones (Fondo oscuro vs Texto brillante).
+*   **Fundamento:** Consistencia en la UI.
+*   **Acción:** El dashboard web debe usar **la misma paleta de colores** que acabamos de definir (Azul `#1E90FF`, Fondo `#1e1e1e`). No inventar un estilo nuevo que choque con la app de escritorio.
+
+---
+
+### ✅ PLAN APROBADO CON AJUSTES
+
+El enfoque es **quirúrgico**: solo tocas `dashboard_server.py`. No necesitas tocar el código de la aplicación de escritorio (Tkinter), lo cual es **perfecto** para evitar errores.
+
+**¿Quieres que proceda con la implementación del código para `dashboard_server.py` aplicando estas correcciones?** (Te daré el código listo para reemplazar, separando el HTML/CSS del Python).
+
+
+## 🎯 PRÓXIMOS PASOS (Opcionales) - Dashboard
+
+1. **Panel de configuración UI**: Añadir sección en Settings para activar/desactivar auth, SSE y regenerar token sin editar JSON
+2. **Dashboard embebido en GUI**: Integrar el dashboard HTML dentro de `gui_app.py` usando `webview` o `tkinterweb` en lugar de servidor separado
+3. **Métricas avanzadas**: Añadir gráficos de tendencia (videos/semana), canales más activos, tiempos de procesamiento
+4. **Control desde dashboard**: Botones para iniciar/detener monitor, forzar escaneo, cambiar prioridad de canales
+5. **Alertas configurables**: Notificaciones visuales en dashboard para阈值 (ej. >50 videos pendientes = alerta roja)
+6. **Exportar datos**: Botón para exportar stats a CSV/JSON desde el propio dashboard
+7. **Theme toggle**: Selector modo claro/oscuro persistente en localStorage
+8. **Monitoreo de rendimiento**: Mostrar tiempo de respuesta de queries, count de conexiones SSE activas
+
+### ⚖️ Priorización sugerida
+
+| Pri | Feature | Justificación |
+|-----|---------|----------------|
+| 1 | Panel config UI | Completa el ciclo UX (evita editar JSON) |
+| 2 | Dashboard embebido | Unifica app, elimina puerto separado |
+| 3 | Métricas avanzadas | Añade valor sin complejidad |
+| 4 | Alertas threshold | Útil para operación |
+
+¿Qué te parece esta lista? ¿Alguna preferencia o querés que profundice en alguna?

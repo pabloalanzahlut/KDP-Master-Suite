@@ -1,0 +1,16 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Para elevar la funcionalidad Ver Tracker de Videos (JSON) al estándar Elite Corporate 100%, el plan se centra en transformar la visualización de datos crudos en una consola de inteligencia operativa y auditoría técnica:
+
+Módulos de Gestión Técnica y Estructura (SIN IA):
+
+Validador de Esquema JSON (Schema Enforcement): Verificación automática del archivo contra un JSON Schema industrial para asegurar que no existan nodos corruptos o tipos de datos inválidos antes de la carga.
+Visor de Diferencias Evolutivo (JSON Diff): Herramienta para comparar el estado actual del tracker con versiones anteriores, resaltando cambios en estados de procesamiento, fechas o metadatos.
+Editor de Celdas con Validación en Caliente: Interfaz de grilla que permite corregir valores específicos del JSON (como etiquetas o prioridades) con guardado atómico y validación de tipo de dato.
+Buscador Indexado con Soporte Regex: Motor de búsqueda de alto rendimiento que permite filtrar miles de entradas mediante expresiones regulares sobre cualquier campo del objeto JSON.
+Monitor de Integridad de Referencias Cruzadas: Verificador que comprueba si las rutas de archivos locales (path) y los IDs de base de datos mencionados en el JSON siguen siendo válidos y accesibles.
+Exportador de Subconjuntos (Filtering Export): Capacidad de seleccionar nodos específicos del tracker y exportarlos a formatos CSV, Excel o JSON simplificado para reportes externos.
+Visualización Jerárquica Interactiva (Tree View): Navegador de nodos colapsables con resaltado de sintaxis profesional para inspeccionar objetos anidados complejos sin perder el contexto.
+Sistema de Bloqueo de Seguridad (Read-Only Toggle): Interruptor de software que impide la edición accidental del archivo de tracker durante sesiones de solo consulta.
+Sincronización Multiproceso (File Locking): Implementación de semáforos de sistema para evitar que la UI intente leer el JSON mientras un proceso de descarga o procesamiento está escribiendo en él.
+Generador de Snapshot de Auditoría: Creación automática de un duplicado fechado y firmado (Hash SHA-256) del tracker cada vez que se visualiza, para mantener un rastro de auditoría inmutable.

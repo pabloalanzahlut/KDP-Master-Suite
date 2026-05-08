@@ -1,0 +1,52 @@
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+Basado en lo implementado (puerto dinámico, endpoint config, cross-platform notifier), estos son los enhancements potenciales:
+
+---
+
+### 1. **Panel de configuración UI para Dashboard**
+- Crear sección en Settings para editar `dashboard.port`, `dashboard.host`, `dashboard.db_path` sin editar JSON
+- Validación en tiempo real de disponibilidad de puerto
+
+### 2. **Persistencia del puerto encontrado**
+- Cuando el dashboard inicia en un puerto alternativo (ej: 8001), guardarlo en `settings.json`
+- La próxima ejecución usa ese puerto directamente sin escanear
+
+### 3. **UI de discovery automático en dashboard_tab**
+- Escanear puertos 8000-8004 al cargar para detectar dashboard activo
+- Mostrar automáticamente la URL correcta sin esperar clic del usuario
+
+### 4. **Dashboard multi-instancia**
+- Soporte para lanzar múltiples dashboards con diferentes DBs
+- Selector de entorno en la UI (dev/prod)
+
+### 5. **Gráficos históricos reales**
+- Almacenar métricas de descubrimiento en SQLite
+- Renderizar datos reales en el chart.js (actualmente usa datos aleatorios)
+
+### 6. **Exportación de datos desde dashboard**
+- Botón para exportar canales/videos a CSV/JSON desde la UI web
+- Filtros avanzados (por fecha, estado, canal)
+
+### 7. **WebSocket real (SSE→WebSocket)**
+- El dashboard usa SSE (`/stream`). Migrar a WebSocket para mejor rendimiento
+- Compatibilidad bidireccional (app→dashboard y dashboard→app)
+
+### 8. **Gestión de token desde UI**
+- Mostrar token actual en Settings
+- Opción de regenerar token
+- Botón "Copiar token" para usar en clientes externos
+
+Mejora potencial	Prioridad	Impacto
+Panel UI para configurar dashboard	Media	Evita editar JSON manualmente
+Puerto persistente (guardar el que funcionó)	Media	Eliminará re-scaneo en siguientes arranques
+WebSocket real (no SSE)	Baja	Rendimiento a 500+ canales
+Métricas de errores yt-dlp en dashboard	Media	Visibilidad de fallos
+
+
+
+---
+
+## 📋 Pregunta para priorizar
+
+¿Qué te interesa más de estos? ¿O preferís que profundice en alguno antes de continuar?

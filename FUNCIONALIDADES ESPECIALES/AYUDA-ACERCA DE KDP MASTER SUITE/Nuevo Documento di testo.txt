@@ -1,0 +1,38 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Para elevar la funcionalidad Acerca de KDP Master Suite al estándar Elite Corporate 100%, el plan se enfoca en transformar una ventana informativa estática en un centro de identidad de marca, transparencia técnica y reconocimiento de activos:
+
+Módulos de Identidad e Infraestructura Técnica (SIN IA):
+
+Panel de Telemetría de Hardware: Visualización detallada de la arquitectura del sistema (CPU, GPU, RAM libre) y cómo la suite está utilizando estos recursos actualmente.
+Visualizador de Licencias de Terceros: Módulo interactivo que lista y agradece a las librerías Open Source utilizadas (FFmpeg, yt-dlp, SQLite, etc.) cumpliendo con estándares de cumplimiento legal.
+Sello de Integridad Binaria: Verificación en tiempo real que muestra si la versión instalada coincide con el hash oficial (SHA-256) del desarrollador para garantizar que el software no ha sido alterado.
+Dashboard de Estadísticas Acumuladas: Resumen visual del impacto del software: total de videos procesados, TB de datos gestionados y horas de trabajo estimadas ahorradas desde la instalación.
+Gestor de Créditos Dinámico: Animación profesional que reconoce a los desarrolladores, testers y tecnologías que hacen posible la suite.
+Botonera de Soporte Directo: Enlaces rápidos y seguros a la documentación oficial, repositorio de código, reporte de bugs y sitio web del desarrollador.
+Historial de Versiones Detallado (Changelog): Acceso a la evolución completa del software, permitiendo ver qué mejoras "Elite" se han añadido en cada salto de versión.
+Validador de Certificados de Firma: Muestra la información del certificado digital utilizado para firmar el ejecutable, reforzando la confianza corporativa.
+Exportador de Informe de Diagnóstico: Botón para generar un archivo con la configuración del sistema (sanitizada) para facilitar el soporte técnico de nivel 3.
+Portal de EULA y Privacidad: Acceso directo a los términos de uso y la política de privacidad local que rige el manejo de datos dentro de la aplicación.
+
+Auditor de Cumplimiento Normativo Automático: Genera checklist verificable (GDPR, CCPA, licencias MIT/Apache) basado en dependencias instaladas. Uso real: Exportar reporte automático antes de una auditoría IT interna para demostrar legalidad de software.
+Mapa de Dependencias y Licencias Interactivo: Árbol visual de librerías, versiones y conflictos de licencia con detección de incompatibilidades comerciales. Uso real: Verificar rápidamente si un plugin nuevo viola restricciones de uso corporativo antes de instalarlo.
+Generador de Reporte de Incidentes Estandarizado: Exporta JSON/ZIP con logs sanitizados, config hash y estado del sistema en formato ticket-ready. Uso real: Adjuntar archivo de diagnóstico auto-generado a un ticket de soporte sin exponer rutas locales o claves.
+Verificador de Integridad de Binarios en Vivo: Compara SHA-256 de ejecutables y módulos críticos contra manifiesto firmado al inicio. Uso real: Detectar archivos alterados por malware o corrupción en entornos de alta seguridad antes de ejecutar procesos.
+Rastreador de Estado EOL (End-of-Life) de Componentes: Monitorea versiones de FFmpeg, yt-dlp, Ollama y alerta sobre componentes sin parches de seguridad. Uso real: Recibir notificación proactiva de que FFmpeg v4 alcanzó fin de soporte y requiere actualización para evitar vulnerabilidades.
+Centro de Documentación Offline Caché: Descarga y almacena manuales, changelogs y guías de troubleshooting al iniciar, accesible sin red. Uso real: Consultar procedimientos de recuperación en redes aisladas (air-gapped) o durante caídas de ISP.
+Validador de Esquema de Entorno (.env): Cruza variables definidas contra plantilla requerida y marca claves ausentes, expiradas o mal formateadas. Uso real: Evitar fallos en cascada detectando que OLLAMA_BASE_URL o API_KEY están vacíos antes de lanzar tareas.
+Ledger Inmutable de Actualizaciones y Cambios: Registro cronológico de parches aplicados, configuraciones modificadas y módulos añadidos/retirados. Uso real: Auditoría forense para rastrear exactamente cuándo se habilitó una función o se modificó un parámetro crítico.
+Generador de Certificado de Firma Digital de Sesión: Crea firma criptográfica del estado actual (config + hash de DB + versión). Uso real: Demostrar a auditores externos que el sistema no fue manipulado entre la instalación y el momento de la revisión.
+Enrutador de Soporte Técnico Jerárquico: Mapea códigos de error recientes a niveles de soporte (Autoservicio → Técnico → Developer) y pre-llena formularios. Uso real: Reducir tiempo de resolución guiando al usuario primero a soluciones locales antes de escalar a tickets humanos.
+
+Generador de Certificado de No-Alteración (Notary Log): Crea un hash encadenado de todos los binarios cargados al inicio. Uso real: Demostrar a auditores externos que ningún módulo fue inyectado o modificado tras la instalación firmada.
+Visor de Dependencias Transitivas de Seguridad: Muestra no solo las librerías directas, sino sus dependencias críticas y su estado de parcheo CVE. Uso real: Identificar rápidamente si una vulnerabilidad en urllib3 afecta a tu suite antes de que sea explotada.
+Registro Inmutable de Consentimiento (GDPR/CCPA): Almacenamiento cifrado de la fecha/hora y versión del EULA aceptada por el usuario. Uso real: Respuesta legal inmediata ante solicitudes de privacidad demostrando consentimiento informado.
+Mapa de Flujo de Datos (Data Lineage Visualizer): Diagrama estático generado automáticamente que muestra dónde se almacena cada tipo de dato (RAM, SQLite, JSON, Disco). Uso real: Auditoría de privacidad para verificar que no hay datos sensibles saliendo de la máquina local.
+Validador de Entorno de Ejecución Seguro: Verifica que la app no se esté ejecutando en una máquina virtual no autorizada o entorno de sandboxing sospechoso. Uso real: Prevención de ingeniería inversa o ejecución en entornos de prueba no corporativos.
+Historial de Cambios de Configuración Crítica: Log de solo lectura de quién modificó parámetros de seguridad (ej. desactivar encriptación) y cuándo. Uso real: Investigación forense interna tras un incidente de seguridad o fuga de datos.
+Generador de Reporte de Compatibilidad Hardware: Lista detallada de drivers de GPU y CPU detectados vs. requisitos mínimos de Ollama/FFmpeg. Uso real: Soporte técnico remoto para diagnosticar por qué la inferencia de IA es lenta en un equipo específico.
+Verificador de Integridad de Base de Datos (SQLite WAL Check): Analiza el Write-Ahead Log de la DB para asegurar que no haya corrupción silenciosa tras cierres forzados. Uso real: Garantizar que las estadísticas mostradas en el dashboard sean matemáticamente exactas.
+Módulo de Expiración de Licencia/Certificados: Alerta visual si los certificados SSL internos o licencias de componentes comerciales están próximos a caducar. Uso real: Evitar interrupciones del servicio por certificados vencidos en entornos empresariales estrictos.
+Exportador de Esquema de Base de Datos (Schema Dump): Genera un SQL limpio de la estructura actual de la DB sin datos, para fines de documentación técnica. Uso real: Compartir la estructura de datos con desarrolladores externos sin exponer información sensible.

@@ -1,0 +1,47 @@
+## 🎯 PRÓXIMOS PASOS (Opcionales - Nivel Elite Corporate)
+
+### Procesamiento Avanzado
+
+1. **Filtros en tiempo real**: Buscar/filtrar archivos por nombre, canal, fecha, extensión
+2. **Selección avanzada**: Seleccionar por rango (Shift+click), invertir selección, seleccionar por tipo
+3. **Vista previa de contenido**: Ver primeras líneas del archivo antes de procesar
+4. **Historial de procesamiento**: Registrar qué archivos se procesaron y cuándo (evitar duplicados visuales)
+
+### Interfaz Mejorada
+
+5. **Indicador de progreso en sincronización**: Feedback visual durante escaneo de miles de archivos
+6. **Agrupación por canal**: Treeview jerárquico para organizar por carpeta
+7. **Columnas adicionales**: Fecha, duración (si se lee de metadatos .info.json), estado
+8. **Auto-refresco**: Sincronizar automáticamente al cambiar de pestaña o detectar cambios
+
+### Productividad
+
+9. **Procesamiento parcial**: Seleccionar "últimos N archivos" o "últimos N días"
+10. **Preview de limpieza**: Mostrar muestra del texto limpio antes de procesar batch
+11. **Exportar lista**: Exportar lista de archivos a CSV/Excel
+12. **Comparar transcripciones**: Ver contenido de dos archivos lado a lado
+
+### Integración Sistema
+
+13. **Arrastrar y soltar**: Importar archivos externos arrastrándolos al treeview
+14. **Menú contextual avanzado**: Opciones por clic derecho (renombrar, mover, duplicar)
+15. **Keyboard shortcuts**: Ctrl+A (todo), Ctrl+E (procesar), Supr (eliminar)
+
+---
+
+### ⚖️ PRIORIDADES SUGERIDAS
+
+| Pri | Feature | Impacto | Esfuerzo |
+|-----|---------|---------|----------|
+| 🔴 Alta | Filtros en tiempo real | Alto | Medio |
+| 🔴 Alta | Auto-refresco | Alto | Bajo |
+| 🟡 Media | Selección avanzada | Medio | Medio |
+| 🟡 Media | Vista previa | Medio | Alto |
+| 🟢 Baja | Exportar lista | Bajo | Bajo |
+| 🟢 Baja | Keyboard shortcuts | Bajo | Bajo |
+
+---
+
+### ❓ PREGUNTA DE CLARIFICACIÓN
+
+¿Cuál de estas features te interesa priorizar? ¿O prefieres otra dirección como integración con servicios Cloud o automatización de tareas?

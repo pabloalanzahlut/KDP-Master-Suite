@@ -1,0 +1,82 @@
+🎯 **PRÓXIMOS PASOS (Opcionales)**
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar "Abrir Resultados" de un simple explorador de archivos a un **Centro de Visualización Inteligente de Activos Textuales Procesados** garantiza acceso rápido, validación de calidad, organización automática y análisis cognitivo de las transcripciones limpias. La separación determinista (navegación, validación, estadísticas) y cognitiva (scoring de calidad, detección de patrones, recomendaciones) cumple estándares de gestión documental empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+🔍 **VERIFICACIÓN CONTRA `gui_app.py`:** CERO solapamientos. El código actual solo tiene referencias básicas a `open_folder()` y visualización de treeview. Tu arquitectura transforma esta acción en un **Sistema de Revisión y Validación de Resultados** con métricas de calidad, organización inteligente, análisis cognitivo con Ollama y trazabilidad completa.
+
+---
+
+### 📦 LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Visualización de Resultados)
+
+#### 🔹 Pilar 1: Navegación y Acceso a Resultados (1-12)
+1. **Acceso Directo a Carpeta de Salida** — Abre explorador en directorio de transcripciones procesadas. *Uso real:* Ver archivos `CLEAN_*.txt` generados tras procesamiento.
+2. **Acceso Directo a Carpeta de Entrada** — Abre explorador en directorio de transcripciones crudas. *Uso real:* Comparar archivos originales `.vtt`/`.srt` vs procesados.
+3. **Acceso Directo a Carpeta de Logs** — Abre explorador en directorio de logs de procesamiento. *Uso real:* Revisar `app.log` para diagnosticar errores de procesamiento.
+4. **Acceso Directo a Carpeta de Backups** — Abre explorador en directorio de respaldos automáticos. *Uso real:* Verificar backups de emergencia tras procesamiento masivo.
+5. **Navegación Jerárquica de Resultados** — Muestra árbol de carpetas con resultados organizados por fecha/canal. *Uso real:* Navegar `2026/01/15/CanalX/` sin abrir explorador externo.
+6. **Búsqueda Rápida de Archivos Procesados** — Busca archivos `CLEAN_*.txt` por nombre o fecha. *Uso real:* Encontrar transcripción procesada específica sin navegar manualmente.
+7. **Filtro por Fecha de Procesamiento** — Filtra resultados por rango de fechas de procesamiento. *Uso real:* Ver solo transcripciones procesadas "Hoy", "Esta semana", "Este mes".
+8. **Filtro por Canal de Origen** — Filtra resultados por canal de YouTube procesado. *Uso real:* Ver solo transcripciones de "CanalX" procesadas.
+9. **Filtro por Estado de Calidad** — Filtra por scoring de calidad asignado post-procesamiento. *Uso real:* Ver solo transcripciones con "Calidad Alta" (>80% score).
+10. **Acceso a Archivo de Estadísticas del Lote** — Abre CSV/JSON con métricas del batch procesado. *Uso real:* Revisar `batch_report_20260115.csv` con duración, tamaño, errores.
+11. **Acceso a Log de Procesamiento Detallado** — Abre log específico del procesamiento actual. *Uso real:* Revisar `processing_20260115_143022.log` con detalles de cada archivo.
+12. **Acceso a Base de Conocimiento Actualizada** — Abre carpeta `knowledge/` con manuales actualizados. *Uso real:* Ver `MANUAL_DE_LEGALIDAD.md` tras integración de nuevas transcripciones.
+
+#### 🔹 Pilar 2: Visualización y Preview de Resultados (13-24)
+13. **Vista Previa Inline de Transcripción** — Muestra primeras 500 palabras de transcripción procesada sin abrir archivo. *Uso real:* Verificar calidad de limpieza sin abrir editor externo.
+14. **Comparador Visual Lado a Lado** — Muestra archivo crudo `.vtt` vs procesado `CLEAN_*.txt` en paneles divididos. *Uso real:* Verificar qué se eliminó (timestamps, ruido) durante procesamiento.
+15. **Resaltado de Diferencias** — Resalta en color cambios entre versión cruda y procesada. *Uso real:* Ver en rojo lo eliminado, en verde lo añadido.
+16. **Contador de Palabras Procesadas** — Muestra word count de transcripción procesada. *Uso real:* Verificar que transcripción tiene contenido suficiente (ej. >1000 palabras).
+17. **Estadísticas de Limpieza Aplicada** — Muestra % de ruido eliminado, timestamps removidos, secciones banales omitidas. *Uso real:* "Se eliminó 35% de ruido, 120 timestamps, 3 secciones banales".
+18. **Visualizador de Estructura de Párrafos** — Muestra estructura visual de párrafos con sangrías y saltos. *Uso real:* Verificar que procesamiento mantuvo coherencia estructural.
+19. **Indicador de Encoding Detectado** — Muestra encoding del archivo procesado (UTF-8, ASCII, etc.). *Uso real:* Confirmar que no hay mojibakes o caracteres corruptos.
+20. **Visualizador de Metadatos Extraídos** — Muestra metadata incrustada (fecha, canal, duración, idioma). *Uso real:* Verificar que metadata se preservó correctamente.
+21. **Preview de Primeras Líneas** — Muestra primeras 10 líneas de transcripción procesada. *Uso real:* Verificación rápida de calidad sin cargar archivo completo.
+22. **Visualizador de Secciones Eliminadas** — Muestra lista de secciones banales/duplicadas omitidas. *Uso real:* Ver "Se omitió: 'Suscríbete al canal' (banal), 'Intro repetida' (duplicado)".
+23. **Indicador de Tamaño de Archivo** — Muestra tamaño en KB/MB de transcripción procesada. *Uso real:* Verificar que archivo no es anormalmente pequeño/grande.
+24. **Visualizador de Timestamps Remanentes** — Muestra timestamps que sobrevivieron al procesamiento (si los hay). *Uso real:* Verificar que no quedaron timestamps innecesarios.
+
+#### 🔹 Pilar 3: Validación y Control de Calidad (25-36)
+25. **Validador de Integridad de Archivo** — Verifica que archivo procesado no esté corrupto o truncado. *Uso real:* Detectar archivos de 0 bytes o incompletos.
+26. **Validador de Encoding UTF-8** — Verifica que archivo sea legible en UTF-8 sin errores. *Uso real:* Detectar mojibakes o caracteres especiales corruptos.
+27. **Validador de Estructura de Párrafos** — Verifica que párrafos estén correctamente delimitados. *Uso real:* Detectar párrafos de >500 palabras que deberían dividirse.
+28. **Validador de Ausencia de Ruido** — Verifica que no queden marcas de tiempo, "suscríbete", etc. *Uso real:* Detectar ruido que el procesamiento no eliminó.
+29. **Validador de Longitud Mínima** — Verifica que transcripción tenga >X palabras configurables. *Uso real:* Alertar si transcripción tiene <100 palabras (posible error).
+30. **Validador de Consistencia de Idioma** — Verifica que idioma detectado coincida con configuración. *Uso real:* Detectar si transcripción en inglés se procesó como español.
+31. **Validador de Duplicados en Salida** — Verifica que no haya archivos `CLEAN_*.txt` duplicados. *Uso real:* Detectar procesamiento redundante del mismo archivo.
+32. **Validador de Permisos de Lectura** — Verifica que archivo procesado sea legible. *Uso real:* Detectar problemas de permisos en entornos corporativos.
+33. **Validador de Consistencia de Metadata** — Verifica que metadata en archivo coincida con DB. *Uso real:* Detectar inconsistencias entre archivo y registro en DB.
+34. **Validador de Ausencia de Caracteres Invisibles** — Detecta caracteres Unicode invisibles o de control. *Uso real:* Limpiar caracteres que rompen búsqueda FTS5.
+35. **Validador de Estructura de Títulos** — Verifica que títulos de sección sigan patrón consistente. *Uso real:* Detectar "## Introducción" vs "# INTRODUCCIÓN" (inconsistencia).
+36. **Validador de Consistencia de Saltos de Línea** — Verifica que saltos de línea sean consistentes (LF vs CRLF). *Uso real:* Prevenir problemas en sistemas multi-plataforma.
+
+#### 🔹 Pilar 4: Estadísticas y Reportes de Resultados (37-48)
+37. **Reporte de Estadísticas del Batch** — Muestra resumen: archivos procesados, total palabras, tiempo, errores. *Uso real:* "12 archivos, 45,230 palabras, 8 min, 0 errores".
+38. **Reporte de Calidad Promedio** — Muestra scoring promedio de calidad de transcripciones procesadas. *Uso real:* "Calidad promedio: 87/100 (Alta)".
+39. **Reporte de Espacio Ahorrado** — Calcula espacio ahorrado por eliminación de ruido/duplicados. *Uso real:* "Se ahorró 2.3MB al eliminar 35% de ruido".
+40. **Reporte de Tiempo de Procesamiento** — Muestra tiempo total y promedio por archivo. *Uso real:* "Total: 8 min, Promedio: 40 seg/archivo".
+41. **Reporte de Errores Encontrados** — Lista archivos con errores y razón del fallo. *Uso real:* "archivo1.vtt: Encoding inválido, archivo2.srt: Archivo vacío".
+42. **Reporte de Archivos Omitidos** — Lista archivos no procesados y razón. *Uso real:* "archivo3.vtt: Duplicado, archivo4.srt: <100 palabras".
+43. **Reporte de Distribución por Canal** — Muestra cuántas transcripciones se procesaron por canal. *Uso real:* "CanalX: 5, CanalY: 3, CanalZ: 4".
+44. **Reporte de Distribución por Fecha** — Muestra procesamiento agrupado por fecha. *Uso real:* "2026-01-15: 8 archivos, 2026-01-14: 4 archivos".
+45. **Reporte de Evolución de Calidad** — Muestra tendencia de calidad en últimos batches. *Uso real:* "Calidad mejoró 12% en última semana".
+46. **Reporte de Palabras Clave Frecuentes** — Muestra top 20 palabras más frecuentes en batch. *Uso real:* "Amazon: 234, KDP: 189, keywords: 156".
+47. **Reporte de Longitud de Transcripciones** — Muestra distribución de longitud (cortas/medianas/largas). *Uso real:* "Cortas (<1k): 3, Medianas (1k-5k): 7, Largas (>5k): 2".
+48. **Reporte de Consistencia Terminológica** — Muestra términos inconsistentes detectados. *Uso real:* "'KDP' vs 'Kindle Direct Publishing' usados indistintamente".
+
+#### 🔹 Pilar 5: Exportación y Compartición de Resultados (49-60)
+49. **Exportación de Lista de Resultados a CSV** — Exporta lista de archivos procesados con metadata a CSV. *Uso real:* `results_20260115.csv` con nombre, fecha, palabras, calidad.
+50. **Exportación de Estadísticas a JSON** — Exporta estadísticas del batch a JSON para integración. *Uso real:* `batch_stats.json` para dashboard externo.
+51. **Exportación de Reporte a PDF** — Genera PDF con reporte ejecutivo de resultados. *Uso real:* `reporte_procesamiento_20260115.pdf` para dirección.
+52. **Exportación de Transcripciones a ZIP** — Comprime todas las transcripciones procesadas en ZIP. *Uso real:* `transcripciones_20260115.zip` para backup/compartir.
+53. **Exportación Selectiva por Calidad** — Exporta solo transcripciones con calidad >X. *Uso real:* Exportar solo "Calidad Alta" (>80) para KB principal.
+54. **Exportación por Canal** — Exporta transcripciones agrupadas por canal. *Uso real:* `CanalX_transcripciones.zip`, `CanalY_transcripciones.zip`.
+55. **Exportación a Formato Markdown** — Convierte transcripciones a `.md` con formato enriquecido. *Uso real:* `transcripcion_01.md` con headers, listas, negritas.
+56. **Exportación a Formato HTML** — Convierte transcripciones a `.html` navegable. *Uso real:* `transcripcion_01.html` para visualización web.
+57. **Compartir vía Email** — Prepara email con resultados adjuntos. *Uso real:* Enviar `reporte_procesamiento.pdf` a equipo.
+58. **Compartir vía Cloud Storage** — Sube resultados a Google Drive/Dropbox/OneDrive. *Uso real:* Subir `transcripciones_20260115.zip` a cloud corporativo.
+59. **Generación de Enlace de Descarga** — Genera enlace temporal para descargar resultados. *Uso real:* Enlace válido 24h para compartir con cliente.
+60. **Impresión de Reporte Ejecutivo** — Prepara versión imprimible de reporte de resultados. *Uso real:* Imprimir `reporte_procesamiento.pdf` para reunión.
+
+---
+

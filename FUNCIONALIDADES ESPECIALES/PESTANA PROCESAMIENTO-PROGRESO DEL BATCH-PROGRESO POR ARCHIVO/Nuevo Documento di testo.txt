@@ -1,0 +1,75 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar el "Progreso del Batch" de una simple barra de progreso a un **Sistema de Monitoreo Inteligente de Procesamiento de Transcripciones** garantiza visibilidad en tiempo real, predicción de tiempos, detección de cuellos de botella y optimización de recursos. La separación determinista (métricas, estadísticas, validación) y cognitiva (predicción de fallos, optimización adaptativa, análisis de calidad) cumple estándares de monitoreo empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista de Monitoreo)**
+
+#### 🔹 Pilar 1: Visualización y Métricas en Tiempo Real (1-12)
+1. **Barra de Progreso Global del Batch** — Muestra % completado del lote completo. *Uso real:* Ver avance general de 50 transcripciones procesándose.
+2. **Contador de Archivos Procesados/Pendientes** — Muestra "X/Y completados" en tiempo real. *Uso real:* Saber cuántos faltan sin contar manualmente.
+3. **Tiempo Transcurrido del Proceso** — Muestra tiempo total ejecutándose. *Uso real:* Monitorear duración de procesamiento masivo.
+4. **Tiempo Estimado Restante (ETA)** — Calcula tiempo faltante basado en velocidad actual. *Uso real:* Planificar cuándo estará listo el lote.
+5. **Velocidad de Procesamiento (archivos/min)** — Muestra tasa de procesamiento actual. *Uso real:* Detectar si el sistema está lento.
+6. **Lista Detallada de Archivos en Progreso** — Muestra cada archivo con su estado individual. *Uso real:* Ver qué archivo específico se está procesando.
+7. **Indicador de Estado por Archivo** — Muestra "⏳ Pendiente", "🔄 Procesando", "✅ Completado", "❌ Error". *Uso real:* Identificación visual rápida de estados.
+8. **Porcentaje de Progreso Individual por Archivo** — Barra miniatura para cada archivo. *Uso real:* Ver avance específico de transcripción larga.
+9. **Resumen de Errores del Lote** — Contador y lista de archivos fallidos. *Uso real:* Identificar rápidamente qué falló.
+10. **Log de Actividad en Tiempo Real** — Muestra mensajes de proceso mientras ocurren. *Uso real:* Debugging en vivo sin esperar al final.
+11. **Indicador de Recurso CPU/RAM en Uso** — Muestra consumo de recursos del sistema. *Uso real:* Detectar sobrecarga del sistema.
+12. **Gráfico de Progreso Histórico** — Muestra velocidad a lo largo del tiempo. *Uso real:* Identificar si el procesamiento se está ralentizando.
+
+#### 🔹 Pilar 2: Control y Gestión del Batch (13-24)
+13. **Botón de Pausa/Reanudar Batch** — Permite pausar procesamiento masivo. *Uso real:* Liberar recursos temporalmente sin perder progreso.
+14. **Botón de Cancelar Batch** — Detiene procesamiento con opción de guardar progreso. *Uso real:* Cancelar lote incorrecto sin esperar.
+15. **Priorización de Archivos en Cola** — Permite reordenar archivos pendientes. *Uso real:* Procesar primero transcripciones urgentes.
+16. **Filtro de Archivos por Estado** — Muestra solo "Pendientes", "Procesando" o "Completados". *Uso real:* Enfocarse en archivos problemáticos.
+17. **Búsqueda de Archivo Específico** — Busca archivo por nombre en el batch. *Uso real:* Encontrar transcripción específica rápidamente.
+18. **Selección Múltiple de Archivos** — Permite seleccionar varios para acciones batch. *Uso real:* Reintentar solo archivos fallidos.
+19. **Reintento Automático de Fallidos** — Reintenta archivos con error automáticamente. *Uso real:* Recuperar procesamiento fallido sin intervención.
+20. **Omisión de Archivos Problemáticos** — Permite saltar archivos que causan errores. *Uso real:* Continuar batch sin bloqueos.
+21. **Guardado de Estado de Batch** — Guarda progreso para recuperación tras crash. *Uso real:* Retomar procesamiento tras corte de energía.
+22. **Exportación de Reporte de Progreso** — Exporta estado actual a CSV/JSON. *Uso real:* Auditoría de procesamiento en curso.
+23. **Notificación de Completado de Batch** — Alerta cuando termina el procesamiento. *Uso real:* Saber cuándo revisar resultados sin monitorear constantemente.
+24. **Límite de Archivos Simultáneos** — Controla cuántos archivos se procesan en paralelo. *Uso real:* Evitar sobrecarga del sistema.
+
+#### 🔹 Pilar 3: Validación y Calidad (25-36)
+25. **Validador de Integridad de Archivo Pre-Procesamiento** — Verifica que archivo no esté corrupto antes de procesar. *Uso real:* Evitar errores por archivos dañados.
+26. **Validador de Encoding de Texto** — Verifica que archivo sea UTF-8 legible. *Uso real:* Prevenir errores de codificación.
+27. **Validador de Tamaño Mínimo/Máximo** — Alerta si archivo es muy pequeño/grande. *Uso real:* Detectar descargas incompletas o anómalas.
+28. **Validador de Formato de Subtítulos** — Verifica estructura .vtt/.srt válida. *Uso real:* Detectar archivos mal formados antes de procesar.
+29. **Contador de Líneas/Palabras por Archivo** — Muestra estadísticas de contenido. *Uso real:* Verificar que transcripción tenga contenido suficiente.
+30. **Detección de Archivos Vacíos** — Identifica archivos sin contenido útil. *Uso real:* Saltar procesamiento de archivos vacíos.
+31. **Validador de Duplicados en Batch** — Detecta archivos duplicados en el lote. *Uso real:* Evitar procesamiento redundante.
+32. **Validador de Consistencia de Timestamps** — Verifica que timestamps en .vtt/.srt sean progresivos. *Uso real:* Detectar archivos de subtítulos corruptos.
+33. **Contador de Errores por Tipo** — Agrupa errores por categoría (encoding, formato, etc.). *Uso real:* Identificar patrones de fallo.
+34. **Validador de Espacio en Disco Disponible** — Verifica espacio suficiente antes de procesar. *Uso real:* Prevenir fallos por disco lleno.
+35. **Validador de Permisos de Escritura** — Verifica que se pueda escribir en carpeta de salida. *Uso real:* Detectar problemas de permisos antes de procesar.
+36. **Checksum de Archivo Procesado** — Genera hash de archivo final para verificación. *Uso real:* Verificar integridad post-procesamiento.
+
+#### 🔹 Pilar 4: Optimización de Rendimiento (37-48)
+37. **Ajuste Automático de Hilos de Procesamiento** — Ajusta número de hilos según carga de CPU. *Uso real:* Maximizar rendimiento sin saturar sistema.
+38. **Buffer de Lectura Optimizado** — Ajusta tamaño de buffer según tamaño de archivo. *Uso real:* Mejorar velocidad de lectura de archivos grandes.
+39. **Cache de Archivos Recientes** — Mantiene en RAM archivos frecuentemente accedidos. *Uso real:* Acelerar reintentos de archivos fallidos.
+40. **Procesamiento Paralelo por Núcleo** — Distribuye archivos entre núcleos de CPU. *Uso real:* Aprovechar todo el poder de procesamiento.
+41. **Priorización de Archivos Pequeños** — Procesa primero archivos pequeños para liberar cola rápido. *Uso real:* Ver progreso rápido y motivador.
+42. **Agrupación de Archivos por Tamaño** — Agrupa archivos similares para procesamiento eficiente. *Uso real:* Optimizar uso de memoria.
+43. **Limpieza Automática de Temporales** — Elimina archivos .tmp tras procesamiento exitoso. *Uso real:* Liberar espacio automáticamente.
+44. **Compresión de Logs de Proceso** — Comprime logs antiguos para ahorrar espacio. *Uso real:* Mantener historial sin saturar disco.
+45. **Optimización de Escritura en Disco** — Agrupa escrituras para minimizar I/O. *Uso real:* Mejorar velocidad en discos mecánicos.
+46. **Gestión de Memoria para Archivos Grandes** — Procesa archivos grandes en chunks para no saturar RAM. *Uso real:* Procesar transcripciones de 100MB+ sin crash.
+47. **Balanceo de Carga Dinámico** — Distribuye trabajo según capacidad de cada hilo. *Uso real:* Evitar que un hilo lento retrase todo el batch.
+48. **Detección de Cuellos de Botella** — Identifica si el límite es CPU, disco o red. *Uso real:* Optimizar recurso limitante.
+
+#### 🔹 Pilar 5: Persistencia y Recuperación (49-60)
+49. **Checkpoint de Progreso Cada N Archivos** — Guarda estado cada 10 archivos procesados. *Uso real:* Perder máximo 10 archivos tras crash.
+50. **Backup de Estado de Batch** — Crea copia de seguridad del estado actual. *Uso real:* Recuperación ante corrupción de estado.
+51. **Recuperación Automática tras Crash** — Detecta batch interrumpido y ofrece retomarlo. *Uso real:* Continuar donde se dejó sin configuración manual.
+52. **Validación de Integridad de Estado Guardado** — Verifica que estado guardado no esté corrupto. *Uso real:* Prevenir carga de estado inválido.
+53. **Migración de Estado entre Versiones** — Permite retomar batch de versión anterior. *Uso real:* Actualizar app sin perder procesamiento en curso.
+54. **Exportación de Estado para Continuidad** — Permite mover batch a otra máquina. *Uso real:* Continuar procesamiento en otro equipo.
+55. **Importación de Estado de Batch** — Carga estado exportado de otra sesión. *Uso real:* Retomar procesamiento desde backup.
+56. **Limpieza de Estados Obsoletos** — Elimina estados de batches completados/cancelados. *Uso real:* Liberar espacio de estados antiguos.
+57. **Compresión de Estados Guardados** — Comprime archivos de estado para ahorrar espacio. *Uso real:* Mantener historial de estados sin ocupar mucho.
+58. **Validación de Consistencia de Estado** — Verifica que estado coincida con archivos en disco. *Uso real:* Detectar inconsistencias tras movimiento manual de archivos.
+59. **Notificación de Estado Guardado** — Informa cuándo se guarda checkpoint. *Uso real:* Saber que progreso está protegido.
+60. **Reporte de Recuperación de Batch** — Muestra qué se recuperó tras crash. *Uso real:* Verificar que recuperación fue exitosa.

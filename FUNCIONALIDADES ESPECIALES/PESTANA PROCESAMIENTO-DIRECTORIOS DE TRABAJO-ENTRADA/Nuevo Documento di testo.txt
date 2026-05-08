@@ -1,0 +1,66 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Elevar el campo de directorio de entrada de un simple selector de ruta a un **Motor de Ingesta, Validación y Enrutamiento Inteligente de Activos Textuales** garantiza que cada archivo `.txt`, `.vtt` o `.srt` que ingrese al pipeline esté sanitizado, verificado, optimizado y contextualizado antes de consumir recursos de procesamiento. La separación determinista (gestión de rutas, permisos, I/O, integridad) y cognitiva (clasificación semántica, routing predictivo, scoring de calidad) cumple estándares de gobernanza de datos corporativos y opera 100% bajo tu flujo TEXT-FIRST.
+
+📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Gobernanza de Rutas)**
+
+1. **Validador de Ruta Absoluta y Normalización Multi-OS** — Convierte rutas relativas a absolutas y normaliza separadores (`/` vs `\`). *Uso real:* Evitar errores de path en Windows/Linux/macOS.
+2. **Verificador de Permisos ACL (Lectura/Escritura/Ejecución)** — Valida permisos del SO antes de permitir ingestas. *Uso real:* Prevenir `PermissionDenied` en entornos corporativos restringidos.
+3. **Detección de Tipo de Almacenamiento (SSD/NVMe/HDD/Red)** — Identifica medio físico y ajusta buffers de lectura. *Uso real:* Optimizar I/O según latencia del disco de entrada.
+4. **Monitor de Espacio Libre con Umbrales Configurables** — Alerta si el directorio supera 80/90/95% de capacidad. *Uso real:* Detener ingestas preventivamente para evitar corrupción.
+5. **Sistema de Cuotas de Archivos por Hora/Día** — Limita cantidad de archivos nuevos para evitar saturación. *Uso real:* Controlar picos de ingesta masiva en servidores compartidos.
+6. **Validador de Extensiones Permitidas (.txt/.vtt/.srt/.md)** — Rechaza formatos no soportados antes de escaneo. *Uso real:* Mantener pipeline libre de basura binaria.
+7. **Hook de Integración con Antivirus/EDR** — Escanea archivos nuevos antes de indexar. *Uso real:* Cumplir políticas de seguridad empresarial ante ingesta externa.
+8. **Protocolo de Encriptación en Reposo (AES-256)** — Cifra archivos sensibles al entrar al directorio. *Uso real:* Proteger transcripciones con PII o datos estratégicos.
+9. **Normalizador de Nombres de Archivo (Unicode/Longitud)** — Sanitiza nombres largos, caracteres prohibidos o emojis. *Uso real:* Evitar fallos de escritura en NTFS/ext4.
+10. **Watcher/Inotify para Detección Instantánea de Nuevos Archivos** — Monitorea sistema de archivos en tiempo real sin polling. *Uso real:* Ingesta automática al detectar archivo nuevo.
+11. **Generador de Hash SHA-256/BLAKE3 por Archivo al Ingresar** — Calcula huella digital inmediatamente. *Uso real:* Base para deduplicación y auditoría forense.
+12. **Deduplicador por Hash antes de Procesamiento** — Mueve duplicados exactos a carpeta `_duplicates`. *Uso real:* Ahorrar CPU y almacenamiento.
+13. **Compresor Automático de Archivos Antiguos (LZ4/ZSTD)** — Comprime archivos >30 días sin perder búsqueda. *Uso real:* Liberar espacio manteniendo accesibilidad.
+14. **Archivador de Lote con Marca de Tiempo** — Agrupa archivos por fecha de ingreso. *Uso real:* Facilitar backups incrementales y auditorías.
+15. **Validador de Encoding y Conversor Silencioso a UTF-8** — Detecta Latin1/UTF-16 y convierte sin intervención. *Uso real:* Evitar errores de parsing por mojibakes.
+16. **Limpiador de Metadatos Externos (XMP/Owner/Tags)** — Elimina información de autor/sistema por privacidad. *Uso real:* Cumplir GDPR/LOPD al ingerir archivos de terceros.
+17. **Sistema de Cola de Ingesta Asíncrona (Buffer RAM)** — Encola archivos para procesamiento por lotes. *Uso real:* Evitar bloqueos de UI durante picos de ingesta.
+18. **Validador de Integridad de Archivo (EOF/BOM Check)** — Verifica que archivo no esté truncado. *Uso real:* Descartar descargas incompletas automáticamente.
+19. **Separador de Archivos Corruptos a Cuarentena** — Mueve archivos ilegibles a `_quarantine`. *Uso real:* Mantener directorio principal limpio y funcional.
+20. **Indexador FTS5 Inmediato Post-Ingesta** — Actualiza índice de búsqueda al agregar archivo. *Uso real:* Búsqueda instantánea sin re-escaneo completo.
+21. **Generador de Manifiesto de Ingreso (JSON Sidecar)** — Crea `.json` con metadatos técnicos por archivo. *Uso real:* Trazabilidad completa para auditorías.
+22. **Sincronizador con Backup Service (Snapshots Incrementales)** — Vincula directorio de entrada con rutina de respaldo. *Uso real:* Garantizar recoverability ante fallos.
+23. **Limitador de Tamaño Máximo por Archivo** — Rechaza archivos >50MB (configurable). *Uso real:* Prevenir congelamientos por archivos anómalos.
+24. **Rotador de Logs de Actividad de Directorio** — Archiva logs de ingesta diarios/semanales. *Uso real:* Cumplir retención de auditoría sin saturar disco.
+25. **Validador de Ruta Relativa vs Absoluta para Portabilidad** — Asegura compatibilidad en modos portable/instalado. *Uso real:* Funcionar en USB o servidores sin reconfigurar.
+26. **Sistema de Alias/Nombres Amigables para Rutas Largas** — Mapea rutas profundas a accesos rápidos. *Uso real:* Mejorar UX en selección de directorios.
+27. **Detector de Símbolos/Enlaces Simbólicos y Resolución Segura** — Resuelve symlinks y valida destino real. *Uso real:* Prevenir bypass de seguridad o loops infinitos.
+28. **Control de Concurrencia de Acceso (File Locking)** — Bloquea archivo mientras se lee/escribe. *Uso real:* Evitar race conditions en procesamiento paralelo.
+29. **Optimizador de Lectura Secuencial vs Aleatoria** — Ajusta estrategia según patrón de acceso. *Uso real:* Maximizar throughput en HDDs vs SSDs.
+30. **Cache de Metadatos de Directorio en RAM** — Almacena stat() de archivos recientes. *Uso real:* Reducir llamadas al sistema operativo en UI.
+31. **Validador de Compatibilidad con Sistemas de Archivos** — Verifica límites de nombre/tamaño por FS. *Uso real:* Evitar errores en FAT32/exFAT vs NTFS/ext4.
+32. **Sistema de Notificación de Cambios Estructurales** — Alerta si se crean/borran subcarpetas. *Uso real:* Mantener consistencia de rutas configuradas.
+33. **Generador de Reporte de Estado del Directorio** — Resumen de archivos, tamaño, errores, espacio. *Uso real:* Dashboard rápido de salud de ingesta.
+34. **Validador de Profundidad de Subcarpetas** — Limita niveles de anidamiento. *Uso real:* Prevenir scans infinitos o estructuras caóticas.
+35. **Escáner de Archivos Huérfanos (sin registro en DB)** — Identifica archivos físicos no indexados. *Uso real:* Sincronizar estado real con base de datos.
+36. **Protocolo de Recuperación ante Interrupción de Escritura** — Restaura archivos parcialmente escritos. *Uso real:* Evitar corrupción por cortes de energía.
+37. **Validador de Timestamps de Creación/Modificación** — Normaliza fechas a UTC. *Uso real:* Consistencia temporal en entornos multi-zona.
+38. **Sistema de Priorización de Ingesta por Carpeta** — Asigna prioridad según ruta de origen. *Uso real:* Procesar primero `/urgent/` vs `/archive/`.
+39. **Compresor de Logs de Error de Ingesta** — Comprime errores recurrentes para análisis. *Uso real:* Facilitar debugging sin ocupar espacio.
+40. **Validador de Consistencia entre Entrada y Salida** — Verifica que ruta de salida sea accesible desde entrada. *Uso real:* Prevenir fallos de pipeline por rutas rotas.
+41. **Generador de Ruta de Fallback Automática** — Crea ruta temporal si principal falla. *Uso real:* Continuar operación durante mantenimiento de disco.
+42. **Sistema de Cuotas de Archivos por Usuario/Perfil** — Limita ingesta según rol. *Uso real:* Controlar recursos en equipos multi-usuario.
+43. **Validador de Nombre de Archivo vs Contenido** — Verifica coherencia básica. *Uso real:* Detectar archivos renombrados incorrectamente.
+44. **Limpiador de Espacios en Blanco y Caracteres Invisibles** — Sanitiza nombres y contenido inicial. *Uso real:* Evitar errores de parsing por caracteres ocultos.
+45. **Detector de Archivos de Sistema/Ocultos y Filtrado** — Ignora `.DS_Store`, `Thumbs.db`, etc. *Uso real:* Mantener ingesta limpia de basura del SO.
+46. **Sistema de Respaldo Local en Tiempo Real (Mirror)** — Replica archivos a ruta secundaria. *Uso real:* Redundancia ante fallo de disco primario.
+47. **Validador de Path Traversal y Sanitización** — Bloquea `../` o inyecciones de ruta. *Uso real:* Prevenir vulnerabilidades de seguridad.
+48. **Optimizador de Buffer de Lectura (4KB/64KB/1MB)** — Ajusta tamaño según hardware. *Uso real:* Maximizar velocidad de escaneo inicial.
+49. **Generador de Índice Visual de Archivos (Preview de Texto)** — Muestra primeras 3 líneas en UI. *Uso real:* Identificación rápida sin abrir archivo.
+50. **Validador de Consistencia de Fecha de Publicación Original** — Extrae fecha de metadatos o nombre. *Uso real:* Ordenar ingesta cronológicamente.
+51. **Sistema de Etiquetado Automático por Carpeta** — Asigna tag según ruta de origen. *Uso real:* Clasificación inicial sin intervención manual.
+52. **Escáner de Duplicados Semánticos (Hash de contenido limpio)** — Detecta contenido idéntico tras limpiar ruido. *Uso real:* Evitar procesamiento redundante.
+53. **Validador de Estructura de Subtítulos (.vtt/.srt headers)** — Verifica formato válido antes de ingestar. *Uso real:* Filtrar archivos de subtítulos rotos.
+54. **Protocolo de Migración de Ruta sin Pérdida de Datos** — Mueve archivos manteniendo hashes y registros. *Uso real:* Reorganizar directorios sin romper pipeline.
+55. **Generador de Alias DNS/Network para Rutas Compartidas** — Resuelve UNC/SMB a rutas estables. *Uso real:* Ingesta desde NAS sin fallos de desconexión.
+56. **Validador de Acceso Remoto/NAS y Latencia** — Mide tiempo de respuesta de red. *Uso real:* Ajustar timeouts según latencia de origen.
+57. **Sistema de Compensación de Reloj/Timezone** — Sincroniza timestamps con servidor NTP. *Uso real:* Consistencia en logs distribuidos.
+58. **Validador de Consistencia de Permisos tras Movimiento** — Verifica ACLs después de operaciones. *Uso real:* Mantener seguridad tras reorganizaciones.
+59. **Generador de Checklist de Pre-ingesta** — Verifica espacio, permisos, formato, encoding. *Uso real:* Diagnóstico rápido antes de procesar lote.
+60. **Sistema de Rollback de Configuración de Ruta** — Restaura ruta anterior si nueva falla. *Uso real:* Recuperar operación tras error de configuración.

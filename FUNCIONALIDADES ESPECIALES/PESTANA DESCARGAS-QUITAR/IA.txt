@@ -1,0 +1,24 @@
+Módulos de Inteligencia y Predicción (CON IA OLLAMA LOCAL)
+Análisis de Impacto de Conocimiento: La IA advierte: "Si quitas este video, perderás la única fuente de información sobre [Tema X] detectada en tu cola actual".
+Detección de Patrones de Descarte: Ollama aprende qué tipos de videos sueles quitar (ej: duraciones cortas) y sugiere reglas de filtrado automático para el futuro.
+Sugerencia de Alternativas: Al quitar un video por "Baja Calidad", la IA busca localmente o sugiere URLs similares que sí cumplan los estándares corporativos.
+Justificación de Eliminación por Voz/Texto: El sistema solicita una razón breve y la IA la categoriza para generar reportes de eficiencia operativa.
+Smart-Clean Semántico: Capacidad de "Quitar todos los videos que hablen de [Concepto X]" comparando títulos y descripciones mediante embeddings locales.
+Predictor de Ahorro de Recursos: La IA calcula cuánto tiempo de CPU y ancho de banda has ahorrado al remover elementos redundantes o de bajo valor.
+Detección de Duplicados en Cola: Antes de que el usuario pulse "Quitar", la IA resalta videos con contenido semánticamente idéntico para sugerir una limpieza masiva.
+Recomendación de "Solo Subtítulos": Ante un intento de quitar un video pesado, la IA sugiere: "No lo quites; descarga solo la transcripción para ahorrar 95% de espacio".
+Análisis de Relevancia Estratégica: Clasifica los videos en cola y advierte si estás quitando contenido que pertenece a una de las "18 Categorías Invariables" prioritarias.
+Asistente de Gestión de Cola Natural: Posibilidad de decir: "Quita los videos de menos de 5 minutos que no tengan nada que ver con Legalidad", y que Ollama ejecute la limpieza.
+
+🤖 MÓDULOS CON IA (Ollama Local - 10)
+
+Sugerencia Inteligente de Quitado: IA analiza la cola y sugiere qué elementos quitar por baja relevancia/calidad
+Validación Pre-Eliminación con Justificación: IA explica el impacto de quitar cada elemento en la base de conocimiento
+Recuperación Inteligente de Eliminados: IA recomienda restaurar elementos previamente quitados si detecta nueva relevancia
+Detección de Elementos Obsoletos: IA identifica automáticamente contenido desactualizado para sugerir eliminación
+Análisis de Impacto en Categorías: IA calcula cómo afecta "quitar" a la distribución de las 18 categorías KDP
+Prevención de Pérdida de Conocimiento Crítico: IA advierte si quitar un elemento dejará vacíos temáticos importantes
+Recomendaciones de Reemplazo: Al quitar un video, IA sugiere alternativas mejores del mismo tema
+Clasificación Automática de Motivo de Eliminación: IA etiqueta por qué se quitó (duplicado/obsoleto/irrelevante/error)
+Optimización de Cola Post-Eliminación: IA reorganiza automáticamente la cola tras quitar elementos para eficiencia
+Predicción de Arrepentimiento: IA calcula probabilidad de que el usuario quiera restaurar basado en patrones históricos

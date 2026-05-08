@@ -1,0 +1,18 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+Panel de configuración UI: Crear control en Settings para ajustar tamaño de batch (default: 100)
+Batch async/background: Procesar videos en thread separado para no bloquear UI durante grandes descargas
+Callbacks de progreso: Reportar progreso (current/total) durante batch insert para progress bars
+Estadísticas de rendimiento: Guardar métricas de batch (tiempo, rows/sec) en DB para analytics
+Métodos batch adicionales: Implementar update_videos_batch(), delete_videos_batch(), update_status_batch()
+Retry logic: Reintentos automáticos con exponential backoff para transitorios (lock contention)
+Validación pre-batch: Validar IDs duplicados en memoria antes de INSERT para evitar rollback costoso
+Streaming para grandes batches: Usar iterador/chunking para >1000 videos (evitar mémoire overflow)
+** thread-safe batches**: Asegurar operaciones thread-safe para multi-thread processing
+Conflict resolution: Strategy pattern para manejar conflictos (skip/overwrite/upsert)
+
+Pregunta:
+¿Quieren que profundice en alguno de estos? Los más inmediatos serían:
+
+#2 (Async) - Si monitor_service bloquea UI
+#3 (Progress) - Si wantés feedbackvisual
+#5 (Más batch methods) - Para otras operaciones recurrentes

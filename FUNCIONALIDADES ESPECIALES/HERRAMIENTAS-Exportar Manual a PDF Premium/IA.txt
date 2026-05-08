@@ -1,0 +1,35 @@
+Módulos de Inteligencia y Enriquecimiento (CON IA OLLAMA LOCAL)
+
+Resumen Ejecutivo de Alta Densidad: Ollama analiza el manual completo y genera un prólogo de "Puntos Clave" (TL;DR) para directivos al inicio del documento.
+Indexación Semántica por Conceptos: Creación de un índice inteligente que agrupa temas por conceptos relacionados, no solo por títulos de capítulos, facilitando la navegación conceptual.
+Detector de Brechas de Conocimiento (Gap Analysis): La IA escanea el contenido antes de exportar y advierte si falta información crítica sobre alguna de las "18 Categorías KDP" prioritarias.
+Glosario Técnico Contextual: Generación automática al final del PDF de un glosario con definiciones precisas de los términos técnicos y jargon detectados en el texto.
+Traducción y Localización Corporativa: Capacidad de exportar el manual en múltiples idiomas manteniendo el contexto técnico y legal mediante inferencia local privada.
+Generador de Casos de Uso y Escenarios: La IA inserta al final de cada capítulo ejemplos prácticos o simulacros de problemas basados en el conocimiento almacenado en la KB.
+Analista de Coherencia y Tono Elite: Reporte pre-exportación donde la IA califica la profesionalidad del lenguaje y sugiere cambios para elevar el estándar del texto al nivel Enterprise.
+Referencias Cruzadas Inteligentes: La IA detecta menciones a temas tratados en otros manuales locales y genera "Nuggets de Información" o enlaces dinámicos en los márgenes.
+Sistema de Validación (Quiz Generator): Inclusión de una sección de autoevaluación al final del PDF con preguntas generadas por la IA para asegurar la retención de los procesos por parte del lector.
+Optimización de Estructura Cognitiva: La IA sugiere reordenar las secciones del manual antes de la exportación final para mejorar el flujo lógico de aprendizaje.
+
+🧠 LISTA 2: 20 MÓDULOS CON IA (Inteligencia & Enriquecimiento Cognitivo)
+
+21. Resumen Ejecutivo de Alta Densidad: Prólogo TL;DR para directivos. Uso real: Entregar 1 página con insights clave de "Legalidad y Compliance" al CEO sin que lea 50 páginas.
+22. Indexación Semántica por Conceptos: Agrupa temas por relación contextual, no solo por título. Uso real: Encontrar "retención de talento" aunque el capítulo se llame "Gestión de RRHH".
+23. Detector de Brechas de Conocimiento (Gap Analysis): Alerta si faltan categorías KDP críticas. Uso real: "Falta contenido sobre 'Amazon Ads para Libros Electrónicos'. ¿Generar borrador?".
+24. Glosario Técnico Contextual: Define jargon automáticamente al final. Uso real: Nuevos empleados entienden términos como "FTS5", "Embeddings" o "Royalty Split" sin buscar fuera.
+25. Traducción y Localización Corporativa: Multi-idioma con contexto técnico preservado. Uso real: Exportar manual de operaciones en ES/EN/PT para sedes LATAM y España simultáneamente.
+26. Generador de Casos de Uso y Escenarios: Inserta simulacros prácticos por capítulo. Uso real: "Si un cliente reclama por error de pricing, aplicar protocolo X (pág. 45)".
+27. Analista de Coherencia y Tono Elite: Califica profesionalidad y sugiere ajustes. Uso real: Reemplazar lenguaje informal en "Fórmulas" por terminología financiera estandarizada.
+28. Referencias Cruzadas Inteligentes: Enlaza menciones a otros manuales locales. Uso real: Al leer "ver Matriz de Roles", insertar hipervínculo directo a MATRIZ_ROLES.pdf.
+29. Sistema de Validación (Quiz Generator): Autoevaluación post-capítulo. Uso real: Certificar que el equipo comprendió "Procedimientos de Backup" antes de operar en producción.
+30. Optimización de Estructura Cognitiva: Reordena secciones para flujo de aprendizaje lógico. Uso real: Mover "Configuración Inicial" antes que "Análisis Avanzado" para onboarding progresivo.
+31. Predictor de Densidad de Lectura: Estima tiempo necesario por sección según complejidad. Uso real: Planificar sesiones de formación: "Capítulo 3 requiere 45 min de estudio concentrado".
+32. Generador de Diagramas Mermaid a Partir de Texto: Convierte descripciones de procesos en gráficos vectoriales. Uso real: Transformar "Pasos para auditoría" en flujo visual automático sin diseñador.
+33. Clasificador de Relevancia por Rol: Adapta contenido visible según perfil del lector. Uso real: Ocultar "Configuración de Servidores" a analistas, mostrar solo "Reportes y KPIs".
+34. Detector de Redundancia Inter-Manual: Identifica párrafos repetidos entre LEGALIDAD.md y MATRIZ.md. Uso real: Consolidar conocimiento y reducir mantenimiento de documentación duplicada.
+35. Asistente de Cumplimiento Normativo Dinámico: Marca secciones que requieren actualización por cambios en leyes/TOS. Uso real: Alertar: "Artículo 15 GDPR modificado. Revisar sección de Privacidad".
+36. Traductor de Métricas a Impacto de Negocio: Convierte datos técnicos en ROI/ahorro. Uso real: "Implementar este protocolo reduce tiempo de respuesta un 30%, ahorrando ~12h/mes".
+37. Generador de Executive Summary por Audiencia: Crea versiones distintas para Técnico, Legal y Directivo. Uso real: Un mismo manual, tres perspectivas de lectura optimizadas automáticamente.
+38. Optimizador de Carga Cognitiva: Divide párrafos largos y añade viñetas donde la IA detecta saturación. Uso real: Mejorar retención en manuales de capacitación sin perder rigor técnico.
+39. Predictor de Obsolescencia de Contenido: Estima vida útil de cada sección basado en volatilidad del tema. Uso real: "Sección de 'APIs de Amazon' caduca en 6 meses. Programar revisión automática".
+40. Asistente de Exportación Conversacional: "Exporta solo capítulos sobre Fiscalidad en PDF cifrado para Legal". Uso real: Generar documentos personalizados bajo demanda sin navegar menús complejos.

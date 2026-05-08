@@ -1,0 +1,146 @@
+🎯 **PRÓXIMOS PASOS (Opcionales)**
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar el "Visor Total Canales" de un simple contador numérico a un **Dashboard Inteligente de Gestión de Ecosistema KDP** garantiza visibilidad estratégica del portfolio de canales, detección proactiva de oportunidades y optimización del monitoreo de contenido educativo sobre Amazon KDP. La separación determinista (métricas, estadísticas, alertas) y cognitiva (análisis predictivo, scoring de valor, recomendaciones) cumple estándares de gestión empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+---
+
+## 📊 **VISOR TOTAL CANALES - ARQUITECTURA ELITE CORPORATE**
+
+### 🎯 **PROPÓSITO CENTRAL**
+Transformar el contador "0" en un **Centro de Comando Estratégico** que no solo muestre cuántos canales monitoreas, sino que proporcione inteligencia accionable sobre tu ecosistema de fuentes de conocimiento KDP, detectando patrones, oportunidades y riesgos en tiempo real.
+
+---
+
+## 📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Métricas)**
+
+### **Pilar 1: Visualización y Métricas en Tiempo Real (1-12)**
+
+1. **Contador Dinámico con Animación Suave** — Muestra número total de canales con transición numérica fluida. *Caso de uso real:* Al añadir un canal, el número sube de 5 a 6 con animación, dando feedback visual inmediato al usuario.
+
+2. **Badge de Estado con Colores Semánticos** — Cambia color según estado: verde (todos activos), amarillo (algunos inactivos), rojo (problemas). *Caso de uso:* Usuario ve rápidamente que tiene 3 canales inactivos sin tener que revisar lista completa.
+
+3. **Tooltip con Resumen Rápido** — Al pasar mouse, muestra "X activos, Y inactivos, Z con errores". *Caso de uso:* Verificación rápida sin navegar a otras pestañas.
+
+4. **Indicador de Última Sincronización** — Muestra "Actualizado hace X minutos" con refresh automático. *Caso de uso:* Usuario sabe si los datos son frescos o necesita forzar actualización.
+
+5. **Gráfico Miniatura de Distribución** — Mini gráfico de torta mostrando % activos/inactivos. *Caso de uso:* Visualización rápida de salud del portfolio sin abrir reportes complejos.
+
+6. **Contador de Canales por Categoría KDP** — Muestra breakdown: "5 Marketing, 3 Legalidad, 2 Nichos". *Caso de uso:* Identificar rápidamente qué áreas temáticas están mejor cubiertas.
+
+7. **Indicador de Cobertura de las 18 Categorías** — Muestra "X/18 categorías cubiertas". *Caso de uso:* Usuario detecta que le faltan canales sobre "Internacionalización" para completar su KB.
+
+8. **Métricas de Actividad Semanal** — Muestra "X videos detectados esta semana". *Caso de uso:* Evaluar si los canales están publicando contenido nuevo regularmente.
+
+9. **Contador de Canales Prioritarios** — Muestra cuántos tienen prioridad "Alta" configurada. *Caso de uso:* Saber rápidamente cuántos canales críticos están siendo monitoreados.
+
+10. **Indicador de Salud del Sistema** — Score 0-100 basado en canales activos, errores, última sync. *Caso de uso:* Usuario ve score 85/100 y sabe que debe revisar 2 canales con errores.
+
+11. **Badge de Nuevos Canales (últimos 7 días)** — Muestra "+X nuevos" si se añadieron recientemente. *Caso de uso:* Confirmar visualmente que la expansión del portfolio está ocurriendo.
+
+12. **Contador de Canales con Filtros Activos** — Muestra cuántos tienen filtros de palabras clave configurados. *Caso de uso:* Verificar rápidamente qué canales están filtrando contenido automáticamente.
+
+### **Pilar 2: Análisis Estadístico y Tendencias (13-24)**
+
+13. **Tendencia Histórica (7/30/90 días)** — Gráfico de línea mostrando evolución del número de canales. *Caso de uso:* Usuario ve que pasó de 5 a 12 canales en 3 meses, confirmando crecimiento del sistema.
+
+14. **Promedio de Videos por Canal** — Calcula media de videos detectados por canal. *Caso de uso:* Identificar que Canal X publica 10 videos/semana vs Canal Y que publica 1, ayudando a priorizar recursos.
+
+15. **Distribución por Frecuencia de Publicación** — Muestra cuántos canales publican diario, semanal, mensual. *Caso de uso:* Ajustar intervalos de escaneo según patrones reales de publicación.
+
+16. **Tasa de Crecimiento Mensual** — Calcula % de crecimiento mes a mes. *Caso de uso:* Reportar a dirección que el portfolio creció 40% este trimestre.
+
+17. **Ranking de Canales por Volumen** — Lista top 5 canales con más videos detectados. *Caso de uso:* Identificar que "Canal KDP Pro" es la fuente más productiva y merece atención prioritaria.
+
+18. **Contador de Canales Inactivos (>30 días sin videos)** — Alerta sobre canales abandonados. *Caso de uso:* Detectar que 2 canales dejaron de publicar y decidir si eliminarlos o reactivarlos.
+
+19. **Métrica de Cobertura Temática** — Muestra % de las 18 categorías KDP cubiertas. *Caso de uso:* Usuario ve 67% de cobertura y decide añadir canales sobre "Low-Content" y "High-Content".
+
+20. **Distribución por Idioma de Contenido** — Muestra cuántos canales son ES, EN, PT, etc. *Caso de uso:* Verificar que tiene balance adecuado entre contenido en español e inglés.
+
+21. **Contador de Canales Verificados** — Muestra cuántos tienen verificación de identidad YouTube. *Caso de uso:* Priorizar canales verificados como fuentes más confiables.
+
+22. **Métrica de Engagement Promedio** — Calcula promedio de views/likes por canal. *Caso de uso:* Identificar canales de alta calidad vs canales con poco engagement.
+
+23. **Tendencia de Actividad por Hora del Día** — Muestra cuándo publican más los canales. *Caso de uso:* Ajustar intervalos de escaneo para coincidir con picos de publicación.
+
+24. **Ratio de Contenido Único vs Duplicado** — Muestra % de videos únicos detectados. *Caso de uso:* Detectar que 30% del contenido se repite entre canales y optimizar filtros.
+
+### **Pilar 3: Alertas y Notificaciones Proactivas (25-36)**
+
+25. **Alerta de Canal Nuevo sin Configurar** — Notifica cuando se añade canal pero no tiene filtros/prioridad. *Caso de uso:* Usuario añade canal y recibe recordatorio "Configura filtros para Canal X".
+
+26. **Alerta de Canal sin Videos en 7 Días** — Notifica canales que dejaron de publicar. *Caso de uso:* Detectar rápidamente que un canal clave dejó de subir contenido.
+
+27. **Alerta de Saturación de Canales** — Alerta si supera X canales (ej. >50). *Caso de uso:* Prevenir sobrecarga del sistema antes de que ocurra.
+
+28. **Alerta de Duplicación Temática** — Detecta si 3+ canales cubren exactamente mismo tema. *Caso de uso:* Optimizar portfolio eliminando redundancia.
+
+29. **Alerta de Canal de Baja Calidad** — Basado en engagement/views bajos. *Caso de uso:* Identificar canales que consumen recursos pero aportan poco valor.
+
+30. **Alerta de Cobertura Incompleta** — Notifica categorías KDP sin canales asignados. *Caso de uso:* "Te faltan canales sobre 'Internacionalización' para cobertura completa".
+
+31. **Alerta de Configuración Incorrecta** — Detecta intervalos de escaneo muy cortos/largos. *Caso de uso:* "Canal X tiene intervalo 5 min pero publica semanalmente - optimiza a 1440 min".
+
+32. **Alerta de Error de Conexión** — Notifica canales con errores de API/YouTube. *Caso de uso:* Resolver rápidamente problemas técnicos antes de perder datos.
+
+33. **Alerta de Cambio de Frecuencia** — Detecta cuando canal cambia patrón de publicación. *Caso de uso:* Canal que pasó de semanal a diario requiere ajustar intervalo automáticamente.
+
+34. **Alerta de Canal Competidor Detectado** — Basado en análisis de keywords. *Caso de uso:* "Canal X menciona frecuentemente 'competencia' - revisar si es fuente confiable".
+
+35. **Alerta de Contenido Obsoleto** — Canales que solo publican contenido antiguo. *Caso de uso:* Detectar canales que republican videos de 2022 como "nuevos".
+
+36. **Alerta de Límite de API Cercano** — Notifica cuando se acerca al límite de YouTube API. *Caso de uso:* Prevenir interrupciones del servicio por rate limiting.
+
+### **Pilar 4: Filtros y Segmentación Avanzada (37-48)**
+
+37. **Filtro por Estado (Activos/Inactivos)** — Toggle rápido para ver solo activos o inactivos. *Caso de uso:* Revisar rápidamente los 3 canales inactivos para decidir si eliminarlos.
+
+38. **Filtro por Categoría KDP** — Filtra canales por las 18 categorías maestras. *Caso de uso:* Ver solo canales de "Amazon Ads" para auditoría temática.
+
+39. **Filtro por Prioridad** — Muestra solo canales Prioridad Alta/Media/Baja. *Caso de uso:* Enfocarse en los 5 canales críticos que requieren atención inmediata.
+
+40. **Filtro por Fecha de Adición** — Filtra por "últimos 7/30/90 días". *Caso de uso:* Revisar performance de canales recién añadidos.
+
+41. **Filtro por Idioma** — Muestra solo canales en ES/EN/PT/etc. *Caso de uso:* Auditar balance de contenido multilingüe.
+
+42. **Filtro por Frecuencia de Publicación** — Filtra por diario/semanal/mensual. *Caso de uso:* Identificar canales de alta frecuencia para escaneo prioritario.
+
+43. **Filtro por Tamaño de Audiencia** — Filtra por suscriptores (>10k, >100k, >1M). *Caso de uso:* Enfocarse en canales de alta autoridad.
+
+44. **Filtro por Tasa de Engagement** — Filtra por views/likes promedio. *Caso de uso:* Identificar canales de alta calidad vs baja calidad.
+
+45. **Filtro por Configuración de Filtros** — Muestra canales con/sin filtros activos. *Caso de uso:* Verificar que todos los canales tengan filtros configurados.
+
+46. **Filtro por Último Video** — Filtra por "videos en últimos 7/30 días". *Caso de uso:* Identificar canales activos recientemente.
+
+47. **Filtro por Errores** — Muestra solo canales con errores de conexión/API. *Caso de uso:* Resolver rápidamente problemas técnicos.
+
+48. **Filtro Personalizado por Keywords** — Filtra canales que mencionan keywords específicas. *Caso de uso:* "Mostrar solo canales que mencionan 'KDP' frecuentemente".
+
+### **Pilar 5: Exportación y Reportes (49-60)**
+
+49. **Exportar Lista a CSV** — Exporta todos los canales con metadata a CSV. *Caso de uso:* Crear backup o compartir portfolio con equipo.
+
+50. **Exportar Estadísticas a PDF** — Genera reporte PDF con métricas del portfolio. *Caso de uso:* Presentar a dirección el crecimiento del sistema (12 canales, 450 videos/mes).
+
+51. **Exportar a JSON para API** — Exporta configuración para integración con otras herramientas. *Caso de uso:* Sincronizar con dashboard externo o sistema de BI.
+
+52. **Reporte de Cobertura Temática** — Genera gráfico de las 18 categorías KDP cubiertas. *Caso de uso:* Identificar visualmente gaps en la estrategia de contenido.
+
+53. **Reporte de Actividad Semanal** — Muestra videos detectados por canal esta semana. *Caso de uso:* Evaluación semanal de productividad del sistema.
+
+54. **Reporte de Canales Inactivos** — Lista canales sin videos en X días. *Caso de uso:* Decidir qué canales eliminar o reactivar.
+
+55. **Reporte de Performance por Canal** — Compara views, engagement, frecuencia. *Caso de uso:* Identificar top performers y underperformers.
+
+56. **Reporte de Crecimiento Histórico** — Muestra evolución del portfolio en el tiempo. *Caso de uso:* Demostrar ROI del sistema (de 5 a 20 canales en 6 meses).
+
+57. **Reporte de Configuración** — Exporta configuración de todos los canales. *Caso de uso:* Backup de configuración o migración a otro sistema.
+
+58. **Reporte de Errores y Alertas** — Lista todos los errores ocurridos. *Caso de uso:* Diagnóstico técnico y resolución de problemas.
+
+59. **Dashboard Resumen Ejecutivo** — Vista consolidada con KPIs principales. *Caso de uso:* Revisión rápida matutina del estado del sistema.
+
+60. **Programación de Reportes Automáticos** — Configura envío automático semanal/mensual. *Caso de uso:* Recibir cada lunes email con resumen de la semana anterior.
+
+---

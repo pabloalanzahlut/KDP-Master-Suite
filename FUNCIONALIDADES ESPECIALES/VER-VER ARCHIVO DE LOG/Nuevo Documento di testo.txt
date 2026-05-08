@@ -1,0 +1,21 @@
+🎯 PRÓXIMOS PASOS (Opcionales - Elite Corporate)
+
+Visor de Logs en Panel UI: Pestaña integrada en main_window para ver logs sin cerrar app
+Filtrado de Logs por Nivel: Dropdown para filtrar INFO/WARNING/ERROR/DEBUG
+Búsqueda en Logs: Search bar con regex para encontrar patrones
+Exportar Logs: Exportar a CSV/JSON con timestamp y filtros aplicados
+Log Streaming Real-time: Tail automático de nuevos entries
+Dashboard de Métricas: Panel con gráficos de errores/tiempo por sesión
+Alertas de Errores: Notificación desktop cuando se detecta ERROR en log
+Logs por Rango de Fechas: Selector datepicker para rangos específicos
+
+Motor de Visualización "Live Tail": Implementar actualización en tiempo real con desplazamiento automático (autoscroll) y búfer de memoria eficiente para archivos de gran tamaño sin bloquear la UI.
+Filtrado por Niveles de Severidad: Toggles interactivos para aislar instantáneamente registros de tipo DEBUG, INFO, WARNING, ERROR y CRITICAL.
+Búsqueda Indexada con Regex: Buscador avanzado que soporte expresiones regulares y resaltado de sintaxis (syntax highlighting) para términos clave.
+Agrupamiento por ID de Sesión (Trace ID): Capacidad de filtrar el log para mostrar únicamente los eventos ocurridos dentro de una ejecución o proceso específico (Transaction Tracing).
+Correlación de Recursos del Sistema: Superposición de gráficas de consumo de CPU/RAM sobre la línea de tiempo del log para identificar picos de carga relacionados con eventos.
+Exportación y Rotación Profesional: Herramientas para comprimir logs antiguos (.zip/.gz), limpiar archivos de más de N días y exportar vistas filtradas a formatos CSV o JSON.
+Codificación de Colores Semántica: Esquema de colores corporativo para identificar errores de un vistazo (ej. Rojo: Error fatal, Naranja: Warning, Azul: Info).
+Navegador de Histórico de Logs: Selector de archivos por fecha y hora con un calendario integrado para consultar registros de días anteriores.
+Marcadores y Notas (Bookmarking): Permitir al usuario marcar líneas específicas del log para referencia rápida o adjuntar notas técnicas antes de exportar.
+Sincronización Multi-Log: Vista dividida para comparar el log principal de la aplicación con los logs específicos de dependencias (ej. logs de ffmpeg o ollama).
