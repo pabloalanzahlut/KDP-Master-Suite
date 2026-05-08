@@ -1,7 +1,40 @@
 # KDP Master Suite - Release Notes
 
-**Version actual:** 3.4.7
-**Ultima actualizacion:** 2024-05-30
+**Version actual:** 3.4.8
+**Ultima actualizacion:** 2026-05-08
+
+---
+
+## v3.4.8 - Fix: Error tkinter -style
+
+**Fecha:** 8 de Mayo, 2026
+**Estado:** Producción Estable (Bug Fix)
+
+### Problema Resuelto
+
+| # | Problema | Descripcion |
+|---|---------|-------------|
+| 1 | unknown option "-style" | Error al iniciar aplicación en línea 3259 |
+| 2 | Pestaña Configuración invisible | No se mostraba por error de sintaxis |
+| 3 | customtkinter no incluido | Faltaba en spec de PyInstaller |
+
+### Solución Implementada
+
+- Eliminado línea inválida `new_videos_frame.configure(style=)` en línea 3259
+- Actualizado spec de PyInstaller para incluir customtkinter
+- Agregados módulos de Inteligencia (Ollama) al build
+- Incluido directorio app/ y modules/ en el spec
+- Corregido error de sintaxis en try/except de settings_tab
+
+### Cambios en Spec
+
+```python
+# Agregado al spec:
+datas += [('app', 'app'), ('modules', 'modules')]
+hiddenimports += ['customtkinter', 'app.ui.tabs.settings_tab', 
+                  'app.modules.processing.integrate_knowledge', 
+                  'app.core.ollama_pool']
+```
 
 ---
 
