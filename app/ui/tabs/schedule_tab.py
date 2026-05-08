@@ -63,23 +63,23 @@ def _build_schedule_ui(self):
                                     command=self.toggle_scheduler)
     self.schedule_btn.pack(side=tk.LEFT, padx=2)
     
-    content_paned = ttk.PanedWindow(main_container, orient=tk.HORIZONTAL)
+    content_paned = tk.PanedWindow(main_container, orient=tk.HORIZONTAL)
     content_paned.pack(fill=tk.BOTH, expand=True)
     
     left_panel = ttk.LabelFrame(content_paned, text="🎯 Tareas Programadas", padding=10)
-    content_paned.add(left_panel, weight=2)
+    content_paned.add(left_panel)
     
     _build_task_list(self, left_panel)
     
-    right_panel = ttk.PanedWindow(content_paned, orient=tk.VERTICAL)
-    content_paned.add(right_panel, weight=1)
+    right_panel = tk.PanedWindow(content_paned, orient=tk.VERTICAL)
+    content_paned.add(right_panel)
     
     stats_frame = ttk.LabelFrame(right_panel, text="📊 Estadísticas", padding=10)
-    right_panel.add(stats_frame, weight=1)
+    right_panel.add(stats_frame)
     _build_stats_panel(self, stats_frame)
     
     log_frame = ttk.LabelFrame(right_panel, text="🕐 Log de Ejecuciones", padding=10)
-    right_panel.add(log_frame, weight=1)
+    right_panel.add(log_frame)
     _build_log_panel(self, log_frame)
 
 

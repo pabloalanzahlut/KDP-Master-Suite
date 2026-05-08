@@ -252,7 +252,8 @@ try:
 except ImportError:
     settings_tab = None
 try:
-    from app.ui.tabs import review_tab
+    from app.ui.tabs import review_queue
+    review_tab = review_queue
 except ImportError:
     review_tab = None
 try:
@@ -8280,15 +8281,14 @@ Descripción: {video.get('description', '')[:800]}
         
         try:
             self.current_theme = theme_name
-            # CORREGIDO: Usar método correcto para ttkbootstrap
-            self.root.tk.call("ttk::style", "theme", "use", base_theme)
+            self.root.style.theme_use(base_theme)
             self.configure_styles()
             self.save_theme_preference(theme_name)
             self.log(f"🎨 Tema aplicado: {theme_name}")
         except Exception as e:
             self.logger.error(f"Error aplicando tema {theme_name}: {e}")
             try:
-                self.root.tk.call("ttk::style", "theme", "use", "darkly")
+                self.root.style.theme_use("darkly")
             except:
                 pass
 
