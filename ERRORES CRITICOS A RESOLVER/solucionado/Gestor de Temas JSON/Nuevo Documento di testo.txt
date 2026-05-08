@@ -1,0 +1,426 @@
+Te ayudo a implementar la funcionalidad del **Gestor de Temas JSON** para que esté siempre disponible y funcional.
+
+## SOLUCIÓN COMPLETA:
+
+### **Paso 1: Crear el módulo del Gestor de Temas JSON**
+
+Crea el archivo `app/ui/dialogs/json_theme_manager.py`:
+
+```python
+import customtkinter as ctk
+from tkinter import ttk, messagebox, filedialog
+import json
+import os
+from pathlib import Path
+import tkinter as tk
+
+class JSONThemeManager(ctk.CTkToplevel):
+    """Gestor de Temas JSON - Permite gestionar configuraciones y temas"""
+    
+    def __init__(self, parent):
+        super().__init__(parent)
+        
+        self.title("Gestor de Temas JSON")
+        self.geometry("900x700")
+        self.resizable(True, True)
+        
+        # Configurar tema
+        self.appearance_mode = "dark"
+        
+        # Variables
+        self.current_theme = None
+        self.themes_dir = Path(__file__).parent.parent.parent / "themes"
+        self.themes_dir.mkdir(exist_ok=True)
+        
+        self.setup_ui()
+        self.load_themes_list()
+        
+    def setup_ui(self):
+        """Configura la interfaz de usuario"""
+        # Frame principal
+        self.main_frame = ctk.CTkFrame(self)
+        self.main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # Título
+        title_label = ctk.CTkLabel(
+            self.main_frame,
+            text="🎨 Gestor de Temas JSON",
+            font=ctk.CTkFont(size=20, weight="bold")
+        )
+        title_label.pack(pady=(0, 20))
+        
+        # Panel superior - Lista de temas
+        self.top_frame = ctk.CTkFrame(self.main_frame)
+        self.top_frame.pack(fill="x", padx=10, pady=10)
+        
+        # Lista de temas disponibles
+        list_label = ctk.CTkLabel(
+            self.top_frame,
+            text="Temas Disponibles:",
+            font=ctk.CTkFont(weight="bold")
+        )
+        list_label.grid(row=0, column=0, sticky="w", pady=5)
+        
+        # Treeview para listar temas
+        self.tree_frame = ctk.CTkFrame(self.top_frame)
+        self.tree_frame.grid(row=1, column=0, sticky="nsew", pady=5)
+        
+        self.themes_tree = ttk.Treeview(
+            self.tree_frame,
+            columns=("Nombre", "Tipo", "Fecha"),
+            show="headings",
+            height=8
+        )
+        self.themes_tree.heading("Nombre", text="Nombre")
+        self.themes_tree.heading("Tipo", text="Tipo")
+        self.themes_tree.heading("Fecha", text="Última Modificación")
+        
+        self.themes_tree.column("Nombre", width=300)
+        self.themes_tree.column("Tipo", width=150)
+        self.themes_tree.column("Fecha", width=200)
+        
+        scrollbar = ttk.Scrollbar(self.tree_frame, orient="vertical", command=self.themes_tree.yview)
+        self.themes_tree.configure(yscrollcommand=scrollbar.set)
+        
+        self.themes_tree.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        self.themes_tree.bind("<<TreeviewSelect>>", self.on_theme_select)
+        
+        # Botones de acción
+        self.buttons_frame = ctk.CTkFrame(self.top_frame)
+        self.buttons_frame.grid(row=2, column=0, pady=10)
+        
+        self.btn_new = ctk.CTkButton(self.buttons_frame, text="➕ Nuevo Tema", command=self.create_new_theme)
+        self.btn_new.pack(side="left", padx=5)
+        
+        self.btn_load = ctk.CTkButton(self.buttons_frame, text="📂 Cargar Tema", command=self.load_theme)
+        self.btn_load.pack(side="left", padx=5)
+        
+        self.btn_save = ctk.CTkButton(self.buttons_frame, text="💾 Guardar Cambios", command=self.save_theme)
+        self.btn_save.pack(side="left", padx=5)
+        
+        self.btn_export = ctk.CTkButton(self.buttons_frame, text="📤 Exportar", command=self.export_theme)
+        self.btn_export.pack(side="left", padx=5)
+        
+        self.btn_delete = ctk.CTkButton(self.buttons_frame, text="🗑️ Eliminar", command=self.delete_theme, fg_color="red")
+        self.btn_delete.pack(side="left", padx=5)
+        
+        # Panel inferior - Editor JSON
+        self.bottom_frame = ctk.CTkFrame(self.main_frame)
+        self.bottom_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        editor_label = ctk.CTkLabel(
+            self.bottom_frame,
+            text="Editor JSON:",
+            font=ctk.CTkFont(weight="bold")
+        )
+        editor_label.pack(anchor="w", pady=5)
+        
+        # Text widget para editar JSON
+        self.json_editor = tk.Text(
+            self.bottom_frame,
+            bg="#1e1e1e",
+            fg="#d4d4d4",
+            font=("Consolas", 11),
+            insertbackground="white",
+            selectbackground="#264f78"
+        )
+        self.json_editor.pack(fill="both", expand=True, padx=5, pady=5)
+        
+        # Scrollbar para el editor
+        editor_scrollbar = ttk.Scrollbar(self.bottom_frame, orient="vertical", command=self.json_editor.yview)
+        editor_scrollbar.pack(side="right", fill="y")
+        self.json_editor.configure(yscrollcommand=editor_scrollbar.set)
+        
+        # Botones adicionales
+        self.validate_btn = ctk.CTkButton(
+            self.bottom_frame,
+            text="✓ Validar JSON",
+            command=self.validate_json,
+            fg_color="#28a745"
+        )
+        self.validate_btn.pack(pady=5)
+        
+        # Estado
+        self.status_label = ctk.CTkLabel(
+            self.main_frame,
+            text="",
+            font=ctk.CTkFont(size=10),
+            text_color="gray"
+        )
+        self.status_label.pack(pady=5)
+        
+    def load_themes_list(self):
+        """Carga la lista de temas disponibles"""
+        # Limpiar treeview
+        for item in self.themes_tree.get_children():
+            self.themes_tree.delete(item)
+        
+        # Buscar archivos JSON en el directorio de temas
+        if self.themes_dir.exists():
+            json_files = list(self.themes_dir.glob("*.json"))
+            
+            for json_file in json_files:
+                try:
+                    with open(json_file, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        theme_type = data.get('type', 'Configuración')
+                        modified = json_file.stat().st_mtime
+                        from datetime import datetime
+                        date_str = datetime.fromtimestamp(modified).strftime('%Y-%m-%d %H:%M')
+                        
+                        self.themes_tree.insert("", "end", 
+                            values=(json_file.name, theme_type, date_str),
+                            tags=(str(json_file),))
+                except Exception as e:
+                    print(f"Error cargando {json_file.name}: {e}")
+                    
+    def on_theme_select(self, event):
+        """Cuando se selecciona un tema"""
+        selection = self.themes_tree.selection()
+        if not selection:
+            return
+            
+        item = self.themes_tree.item(selection[0])
+        theme_path = item['tags'][0]
+        
+        try:
+            with open(theme_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                
+            self.json_editor.delete(1.0, tk.END)
+            self.json_editor.insert(tk.END, content)
+            self.current_theme = theme_path
+            self.status_label.configure(text=f"Tema cargado: {Path(theme_path).name}")
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo cargar el tema: {str(e)}")
+            
+    def create_new_theme(self):
+        """Crea un nuevo tema"""
+        dialog = ctk.CTkInputDialog(
+            text="Nombre del nuevo tema:",
+            title="Nuevo Tema"
+        )
+        theme_name = dialog.get_input()
+        
+        if theme_name:
+            # Crear estructura básica
+            new_theme = {
+                "name": theme_name,
+                "type": "Configuración",
+                "version": "1.0",
+                "created": "2024",
+                "settings": {
+                    "primary_color": "#1e90ff",
+                    "secondary_color": "#2f4f4f",
+                    "accent_color": "#ffa500",
+                    "background_color": "#1e1e1e",
+                    "text_color": "#d4d4d4"
+                },
+                "description": f"Tema personalizado: {theme_name}"
+            }
+            
+            # Guardar
+            theme_file = self.themes_dir / f"{theme_name.replace(' ', '_').lower()}.json"
+            try:
+                with open(theme_file, 'w', encoding='utf-8') as f:
+                    json.dump(new_theme, f, indent=4, ensure_ascii=False)
+                    
+                self.load_themes_list()
+                messagebox.showinfo("Éxito", f"Tema '{theme_name}' creado correctamente")
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo crear el tema: {str(e)}")
+                
+    def load_theme(self):
+        """Carga un tema desde archivo"""
+        file_path = filedialog.askopenfilename(
+            title="Cargar Tema JSON",
+            filetypes=[("Archivos JSON", "*.json"), ("Todos los archivos", "*.*")]
+        )
+        
+        if file_path:
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    
+                self.json_editor.delete(1.0, tk.END)
+                self.json_editor.insert(tk.END, content)
+                self.current_theme = file_path
+                self.status_label.configure(text=f"Tema cargado: {Path(file_path).name}")
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo cargar el archivo: {str(e)}")
+                
+    def save_theme(self):
+        """Guarda el tema actual"""
+        if not self.current_theme:
+            messagebox.showwarning("Advertencia", "No hay un tema seleccionado para guardar")
+            return
+            
+        if messagebox.askyesno("Confirmar", "¿Guardar cambios en el tema actual?"):
+            try:
+                content = self.json_editor.get(1.0, tk.END).strip()
+                
+                # Validar que sea JSON válido
+                json.loads(content)
+                
+                with open(self.current_theme, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                    
+                self.load_themes_list()
+                self.status_label.configure(text=f"Tema guardado: {Path(self.current_theme).name}")
+                messagebox.showinfo("Éxito", "Tema guardado correctamente")
+                
+            except json.JSONDecodeError as e:
+                messagebox.showerror("Error JSON", f"El contenido no es un JSON válido: {str(e)}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo guardar el tema: {str(e)}")
+                
+    def export_theme(self):
+        """Exporta el tema a una ubicación"""
+        if not self.current_theme:
+            messagebox.showwarning("Advertencia", "No hay un tema seleccionado para exportar")
+            return
+            
+        file_path = filedialog.asksaveasfilename(
+            title="Exportar Tema",
+            defaultextension=".json",
+            filetypes=[("Archivos JSON", "*.json")]
+        )
+        
+        if file_path:
+            try:
+                with open(self.current_theme, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                    
+                messagebox.showinfo("Éxito", "Tema exportado correctamente")
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo exportar el tema: {str(e)}")
+                
+    def delete_theme(self):
+        """Elimina un tema"""
+        if not self.current_theme:
+            messagebox.showwarning("Advertencia", "No hay un tema seleccionado para eliminar")
+            return
+            
+        if messagebox.askyesno("Confirmar", f"¿Eliminar permanentemente el tema {Path(self.current_theme).name}?"):
+            try:
+                os.remove(self.current_theme)
+                self.current_theme = None
+                self.json_editor.delete(1.0, tk.END)
+                self.load_themes_list()
+                self.status_label.configure(text="Tema eliminado")
+                messagebox.showinfo("Éxito", "Tema eliminado correctamente")
+                
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo eliminar el tema: {str(e)}")
+                
+    def validate_json(self):
+        """Valida que el contenido del editor sea JSON válido"""
+        try:
+            content = self.json_editor.get(1.0, tk.END).strip()
+            json.loads(content)
+            messagebox.showinfo("Validación", "✓ JSON válido")
+            self.status_label.configure(text="JSON válido ✓", text_color="green")
+            
+        except json.JSONDecodeError as e:
+            messagebox.showerror("Error de Validación", f"✗ JSON inválido:\n{str(e)}")
+            self.status_label.configure(text="JSON inválido ✗", text_color="red")
+```
+
+### **Paso 2: Integrar con el menú "Ver"**
+
+Modifica el archivo principal (probablemente `gui_app.py` o `main.py`) para agregar la opción al menú:
+
+```python
+# En la clase principal de la aplicación
+
+def create_menu(self):
+    """Crea la barra de menú"""
+    menubar = tk.Menu(self)
+    self.config(menu=menubar)
+    
+    # Menú Ver
+    ver_menu = tk.Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Ver", menu=ver_menu)
+    
+    # Opciones del menú Ver
+    ver_menu.add_command(
+        label="🎨 Gestor de Temas JSON",
+        command=self.open_json_theme_manager
+    )
+    ver_menu.add_separator()
+    ver_menu.add_command(label="📊 Dashboard", command=self.open_dashboard)
+    ver_menu.add_command(label="📈 Estadísticas", command=self.open_statistics)
+    
+def open_json_theme_manager(self):
+    """Abre el gestor de temas JSON"""
+    try:
+        from app.ui.dialogs.json_theme_manager import JSONThemeManager
+        theme_manager = JSONThemeManager(self)
+        theme_manager.focus_force()
+        
+    except Exception as e:
+        messagebox.showerror("Error", f"No se pudo abrir el gestor de temas: {str(e)}")
+```
+
+### **Paso 3: Crear temas de ejemplo**
+
+Crea el archivo `themes/default_theme.json`:
+
+```json
+{
+    "name": "Tema Por Defecto",
+    "type": "Configuración",
+    "version": "1.0",
+    "created": "2024",
+    "settings": {
+        "primary_color": "#1e90ff",
+        "secondary_color": "#2f4f4f",
+        "accent_color": "#ffa500",
+        "background_color": "#1e1e1e",
+        "text_color": "#d4d4d4",
+        "font_family": "Segoe UI",
+        "font_size": 12
+    },
+    "description": "Tema por defecto de KDP Master Suite",
+    "author": "KDP Master Team"
+}
+```
+
+### **Paso 4: Actualizar el mensaje "Próximamente"**
+
+Busca donde está el mensaje actual y reemplázalo:
+
+```python
+# ANTES (lo que tienes ahora):
+def on_json_manager_click(self):
+    messagebox.showinfo("Próximamente", "El gestor de temas JSON estará disponible en la próxima actualización")
+
+# DESPUÉS (lo que debes poner):
+def on_json_manager_click(self):
+    self.open_json_theme_manager()
+```
+
+---
+
+## CARACTERÍSTICAS IMPLEMENTADAS:
+
+✅ **Visualización de temas JSON**  
+✅ **Creación de nuevos temas**  
+✅ **Edición de contenido JSON con validación**  
+✅ **Carga y guardado de temas**  
+✅ **Exportación de temas**  
+✅ **Eliminación de temas**  
+✅ **Lista de temas disponibles con metadatos**  
+✅ **Validación sintáctica de JSON**  
+✅ **Acceso desde el menú "Ver"**  
+
+Ahora el gestor de temas JSON estará **siempre funcional** y accesible desde **Ver → Gestor de Temas JSON**.

@@ -1,0 +1,35 @@
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+1. **Panel de métricas de errores**: Dashboard en UI mostrando contador de errores por categoría (RateLimit, Network, Auth, Unavailable, etc.) con gráfico de tendencia
+
+2. **Exportación de errores**: Guardar historial de errores en DB para análisis (timestamp, url, tipo_error, retry_count)
+
+3. **Alertas configurables**: Notificación toast cuando se alcanza X errores consecutivos del mismo tipo
+
+4. **Backoff adaptativo**: Ajustar delay base dinámicamente según historial de rate limits del canal
+
+5. **Modo dry-run para errores**: Simular descarga sin usar yt-dlp para probar mapeo de errores
+
+6. **Notificaciones agrupadas**: Resumir errores en ventana de tiempo (ej: "12 videos omitidos: 3 sin subtítulos, 9 privados")
+
+7. **Filtro por tipo de error**: Configurar qué errores reintentar vs cuáles fallar immediately en settings
+
+8. **Estadísticas por canal**: Métricas de tasa de error por canal para identificar problemas recurrentes
+
+9. **Integración con logging existente**: Unificar logs con `_log_structured()` para eventos de error
+
+10. **Retry manual**: Botón en UI para reintentar descarga específica que falló por error recuperable
+
+---
+
+## ⚖️ PRIORIDADES SUGERIDAS
+
+| Pri | Mejora | Justificación |
+|-----|--------|----------------|
+| 🔴 Alta | Métricas de errores | Necesitas ver qué errores ocurren |
+| 🟡 Media | Exportación/Historial | Depuración post-hoc |
+| 🟢 Baja | Alertas configurables | Solo si hay volumen alto |
+
+---
+
+**¿Cuál de estas mejoras prioritizing?**

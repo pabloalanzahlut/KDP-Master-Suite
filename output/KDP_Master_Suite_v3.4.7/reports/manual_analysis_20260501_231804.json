@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-05-01T23:18:04.168139",
+  "manuals_analyzed": [
+    {
+      "file": "MANUAL_LEGALIDAD.md",
+      "status": "NOT_FOUND"
+    },
+    {
+      "file": "MANUAL de FÓRMULAS.MD",
+      "status": "NOT_FOUND"
+    },
+    {
+      "file": "MATRIZ_MAESTRA.md",
+      "status": "NOT_FOUND"
+    }
+  ],
+  "total_sections": 0,
+  "duplicate_sections": [],
+  "banal_sections": [],
+  "unique_sections_per_manual": {},
+  "summary": {
+    "total_manuals": 0,
+    "total_sections": 0,
+    "total_duplicates": 0,
+    "total_banal": 0,
+    "health_score": 0.0
+  }
+}

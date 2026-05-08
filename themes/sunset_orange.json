@@ -1,0 +1,18 @@
+{
+  "name": "Sunset Orange",
+  "base": "dark",
+  "colors": {
+    "accent": "#f97316",
+    "bg_secondary": "#7c2d12",
+    "bg_tertiary": "#9a3412",
+    "warning": "#fb923c",
+    "danger": "#f87171"
+  },
+  "fonts": {
+    "header": {
+      "family": "Segoe UI",
+      "size": 22,
+      "weight": "bold"
+    }
+  }
+}

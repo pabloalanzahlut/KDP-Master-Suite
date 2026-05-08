@@ -1,0 +1,68 @@
+## 🎯 PRÓXIMOS PASOS (Opcionales - Nivel Elite Corporate)
+
+Basándome en el contexto del proyecto y para llevar esta funcionalidad al siguiente nivel, aquí están las mejoras potenciales:
+
+---
+
+### **MEJORAS DE EXPERIENCIA (UX)**
+
+1. **Búsqueda dentro del manual**: Implementar búsqueda (`Ctrl+F`) para encontrar términos específicos dentro del archivo Markdown antes de abrirlo
+
+2. **Historial de apertura**: Guardar última posición/lección leída para resumes desde ahí la próxima vez
+
+3. **Modo offline cacheado**: Una vez descargado de GitHub, guardar en `APPDATA` para acceso offline sin reconexión
+
+4. **Exportar a PDF**: Añadir botón para convertir el manual a PDF renderizado con estilos corporativo
+
+---
+
+### **MEJORAS DE CONTENIDO**
+
+5. **Manual multipart**: Separar en múltiples archivos temáticos:
+   - `MANUAL_USUARIO.md` (básico)
+   - `MANUAL_AVANZADO.md` 
+   - `MANUAL_TROUBLESHOOTING.md`
+
+6. **Changelog integrado**: Incluir sección "Novedades en esta versión" que se muestra al actualizar
+
+7. **Tutoriales visuales embebidos**: Incluir enlaces a video-tutoriales en la descripción de cada sección
+
+---
+
+### **MEJORAS INTELIGENTES**
+
+8. **Ayuda contextual**: Comando/botón en cada pestaña que abre directamente la sección relevante del manual (ej: Desde "Descargas" → abre sección "Guía de Descargas")
+
+9. **AI Q&A dentro del manual**: Integrar con el servicio de IA del proyecto para responder preguntas del usuario sobre el manual
+
+10. **Feedback integrado**: "Was this helpful?" con opción de reportar error directamente a GitHub Issues
+
+---
+
+### **MEJORAS CORPORATIVAS**
+
+11. **Bookmarks personales**: Permitir marcar secciones favoritas
+
+12. **Notas personales**: Añadir notas inline que se guardan localmente
+
+13. **Comparte por email/PDF**: Botón para exportar sección específica o todo el manual
+
+14. **Permisos de lectura**: En entorno multiusuario, ability to lock manual editing
+
+---
+
+## 🤔 PREGUNTAS DE ACLARACIÓN
+
+Antes de priorizar, necesito tu feedback:
+
+1. **¿Cuáles prioritizeías?** (dime 3-5 que más te interesen)
+
+2. **¿Presupuesto tiempo?** (¿quieres agregar todo ahora o iterar en sprints?)
+
+3. **¿Recursos externos?** (para video-tutoriales, necesitas grabarlos/subirlos a YouTube/Vimeo)
+
+4. **¿Integración con telemetry?** (trackear qué secciones se leen más para mejorar el manual)
+
+---
+
+**Nota:** Estoy en modo planificación actualmente. ¿Confirmas cuándo proceder con implementación de las mejoras priorizadas?

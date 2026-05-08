@@ -1,0 +1,82 @@
+## 🎯 PRÓXIMOS PASOS (Opcionales) - CI/CD, ISO 25010 & Twelve-Factor App
+
+### 1️⃣ PIPELINE CI/CD AUTOMATIZADO
+
+| # | Funcionalidad | Descripción |
+|---|---------------|-------------|
+| 1.1 | **Test Runner Automatizado** | Script `run_tests.py` que ejecuta pytest sin intervención manual, genera `test_report.xml` y falla el build si coverage < 80% |
+| 1.2 | **Build Validator** | `validate_build.py` que verifica integridad del .exe, checksum MD5 antes/depués de build, y valida que data/ no esté corrupto |
+| 1.3 | **Version Tagging** | Auto-incremento de versión en `VERSION.txt` + tag en nombre del .exe (v2.5.4.20260413) |
+| 1.4 | **Release Notes Generator** | `generate_release.py` que parsea commits/fixes del Log Acumulativo y genera CHANGELOG.md automáticamente |
+| 1.5 | **Deployment Gate** | Script que verifica 5 cosas antes de decir "OK to Release": .exe existe, < 300MB, data/ legible, no hay errores en logs, theme JSON válido |
+
+---
+
+### 2️⃣ ISO/IEC 25010 - METRICAS DE CALIDAD
+
+| # | Funcionalidad | Descripción |
+|---|---------------|-------------|
+| 2.1 | **Performance Monitor** | Recolecta métricas en startup: tiempo de carga, memoria usada, CPU%. Guarda en `logs/performance.log` |
+| 2.2 | **Quality Dashboard** | UI simple (pestaña en Settings) que muestra: code coverage %, static analysis score, security scan status |
+| 2.3 | **Integrity Checker** | Validación de checksums de archivos críticos en cada inicio: gui_app.py, app/core/*.py, config.json. Alerta si modificado |
+| 2.4 | **Reliability Tracker** | Cuenta de crashes/errores por sesión. Si > 3 errores, sugiere "Run Diagnostics" |
+| 2.5 | **Security Audit Log** | Extiende `logs/audit.log` con: intentos de API key, cambios de config, accesos a KB. Formato JSON estructurado para SIEM |
+
+---
+
+### 3️⃣ TWELVE-FACTOR APP PLANNING
+
+| Factor | Implementación Propuesta |
+|--------|-------------------------|
+| **#3 Config** | Migrar settings.json a variables de entorno + .env file. `app/core/config.py` lee `os.getenv()` primero, fallback a defaults |
+| **#4 Backing Services** |抽象izar DB y API como attachments. Interfaz `BaseAdapter` para poder cambiar SQLite → PostgreSQL sin código legacy |
+| **#8 Concurrency** | workers.py que lanza procesos separados para: download, processing, monitor. No más bloqueos de UI |
+| **#9 Disposability** | Graceful shutdown: signal handler que flush logs, termina workers, hace backup antes de cerrar. No data loss en cierre forzado |
+| **#11 Logs** | `log_aggregator.py` que centraliza: stdout, archivo, ysyslog. Formato JSON estructurado para parsing externo |
+| **#12 Admin Tasks** | `admin_cli.py` con comandos: `python admin_cli.py migrate-db`, `python admin_cli.py rebuild-index`, `python admin_cli.py export-kb` |
+
+---
+
+### 4️⃣ GOVERNANCE & COMPLIANCE
+
+| # | Funcionalidad | Descripción |
+|---|---------------|-------------|
+| 4.1 | **Compliance Checker** | Valida que el proyecto cumple reglas en `.agent/rules/*.md`. Si detecta violación (ej: import no permitido), warn + log |
+| 4.2 | **Architecture Gate** | `arch_check.py` que verifica: no hay imports circulares, cada módulo tiene `__init__.py`, clases siguen SOLID |
+| 4.3 | **Documentation Enforcer** | Requiere docstring en toda función pública. Genera `API_DOCS.md` automáticamente desde docstrings |
+| 4.4 | **Dependency Auditor** | Revisa requirements.txt contra CVE database. Avisa si librería con vulnerabilidad conocida |
+
+---
+
+### 5️⃣ RELEASE ENGINEERING AVANZADO
+
+| # | Funcionalidad | Descripción |
+|---|---------------|-------------|
+| 5.1 | **Hotfix Pipeline** | Sistema de parches: `patch_v{version}.json` aplica changes sobre base sin re-build completo |
+| 5.2 | **Rollback Manager** | Backup automático de builds anteriores. `python rollback.py v2.5.3` restaura .exe + config anteriores |
+| 5.3 | **Smoke Test Suite** | `smoke_tests.py`: 10 verificaciones rápidas (app abre, themes cargan, data persiste, KB accesible) en < 30 segundos |
+| 5.4 | **Signed Releases** | GPG signature del .exe para verificar integridad post-build |
+| 5.5 | **Release Package** | Zip estructurado: `KDP_Master_v2.5.4.exe` + `README.txt` + `data/` (template vacío) + `changelog.txt` |
+
+---
+
+## 📊 ALINEACIÓN CON ESTÁNDARES
+
+| Estándar | Cobertura Actual | Gap a Cerrar |
+|----------|------------------|--------------|
+| **ISO 25010** | Funcionalidad, seguridad, reliability | Performance metrics, maintainability, portability |
+| **12-Factor** | Codebase, dependencies, build/release | Config, logs, concurrency, disposability |
+| **CI/CD** | Manual build (PyInstaller) | Automated tests, gates, validation |
+
+---
+
+## ❓ PREGUNTAS DE CLARIFICACIÓN
+
+1. ¿Prioridad alta para CI/CD o para ISO 25010?
+2. ¿Prefieres implementación gradual (una cosa a la vez) o todo junto?
+3. ¿El "admin_cli.py" debería ser CLI real o GUI tabs?
+4. ¿Necesitas integrar con algún sistema externo (GitHub Actions, Azure DevOps)?
+
+---
+
+**¿Procedo con implementación o profundizamos en algún área específica?**

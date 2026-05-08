@@ -1,0 +1,66 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar "Limpiar Caché" de un simple borrador de archivos temporales a un **Sistema de Optimización de Rendimiento y Liberación de Recursos** garantiza que la aplicación mantenga velocidad, estabilidad y eficiencia en el uso de disco, sin afectar las transcripciones de texto ya procesadas. La separación determinista (limpieza de archivos, optimización de DB, rotación de logs) y cognitiva (predicción de espacio, análisis de relevancia, optimización inteligente) cumple estándares de mantenimiento preventivo empresarial.
+
+📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista de Limpieza)**
+
+1. **Limpiador de Caché yt-dlp** — Ejecuta `yt-dlp --rm-cache-dir` para eliminar caché de descargas. *Uso real:* Resolver errores HTTP 403 por cookies expiradas.
+2. **Detector y Eliminador de Archivos .part Huérfanos** — Escanea directorio de salida buscando `.part` sin proceso activo. *Uso real:* Liberar espacio de descargas interrumpidas.
+3. **Limpiador de Archivos Temporales de Transcripción** — Elimina `.tmp` en carpetas de procesamiento. *Uso real:* Liberar espacio de procesos incompletos.
+4. **Optimizador de Base de Datos SQLite (VACUUM)** — Ejecuta `VACUUM` en `kdp_master.db` y `knowledge_base.db`. *Uso real:* Reducir tamaño de DB tras eliminaciones masivas.
+5. **Reconstructor de Índices FTS5** — Reconstruye índices de búsqueda full-text. *Uso real:* Mejorar velocidad de búsqueda tras muchas inserciones.
+6. **Limpiador de Archivos de Sesión Obsoletos** — Elimina `session_state.json` antiguos (>7 días). *Uso real:* Liberar espacio de sesiones cerradas incorrectamente.
+7. **Rotador de Logs con Compresión** — Rota `app.log` y comprime versiones antiguas a `.gz`. *Uso real:* Mantener historial sin saturar disco.
+8. **Eliminador de Entradas de Caché Expiradas** — Limpia caché con TTL vencido (URLs, metadatos). *Uso real:* Evitar uso de datos obsoletos.
+9. **Limpiador de Caché de Miniaturas** — Elimina thumbnails cacheadas de canales. *Uso real:* Liberar espacio de imágenes temporales.
+10. **Limpiador de Caché de Respuestas API** — Limpia respuestas HTTP cacheadas. *Uso real:* Forzar refresco de datos de YouTube API.
+11. **Eliminador de Archivos Temp de Cola de Procesamiento** — Limpia `.queue.tmp` y estados intermedios. *Uso real:* Resolver bloqueos de cola.
+12. **Limpiador de Residuos de Descargas Fallidas** — Elimina archivos incompletos con marca de error. *Uso real:* Liberar espacio de intentos fallidos.
+13. **Eliminador de Backups Temporales** — Limpia `.backup.tmp` y versiones intermedias. *Uso real:* Liberar espacio de backups incompletos.
+14. **Limpiador de Caché del Dashboard Web** — Limpia cache del servidor Flask/dashboard. *Uso real:* Refrescar datos en interfaz web.
+15. **Limpiador de Caché de Modelos Ollama** — Ejecuta `ollama prune` para modelos no usados. *Uso real:* Liberar GB de modelos descargados.
+16. **Limpiador de Caché de Embeddings** — Elimina embeddings temporales de análisis. *Uso real:* Liberar espacio de análisis intermedios.
+17. **Limpiador de Caché de Metadatos de Búsqueda** — Limpia resultados de búsqueda cacheados. *Uso real:* Forzar búsqueda fresca en YouTube.
+18. **Limpiador de Caché del Monitor de Canales** — Limpia estado cacheado de canales. *Uso real:* Refrescar estado de canales monitoreados.
+19. **Optimizador de JSON de Video Tracker** — Compacta y valida `video_tracker.json`. *Uso real:* Reducir tamaño y corregir corrupción.
+20. **Invalidador de Caché de Configuración** — Fuerza recarga de `settings.json` desde disco. *Uso real:* Aplicar cambios de config sin reiniciar.
+21. **Limpiador de Caché de Temas UI** — Elimina temas cacheados personalizados. *Uso real:* Resolver problemas de renderizado de temas.
+22. **Limpiador de Caché de Plugins** — Limpia plugins cacheados o desactualizados. *Uso real:* Forzar recarga de plugins actualizados.
+23. **Eliminador de Temp de Exportación** — Limpia `.export.tmp` de exportaciones fallidas. *Uso real:* Liberar espacio de exportaciones interrumpidas.
+24. **Eliminador de Temp de Importación** — Limpia `.import.tmp` de importaciones fallidas. *Uso real:* Liberar espacio de imports incompletos.
+25. **Limpiador de Caché de Exportación CSV** — Limpia CSVs temporales de reportes. *Uso real:* Liberar espacio de reportes intermedios.
+26. **Limpiador de Temp de Generación PDF** — Elimina `.pdf.tmp` de generación fallida. *Uso real:* Liberar espacio de PDFs incompletos.
+27. **Limpiador de Caché de Exportación HTML** — Limpia HTMLs temporales. *Uso real:* Liberar espacio de exportaciones web intermedias.
+28. **Limpiador de Caché de Índice de Base de Conocimiento** — Limpia índices KB cacheados. *Uso real:* Forzar reindexación completa.
+29. **Limpiador de Temp de Fusión de Manuales** — Elimina `.merge.tmp` de fusiones fallidas. *Uso real:* Liberar espacio de merges incompletos.
+30. **Limpiador de Caché de Detección de Duplicados** — Limpia hashes de duplicados cacheados. *Uso real:* Forzar nueva detección de duplicados.
+31. **Refrescador de Caché de Blacklist** — Recarga blacklist desde DB/archivo. *Uso real:* Aplicar cambios de blacklist sin reiniciar.
+32. **Refrescador de Caché de Lista de Canales** — Recarga canales desde SQLite. *Uso real:* Sincronizar UI con DB tras cambios externos.
+33. **Refrescador de Caché de Categorías** — Recarga categorías maestras. *Uso real:* Aplicar nuevas categorías sin reiniciar.
+34. **Refrescador de Caché de Tags** — Recarga tags desde DB. *Uso real:* Sincronizar tags disponibles.
+35. **Limpiador de Caché de Normalización de URLs** — Limpia URLs normalizadas cacheadas. *Uso real:* Forzar renormalización de URLs.
+36. **Limpiador de Caché DNS** — Ejecuta `ipconfig /flushdns` (Windows) o equivalente. *Uso real:* Resolver problemas de resolución DNS.
+37. **Limpiador de Caché de Certificados SSL** — Limpia certificados SSL cacheados. *Uso real:* Resolver errores de certificado expirado.
+38. **Limpiador de Caché de Cookies** — Elimina cookies de sesión cacheadas. *Uso real:* Forzar re-autenticación en fuentes protegidas.
+39. **Limpiador de Caché de Rate Limits** — Limpia contadores de rate limit. *Uso real:* Resetear límites tras espera.
+40. **Compactador de Logs de Error** — Compacta y archiva logs de error antiguos. *Uso real:* Liberar espacio manteniendo historial.
+41. **Rotador de Log de Auditoría** — Rota `audit.log` con timestamp. *Uso real:* Cumplir retención de auditoría sin saturar.
+42. **Limpiador de Cola de Notificaciones** — Limpia notificaciones leídas/expireadas. *Uso real:* Liberar espacio de notificaciones antiguas.
+43. **Limpiador de Caché de Tareas Programadas** — Limpia estado cacheado de scheduler. *Uso real:* Sincronizar scheduler con DB.
+44. **Limpiador de Caché de Widgets de Dashboard** — Limpia widgets cacheados. *Uso real:* Refrescar dashboard web.
+45. **Invalidador de Caché de API Keys** — Fuerza recarga de keys cifradas. *Uso real:* Aplicar nuevas keys sin reiniciar.
+46. **Limpiador de Caché de Claves de Encriptación** — Limpia keys temporales en RAM. *Uso real:* Mejorar seguridad limpiando memoria.
+47. **Limpiador de Caché de Tokens de Seguridad** — Invalida tokens de sesión expirados. *Uso real:* Mejorar seguridad de sesión.
+48. **Limpiador de Caché de Auditoría de Sesión** — Limpia logs de sesión antiguos. *Uso real:* Cumplir GDPR eliminando datos viejos.
+49. **Limpiador de Caché de Preferencias de Usuario** — Limpia preferencias cacheadas. *Uso real:* Aplicar cambios de preferencias.
+50. **Limpiador de Caché de Estado de UI** — Limpia estado de ventanas/cache UI. *Uso real:* Resolver problemas de renderizado.
+51. **Limpiador de Caché de Layout de Ventanas** — Limpia posiciones de ventanas cacheadas. *Uso real:* Resetear layout corrupto.
+52. **Limpiador de Caché de Fuentes Tipográficas** — Limpia fuentes cacheadas. *Uso real:* Resolver problemas de renderizado de texto.
+53. **Limpiador de Caché de Iconos** — Limpia iconos cacheados. *Uso real:* Refrescar iconos tras actualización.
+54. **Limpiador de Caché de Imágenes** — Limpia imágenes cacheadas en UI. *Uso real:* Liberar RAM de imágenes no usadas.
+55. **Limpiador de Caché de Preview de Videos** — Limpia previews de videos cacheados. *Uso real:* Liberar espacio de previews antiguos.
+56. **Limpiador de Caché de Preview de Audio** — Limpia waveforms cacheados. *Uso real:* Liberar espacio de análisis de audio.
+57. **Limpiador de Caché de Preview de Transcripción** — Limpia previews de texto cacheados. *Uso real:* Liberar espacio de previews antiguos.
+58. **Limpiador de Caché de Sugerencias de Búsqueda** — Limpia autocomplete cacheado. *Uso real:* Refrescar sugerencias de búsqueda.
+59. **Limpiador de Caché de Autocompletado** — Limpia historial de autocompletado. *Uso real:* Mejorar privacidad y rendimiento.
+60. **Limpiador de Caché de Archivos Recientes** — Limpia lista de recientes cacheada. *Uso real:* Mejorar privacidad y rendimiento.

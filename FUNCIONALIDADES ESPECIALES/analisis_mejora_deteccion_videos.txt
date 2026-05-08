@@ -1,0 +1,114 @@
+# ANÁLISIS DE IMPLEMENTACIÓN: US-001 Mejorar Detección de Nuevos Videos en Monitor
+
+La funcionalidad ha sido implementada correctamente. A continuación el análisis detallado:
+
+---
+
+## ✅ PUNTOS FUERTES (Mantenidos)
+
+| Punto | Por qué es correcto |
+|-------|---------------------|
+| **Profundidad de detección** | 50 videos por canal optimizado para cuota API (evita bloqueos) |
+| **Filtrado por fecha** | Ignora videos mayores a 7 días configurables (reduce ruido) |
+| **Caché inteligente** | Guarda video_ids por canal para detección rápida de cambios |
+| **Deduplicación post-descarga** | Calcula hash MD5 después de obtener transcripción (flujo correcto) |
+| **Detección de reposts** | Compara títulos con 85% similitud en mismo canal |
+| **Prioridad de canales** | Campo priority (1-5) permite ordenamiento en verificaciones |
+| **Migración automática** | ALTER TABLE automático si columnas no existen |
+| **Backward compatibility** | Mantiene misma firma de métodos, no rompe código existente |
+
+---
+
+## ⚠️ LIMITACIONES ACTUALES (Por entorno)
+
+### 1. **Filtrado por fecha puede perder videos históricos**
+**Problema**: Si `max_age_days` es muy bajo, videos de hace más de 7 días nunca se detectan.
+
+**Estado actual**:
+- Por defecto: 7 días
+- Configurable: Sí (método `set_detection_config()`)
+
+**Solución**: El usuario puede ajustar `max_age_days` según necesidad
+
+### 2. **Detección de reposts por título puede tener falsos positivos**
+**Problema**: Títulos similares no siempre son reposts (pueden ser serieslegítimas).
+
+**Estado actual**:
+- Similitud threshold: 85%
+- Método: Comparación de palabras (Jaccard)
+
+**Solución**: Se marca como "posible repost" pero se procesa igual
+
+---
+
+## 📋 ARCHIVOS MODIFICADOS
+
+| Archivo | Acción | Descripción |
+|---------|--------|-------------|
+| `app/services/monitor_service.py` | Modificado | max_results_per_check=50, max_age_days=7, filtrado fecha, detección reposts, caché video_ids |
+| `app/database/db_manager.py` | Modificado | Campos priority, content_hash, is_repost en tablas + métodos deduplicación + migración automática |
+
+---
+
+## 📁 NUEVOS MÉTODOS Y CAMPOS
+
+### Base de Datos (db_manager.py)
+
+**Tabla channels** - Nuevos campos:
+```sql
+priority INTEGER DEFAULT 3  -- 1=baja, 5=alta prioridad
+```
+
+**Tabla videos** - Nuevos campos:
+```sql
+content_hash TEXT          -- MD5 del contenido limpio
+is_repost BOOLEAN DEFAULT 0  -- Marcador de posible repost
+```
+
+**Nuevos métodos**:
+- `update_channel(channel_id, priority=N)` - Actualizar prioridad
+- `get_all_channels(active_only, priority_filter)` - Filtro por prioridad
+- `get_priority_channels()` - Canales ordenados por prioridad
+- `update_video_content_hash(video_id, content_hash)` - Guardar hash post-descarga
+- `check_content_hash_exists(content_hash)` - Verificar duplicado
+- `check_title_similarity(channel_id, title, threshold)` - Detectar reposts
+- `mark_as_repost(video_id)` - Marcar video como repost
+
+### Monitor Service (monitor_service.py)
+
+**Nuevas propiedades**:
+```python
+self.max_results_per_check = 50   # Videos por canal
+self.max_age_days = 7              # Ignorar mayores a 7 días
+self.enable_video_cache = True    # Caché de video_ids
+self.video_cache = {}             # {channel_id: set(video_ids)}
+```
+
+**Nuevos métodos**:
+- `set_detection_config(max_results, max_age_days)` - Configuración dinámica
+
+---
+
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+1. **Intervalo adaptativo por prioridad**: Canales priority=5 escanean cada 2h, priority=1 cada 24h
+2. **Excluir Shorts**: Filtrar videos con duration < 60 segundos
+3. **Histórico de cambios**: Guardar cambios de título de videos para auditoría
+4. **WebSocket**: Notificacionespush en lugar de polling
+
+---
+
+## ✅ VEREDICTO
+
+| Métrica | Estado |
+|---------|--------|
+| Profundidad de detección | ✅ 50 videos por canal |
+| Filtrado por fecha | ✅ Configurable (7 días default) |
+| Caché inteligente | ✅ Video_ids por canal |
+| Deduplicación por contenido | ✅ Post-descarga con MD5 |
+| Detección de reposts | ✅ 85% similitud de título |
+| Prioridad de canales | ✅ Campo priority 1-5 |
+| Migración automática | ✅ ALTER TABLE si no existe |
+| Backward compatibility | ✅ Métodos existentes intactos |
+
+**La funcionalidad US-001 está operativa.** El monitor ahora detecta videos de forma más inteligente, eficiente y con deduplicación de contenido.

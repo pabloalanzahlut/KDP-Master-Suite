@@ -1,0 +1,153 @@
+## 🧠 **LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Estrategia)**
+
+### **Pilar 1: Análisis Semántico y Clasificación Inteligente (1-12)**
+
+1. **Clasificador Automático de Categoría KDP por IA** — IA analiza descripción del canal activo y asigna a 1 de 18 categorías. *Caso de uso real:* Usuario añade canal "KDP Ads Mastery" y la IA automáticamente lo clasifica como "Amazon Ads y Marketing" sin intervención manual.
+
+2. **Detector de Nicho Específico por IA** — IA identifica sub-nicho dentro de categoría (ej. "Low-Content" → "Coloring Books"). *Caso de uso:* Canal activo sobre "journaling" es clasificado automáticamente como "Low-Content > Journals".
+
+3. **Analista de Calidad de Contenido por IA** — IA evalúa si canal activo es educativo, promocional o spam sobre KDP. *Caso de uso:* IA detecta que Canal X activo es 80% promocional ("compra mi curso KDP") y sugiere reducir prioridad.
+
+4. **Extractor de Temas Principales por IA** — IA identifica los 5 temas más mencionados en videos de canal activo. *Caso de uso:* Usuario ve que Canal Y activo habla 60% de "keywords research" y 30% de "Amazon Ads", confirmando su enfoque KDP.
+
+5. **Detectivo de Competencia por IA** — IA analiza si canal activo menciona frecuentemente competidores de KDP. *Caso de uso:* IA alerta "Este canal activo menciona 'competencia' 15 veces en últimos 10 videos - revisar neutralidad".
+
+6. **Clasificador de Nivel de Experto por IA** — IA determina si contenido de canal activo es básico, intermedio o avanzado sobre KDP. *Caso de uso:* Usuario filtra solo canales activos "Avanzado" para contenido de alto nivel sobre Amazon KDP.
+
+7. **Analista de Actualidad por IA** — IA detecta si contenido de canal activo está actualizado o es obsoleto sobre KDP. *Caso de uso:* IA alerta "Canal Z activo solo menciona TOS 2022 - contenido posiblemente obsoleto sobre Amazon KDP".
+
+8. **Detector de Formato Pedagógico por IA** — IA identifica si canal activo es tutorial, caso de estudio, teoría, entrevista sobre KDP. *Caso de uso:* Usuario busca solo "casos de estudio" y la IA filtra automáticamente canales activos.
+
+9. **Analista de Profundidad Técnica por IA** — IA evalúa si contenido de canal activo es superficial o profundo sobre KDP. *Caso de uso:* IA score 8/10 en profundidad → canal activo confiable para KB de Amazon KDP.
+
+10. **Extractor de Herramientas Mencionadas por IA** — IA lista software/herramientas que canal activo recomienda para KDP. *Caso de uso:* Usuario ve que 5 canales activos mencionan "Helium 10" → herramienta validada por comunidad KDP.
+
+11. **Detectivo de Sesgo por IA** — IA analiza si contenido de canal activo es objetivo o tiene sesgo comercial sobre KDP. *Caso de uso:* IA detecta 70% opinión personal vs 30% datos → canal activo menos confiable para KB.
+
+12. **Clasificador de Tipo de Audiencia por IA** — IA determina si canal activo es para principiantes, expertos, emprendedores de KDP. *Caso de uso:* Usuario segmenta KB por nivel de audiencia automáticamente desde canales activos.
+
+### **Pilar 2: Scoring Predictivo y Valor Estratégico (13-24)**
+
+13. **Score de Valor para KDP por IA** — IA puntúa 1-10 alineación de canal activo con objetivos KDP. *Caso de uso:* Canal activo sobre "marketing general" score 4/10 vs canal "KDP Ads" score 9/10.
+
+14. **Predictor de Utilidad Futura por IA** — IA estima cuánto valor aportará canal activo en próximos 6 meses sobre KDP. *Caso de uso:* IA predice Canal X activo mantendrá alta calidad → mantener prioridad alta en portfolio.
+
+15. **Score de Originalidad por IA** — IA evalúa si contenido de canal activo es único o repetitivo sobre KDP. *Caso de uso:* Canal Y activo repite 80% de otros canales → sugerir eliminación del portfolio.
+
+16. **Predictor de Tendencia por IA** — IA detecta si canal activo está ganando o perdiendo relevancia sobre KDP. *Caso de uso:* IA alerta "Canal Z activo creciendo 40% mensual → aumentar prioridad en monitoreo".
+
+17. **Score de Confianza por IA** — IA calcula confiabilidad de canal activo basada en precisión histórica sobre KDP. *Caso de uso:* Canal activo con 95% información verificada sobre Amazon KDP → score alto.
+
+18. **Predictor de Obsolescencia por IA** — IA estima cuándo contenido de canal activo quedará obsoleto sobre KDP. *Caso de uso:* "Contenido sobre TOS de canal activo caducará en 6 meses → programar revisión".
+
+19. **Score de Completitud por IA** — IA evalúa si canal activo cubre tema de KDP exhaustivamente. *Caso de uso:* Canal activo sobre "Legalidad KDP" cubre solo 40% → buscar fuentes complementarias activas.
+
+20. **Predictor de Engagement Futuro por IA** — IA proyecta views/likes de canal activo basándose en tendencias sobre KDP. *Caso de uso:* Identificar canales activos que crecerán vs declinarán en comunidad KDP.
+
+21. **Score de Diversidad por IA** — IA evalúa si canal activo aporta perspectivas únicas sobre KDP. *Caso de uso:* Canal activo con enfoque único → alta prioridad vs canales genéricos sobre Amazon KDP.
+
+22. **Predictor de Frecuencia Óptima por IA** — IA sugiere intervalo de escaneo ideal para canal activo sobre KDP. *Caso de uso:* "Canal activo publica cada martes 10am → escanear lunes 12pm y miércoles 8am".
+
+23. **Score de Autoridad por IA** — IA calcula autoridad de canal activo basada en menciones, citations, engagement sobre KDP. *Caso de uso:* Canal activo con alta autoridad → fuente primaria para KB de Amazon KDP.
+
+24. **Predictor de Riesgo por IA** — IA evalúa probabilidad de que canal activo sea eliminado/baneado de YouTube. *Caso de uso:* Canal activo con contenido borderline sobre KDP → backup inmediato de transcripciones.
+
+### **Pilar 3: Recomendaciones Inteligentes y Automatización (25-36)**
+
+25. **Recomendador de Canales Similares por IA** — IA sugiere canales complementarios basándose en contenido de activos sobre KDP. *Caso de uso:* "Tienes 3 canales activos sobre Ads → te recomendamos estos 2 sobre SEO para KDP".
+
+26. **Optimizador de Portfolio por IA** — IA sugiere qué canales activos eliminar/añadir para maximizar cobertura KDP. *Caso de uso:* "Elimina Canal X activo (duplicado) y añade Canal Y (cubre gap en Legalidad KDP)".
+
+27. **Recomendador de Filtros por IA** — IA sugiere keywords a filtrar basándose en contenido de canal activo sobre KDP. *Caso de uso:* "Canal activo menciona mucho 'patrocinado' → añadir a blacklist anti-spam".
+
+28. **Optimizador de Prioridades por IA** — IA reordena prioridades de canales activos basándose en valor real sobre KDP. *Caso de uso:* "Canal A activo tiene prioridad Baja pero aporta 40% del contenido → subir a Alta".
+
+29. **Recomendador de Intervalos por IA** — IA ajusta intervalos de escaneo automáticamente para canales activos sobre KDP. *Caso de uso:* "Canal activo publica diario → cambiar intervalo de 1440 a 60 minutos automáticamente".
+
+30. **Detectivo de Gaps Temáticos por IA** — IA identifica categorías KDP sin canales activos cubriendo. *Caso de uso:* "No tienes canales activos sobre 'Internacionalización KDP' → buscar fuentes activas".
+
+31. **Recomendador de Configuración por IA** — IA sugiere configuración óptima por canal activo sobre KDP. *Caso de uso:* "Canal X activo: intervalo 120min, filtros: ['patrocinado', 'curso'], prioridad: Alta".
+
+32. **Optimizador de Recursos por IA** — IA sugiere desactivar canales activos de bajo valor para ahorrar API calls. *Caso de uso:* "Desactiva 3 canales activos con score <3 → ahorras 40% de llamadas API de YouTube".
+
+33. **Recomendador de Backup por IA** — IA identifica canales activos críticos que requieren backup inmediato sobre KDP. *Caso de uso:* "Canal Y activo puede ser eliminado → descargar transcripciones ahora antes de perderlas".
+
+34. **Detectivo de Redundancia por IA** — IA detecta canales activos que repiten mismo contenido sobre KDP. *Caso de uso:* "Canales A, B, C activos son 85% similares → mantener solo A y eliminar B, C".
+
+35. **Recomendador de Expansión por IA** — IA sugiere nuevas categorías a cubrir basándose en tendencias de KDP. *Caso de uso:* "Tendencia emergente: 'KDP + IA' → buscar canales activos sobre esto urgentemente".
+
+36. **Optimizador de Filtros Globales por IA** — IA sugiere blacklist global basada en análisis de todos los canales activos sobre KDP. *Caso de uso:* "5 canales activos mencionan 'compra mi curso' → añadir a blacklist global anti-spam".
+
+### **Pilar 4: Análisis Predictivo y Tendencias (37-48)**
+
+37. **Predictor de Tendencias Temáticas por IA** — IA detecta temas emergentes en portfolio de activos sobre KDP. *Caso de uso:* "Menciones de 'Amazon Ads AI' subieron 300% en canales activos → tema emergente prioritario".
+
+38. **Analista de Evolución de Contenido por IA** — IA compara contenido actual vs histórico de canal activo sobre KDP. *Caso de uso:* "Canal X activo pasó de 'tutoriales' a 'promoción' → revisar prioridad en portfolio".
+
+39. **Predictor de Saturación por IA** — IA alerta cuando demasiados canales activos cubren mismo tema sobre KDP. *Caso de uso:* "10 canales activos sobre 'keywords KDP' → redundancia alta, optimizar portfolio".
+
+40. **Detectivo de Cambios de Estrategia por IA** — IA detecta cuando canal activo cambia enfoque sobre KDP. *Caso de uso:* "Canal Y activo pasó de KDP a Shopify → desactivar o re-categorizar urgentemente".
+
+41. **Predictor de Calidad Futura por IA** — IA proyecta si calidad de canal activo mejorará/empeorará sobre KDP. *Caso de uso:* "Tendencia negativa en engagement de canal activo → calidad bajará, considerar eliminación".
+
+42. **Analista de Estacionalidad por IA** — IA detecta patrones estacionales de publicación en canales activos sobre KDP. *Caso de uso:* "Canal activo publica más en Q4 → ajustar intervalos de escaneo en noviembre-diciembre".
+
+43. **Predictor de Viralidad por IA** — IA identifica videos de canales activos con potencial viral antes de que exploten sobre KDP. *Caso de uso:* "Video sobre 'cambio TOS 2026' en canal activo tiene alta probabilidad viral → priorizar descarga".
+
+44. **Detectivo de Manipulación por IA** — IA detecta si canal activo usa tácticas engañosas (clickbait, etc.) sobre KDP. *Caso de uso:* "Canal Z activo usa 80% clickbait → reducir confiabilidad en portfolio KDP".
+
+45. **Predictor de Longevidad por IA** — IA estima cuánto tiempo seguirá activo el canal sobre KDP. *Caso de uso:* "Canal inactivo 60 días → 80% probabilidad de abandono, hacer backup de transcripciones".
+
+46. **Analista de Impacto en KB por IA** — IA calcula cuánto aportará cada canal activo a la Base de Conocimiento KDP. *Caso de uso:* "Canal A activo aportará 200 entradas únicas sobre Amazon KDP → alta prioridad de monitoreo".
+
+47. **Predictor de Conflictos por IA** — IA detecta si canales activos se contradicen entre sí sobre KDP. *Caso de uso:* "Canal X activo dice 'usa A' y Canal Y activo dice 'usa B' → marcar para revisión manual".
+
+48. **Detectivo de Innovación por IA** — IA identifica canales activos que introducen conceptos nuevos sobre KDP. *Caso de uso:* "Canal Z activo menciona estrategia no documentada → fuente de innovación prioritaria para KB".
+
+### **Pilar 5: Inteligencia Estratégica y Reportes Cognitivos (49-60)**
+
+49. **Reporte Ejecutivo Inteligente por IA** — IA genera resumen narrativo del estado de canales activos sobre KDP. *Caso de uso:* "Tienes 12 canales activos, 85% cobertura KDP, tendencia positiva en calidad de contenido".
+
+50. **Analista de ROI del Portfolio por IA** — IA calcula valor aportado vs recursos consumidos por canales activos sobre KDP. *Caso de uso:* "Canales activos aportan 450 videos/mes consumiendo 30% de API → ROI alto, mantener portfolio".
+
+51. **Recomendador de Estrategia por IA** — IA sugiere estrategia de crecimiento del portfolio de activos sobre KDP. *Caso de uso:* "Añade 2 canales activos sobre 'Internacionalización' y elimina 3 redundantes para optimizar".
+
+52. **Detectivo de Oportunidades por IA** — IA identifica gaps de conocimiento no cubiertos por activos sobre KDP. *Caso de uso:* "Nadie cubre 'KDP + TikTok' en canales activos → oportunidad de nicho, buscar fuentes".
+
+53. **Analista de Competencia del Portfolio por IA** — IA compara tu portfolio de activos vs benchmarks industry de KDP. *Caso de uso:* "Promedio industry: 15 canales activos, tú tienes 12 → añadir 3 para ser competitivo".
+
+54. **Predictor de Necesidades Futuras por IA** — IA proyecta qué tipos de canales activos necesitarás sobre KDP. *Caso de uso:* "En 6 meses necesitarás más canales activos sobre 'IA + KDP' → comenzar búsqueda ahora".
+
+55. **Reporte de Salud Integral por IA** — IA genera score 0-100 del portfolio de activos sobre KDP. *Caso de uso:* "Score 78/100: bueno pero mejorar cobertura en Legalidad KDP con más canales activos".
+
+56. **Recomendador de Diversificación por IA** — IA sugiere cómo diversificar fuentes de canales activos sobre KDP. *Caso de uso:* "80% de tus canales activos son de un solo nicho → diversificar para reducir riesgo".
+
+57. **Analista de Riesgo del Portfolio por IA** — IA evalúa riesgos sistémicos del portfolio de activos sobre KDP. *Caso de uso:* "Si YouTube elimina Canal X activo, pierdes 40% de contenido → buscar alternativas urgentemente".
+
+58. **Predictor de Escalabilidad por IA** — IA determina si portfolio de activos puede escalar sin problemas sobre KDP. *Caso de uso:* "Con 20 canales activos actuales, API limitará en 3 meses → optimizar intervalos o añadir más recursos".
+
+59. **Reporte de Innovación por IA** — IA identifica conceptos/estrategias nuevas detectadas en activos sobre KDP. *Caso de uso:* "Este mes detectamos 5 estrategias nuevas no documentadas en canales activos → añadir a KB prioritario".
+
+60. **Plan de Acción Inteligente por IA** — IA genera checklist de acciones prioritarias para portfolio de activos sobre KDP. *Caso de uso:* "1) Eliminar Canal X activo, 2) Añadir Canal Y, 3) Ajustar intervalos de 5 canales, 4) Configurar filtros anti-spam".
+
+---
+
+🔍 **¿CON ESTO COMPLETO 100% USO PERSONAL A NIVEL ELITE CORPORATE?**
+
+**SÍ.** Esta arquitectura de **120 módulos especializados (60+60)** transforma el "Visor Activos" de un simple contador a un **Centro de Inteligencia de Monitoreo Activo de Canales KDP**, garantizando:
+
+✅ **Monitoreo Determinista:** Métricas en tiempo real, filtros avanzados, alertas proactivas, exportación multi-formato para canales activos sobre Amazon KDP.
+
+✅ **Cognición Predictiva:** Clasificación automática por IA con Ollama, scoring de valor, detección de tendencias, optimización de recursos de canales activos.
+
+✅ **Enfoque KDP Específico:** Las 18 categorías maestras, detección de nichos, análisis de competencia, cobertura temática orientada a Amazon KDP.
+
+✅ **Resolución de Problemas Reales:** Cada módulo resuelve un caso de uso cotidiano (ej. "detectar canales activos inactivos", "optimizar API calls", "identificar gaps temáticos en KDP").
+
+✅ **TEXT-FIRST 100%:** Todo orientado a gestión de transcripciones de texto de canales activos, sin dependencia de video, enfocado en Amazon KDP.
+
+❓ **PARA MANTENER LA TRAYECTORIA ELITE Y EVITAR SOLAPAMIENTOS (Protocolo B):**
+
+¿Confirmas que ya tienes tu listado consolidado de **20 módulos SIN IA y 20 CON IA** para esta funcionalidad específica del **Visor Activos**, o deseas que active la expansión de **hardening crítico** (monitoreo distribuido de activos, auditoría de portfolios masivos, escalabilidad >100 canales activos) para blindarlo al 100% corporativo sin repetir nada?
+
+Responde **"HARDENING"** para agregar la capa extra de resiliencia, o **"LISTO"** para pasar a la siguiente funcionalidad. 🚀

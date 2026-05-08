@@ -1,0 +1,71 @@
+Basándome en mi análisis del proyecto, aquí está lo **ya implementado** vs las **próximas mejoras opcionales**:
+
+---
+
+## 📊 Estado Actual del Proyecto
+
+| Funcionalidad | Estado | Implementado en |
+|---------------|--------|-----------------|
+| Limpiar cache yt-dlp | ✅ Ya | `gui_app.py:5403` (`_auto_clean_cache`) |
+| Limpiar archivos .part | ✅ Ya | `gui_app.py:5491` (`_cleanup_orphan_parts`) |
+| Limpiar dist/garbage al iniciar | ✅ Ya | `gui_app.py:436` (`cleanup_dist_garbage`) |
+| Backup de emergencia | ✅ Ya | `gui_app.py:3666` (`panic_backup`) |
+| Restaurar desde backup | ✅ Ya | `gui_app.py:5359` (`restore_backup`) |
+| Restaurar cola de descargas | ✅ Ya | `gui_app.py:1310` (queue restoration) |
+| Build script .exe | ✅ Ya | `build_exe.py` (manual) |
+| AppState singleton | ✅ Ya | `app/core/app_state.py` |
+
+---
+
+## 🎯 PRÓXIMOS PASOS (Opcionales - NO repetidos)
+
+### 1. **Limpieza Programada de Cache**
+- Agregar scheduler para limpiar cache automáticamente cada N días
+- Limpiar `__pycache__`, `build/`, `.pytest_cache` de forma programada
+-_No existe_: solo se limpia al iniciar la app, no hay schedule
+
+### 2. **Botón de Clean Build en UI**
+- Agregar botón en Settings o Tools para ejecutar `build_exe.py` sin terminal
+- Mostrar progreso del build en progressbar
+- Feedback visual: "🔨 Construyendo ejecutable..."
+- _No existe_: requiere abrir terminal manual
+
+### 3. **Panel de Estado de Cache**
+- Mostrar tamaño de `__pycache__/`, `build/`, `dist/`
+- Última fecha de limpieza
+- Botón "Limpiar ahora" con confirmación
+- _No existe_: solo limpieza implícita
+
+### 4. **Versiones Incremental del .exe**
+- Auto-incrementar versión en `build_exe.py` tras cada build
+- Guardar changelog automático resumido
+- _No existe_: versión hardcodeada (2.4.4)
+
+### 5. **Export/Import de Estado Completo**
+- Exportar: favoritos + cola downloads + settings + channels
+- Importar en otra máquina o tras formato
+- _No existe_: solo backup de knowledge
+
+### 6. **Verificación Post-Build Automática**
+- Tras generar .exe nuevo, ejecutar tests de integridad
+- Verificar que `data/` carga correctamente
+- _No existe_: build manual sin validación
+
+### 7. **Widget de Salud del Sistema**
+- Dashboard tile: "Cache: X MB | .exe: v2.4.4 | Última limpieza: hace X horas"
+- Alertas visuales si cache > umbral
+- _No existe_: visibilidad cero
+
+---
+
+## 📌 Recomendación
+
+| Prioridad | Próximo Paso | Justificación |
+|----------|-------------|---------------|
+| 🔴 Alta | #2 Botón Clean Build en UI | Elimina dependencia de terminal |
+| 🟡 Media | #3 Panel de Cache | Visibilidad + control |
+| 🟢 Baja | #5 Export/Import State | Portabilidad total |
+
+---
+
+¿Querés que implemente alguno de estos? ¿O tienen otro en mente?

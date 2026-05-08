@@ -1,0 +1,39 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Para elevar la funcionalidad Buscar Actualizaciones al estándar Elite Corporate 100%, el plan se centra en la seguridad de la cadena de suministro, la automatización del ciclo de vida y la asistencia inteligente para la transición de versiones:
+
+Módulos de Gestión de Lanzamientos y Seguridad (SIN IA):
+
+Validación de Firmas Digitales (GPG/Code Signing): Verifica autenticidad del binario antes de ejecutarlo. Uso real: Bloquear actualizaciones manipuladas por ataques MITM en redes corporativas públicas.
+Soporte para Actualizaciones Delta (Binary Patching): Descarga solo bytes modificados vs. versión instalada. Uso real: Actualizar una suite de 800MB descargando solo 15MB de cambios en sedes con ancho de banda limitado.
+Gestor de Canales de Lanzamiento (Stable/Beta/Dev): Selector de ramas de desarrollo con aislamiento de entorno. Uso real: Probar la rama "Beta" en staging sin afectar la producción "Stable" del equipo principal.
+Rollback Atómico Automático: Detecta fallos al iniciar y revierte a versión anterior funcional. Uso real: Recuperar operación en <2 min tras un corte de energía durante extracción de archivos.
+Descargas Resumibles y Multi-hilo: Motor con reconexión automática y paralelismo TCP. Uso real: Completar descarga tras caída de ISP sin reiniciar desde cero ni duplicar tráfico.
+Actualizador de Dependencias Críticas Externas: Verifica y actualiza ffmpeg.exe / yt-dlp.exe en flujo unificado. Uso real: Sincronizar versiones de codecs automáticamente para evitar errores de compatibilidad en pipelines de transcripción.
+Instalación Silenciosa en Segundo Plano: Descarga y prepara sin interrumpir flujo de trabajo. Uso real: Preparar actualización durante horario laboral y solicitar reinicio solo al final del turno.
+Soporte para Proxies y Espejos (Mirrors): Ruteo corporativo y fallback a servidores internos. Uso real: Mantener capacidad de update durante outages regionales de GitHub/Cloud mediante espejos internos aprobados por IT.
+Visor de Changelog Enriquecido e Interactivo: Categorización visual de cambios con enlaces a documentación. Uso real: Identificar rápidamente si un patch es crítico de seguridad o cosmético antes de aprobar despliegue.
+Verificación de Requisitos de Sistema (Pre-flight): Chequeo de espacio, permisos y drivers antes de instalar. Uso real: Impedir instalación en servidores Windows Server 2019 sin soporte para nuevas dependencias de red.
+
+📦 LISTA 1: 20 MÓDULOS SIN IA (Infraestructura de Entrega, Seguridad & Cumplimiento)
+
+Verificador de Firmas Digitales PGP/GPG: Valida la firma criptográfica del paquete antes de descargarlo. Uso real: Bloquear actualizaciones manipuladas por ataques de intermediario en redes corporativas públicas.
+Gestor de Descarga Delta (Binary Diffing): Descarga solo los bytes modificados vs. la versión instalada. Uso real: Actualizar una suite de 800MB descargando únicamente 15MB de cambios, ahorrando ancho de banda en sedes remotas.
+Validador de Compatibilidad de Entorno Pre-Instalación: Verifica SO, runtime de Python, librerías críticas y espacio antes de aplicar. Uso real: Impedir que un update rompa la ejecución en servidores Windows Server 2019 sin soporte para nuevas dependencias.
+Sistema de Rollback Atómico Automatizado: Crea snapshot instantáneo de la instalación y restaura automáticamente si el update falla. Uso real: Recuperar la operación en <2 min tras un corte de energía durante la extracción de archivos.
+Enrutador de Descarga Multi-Mirror: Alterna entre GitHub, CDN corporativo y espejos internos ante caídas. Uso real: Mantener la capacidad de actualización durante outages regionales de proveedores de cloud.
+Control de Ventanas de Mantenimiento: Aplica updates solo en franjas horarias definidas por política IT. Uso real: Programar actualizaciones entre 02:00-04:00 AM para no interrumpir turnos de procesamiento nocturno.
+Auditor de Licencias y Compliance de Dependencias: Escanea nuevas librerías contra bases de datos de licencias comerciales/open-source. Uso real: Alertar antes de instalar si un nuevo módulo introduce licencia GPL incompatible con uso empresarial cerrado.
+Motor de Migración de Configuración Persistente: Transforma settings.json y .env a la nueva estructura de versión sin pérdida de datos. Uso real: Migrar automáticamente claves de API y rutas personalizadas sin requerir reconfiguración manual post-update.
+Validador de Integridad de Paquetes (SHA-256 + Merkle Tree): Verifica cada archivo extraído contra manifiesto criptográfico del release. Uso real: Detectar corrupción silenciosa en paquetes descargados y rechazarlos antes de sobreescribir binarios operativos.
+Sistema de Notificación Silenciosa (System Tray + Webhook): Informa sin interrumpir flujos de trabajo críticos. Uso real: Enviar update disponible al canal de Slack del equipo de infraestructura sin mostrar popups a usuarios operativos.
+Limitador de Consumo de Red (QoS Update Throttler): Aplica límites de ancho de banda para no saturar la red. Uso real: Descargar actualizaciones en segundo plano mientras se mantiene estable una videollamada con dirección ejecutiva.
+Detector de Conflictos de Archivos en Uso: Identifica procesos que bloquean archivos críticos y programa reinicio o aplica en caliente. Uso real: Evitar errores "Permission Denied" al actualizar DLLs o ejecutables que la app mantiene abiertos.
+Motor de Desinstalación Limpia de Versiones Obsoletas: Elimina rastros, logs y caché de versiones anteriores tras éxito. Uso real: Liberar 2.5GB de espacio acumulado por 4 versiones históricas tras confirmar estabilidad de la nueva.
+Generador de Reporte de Impacto del Update: Calcula cambios en API, estructura DB y rendimiento antes de aplicar. Uso real: Entregar al CTO un documento técnico de 1 página con métricas de cambio antes de aprobar despliegue masivo.
+Protocolo de Actualización Offline (USB/Network Share): Permite cargar paquetes firmados desde medios locales sin internet. Uso real: Actualizar estaciones en redes air-gapped o entornos industriales sin conectividad externa.
+Validador de Certificados SSL/TLS del Servidor de Releases: Rechaza conexiones a repositorios con certificados inválidos. Uso real: Prevenir phishing o redirecciones maliciosas a dominos falsos que imitan GitHub Releases.
+Sistema de Cuotas de Cambio por Usuario: Controla quién puede aplicar updates mediante tokens de elevación. Uso real: Permitir que solo el rol "SysAdmin" aplique actualizaciones, mientras "Analista" solo puede visualizar disponibilidad.
+Monitor de Salud Post-Update: Ejecuta tests de humo automáticos tras instalación y reporta estabilidad. Uso real: Verificar en 30 seg que la DB, la IA local y el pipeline de descarga operan correctamente tras el cambio de versión.
+Gestor de Canales de Liberación (Stable/Beta/Nightly): Permite suscribirse a diferentes ramas con aislamiento de entorno. Uso real: Probar la rama "Beta" en una máquina de staging sin afectar la producción "Stable" del equipo principal.
+Registro Inmutable de Historial de Actualizaciones: Ledger criptográfico de todas las actualizaciones aplicadas o revertidas. Uso real: Cumplir auditorías ISO 27001 demostrando trazabilidad exacta de cada cambio de versión en la infraestructura.

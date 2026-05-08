@@ -1,0 +1,36 @@
+## 📦 LISTA 1: 20 MÓDULOS SIN IA (Infraestructura Determinista Text-First)
+
+1. **Validador de Disponibilidad de CC/Subtítulos** — Verifica que el video tenga subtítulos disponibles antes de iniciar fetch; evita intentos fallidos en videos sin CC.
+2. **Fetcher Paralelo de `.vtt/.srt/.txt`** — Descarga múltiples formatos de subtítulos simultáneamente para fallback automático si uno falla.
+3. **Normalizador de Encoding On-The-Fly** — Convierte automáticamente a UTF-8 limpio eliminando BOM y caracteres corruptos para evitar errores de parsing.
+4. **Pre-verificador de Espacio para Texto** — Calcula KB estimados del texto extraído (no GB de video) y bloquea si hay riesgo de saturación de logs o DB.
+5. **Deduplicador por Hash de Contenido Textual** — Compara hash SHA-256 del texto extraído vs. KB existente, no solo por URL, para evitar redundancia semántica.
+6. **Persistencia Atómica de Transcripción** — Guarda `.txt` limpio inmediatamente tras extracción exitosa con transacción SQLite, antes de cualquier análisis.
+7. **Filtro de Calidad de Subtítulos** — Descarta auto-generated captions con <80% precisión, sin timestamps válidos o con densidad <50 palabras/min.
+8. **Rotador de Identidad de Requests** — Alterna User-Agent, headers y fingerprints para evitar rate-limiting en YouTube/CC servers sin proxies externos.
+9. **Validador de Integridad Post-Extracción** — Verifica que el texto extraído tenga >100 palabras, estructura de párrafos coherente y sin artefactos de parsing.
+10. **Registro de Auditoría de Extracción** — Log forense inmutable de: URL, idioma detectado, palabras extraídas, hash, timestamp y usuario para compliance.
+11. **Limiter de Requests por Dominio** — Controla frecuencia de peticiones a youtube.com/vimeo.com con backoff exponencial para evitar bloqueos por patrones.
+12. **Cache de Metadatos de Subtítulos** — Almacena respuesta de disponibilidad de CC por video_id por 24h para evitar re-fetch innecesario en colas masivas.
+13. **Fallback a OCR de Miniatura** — Extrae texto de frames clave vía OCR ligero si no hay subtítulos disponibles, con umbral de confianza >70%.
+14. **Compresor LZ4 para Logs de Transcripción** — Comprime texto histórico para ahorrar espacio en disco sin perder capacidad de búsqueda FTS5.
+15. **Validador de Estructura de Párrafos** — Asegura que el texto tenga saltos de línea lógicos y jerarquía para chunking óptimo en ventanas de contexto Ollama.
+16. **Detector de Idioma Automático** — Identifica idioma del texto extraído (fastText local) para enrutamiento a modelos Ollama correctos sin re-procesamiento.
+17. **Protocolo de Limpieza de Ruido** — Elimina timestamps, marcas de hablante, artefactos de auto-captions y texto promocional repetitivo pre-análisis.
+18. **Sistema de Reintentos con Backoff para CC** — Reintenta fetch de subtítulos con espera exponencial (1s, 2s, 4s, 8s) si falla por rate-limit o timeout.
+19. **Validador de Compatibilidad con FTS5** — Verifica que el texto cumpla requisitos de tokenización y longitud para indexación inmediata en SQLite FTS5.
+20. **Generador de Manifest de Extracción** — Crea JSON con metadatos técnicos: fuente, encoding, palabras, hash, idioma, calidad y timestamp para trazabilidad.
+
+---
+
+
+---
+
+## 🛡️ HARDENING CRÍTICO ADICIONAL (4 Módulos — Solo por Brechas Reales)
+
+41. **Adaptive Request Throttler con Fingerprint Rotation** — Evita bloqueos por patrones de requests detectables al extraer subtítulos masivamente; rota fingerprints cada N peticiones.
+42. **Immutable Extraction Ledger con Replicación Local** — Auditoría forense inmutable de cada extracción, replicada en 3 nodos locales para resistencia a manipulación o ransomware.
+43. **Queue Sharding por Dominio + Worker Pool Dinámico** — Escala horizontalmente extracciones agrupando por youtube.com, vimeo.com, etc., con auto-escalado de workers según carga de CPU/red.
+44. **RBAC Extraction Approval Workflow** — Flujo de aprobación multi-rol para extracciones masivas o de canales de alta prioridad, cumpliendo principio de segregación de duties en entornos corporativos.
+
+---

@@ -1,0 +1,33 @@
+## PRÓXIMOS PASOS (Opcionales)
+
+1. **Panel de configuración UI**: Crear pestaña/panel en Settings para configurar exportaciones (formato default, límite, split) sin editar JSON manualmente
+
+2. **Exportación programada**: Añadir scheduler de exportaciones automáticas (diarias/semanales) con historial
+
+3. **Historial de exportaciones**: Guardar últimas N exportaciones en DB (export_date, format, entries_count, file_path, size) para consulta y auditoría
+
+4. **Filtros pre-export**: Permitir exportar solo entradas de ciertas categorías o por fecha (última semana/mes)
+
+5. **Compresión de archivos**: Añadir opción ZIP para múltiples archivos HTML分裂ados
+
+6. **Exportación incremental**:Solo exportar entradas nuevas desde última exportación (avoid re-export todo)
+
+7. **Preview antes de export**: Mostrar preview de contenido con筛选antes de generar archivo
+
+8. **Plantillas de export**: Múltiples plantillas HTML (minimal, completo, solo índice) configurables
+
+9. **Automatización CLI**: Exponer función `export_kb()` para línea de comandos o scripts externos
+
+10. **Notificaciones de export**: Integrar con sistema existente para notificar cuando exportación completes o falle
+
+---
+
+| # | Característica | Prioridad |
+|---|---------------|----------|
+| 1 | Panel UI | Alta |
+| 2 | Historial | Alta |
+| 3 | Filtros pre-export | Media |
+| 4 | CLI | Media |
+| 5 | Programado | Baja |
+
+¿哪个 te interesa implementar primero?

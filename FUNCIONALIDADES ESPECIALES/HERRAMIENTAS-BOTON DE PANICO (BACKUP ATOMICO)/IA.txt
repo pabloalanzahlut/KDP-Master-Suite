@@ -1,0 +1,73 @@
+### 🧠 60 MÓDULOS CON IA (Ollama Local - Cognición TEXT-FIRST & Restauración)
+
+#### 🔹 Pilar 1: Validación Semántica y de Integridad Cognitiva (1-10)
+1. **Analista de Coherencia Semántica Post-Restauración:** Evalúa si los textos recuperados mantienen coherencia temática con la KB actual. *Uso real:* Detectar si manuales de "Amazon Ads 2023" mezclan estrategias obsoletas con vigentes tras el restore.
+2. **Detectivo de Lagunas de Conocimiento Tras Restore:** Identifica qué categorías KDP quedaron incompletas tras la restauración y sugiere补齐. *Uso real:* Alertar que "Fiscalidad Internacional" perdió 12 entradas clave y requiere re-ingesta selectiva.
+3. **Validador de Densidad Informativa Recuperada:** Compara la calidad/longitud de transcripciones restauradas vs. estándares históricos. *Uso real:* Descartar automáticamente `.txt` de <50 palabras que rompen métricas de calidad de la KB.
+4. **Clasificador de Relevancia por Nicho Restaurado:** Re-etiqueta automáticamente transcripciones recuperadas según evolución de la matriz KDP. *Uso real:* Mover textos de "Marketing Genérico" a "KDP Ads" basándose en contenido real, no en nombre de archivo.
+5. **Detectivo de Anacronismos en Textos Restaurados:** Alerta si manuales o transcripciones recuperadas contienen datos obsoletos (fechas, TOS antiguas). *Uso real:* Marcar automáticamente secciones que mencionan "KDP Select 2021" como "Histórico/No vigente".
+6. **Validador de Consistencia de Chunking IA:** Verifica que los segmentos de texto restaurados mantengan límites lógicos para ventanas de contexto Ollama. *Uso real:* Re-segmentar automáticamente párrafos cortados que generan respuestas fragmentadas en el modelo.
+7. **Detectivo de Duplicados Semánticos Post-Restore:** Compara textos recuperados con los existentes para fusionar o archivar redundancias conceptuales. *Uso real:* Unir 3 versiones de "Guía de Keywords" en una sola entrada maestra sin perder citas.
+8. **Validador de Tone y Estilo Corporativo:** Analiza si las transcripciones/manuales restaurados alinean con la voz institucional actual. *Uso real:* Alertar si textos recuperados usan lenguaje informal incompatible con manuales de "Legalidad y Compliance".
+9. **Detectivo de Corrupción Lingüística:** Identifica mojibakes, cortes abruptos o artefactos de OCR en textos recuperados. *Uso real:* Limpiar automáticamente símbolos `Ã±` o saltos de línea erróneos antes de re-indexar en FTS5.
+10. **Validador de Integridad de Metadatos FTS5:** Cruza índices SQLite con contenido textual restaurado para detectar desincronizaciones. *Uso real:* Reconstruir punteros de búsqueda si el restore sobrescribió `.txt` pero no actualizó la tabla `knowledge_entries`.
+
+#### 🔹 Pilar 2: Optimización y Enrutamiento Inteligente (11-20)
+11. **Optimizador de Ruta de Restauración por Tipo de Texto:** Decide automáticamente dónde colocar `.txt` crudos, `.vtt` limpios o manuales consolidados. *Uso real:* Enviar subtítulos a `/raw/`, transcripciones limpias a `/processed/` y manuales a `/knowledge/`.
+12. **Asistente de Fusión Inteligente de KB:** Sugiere cómo integrar transcripciones restauradas con entradas existentes sin sobrescribir avances. *Uso real:* Fusionar "Capítulo 3 v1" con "Capítulo 3 v2" manteniendo ambas versiones como iteraciones trazables.
+13. **Clasificador de Prioridad de Restauración por Valor KDP:** Ordena la recuperación de archivos según su impacto en nichos rentables. *Uso real:* Restaurar primero "Amazon Ads" y "Fórmulas de Pricing" antes que "Notas Generales".
+14. **Enrutador de Textos por Idioma Detectado:** Clasifica automáticamente transcripciones recuperadas por idioma para pipelines Ollama específicos. *Uso real:* Enviar `.txt` en inglés a `llama3.1` y en español a `qwen2.5` sin configuración manual.
+15. **Optimizador de Compresión de Logs Post-Restore:** Sugiere comprimir o archivar logs históricos recuperados para liberar espacio. *Uso real:* Mover logs de ingesta >90 días a almacenamiento frío manteniendo accesibilidad bajo demanda.
+16. **Asistente de Reindexación FTS5 Guiada por IA:** Prioriza qué categorías indexar primero tras la restauración para recuperar búsqueda rápida. *Uso real:* Indexar "Legalidad" primero porque es la más consultada por el equipo de compliance.
+17. **Clasificador de Formato de Origen:** Detecta si el texto viene de `.vtt`, `.srt`, `.txt` o OCR y aplica limpieza específica. *Uso real:* Eliminar timestamps `[00:12:34]` solo en `.vtt` recuperados, preservando estructura en `.txt`.
+18. **Enrutador de Configs por Entorno:** Decide si `.env` o `settings.json` restaurados corresponden a dev, staging o prod. *Uso real:* Aplicar automáticamente claves de API de producción solo si el backup proviene de entorno `prod`.
+19. **Optimizador de Ventana de Restauración Cognitiva:** Sugiere horario para restaurar basándose en carga de Ollama y pipelines de texto. *Uso real:* Programar restore masivo a las 03:00 AM cuando Ollama está idle y no hay jobs de chunking activos.
+20. **Asistente de Particionamiento de Backups Masivos:** Divide restauraciones grandes en lotes temáticos para no saturar RAM/CPU. *Uso real:* Restaurar "Manuales" y "Transcripciones" en ventanas separadas para evitar OOM en equipos con 16GB RAM.
+
+#### 🔹 Pilar 3: Asistencia Predictiva y de Riesgo (21-30)
+21. **Predictor de Tiempo de Restauración por Volumen Textual:** Estima duración exacta basada en cantidad de palabras, no en MB. *Uso real:* "Restaurar 2.4M palabras tardará ~8 min. ¿Proceder antes del turno de análisis?".
+22. **Analista de Riesgo de Pérdida de Conocimiento:** Calcula qué porcentaje de KB se sobrescribirá y alerta antes de confirmar. *Uso real:* "Este restore sobrescribirá 34% de entradas indexadas hoy. ¿Crear snapshot preventivo?".
+23. **Detectivo de Dependencias Rota en Configs:** Identifica rutas o claves en `settings.json` restaurados que ya no existen. *Uso real:* Alertar que `OLLAMA_MODEL="mistral"` ya no está disponible y sugerir `qwen2.5:7b`.
+24. **Predictor de Impacto en Pipeline de Análisis:** Estima cómo la restauración afectará colas de chunking/Ollama activas. *Uso real:* "Restaurar ahora pausará 3 jobs de transcripción. ¿Esperar a que terminen?".
+25. **Analista de Estabilidad Post-Restore:** Monitorea errores de parsing/FTS5 tras la recuperación y predice fallos inminentes. *Uso real:* Detectar 5 `SQLite locking` consecutivos y sugerir `VACUUM` automático.
+26. **Detectivo de Sesgo en Datos Recuperados:** Alerta si la restauración introduce desbalance temático en la KB. *Uso real:* "80% del restore es 'Marketing'. ¿Diversificar hacia 'Legal' para mantener matriz equilibrada?".
+27. **Predictor de Necesidad de Re-entrenamiento Local:** Evalúa si textos restaurados requieren ajustar prompts o few-shot examples de Ollama. *Uso real:* Si se recuperan manuales de "Fiscalidad 2026", ajustar system prompt para incluir nuevas normativas.
+28. **Analista de Coste de Oportunidad de Restore:** Compara tiempo de restauración vs. reprocesamiento desde fuentes originales. *Uso real:* "Restaurar tardará 12 min. Re-descargar y limpiar desde YouTube tardaría 9 min. ¿Reprocesar?".
+29. **Detectivo de Configuraciones Obsoletas:** Identifica parámetros en configs recuperados que fueron depreciados en versiones recientes. *Uso real:* Alertar que `ENABLE_LEGACY_PARSER=true` ya no es compatible con v3.4+.
+30. **Predictor de Saturación de Índices SQLite:** Alerta si la KB restaurada excederá límites óptimos de FTS5 y sugiere particionamiento. *Uso real:* "La KB superará 500k entradas. ¿Activar particionamiento por categoría para mantener <50ms en búsquedas?".
+
+#### 🔹 Pilar 4: Adaptación Contextual y Migración (31-40)
+31. **Traductor de Esquemas Legacy a Estructura Actual:** Convierte formatos antiguos de transcripción/manuales a la estructura v3.4+. *Uso real:* Mapear `category_id=4` antiguo a `"Amazon Ads y Marketing"` en la nueva taxonomía.
+32. **Asistente de Migración de Categorías KDP:** Mapea etiquetas antiguas a las 18 categorías maestras actuales automáticamente. *Uso real:* Fusionar "SEO" y "Posicionamiento" en "Investigación de Nichos" sin perder trazabilidad.
+33. **Adaptador de Prompts Ollama a Contexto Restaurado:** Ajusta system prompts según el volumen/temática de la KB recuperada. *Uso real:* Si se restauran manuales legales, inyectar `tone=formal` y `focus=compliance` automáticamente.
+34. **Generador de Guías de Migración Personalizadas:** Crea pasos específicos basados en la config actual vs. la del backup. *Uso real:* "Tu backup usa `/data/old/`. El sistema actual usa `/knowledge/`. Se aplicará redirección automática.".
+35. **Traductor de Jerga Técnica a Lenguaje Ejecutivo:** Explica cambios de esquema o estructura en términos de negocio. *Uso real:* "Se migraron 1.2k entradas de 'Metadata' a 'FTS5'. Búsquedas ahora son 4x más rápidas.".
+36. **Asistente de Normalización de Rutas de Texto:** Corrige paths absolutos/relativos en configs recuperados para el SO actual. *Uso real:* Cambiar `C:\Users\Old\docs\` a `~/KDP_Master_Suite/knowledge/` automáticamente en Linux/macOS.
+37. **Adaptador de Filtros de Blacklist Históricos:** Fusiona listas negras antiguas con las actuales eliminando redundancias. *Uso real:* Unir `["suscríbete", "like"]` con `["campanita", "patrocinado"]` en una sola regla activa.
+38. **Generador de Changelog Narrativo de Restauración:** Redacta resumen ejecutivo de qué se recuperó, qué se migró y qué se descartó. *Uso real:* Entregar a dirección: "Se restauró KB completa. 98% íntegra. 2% obsoleto archivado.".
+39. **Asistente de Sincronización de Modelos Locales:** Verifica si los modelos Ollama referenciados en el backup están disponibles. *Uso real:* Si el backup pide `gemma:2b` y no está instalado, sugerir `pull` automático o fallback a `qwen2.5:7b`.
+40. **Adaptador de Permisos RBAC a Estructura Actual:** Mapea roles antiguos a la matriz de permisos corporativa vigente. *Uso real:* Convertir `admin_legacy` en `Compliance Officer` con permisos de solo lectura sobre "Fórmulas".
+
+#### 🔹 Pilar 5: Gobernanza, Compliance y Auditoría IA (41-50)
+41. **Generador de Reporte de Cumplimiento GDPR/LOPD Post-Restore:** Verifica que textos recuperados no contengan PII no consentida. *Uso real:* Escanear `.txt` restaurados en busca de emails/DNI y alertar para anonimización antes de indexar.
+42. **Detectivo de Violaciones de TOS KDP en Manuales:** Escanea contenido recuperado buscando términos prohibidos por Amazon. *Uso real:* Marcar automáticamente secciones que mencionen "reseñas incentivadas" o "keyword stuffing".
+43. **Generador de Certificado de Integridad Semántica:** Emite documento hash+resumen IA validando autenticidad del conocimiento restaurado. *Uso real:* Firma digital + resumen Ollama para auditorías de procedencia de contenido.
+44. **Detectivo de Acceso No Autorizado en Logs:** Analiza trazas de restauración para identificar anomalías o intentos de manipulación. *Uso real:* Alertar si un restore se ejecutó fuera de horario laboral o desde IP no corporativa.
+45. **Generador de Política de Retención Ajustada:** Recalcula ciclos de vida de backups basándose en valor actual de la KB. *Uso real:* Si "Legalidad" se consulta 5x más, extender retención de sus backups a 12 meses.
+46. **Detectivo de Inconsistencias en Auditoría Forense:** Cruza logs de restauración con hashes para detectar manipulación temporal. *Uso real:* Identificar si un admin borró entradas post-restore sin dejar traza en `audit.log`.
+47. **Generador de Resumen Ejecutivo para Compliance:** Traduce proceso técnico a lenguaje regulatorio para auditorías externas. *Uso real:* "Restauración validada bajo ISO 27001. Cero pérdida de PII. Trazabilidad completa.".
+48. **Detectivo de Configuraciones de Seguridad Débiles:** Alerta si configs recuperadas desactivan cifrado, logs o backups automáticos. *Uso real:* "El backup desactiva `ENABLE_AUDIT_LOGS`. ¿Reactivar antes de poner en producción?".
+49. **Generador de Matriz de Riesgos Post-Restauración:** Evalúa impacto operativo, legal y técnico de la recuperación aplicada. *Uso real:* Score 1-100: "Riesgo Bajo (12/100). Solo se afectaron manuales históricos. KB activa intacta.".
+50. **Detectivo de Sesgo en Procesos de Aprobación:** Analiza quién autorizó restores y si siguen patrones de segregación de duties. *Uso real:* Alertar si un mismo usuario solicita y aprueba restores críticos repetidamente.
+
+#### 🔹 Pilar 6: UX Cognitiva y Automatización (51-60)
+51. **Asistente Conversacional de Restauración Guiada:** Chat local que pregunta objetivos y ejecuta restore paso a paso. *Uso real:* "¿Deseas restaurar solo transcripciones de Q4 2024? [Sí/No]".
+52. **Generador de Simulacros de Recuperación Automatizados:** Crea entornos sandbox para probar restores sin afectar producción. *Uso real:* "Simulacro completado: 0 conflictos. KB lista para restore real.".
+53. **Asistente de Onboarding Post-Restauración:** Guía al usuario en validación de KB, búsqueda FTS5 y pipelines IA tras recuperar. *Uso real:* "Paso 1: Verifica búsqueda 'Amazon Ads'. Paso 2: Revisa chunking de manuales largos.".
+54. **Generador de Flashcards de Validación de Conocimiento:** Crea quizzes rápidos para verificar que la KB restaurada es utilizable. *Uso real:* "Pregunta: ¿Qué categoría cubre 'Keyword Research'? Respuesta: Investigación de Nichos.".
+55. **Asistente de Depuración de Errores de Parseo:** Si textos recuperados fallan al indexar, IA sugiere fixes de encoding/estructura. *Uso real:* "Error en `transcripcion_04.txt`. Detectado BOM corrupto. ¿Aplicar limpieza UTF-8?".
+56. **Generador de Dashboard de Salud Post-Restore:** Panel visual con métricas de coherencia, índices, pipelines y alertas IA. *Uso real:* Vista única: "FTS5: OK | Ollama: OK | Duplicados: 3 | Riesgo: Bajo".
+57. **Asistente de Optimización de Ventanas de Contexto:** Re-chunkea automáticamente textos largos restaurados para Ollama. *Uso real:* Dividir manual de 80k palabras en segmentos de 4k tokens con solapamiento semántico.
+58. **Generador de Notificaciones Contextuales Inteligentes:** Adapta alertas de restore según rol (técnico, legal, ejecutivo). *Uso real:* IT ve "SQLite WAL replay OK". Legal ve "PII scan passed. Compliance verified.".
+59. **Asistente de Recuperación Granular por Búsqueda Semántica:** Permite "restaurar solo transcripciones sobre Amazon Ads 2024". *Uso real:* Query natural → extrae solo entradas relevantes del backup sin restaurar todo el ZIP.
+60. **Generador de Plan de Contingencia Proactivo:** Basado en patrones de restore, sugiere automatizaciones para evitar futuras pérdidas. *Uso real:* "Se restaura 'Configuración' cada 14 días. ¿Activar backup automático diario de `settings.json`?".

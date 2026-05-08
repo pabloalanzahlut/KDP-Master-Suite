@@ -1,0 +1,16 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Para elevar la funcionalidad Configurar Filtros (Black List) al estándar Elite Corporate 100%, el plan se enfoca en la transición de un bloqueo estático de palabras a un sistema de seguridad de contenidos (Content Moderation) proactivo y multidimensional:
+
+Módulos de Gestión Técnica y Control (SIN IA):
+
+Motor de Expresiones Regulares (Regex) Avanzado: Implementar un validador de patrones complejos para bloquear variaciones de palabras, prefijos o sufijos específicos con un solo criterio.
+Jerarquía de Listas Negras por Categoría: Organización de filtros en grupos (ej. "Competencia", "Contenido Irrelevante", "Spam") con posibilidad de activar/desactivar grupos completos.
+Whitelist de Excepciones Prioritarias: Lista blanca que anula reglas de la blacklist para canales o términos específicos, evitando "falsos positivos" en nichos compartidos.
+Importación/Exportación de Repositorios Globales: Sincronización de listas negras mediante archivos CSV/JSON o suscripción a URLs de listas externas mantenidas por la comunidad.
+Filtros por Metadatos Técnicos: Bloqueo basado en parámetros no textuales (ej. canales con menos de X suscriptores, videos de menos de Y duración o calidad < 1080p).
+Herramienta de Testing de Filtros (Sandbox): Panel para ingresar una URL o título y verificar instantáneamente qué regla de la blacklist lo bloquearía antes de aplicarla al flujo real.
+Temporizador de Bloqueo (TTL Filters): Capacidad de asignar una fecha de expiración a un filtro (ej. "Bloquear tendencia temporal por 15 días").
+Auditoría de Impacto de Filtros: Log detallado que registre cuántas veces se ha activado cada regla, identificando cuáles son las más efectivas y cuáles son obsoletas.
+Protección de Configuración con Cifrado: Bloqueo del acceso al panel de filtros mediante contraseña o biometría para evitar manipulaciones en entornos corporativos.
+Normalización de Caracteres Unicode: Sistema que convierte automáticamente caracteres especiales o símbolos (ej. "v¡de0") a su forma base para que el filtro sea infalible ante intentos de evasión.

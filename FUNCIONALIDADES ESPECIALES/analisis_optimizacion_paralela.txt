@@ -1,0 +1,90 @@
+# ANÁLISIS DEL PLAN: **EXCELENTE - CON 2 AJUSTES CRÍTICOS**
+
+Tu plan es **técnicamente sólido** y sigue buenos principios de ingeniería. Solo necesita dos correcciones para evitar bugs sutiles:
+
+---
+
+## ✅ PUNTOS FUERTES (Mantener)
+
+| Punto | Por qué es correcto |
+|-------|---------------------|
+| **Análisis I/O vs CPU** | Identificar que lectura/escritura es I/O-bound es clave para elegir `ThreadPoolExecutor`. |
+| **Backward compatibility** | Mantener la misma firma de `process_files()` evita romper código que depende de él. |
+| **Chunking para callbacks** | Permitir progreso visual sin bloquear es esencial para UX. |
+
+---
+
+## ⚠️ AJUSTES CRÍTICOS (Obligatorios)
+
+### 1. **Deduplicación Thread-Safe**
+**Problema**: El hash MD5 global se verifica en un diccionario compartido. En paralelo, dos hilos pueden verificar el mismo hash al mismo tiempo → **duplicados procesados**.
+
+**Solución quirúrgica**:
+```python
+import threading
+
+# En __init__ de ProcessingService:
+self._hash_lock = threading.Lock()
+self._processed_hashes = set()
+
+# En process_single_file (dentro del lock):
+with self._hash_lock:
+    if file_hash in self._processed_hashes:
+        return {'status': 'duplicate', 'hash': file_hash}
+    self._processed_hashes.add(file_hash)
+```
+
+### 2. **Orden de Callbacks (Opcional pero recomendado)**
+**Problema**: Los callbacks pueden llegar en orden aleatorio, rompiendo la progresión visual ("Procesando 3/100" antes que "2/100").
+
+**Solución mínima**:
+```python
+# Usar queue para preservar orden de inicio (no de finalización)
+from queue import Queue
+
+# En lugar de llamar callback directamente:
+self.callback_queue.put({'index': file_index, 'result': result})
+
+# Hilo separado que consume la queue en orden:
+def _callback_dispatcher(self):
+    while True:
+        item = self.callback_queue.get()
+        if item is None: break  # Sentinel para terminar
+        self._original_callback(item['index'], item['result'])
+```
+
+---
+
+## 🎯 RECOMENDACIÓN FINAL
+
+**Usa `ThreadPoolExecutor`** (no ProcessPoolExecutor) porque:
+- Tu carga es **I/O-bound** (leer/escribir archivos), no CPU-heavy.
+- `ThreadPool` comparte memoria → más fácil para el lock de deduplicación.
+- Menor overhead que `ProcessPool` (sin pickle/unpickle de objetos).
+
+**Número de workers**: `min(32, os.cpu_count() * 4)` (recomendación oficial de Python para I/O).
+
+---
+
+## 📋 IMPLEMENTACIÓN MÍNIMA VIABLE
+
+Si quieres empezar con lo esencial, este es el cambio quirúrgico:
+
+```python
+# En process_files(), reemplazar el loop for:
+from concurrent.futures import ThreadPoolExecutor
+
+with ThreadPoolExecutor(max_workers=min(32, os.cpu_count() * 4)) as executor:
+    futures = [
+        executor.submit(self._process_single_file, file_path, file_index)
+        for file_index, file_path in enumerate(file_paths)
+    ]
+    
+    for future in as_completed(futures):
+        result = future.result()
+        # Callback aquí (sin orden garantizado)
+        if callback:
+            callback(result)
+```
+
+**¿Confirmas que proceda con esta implementación?** Si es así, te doy el código completo del método `process_files` refactorizado, con lock para deduplicación y compatibilidad total con tu código actual.

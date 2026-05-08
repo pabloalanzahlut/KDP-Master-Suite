@@ -1,0 +1,220 @@
+# ANÁLISIS DE IMPLEMENTACIÓN: US-010 Extracción de Metadata Enriquecida
+
+La funcionalidad ha sido implementada correctamente. A continuación el análisis detallado:
+
+---
+
+## ✅ PUNTOS FUERTES (Mantenidos)
+
+| Punto | Por qué es correcto |
+|-------|---------------------|
+| **Enfoque híbrido pasivo/activo** | Parser de JSON yt-dlp cubre 90%+ casos sin coste API |
+| **Diagnóstico de cobertura** | Script verifica qué campos están disponibles antes de procesar |
+| **Campos derivados calculados** | is_short, engagement_ratio, tags_count optimizan búsquedas |
+| **Keywords extraction** | Combina tags explícitos + análisis de descripción para cobertura máxima |
+| **YouTube API opcional** | Solo se activa si está configurada la key y mode != passive |
+| **Límite de cuota diario** | max_api_calls_per_day previene consumo excesivo de cuota API |
+| **Decisión de enriquecimiento** | Criterios configurables (tags faltantes, descripciones cortas, high value) |
+| **Migration DB retrocompatible** | ALTER TABLE con TRY/EXCEPT no rompe instalaciones existentes |
+| **Campos indexados** | Índices en duration, is_short, upload_date aceleran queries |
+| **Integración con Config** | Parámetros centralizados en app/core/config.py |
+
+---
+
+## ⚠️ LIMITACIONES ACTUALES (Por entorno)
+
+### 1. **Tags con cobertura 83.2%**
+**Problema**: No todos los videos tienen tags definidos por YouTube.
+
+**Estado actual**:
+- Cobertura: 2500/3004 archivos con tags
+- Causa: Creadores no siempre añaden tags manualmente
+
+**Solución**: El MetadataEnricher puede activar modo activo/híbrido para estos casos usando YouTube API
+
+### 2. **Descripción truncada a 2000 chars**
+**Problema**: Descripciones largas se cortan para evitar bloating en DB.
+
+**Estado actual**:
+- Campo `description`: 2000 chars max
+- Campo `description_full`:保留了 descripción completa en metadata_json
+
+**Solución**: Búsqueda en keywords compensa, acceso a metadata_json para texto completo
+
+### 3. **YouTube API requiere setup adicional**
+**Problema**: Para enriquecimiento activo se necesita Google Cloud Console + API key.
+
+**Estado actual**:
+- Modo default: `passive` (sin API key necesaria)
+- Solo activa si: `enrichment_mode != 'passive'` Y API key configurada
+
+**Solución**: Documentar en README cómo obtener API key si se necesita modo activo
+
+---
+
+## 📋 ARCHIVOS MODIFICADOS/CREADOS
+
+| Archivo | Acción | Descripción |
+|---------|--------|-------------|
+| `check_metadata_coverage.py` | Nuevo | Script de diagnóstico de cobertura de campos en JSON existentes |
+| `app/services/metadata_parser.py` | Nuevo | Clase MetadataParser: parseo y normalización de JSON yt-dlp |
+| `app/services/metadata_enricher.py` | Nuevo | Clases YouTubeAPIClient y MetadataEnricher: lógica híbrida API |
+| `app/database/db_manager.py` | Modificado | Migration DB + nuevo método insert_entry_with_metadata() |
+| `app/core/config.py` | Modificado | Constantes de configuración de metadata enrichment |
+| `SPEC.md` | Modificado | RF-010 actualizado a estado completado |
+
+---
+
+## 📁 NUEVOS MÉTODOS Y CAMPOS
+
+### Metadata Parser (metadata_parser.py)
+
+**Nueva clase principal**:
+```python
+class MetadataParser:
+    @staticmethod
+    def parse_json_file(json_path: Path) -> Dict[str, Any]
+    @staticmethod
+    def _normalize_metadata(raw: Dict) -> Dict
+    @staticmethod
+    def _compute_derived_fields(raw: Dict) -> Dict
+    @staticmethod
+    def _format_duration(seconds) -> str
+    @staticmethod
+    def _parse_upload_date(date_str) -> Optional[datetime]
+    @staticmethod
+    def _calculate_engagement(likes, views) -> Optional[float]
+    @staticmethod
+    def extract_keywords(description, tags, max_keywords=20) -> List[str]
+    @staticmethod
+    def _extract_keywords_from_text(text, max_count) -> List[str]
+    @staticmethod
+    def find_json_for_vtt(vtt_path: Path) -> Optional[Path]
+    @staticmethod
+    def get_video_metadata(vtt_path: Path) -> Optional[Dict]
+    @staticmethod
+    def to_json_string(metadata) -> str
+    @staticmethod
+    def from_json_string(json_str) -> Dict
+```
+
+**Campos normalizados**:
+```python
+{
+    'video_id', 'title', 'description', 'description_full',
+    'tags', 'duration_seconds', 'duration_formatted',
+    'upload_date', 'upload_datetime', 'channel', 'channel_id',
+    'channel_url', 'view_count', 'like_count', 'comment_count',
+    'thumbnail', 'categories', 'availability', 'webpage_url',
+    'uploader', 'uploader_id', 'age_limit', 'media_type', 'timestamp',
+    # Campos derivados
+    'has_tags', 'has_description', 'description_length',
+    'is_short', 'is_medium', 'is_long', 'tags_count', 'engagement_ratio'
+}
+```
+
+### Metadata Enricher (metadata_enricher.py)
+
+**Nuevas clases**:
+```python
+class YouTubeAPIClient:
+    def __init__(self, api_key: Optional[str] = None)
+    @property
+    def is_available(self) -> bool
+    def get_video_details(video_id: str) -> Optional[Dict]
+    def get_quota_usage() -> Dict
+
+class MetadataEnricher:
+    DEFAULT_CONFIG = {
+        'enrichment_mode': 'passive',
+        'enrich_if_missing_tags': True,
+        'enrich_high_value': True,
+        'enrich_short_descriptions': True,
+        'short_description_threshold': 100,
+        'high_value_threshold': 8.0,
+        'max_api_calls_per_day': 100,
+        'priority_channels': [],
+        'track_quota_usage': True,
+    }
+    def should_enrich_via_api(metadata: Dict) -> bool
+    def enrich_metadata(metadata: Dict) -> Dict
+    def _merge_metadata(passive, active) -> Dict
+    def get_status() -> Dict
+```
+
+**Modos de enriquecimiento**:
+```python
+MODES = {
+    'passive': 'Solo parsear JSON de yt-dlp (default, sin API)',
+    'active': 'Siempre usar YouTube API si esta disponible',
+    'hybrid': 'API solo si faltan campos criticos o high value'
+}
+```
+
+### Database Manager (db_manager.py)
+
+**Migration columnas nuevas**:
+```sql
+ALTER TABLE knowledge_entries ADD COLUMN metadata_json TEXT;
+ALTER TABLE knowledge_entries ADD COLUMN keywords TEXT;
+ALTER TABLE knowledge_entries ADD COLUMN duration_seconds INTEGER;
+ALTER TABLE knowledge_entries ADD COLUMN is_short BOOLEAN DEFAULT 0;
+ALTER TABLE knowledge_entries ADD COLUMN enriched_via_api BOOLEAN DEFAULT 0;
+ALTER TABLE knowledge_entries ADD COLUMN upload_date TEXT;
+ALTER TABLE knowledge_entries ADD COLUMN channel_name TEXT;
+ALTER TABLE knowledge_entries ADD COLUMN view_count INTEGER;
+ALTER TABLE knowledge_entries ADD COLUMN like_count INTEGER;
+
+CREATE INDEX idx_knowledge_duration ON knowledge_entries(duration_seconds);
+CREATE INDEX idx_knowledge_is_short ON knowledge_entries(is_short);
+CREATE INDEX idx_knowledge_upload_date ON knowledge_entries(upload_date);
+```
+
+**Nuevo método**:
+```python
+def insert_entry_with_metadata(self, category, source, content,
+                               metadata: dict = None, keywords: list = None,
+                               ...) -> bool:
+    # Inserta entrada con metadatos enriquecidos automaticamente
+```
+
+### Config (config.py)
+
+**Nuevas constantes**:
+```python
+METADATA_ENRICHMENT_MODE = 'passive'
+METADATA_ENRICH_IF_MISSING_TAGS = True
+METADATA_ENRICH_SHORT_DESCRIPTIONS = True
+METADATA_SHORT_DESCRIPTION_THRESHOLD = 100
+METADATA_HIGH_VALUE_THRESHOLD = 8.0
+METADATA_MAX_API_CALLS_PER_DAY = 100
+METADATA_TRACK_QUOTA_USAGE = True
+```
+
+---
+
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+1. **Integración con pipeline de procesamiento**: Hook en processing_service para procesar metadatos junto con transcripciones
+2. **Panel UI de metadatos**: Mostrar metadatos enriquecidos al seleccionar entrada en KB
+3. **Búsqueda por keywords**: Utilizar campo keywords para búsqueda full-text en KB
+4. **Filtrado por duración**: Usar índices is_short/duration para filtrar videos cortos en UI
+5. **Exportación con metadatos**: Incluir metadata en exports a PDF/HTML
+6. **Dashboard de enriquecimiento**:统计 de videos enriquecidos pasivo vs activo
+
+---
+
+## ✅ VEREDICTO
+
+| Métrica | Estado |
+|---------|--------|
+| Diagnóstico de cobertura | ✅ Script analiza 3004 archivos JSON |
+| Parser de JSON yt-dlp | ✅ 26 campos normalizados + campos derivados |
+| Keywords extraction | ✅ Combina tags + análisis de descripción |
+| Modo pasivo/activo/híbrido | ✅ Configurable via enrichment_mode |
+| Límite de cuota API | ✅ max_api_calls_per_day previene excesos |
+| Migration DB retrocompatible | ✅ ALTER TABLE con TRY/EXCEPT |
+| Índices para búsquedas | ✅ duration, is_short, upload_date indexados |
+| Integración con Config | ✅ Parámetros centralizados |
+
+**La funcionalidad US-010 está operativa.** El sistema ahora extrae metadatos enriquecidos (título, descripción, tags, duración) de archivos .info.json de yt-dlp, con soporte opcional para enriquecimiento via YouTube Data API en modos activo/híbrido.

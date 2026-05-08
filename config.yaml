@@ -1,0 +1,6 @@
+export:
+  max_file_size_mb: 8
+  max_total_size_mb: 500
+  timeout_seconds: 120
+  image_size_estimate_mb: 1.5
+  size_margin: 1.2

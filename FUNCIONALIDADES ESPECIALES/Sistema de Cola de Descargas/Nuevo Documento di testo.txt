@@ -1,0 +1,42 @@
+## 🎯 PRÓXIMOS PASOS - Sistema de Cola de Descargas
+
+Dado el módulo 1 implementado (progreso visual + tracking), aquí están las mejoras opcionales para uso **elite corporate**:
+
+---
+
+### Nivel 2: Características Avanzadas
+
+1. **Dashboard de статистики (Stats)**: Mostrar gráfica/ranking de canales con más downloads en la sesión actual
+2. **Notificaciones nativas SO**: Usar `win10toast` o `plyer` para notificaciones de sistema al completar lotes
+3. **Pausa inteligente**: Auto-pausar cuando se detecta rate-limit, reanudar automáticamente después de X minutos
+4. ** Persistencia de cola**: Guardar cola en DB/restaurar al cerrar/reabrir app
+5. **Modo resumido (summary_mode)**: Agrupar logs de N videos en una línea: "Canal X: 45 nuevos, 5 existentes"
+
+### Nivel 3: Automatización Completa
+
+6. **Scheduler de cola**: Programar ejecución de cola a cierta hora (CRON-like)
+7. **Integración con Processing Service**: Enlace directo: "descarga → limpia → guarda en KB" automático
+8. **Historial de descargas**: Guardar en DB cada descarga (timestamp, canal, nuevos, existentes) para auditoría
+9. ** Export reports**: Generar CSV/JSON de métricas por período
+
+### Nivel 4: Enterprise
+
+10. ** Multithreading paralelo**: Descargar múltiples canales simultáneamente (thread pool)
+11. **API REST interna**: Endpoints localhost para controlar cola desde внешние tools
+12. ** Webhooks**: Notificar a Discord/Telegram cuando lotе completa
+13. ** Filtros por palabras clave**: Ignorar descargas de videos que contengan ciertas palabras
+
+---
+
+### ⚡ Recomendación (prioridad sugerida):
+
+| Orden | Módulo | Beneficio |
+|-------|--------|------------|
+| 2.1 | **Notificaciones SO** | Alerte cuando no estás viendo la pantalla |
+| 2.2 | **Pausa inteligente** | Mayor resiliencia anti rate-limit |
+| 2.3 | **Historial en DB** | Auditoría y métricas |
+| 2.4 | **Persistencia de cola** | Recupera sesión si app cierra |
+
+---
+
+**Pregunta**: ¿Cuál(es) te gustaría implementar primero? puedo trabajar en múltiples en paralelo si lo prefieres.

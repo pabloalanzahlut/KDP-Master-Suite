@@ -1,0 +1,162 @@
+# ANÁLISIS DE IMPLEMENTACIÓN: US-002 Procesamiento Batch con Progreso Individual
+
+La funcionalidad ha sido implementada correctamente. A continuación el análisis detallado:
+
+---
+
+## ✅ PUNTOS FUERTES (Mantenidos)
+
+| Punto | Por qué es correcto |
+|-------|---------------------|
+| **Barras de progreso por archivo** | Panel lateral muestra progreso individual visual |
+| **Throttling de callbacks** | ≥100ms entre updates evita saturación UI con batches grandes |
+| **Virtualización de widgets** | Pool de 10 widgets visibles optimiza memoria para >50 archivos |
+| **ETA con promedio móvil** | Rolling average de últimos 10 archivos para precisión |
+| **Cálculo de velocidad** | Bytes/segundo por archivo da feedback real de rendimiento |
+| **Botón Reintentar** | Permite recuperación de archivos fallidos sin reiniciar todo |
+| **Barra global ponderada** | Progreso calculado por tamaño de archivo, no solo conteo |
+| **Resumen post-batch** | Modal con estadísticas, fallos listados y opciones de acción |
+| **Thread-safe callbacks** | Uso de root.after() evita crashes en actualización UI desde threads |
+| **Backward compatibility** | Parámetros existentes intactos, nuevo parámetro es opcional |
+
+---
+
+## ⚠️ LIMITACIONES ACTUALES (Por entorno)
+
+### 1. **ETA inexacto para archivos de tamaño variable**
+**Problema**: El promedio móvil asume archivos similares en tamaño/complejidad.
+
+**Estado actual**:
+- Ventana: 10 últimos archivos
+- Cálculo: `avg_time * remaining_files`
+
+**Solución**: El usuario ve tiempo estimado como guía, no valor exacto
+
+### 2. **Virtualización puede ocultar contexto**
+**Problema**: Si hay >10 archivos, los superiores completados se ocultan y no se ven los nombres.
+
+**Estado actual**:
+- Max visible: 10 widgets
+- Cola oculta: Archivos adicionales en cola sin visualización individual
+
+**Solución**: El conteo en header muestra progreso real (ej: "8/50")
+
+### 3. **Throttling puede perder cambios rápidos de estado**
+**Problema**: Si un archivo pasa de "processing" a "error" en <100ms, podría no verse el cambio.
+
+**Estado actual**:
+- Throttle: 100ms para cambios de porcentaje
+- Excepciones: Siempre actualiza en cambio de estado (completed/error)
+
+**Solución**: Estados críticos siempre se muestran independientemente del throttle
+
+---
+
+## 📋 ARCHIVOS MODIFICADOS
+
+| Archivo | Acción | Descripción |
+|---------|--------|-------------|
+| `app/ui/components/progress_panel.py` | Nuevo | Widgets FileProgressItem, ProgressPanel, BatchProgressManager, ETACalculator |
+| `app/services/processing_service.py` | Modificado | Callback individual thread-safe con estados (processing/completed/error/duplicate) |
+| `app/ui/tabs/process_tab.py` | Modificado | Panel lateral con virtualización + integración batch manager |
+| `SPEC.md` | Modificado | RF-028 y RF-029 actualizados a estado completado |
+
+---
+
+## 📁 NUEVOS MÉTODOS Y CAMPOS
+
+### Progress Panel (progress_panel.py)
+
+**Nuevas clases**:
+```python
+class ETACalculator:
+    def __init__(self, window_size=10)
+    def start()
+    def add_sample(duration_seconds)
+    def estimate_remaining(remaining_files)
+    def get_elapsed()
+
+class FileProgressItem(ttk.Frame):
+    def update(percent, state, eta_seconds, speed)
+    def reset()
+
+class ProgressPanel(ttk.Frame):
+    def set_files(filenames)
+    def update_file(filename, percent, state, eta, speed)
+    def _promote_next()
+
+class BatchProgressManager:
+    def set_files(filenames, weights)
+    def update_file(filename, percent, state, eta, speed)
+    def _calculate_global_progress()
+    def get_failed_files()
+    def retry_failed()
+```
+
+**Estados de procesamiento**:
+```python
+STATES = {
+    'queued': ('⏳', 'Pendiente', 'gray'),
+    'processing': ('⚙️', 'Procesando...', 'blue'),
+    'completed': ('✅', 'Completado', 'green'),
+    'error': ('❌', 'Error', 'red'),
+    'duplicate': ('⏭️', 'Duplicado', 'orange'),
+    'retry': ('🔄', 'Reintentando...', 'yellow')
+}
+```
+
+### Processing Service (processing_service.py)
+
+**Nuevo parámetro**:
+```python
+def process_files(..., individual_progress_callback=None):
+    # Callback: (filename, percent, state, eta, speed)
+```
+
+**Secuencia de estados**:
+1. Inicio: `processing` (0%)
+2. Post-lectura: `processing` (50%)
+3. Finalización: `completed` (100%) / `error` (0%) / `duplicate` (100%)
+
+### Process Tab (process_tab.py)
+
+**Nuevos métodos**:
+```python
+def _show_batch_summary(completed, total, successful, failed)
+def retry_process_file(filename)
+```
+
+**Propiedades añadidas**:
+```python
+self.progress_panel  # Panel lateral con progress items
+self.batch_manager   # Gestor de estado y cálculo de progreso global
+```
+
+---
+
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+1. **Colapsar completados automáticamente**: Toggle para ocultar archivos terminados y reducir clutter visual
+2. **Priorización dinámica**: Si archivo tarda >2x promedio, mover al final de la cola
+3. **Persistencia de batch state**: Guardar estado en JSON para recuperación tras cierre inesperado
+4. **Exportar reporte**: Generar CSV/PDF con estadísticas del batch procesado
+5. **Progress bar inline en Treeview**: Alternativa visual integrada en la lista de archivos
+
+---
+
+## ✅ VEREDICTO
+
+| Métrica | Estado |
+|---------|--------|
+| Barras de progreso por archivo | ✅ Panel lateral con widgets visuales |
+| Throttling de updates | ✅ ≥100ms + excepciones por cambio de estado |
+| Virtualización | ✅ Pool de 10 widgets visibles |
+| ETA con promedio móvil | ✅ Window de 10 archivos |
+| Velocidad de procesamiento | ✅ Bytes/segundo por archivo |
+| Botón Reintentar | ✅ En items con estado error |
+| Barra global ponderada | ✅ Por tamaño de archivo |
+| Resumen post-batch | ✅ Modal con estadísticas y listado de errores |
+| Thread-safe | ✅ root.after() para updates desde threads |
+| Backward compatibility | ✅ Parámetros existentes intactos |
+
+**La funcionalidad US-002 está operativa.** El procesamiento batch ahora muestra progreso individual por archivo con barras visuales, ETA calculada, velocidad de procesamiento y opciones de recuperación ante errores.

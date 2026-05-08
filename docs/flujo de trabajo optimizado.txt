@@ -1,0 +1,60 @@
+Esta es la metodología "Multi-Model Workflow" que utilizan los equipos de ingeniería de alto rendimiento. Para implementarla, no necesitas cambiar el archivo config.json, sino aplicar una estrategia de selección en el chat de VS Code según la fase del desarrollo.
+
+Aquí tienes el flujo de trabajo optimizado para tu arsenal de modelos:
+
+1. Fase de Planificación y Consultas (El "Cerebro")
+Modelo: Phi-4 (Razonamiento) o Qwen 3 14B (Arquitecto).
+Por qué: Son modelos con mayor capacidad de razonamiento lógico. Te darán una arquitectura sólida antes de tocar una sola línea de código.
+Truco Élite: Usa @Codebase aquí para que el modelo entienda todo tu proyecto antes de planificar.
+
+2. Fase de Implementación y Pruebas (El "Constructor")
+Modelo: Llama 3.1 8B (Producción) o Claude 3.5 Sonnet.
+Por qué: Son los mejores siguiendo instrucciones de codificación paso a paso y generando tests unitarios sin errores de sintaxis.
+Truco Élite: Usa el comando /test que configuramos para generar las pruebas automáticamente.
+
+3. Fase de Documentación y Actualización Élite (El "Sénior")
+Modelo: Qwen 2.5 14B (Elite) o Gemma 3 12B.
+Por qué: Tienen un lenguaje más natural y profesional para redactar documentación técnica y una visión global para sugerir "próximos pasos" de escalabilidad.
+Truco Élite: Usa el comando /refactor seguido de tu carpeta de reglas para asegurar que la actualización cumpla con tus estándares corporativos.
+
+Cómo automatizar esto en tus Agentes XML
+Para que no tengas que recordarlo, añade este bloque a tu archivo agente_principal.md en tu carpeta de docs:
+
+xml
+<workflow_elite>
+  <step name="plan">Usa Phi-4 para definir el flujo lógico y la estructura de datos.</step>
+  <step name="build">Usa Llama 3.1 para escribir el código y generar unit tests.</step>
+  <step name="refine">Usa Qwen 14B para revisar la seguridad, documentar y proponer mejoras de escalabilidad.</step>
+</workflow_elite>
+
+El toque final: ¿Cómo ejecutarlo?
+
+En el chat de Continue, simplemente cambia el modelo en el menú desplegable (abajo a la derecha) según la fase en la que estés. Gracias a que tu config.json ya tiene los contextProviders, todos los modelos tendrán acceso a tus reglas sin importar cuál elijas.
+
+Está perfecto. Con esa estructura, la IA no solo te dará código, sino que respetará la jerarquía de pensamiento que definiste.
+Para que este flujo sea 100% operativo, te sugiero un último ajuste en la sección de slashCommands de tu config.json. Esto te permitirá activar cada fase del workflow con un comando rápido:
+Agrega esto a tus slashCommands:
+
+json
+{
+  "name": "plan",
+  "description": "Fase 1: Planificación lógica (Sugerido: Phi-4)"
+},
+{
+  "name": "build",
+  "description": "Fase 2: Implementación y Tests (Sugerido: Llama 3.1)"
+},
+{
+  "name": "refine",
+  "description": "Fase 3: Documentación y Escalabilidad (Sugerido: Qwen 14B)"
+}
+
+¿Cómo usarlo ahora en el día a día?
+
+Si vas a empezar algo nuevo: Escribes /plan @Codebase [tu idea]. Seleccionas Phi-4 en el menú.
+
+Para escribir el código: Escribes /build @plan [instrucciones]. Cambias a Llama 3.1.
+
+Para el toque final: Escribes /refine @build. Cambias a Qwen 14B.
+
+Al tener las etiquetas <workflow_elite> en tu archivo .md de la carpeta docs, cualquier modelo que elijas leerá esas instrucciones al invocarlo con @Agentes y Reglas.

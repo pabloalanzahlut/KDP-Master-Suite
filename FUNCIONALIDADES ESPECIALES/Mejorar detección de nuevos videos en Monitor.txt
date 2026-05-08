@@ -1,0 +1,106 @@
+# **ANÁLISIS DEL PLAN: EXCELENTE, CON AJUSTES ESTRATÉGICOS**
+
+Tu plan es **sólido y bien estructurado**. Sigue principios de programación como **eficiencia algorítmica**, **manejo de recursos** y **escalabilidad**. Sin embargo, hay **3 riesgos críticos** que debes considerar antes de implementar:
+
+---
+
+## ✅ **PUNTOS FUERTES (Mantener)**
+
+| Punto | Por qué es bueno |
+|-------|------------------|
+| **1. Aumentar playlistend a 50-100** | Reduce la frecuencia de escaneos necesarios. Lógica correcta: menos llamadas = menos consumo de recursos. |
+| **3. Filtrado por fecha** | Evita procesar "basura" antigua. Principio de **priorización de datos relevantes**. |
+| **5. Logging estructurado** | Esencial para debugging y UX. El usuario sabrá exactamente qué pasó sin adivinar. |
+
+---
+
+## ⚠️ **RIESGOS CRÍTICOS (Ajustar)**
+
+### **1. Aumentar playlistend a 100**
+**Problema:** YouTube Data API tiene **límites de cuota estrictos**.
+- Cada llamada con `maxResults=100` consume **1 unidad de cuota**.
+- Con 129 canales × 100 videos = **12,900 items por escaneo**.
+- Si escaneas cada hora, **agotarás tu cuota diaria (10,000 unidades)** en menos de 24h.
+
+**Solución:**
+- ✅ Usa `maxResults=50` (óptimo entre profundidad y cuota).
+- ✅ Implementa **paginación inteligente** con `nextPageToken` solo si el canal tiene >50 videos nuevos.
+- ✅ Añade **rate limiting**: máximo 30 canales por minuto.
+
+### **2. Deduplicación por checksum ANTES de descargar**
+**Problema:** No puedes calcular un checksum de contenido **sin descargarlo primero**. Esto viola el flujo lógico.
+
+**Solución correcta:**
+```python
+# FLUJO CORRECTO:
+1. Descargar transcripción .vtt
+2. Calcular checksum del contenido
+3. Verificar si checksum existe en BD
+4. Si existe → marcar como "duplicado", no procesar
+5. Si no existe → guardar checksum + procesar
+```
+
+**Campo en BD:**
+```sql
+ALTER TABLE videos ADD COLUMN content_hash TEXT UNIQUE;
+```
+
+### **4. Detección de "reposts"**
+**Problema:** YouTube **no marca** videos como "republicados". Distinguir un repost real de un video similar requiere heurísticas complejas (comparar títulos, thumbnails, duración).
+
+**Solución pragmática:**
+- ✅ Comparar `title` + `channel_id` + `duration` con videos existentes.
+- ✅ Si similitud > 90% → marcar como "posible repost" para revisión manual.
+- ❌ No intentes automatizar 100% la detección de reposts (falsos positivos altos).
+
+---
+
+## 🚀 **MEJORAS ADICIONALES (Recomendadas)**
+
+### **A. Caché de Metadatos con ETag**
+YouTube API soporta **ETag** para saber si los metadatos cambiaron sin descargar todo:
+```python
+# Guardar ETag de la última verificación
+# En siguiente escaneo, enviar If-None-Match: {etag}
+# Si YouTube responde 304 Not Modified → saltar escaneo (ahorro masivo de cuota)
+```
+
+### **B. Priorización de Canales**
+No todos los canales son iguales. Añade campo `priority` (1-5):
+```sql
+ALTER TABLE channels ADD COLUMN priority INTEGER DEFAULT 3;
+```
+- Prioridad 5: Escanear cada 2 horas
+- Prioridad 3: Escanear cada 6 horas
+- Prioridad 1: Escanear cada 24 horas
+
+### **C. Validación de Estado del Video**
+Antes de procesar, verifica que el video siga disponible:
+```python
+# YouTube retorna estado: "available", "private", "deleted", "madeForKids"
+# Ignorar automáticamente videos "private" o "deleted"
+```
+
+---
+
+## 📋 **PLAN REFINADO (Orden de Implementación)**
+
+| Prioridad | Tarea | Impacto | Complejidad |
+|-----------|-------|---------|-------------|
+| 🔴 **ALTA** | Aumentar `maxResults` a 50 + paginación | Alto | Baja |
+| 🔴 **ALTA** | Filtrado por fecha configurable (`max_age_days`) | Alto | Baja |
+| 🟡 **MEDIA** | Logging estructurado + notificaciones resumidas | Medio | Baja |
+| 🟡 **MEDIA** | Caché con ETag para ahorrar cuota | Alto | Media |
+| 🟢 **BAJA** | Detección de reposts por similitud de título | Bajo | Alta |
+| 🟢 **BAJA** | Deduplicación por checksum post-descarga | Medio | Media |
+
+---
+
+## ✅ **VEREDICTO FINAL**
+
+**Tu plan es 85% correcto.** Solo necesitas:
+1. Reducir `maxResults` a 50 (no 100) para evitar bloqueo de API.
+2. Mover la deduplicación por checksum **después** de descargar.
+3. Hacer el filtrado por fecha **configurable**, no hardcodeado.
+
+**¿Quieres que te dé el código exacto para implementar el punto 1 (paginación inteligente con maxResults=50)?** Es el más crítico y te ahorrará problemas de cuota inmediatamente.

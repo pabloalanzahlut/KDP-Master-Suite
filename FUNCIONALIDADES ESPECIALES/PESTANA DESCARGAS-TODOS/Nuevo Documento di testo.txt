@@ -1,0 +1,28 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Funcionalidad: Gestión de Cola / Botón Todos (Downloads Tab)
+Módulos de Infraestructura y Control (SIN IA)
+
+SIN IA (10) - Infraestructura Sólida
+
+Filtrado Avanzado Multi-Criterio
+Reordenamiento Drag & Drop
+Templates de Cola Predefinidos
+Selección Condicional Avanzada ⭐ (nuevo)
+Inversión de Selección Atómica ⭐ (nuevo)
+Cálculo de Carga Total en Tiempo Real ⭐ (nuevo)
+Exportación Multi-Formato de Cola
+Gestión de Selección Multi-Página (>500) ⭐ (nuevo)
+Auditoría de Acción Masiva (audit.log) ⭐ (nuevo)
+Sincronización Transaccional con Recuperación ⭐ (nuevo)
+
+Filtrado Avanzado Multi-Criterio: Filtrar cola por duración, canal, fecha, formato, estado
+Reordenamiento Drag & Drop: Reorganizar elementos de la cola arrastrando con prioridad visual
+Templates de Cola Predefinidos: Guardar/cargar configuraciones de cola como plantillas reutilizables
+Validación Batch Pre-Descarga: Verificar URLs muertas, duplicados, restricciones geográficas antes de iniciar
+Exportación Multi-Formato de Cola: Exportar cola a JSON/CSV/Excel con metadatos completos
+Importación Masiva desde Archivos: Importar colas desde archivos externos (TXT, CSV, JSON)
+Sistema de Etiquetas/Tags: Asignar etiquetas personalizadas a elementos de la cola para categorización
+Estadísticas de Cola en Tiempo Real: Mostrar tiempo estimado total, tamaño acumulado, canales únicos
+Acciones Condicionales por Estado: Reintentar solo fallidos, saltar completados, re-procesar específicos
+Historial de Colas Ejecutadas: Registro persistente de todas las colas procesadas con métricas de éxito

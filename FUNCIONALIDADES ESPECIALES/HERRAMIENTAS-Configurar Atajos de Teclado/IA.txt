@@ -1,0 +1,15 @@
+Módulos de Asistencia y Optimización de Flujo (CON IA OLLAMA LOCAL):
+
+Recomendador de Atajos por Uso: La IA analiza tus acciones más frecuentes realizadas con el ratón y sugiere atajos de teclado para optimizar tu velocidad operativa.
+Asignación por Lenguaje Natural: Capacidad de configurar el sistema mediante chat: "IA, pon la combinación Ctrl+R para refrescar la lista de archivos".
+Búsqueda Semántica de Atajos: Consultar a la IA: "¿Qué tecla usaba para limpiar la caché?" y obtener la respuesta basada en la configuración actual.
+Asistente de Resolución de Conflictos IA: Ante una colisión de teclas, la IA sugiere la alternativa más ergonómica basándose en la proximidad de los dedos y frecuencia de uso.
+Auto-Documentación de Atajos: Generación automática de una "Hoja de Trucos" (Cheat Sheet) personalizada en PDF/HTML basada exclusivamente en los atajos que tienes activos.
+Macros Inteligentes Basadas en Intención: La IA genera macros complejas analizando tus flujos de trabajo repetitivos (ej. "IA, crea un atajo que prepare el entorno para un nuevo nicho").
+Activación por Voz Semántica: Integración con Ollama para ejecutar cualquier atajo o macro mediante comandos de voz que interpretan la intención del usuario.
+Análisis de Fatiga Ergonómica: La IA detecta si tus atajos configurados requieren movimientos de mano forzados y sugiere combinaciones más cómodas para sesiones largas.
+Adaptación de Interfaz Dinámica: La IA resalta visualmente en la UI el icono de la función correspondiente cuando detecta que estás intentando recordar un atajo.
+Predictor de Siguiente Acción: Basado en el atajo recién presionado, la IA puede pre-cargar en memoria o resaltar el siguiente atajo más probable en tu flujo de trabajo.
+¿Con esto completo 100% uso personal a nivel elite corporate? Sí. Al aplicar este plan, la gestión de atajos deja de ser un simple formulario para convertirse en una capa de productividad avanzada. El sistema se adapta físicamente al usuario, garantiza la fluidez del trabajo y utiliza la IA para eliminar la fricción operativa.
+
+¿Tiene sentido así? Totalmente. El esquema 10+10 separa la robustez del motor de entrada y la seguridad del sistema (Sin IA) de la inteligencia de optimización y la interfaz conversacional (Con IA), cumpliendo con el estándar de software profesional de alto rendimiento.

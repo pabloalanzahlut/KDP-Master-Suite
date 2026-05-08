@@ -1,0 +1,77 @@
+## 🎯 PRÓXIMOS PASOS (Opcionales - Elite Corporate)
+
+Basándome en el análisis del código actual y las reglas del proyecto, aquí están las mejoras opcionales organizadas por prioridad:
+
+---
+
+### 🔥 NIVEL 1 - ESENCIALES (Alto Impacto, Bajo Riesgo)
+
+1. **Soporte de Cookies/Auth**: Añadir opción en Settings para cargar archivo de cookies de navegador y evitar errores 403 (YouTube requiere login para algunos canales)
+
+2. **Reintento automático con backoff**: Si el test Canary falla por 404 (canal eliminado), automáticamente reintentar con URL alternativa del canal (buscar en histórico de la DB)
+
+3. **Límite de videos por canal**: Añadir configuración para limitar cuántos videos descargar por canal (ej: solo últimos 50, 100, 500)
+
+4. **Exportar reporte de cola**: Botón para exportar resultados de la cola a CSV/Excel con columnas: URL, Estado, Videos Nuevos, Errores, Timestamp
+
+---
+
+### 🔧 NIVEL 2 - PRODUCTIVIDAD (Medio Impacto)
+
+5. **Modo programado de cola**: Integrar con `schedule_tab.py` existente para ejecutar descargas en horarios específicos (fuera de hora pico)
+
+6. **Notificaciones por lotes**: Extender `notification_router.py` para notificar cuando termine una cola larga (mayor a 10 canales)
+
+7. **Historial de descargas**: Guardar en DB cada ejecución de cola con estadísticas (fecha, canales, resultados) para análisis posterior
+
+8. **Selección de idioma de subtítulos**: UI para elegir qué idiomas descargar (es, en, pt, etc.) en lugar de hardcoded
+
+---
+
+### 🚀 NIVEL 3 - AVANZADOS (Alto Impacto, Mayor Complejidad)
+
+9. **Descarga paralela**: Implementar múltiples hilos de descarga simultáneos (actualmente es secuencial) para reducir tiempo total
+
+10. **Detección de nuevos videos**: Comparar con transcripciones existentes y descargar SOLO videos nuevos del canal (evitar re-descargar todo)
+
+11. **Integración con API de YouTube**: Usar YouTube Data API v3 para obtener metadatos enriquecidos (views, likes, fecha exacta) antes de descargar
+
+12. **Cache de resolución de handles**: Cachear la resolución de `@handle` a `channel_id` para evitar requests repetitivos
+
+13. **Panel de control de rate-limiting**: UI para ver/ajustar tiempos de espera entre downloads y reintentos
+
+---
+
+### 🛡️ NIVEL 4 - RESISTENCIA (Confiabilidad)
+
+14. **Fallback por proxy**: Si falla por IP bloqueada, intentar con proxy rotativo (si está configurado)
+
+15. **Validación de calidad de subtitles**: Verificar que el VTT descargado tenga contenido real (no vacío o solo header)
+
+16. **Recovery mode**: Si la app se cierra durante descarga, guardar estado y permitir resume posterior
+
+17. **Alertas de versión de yt-dlp**: Notificar cuando hay nueva versión disponible que pueda afectar funcionalidad
+
+---
+
+### 📊 NIVEL 5 - ANALYTICS
+
+18. **Dashboard de descargas**: Gráfico de barras con canales más prolificos, videos descargados por día, tasa de éxito
+
+19. **Clasificación automática**: Enviar transcripciones descargadas directamente al pipeline de KB con categoría predefinida
+
+20. **Estadísticas por idioma**: Contador de transcripciones por idioma (es vs en) para saber cobertura
+
+---
+
+### ¿CUÁLES PRIORIZAMOS?
+
+**Para uso personal Elite Corporate**, te recomiendo:
+
+| Prioridad | Módulos |
+|----------|---------|
+| **Esta semana** | #1 Cookies, #3 Límite videos, #8 Idioma |
+| **Este mes** | #5 Programado, #6 Notificaciones, #7 Historial |
+| **Este trimestre** | #9 Paralelo, #10 Detección nuevos |
+
+¿Quieres que profundice en alguno de estos o que ajuste el plan según tu necesidad específica?

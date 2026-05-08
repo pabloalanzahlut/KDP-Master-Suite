@@ -1,0 +1,78 @@
+🧠 **LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Optimización Inteligente)**
+
+1. **Predictor de Espacio a Liberar** — IA analiza caché y predice GB recuperables. *Uso real:* "Limpiar caché liberará ~2.3GB estimados".
+2. **Analista de Relevancia de Caché** — IA determina qué caché es seguro eliminar. *Uso real:* "Caché de búsqueda de hace 30 días es seguro eliminar".
+3. **Optimizador Inteligente de DB** — IA decide cuándo hacer VACUUM/REINDEX. *Uso real:* "DB fragmentada 23%. Recomendado optimizar ahora".
+4. **Clasificador de Archivos Temporales por Valor** — IA clasifica .tmp como "seguro eliminar" o "preservar". *Uso real:* Preservar .tmp de proceso activo.
+5. **Predictor de Impacto en Rendimiento** — IA predice mejora de velocidad post-limpieza. *Uso real:* "Limpieza mejorará búsqueda en 40%".
+6. **Detectivo de Caché Corrupta** — IA detecta caché corrupta vs válida. *Uso real:* "3 archivos de caché están corruptos, eliminar".
+7. **Recomendador de Frecuencia de Limpieza** — IA sugiere cada cuánto limpiar. *Uso real:* "Basado en uso, limpiar caché cada 7 días".
+8. **Analista de Patrones de Uso de Caché** — IA analiza qué caché se usa más. *Uso real:* "Caché de búsqueda se usa 80%, preservar".
+9. **Optimizador de Retención Inteligente** — IA decide TTL óptimo por tipo de caché. *Uso real:* "Caché de metadatos: 24h, caché de búsqueda: 1h".
+10. **Detectivo de Fugas de Memoria** — IA detecta caché que no se libera. *Uso real:* "Caché de embeddings crece 100MB/día sin liberar".
+11. **Predictor de Necesidad de Limpieza** — IA predice cuándo limpiar antes de que sature. *Uso real:* "En 3 días caché ocupará 90% del disco".
+12. **Clasificador de Prioridad de Limpieza** — IA prioriza qué limpiar primero. *Uso real:* "1ro: logs antiguos, 2do: caché de thumbnails".
+13. **Optimizador de Espacio vs Rendimiento** — IA balancea espacio liberado vs impacto. *Uso real:* "Eliminar caché de búsqueda ahorrará 50MB pero ralentizará búsquedas".
+14. **Detectivo de Caché Obsoleta** — IA detecta caché de datos que ya no existen. *Uso real:* "Caché de 50 videos eliminados, limpiar".
+15. **Recomendador de Archivos a Preservar** — IA sugiere qué NO eliminar. *Uso real:* "Preservar caché de canales favoritos, se usa diario".
+16. **Analista de Costo-Beneficio de Limpieza** — IA calcula tiempo ahorrado vs espacio. *Uso real:* "Limpiar caché tomará 2min, ahorrará 1GB".
+17. **Predictor de Degradación de Rendimiento** — IA predice cuándo caché causará lentitud. *Uso real:* "Índice FTS5 >100MB causará lentitud en 5 días".
+18. **Clasificador de Tipo de Limpieza Necesaria** — IA decide limpieza ligera vs profunda. *Uso real:* "Limpieza ligera suficiente (ahorra 200MB)".
+19. **Optimizador de Secuencia de Limpieza** — IA ordena limpieza para minimizar impacto. *Uso real:* "1ro limpiar logs (rápido), luego DB (lento)".
+20. **Detectivo de Dependencias de Caché** — IA detecta si caché es dependiente de otra. *Uso real:* "No eliminar caché de embeddings sin eliminar caché de búsqueda".
+21. **Recomendador de Backup Pre-Limpieza** — IA sugiere hacer backup antes de limpiar. *Uso real:* "Caché contiene 50MB de datos únicos, hacer backup".
+22. **Analista de Valor de Datos en Caché** — IA calcula valor de información en caché. *Uso real:* "Caché contiene 10 transcripciones no guardadas".
+23. **Predictor de Tiempo de Reconstrucción** — IA predice cuánto tardará reconstruir caché. *Uso real:* "Reconstruir caché de búsqueda tomará 5min".
+24. **Clasificador de Riesgo de Eliminación** — IA clasifica riesgo de eliminar caché. *Uso real:* "Alto riesgo: caché de sesión activa".
+25. **Optimizador de Limpieza Selectiva** — IA sugiere limpiar solo caché específica. *Uso real:* "Solo limpiar caché de thumbnails (ahorra 500MB)".
+26. **Detectivo de Caché Duplicada** — IA detecta caché duplicada en múltiples lugares. *Uso real:* "Caché de búsqueda duplicada en 3 carpetas".
+27. **Recomendador de Compresión vs Eliminación** — IA decide comprimir o eliminar. *Uso real:* "Comprimir logs antiguos en vez de eliminar".
+28. **Analista de Frecuencia de Acceso** — IA analiza cuándo se accede a caché. *Uso real:* "Caché de canales no se accede hace 30 días".
+29. **Predictor de Crecimiento de Caché** — IA predice crecimiento futuro. *Uso real:* "Caché crecerá 2GB/mes con uso actual".
+30. **Clasificador de Tipo de Caché por Utilidad** — IA clasifica caché como "crítica", "útil", "prescindible". *Uso real:* "Caché de búsqueda: crítica, caché de thumbnails: prescindible".
+31. **Optimizador de Limpieza Programada** — IA sugiere mejor hora para limpiar. *Uso real:* "Limpiar caché a las 3AM cuando no hay uso".
+32. **Detectivo de Caché Huérfana** — IA detecta caché sin dueño. *Uso real:* "50MB de caché sin proceso asociado".
+33. **Recomendador de Retención por Tipo de Dato** — IA sugiere cuánto tiempo retener. *Uso real:* "Retener logs 90 días, caché de búsqueda 24h".
+34. **Analista de Impacto en UX** — IA predice impacto en experiencia de usuario. *Uso real:* "Limpiar caché de búsqueda causará 2s de delay en próximas búsquedas".
+35. **Predictor de Necesidad de Reindexación** — IA predice cuándo reindexar. *Uso real:* "FTS5 necesita reindexación en 7 días".
+36. **Clasificador de Urgencia de Limpieza** — IA clasifica urgencia (crítica, alta, media, baja). *Uso real:* "Urgencia crítica: disco 95% lleno".
+37. **Optimizador de Limpieza en Background** — IA decide limpiar en segundo plano. *Uso real:* "Limpiar logs en background sin bloquear UI".
+38. **Detectivo de Caché Inconsistente** — IA detecta inconsistencias en caché. *Uso real:* "Caché de canales no coincide con DB".
+39. **Recomendador de Limpieza Preventiva** — IA sugiere limpieza antes de problemas. *Uso real:* "Limpiar caché preventivamente cada lunes".
+40. **Analista de Eficiencia de Caché** — IA calcula hit/miss ratio. *Uso real:* "Caché de búsqueda: 80% hit rate (eficiente)".
+41. **Predictor de Ahorro de Tiempo** — IA predice tiempo ahorrado con caché limpia. *Uso real:* "Búsquedas serán 3x más rápidas".
+42. **Clasificador de Caché por Sensibilidad** — IA clasifica caché como "pública", "privada", "sensible". *Uso real:* "Caché de API keys: sensible, eliminar con seguridad".
+43. **Optimizador de Limpieza Inteligente** — IA combina múltiples limpiezas. *Uso real:* "Ejecutar limpieza de logs + DB + caché en una operación".
+44. **Detectivo de Caché Maliciosa** — IA detecta caché sospechosa/maliciosa. *Uso real:* "Archivo de caché con patrón sospechoso, cuarentena".
+45. **Recomendador de Política de Limpieza** — IA sugiere política personalizada. *Uso real:* "Política: limpiar caché diario, logs semanal, DB mensual".
+46. **Analista de Costo de Almacenamiento** — IA calcula costo de mantener caché. *Uso real:* "Caché ocupa 5GB = $0.50/mes en cloud".
+47. **Predictor de Vida Útil de Caché** — IA predice cuándo caché expirará naturalmente. *Uso real:* "Caché de búsqueda expirará en 2h por TTL".
+48. **Clasificador de Caché por Frecuencia de Cambio** — IA clasifica caché estática vs dinámica. *Uso real:* "Caché de configuración: estática, preservar".
+49. **Optimizador de Limpieza Adaptativa** — IA adapta limpieza según contexto. *Uso real:* "Modo batería: limpieza agresiva, Modo cargando: limpieza ligera".
+50. **Detectivo de Caché Redundante** — IA detecta caché que duplica datos en DB. *Uso real:* "Caché de canales duplica datos en SQLite".
+51. **Recomendador de Migración de Caché** — IA sugiere migrar caché a otro formato. *Uso real:* "Migrar caché de JSON a SQLite para mejor rendimiento".
+52. **Analista de Patrón de Crecimiento** — IA analiza patrón de crecimiento de caché. *Uso real:* "Caché crece 100MB cada 10 transcripciones".
+53. **Predictor de Punto de Saturación** — IA predice cuándo caché saturará disco. *Uso real:* "Caché saturará disco en 15 días al ritmo actual".
+54. **Clasificador de Caché por Criticalidad** — IA clasifica caché como "esencial", "importante", "opcional". *Uso real:* "Caché de sesión: esencial, caché de thumbnails: opcional".
+55. **Optimizador de Limpieza por Impacto** — IA prioriza limpieza por impacto positivo. *Uso real:* "1ro limpiar DB (mejora 50% velocidad), luego logs (ahorra espacio)".
+56. **Detectivo de Caché No Utilizada** — IA detecta caché que nunca se usa. *Uso real:* "Caché de plugin desinstalado, eliminar".
+57. **Recomendador de Cache Warming** — IA sugiere precargar caché tras limpieza. *Uso real:* "Precargar caché de canales favoritos tras limpieza".
+58. **Analista de Eficiencia de Algoritmo de Limpieza** — IA evalúa eficiencia del algoritmo. *Uso real:* "Algoritmo actual tarda 30s, optimizar a 5s".
+59. **Predictor de Beneficio Acumulado** — IA predice beneficio a largo plazo. *Uso real:* "Limpieza semanal ahorrará 10GB/mes y mejorará 20% velocidad".
+60. **Generador de Reporte de Limpieza Inteligente** — IA genera reporte ejecutivo post-limpieza. *Uso real:* "Limpieza completada: 2.3GB liberados, 40% mejora en velocidad de búsqueda".
+
+🔍 **¿CON ESTO COMPLETO 100% USO PERSONAL A NIVEL ELITE CORPORATE?**
+Sí. Esta arquitectura de **120 módulos especializados (60+60)** transforma "Limpiar Caché" de un simple botón de borrado a un **Sistema de Optimización de Rendimiento y Gestión Inteligente de Recursos**, garantizando:
+
+- **Limpieza Determinista:** Eliminación segura de archivos temporales, optimización de DB, rotación de logs.
+- **Optimización Cognitiva:** Predicción de espacio, análisis de relevancia, recomendación de políticas.
+- **Mantenimiento Preventivo:** Detección proactiva de problemas, limpieza programada inteligente.
+- **Preservación de Datos Críticos:** IA identifica qué caché preservar vs eliminar.
+- **Enfoque TEXT-FIRST:** 100% orientado a transcripciones de texto, no video.
+
+**CERO módulos de video/audio binario.** **CERO repeticiones** con `_auto_clean_cache()` o `clear_ytdlp_cache()` existentes.
+
+❓ **PARA MANTENER LA TRAYECTORIA ELITE Y EVITAR SOLAPAMIENTOS (Protocolo B):**
+¿Confirmas que ya tienes tu listado consolidado de **20 módulos SIN IA y 20 CON IA** para esta funcionalidad específica, o deseas que active la expansión de **hardening crítico** (limpieza atómica con rollback, auditoría distribuida de limpiezas, escalabilidad de limpieza >100GB) para blindarlo al 100% corporativo sin repetir nada?
+
+Responde **"HARDENING"** para agregar la capa extra de resiliencia, o **"LISTO"** para pasar a la siguiente funcionalidad. 🚀

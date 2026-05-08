@@ -1,0 +1,18 @@
+Analista de Errores de Descarga (RCA): Ollama analiza los logs de errores recientes (ej. errores 403 Forbidden o 429 Too Many Requests) para determinar si la limpieza de caché es la solución correctiva necesaria o si el problema es de red/IP.
+
+Detección de Patrones de Corrupción: La IA identifica si ciertos formatos o resoluciones están causando fallos recurrentes en la caché, sugiriendo limpiezas preventivas antes de procesar contenidos similares.
+
+Optimizador de Parámetros de Descarga: Basado en el historial de limpieza, la IA recomienda ajustar los argumentos de yt-dlp (como --no-cache-dir o --rm-cache-dir) de forma dinámica según el estado de salud del disco.
+
+Generador de Protocolos de Mantenimiento: Redacción automática de un informe de "Estado de Salud de Herramientas de Descarga" con recomendaciones narrativas sobre cuándo realizar el próximo mantenimiento.
+
+Retención Inteligente de Metadatos: IA que conserva metadatos útiles pero purga los fragmentos de video pesados.
+Predicción de Corrupción de Caché: Identificación de archivos temporales que causarán errores de "Forbidden" o "Timeout".
+Detección de Chunks Redundantes: Hallazgo de partes de video idénticas almacenadas bajo nombres temporales diferentes.
+Ajuste Dinámico de Cuota de Disco: IA que aumenta o disminuye el límite de caché según el espacio libre detectado.
+Limpieza Basada en Latencia de CDN: Priorización del borrado de caché proveniente de servidores rápidos.
+Aprendizaje de Preferencias de Formato: Purga de formatos (ej. WebM) que el usuario nunca selecciona para procesamiento.
+Reconstrucción del Índice de Caché: IA que repara la base de datos interna de yt-dlp para evitar conflictos.
+Limpieza Pre-emptiva: Borrado de caché antes de iniciar una descarga masiva detectada como "prioritaria".
+Purga de Privacidad IA: Escaneo de fragmentos de caché para eliminar mini-clips que contengan información sensible.
+Pronóstico de Ahorro de Ancho de Banda: Cálculo de cuántos datos se ahorrarán en la próxima sesión gracias a la limpieza.

@@ -1,0 +1,25 @@
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+1. **Panel de configuración del Dashboard**: Crear sección en Settings para configurar puerto, host, auto-inicio y auto-abrir navegador sin editar JSON manualmente
+
+2. **Logs del servidor en tiempo real**: Mostrar panel de logs del servidor web directamente en la UI de la pestaña Dashboard (stdout/stderr streaming)
+
+3. **Métricas del servidor**: Agregar información en tiempo real: uptime, solicitudes procesadas, memoria usada, última request
+
+4. **Websocket para actualizaciones live**: Implementar websocket para que la UI muestre cambios instantáneos sin refresh
+
+5. **Control de acceso al Dashboard**: Añadir autenticación básica (usuario/contraseña) para acceder al panel web desde red externa
+
+6. **Reinicio automático**: Opción para auto-reiniciar el servidor si falla o si detecta inneactividad prolongada
+
+7. **Múltiples puertos**: Permitir levantar múltiples instancias del dashboard en diferentes puertos simultaneously
+
+8. **Historial de sesiones**: Guardar registro de cuándo se inició/detuvo el servidor, duración, cantidad de visitas al dashboard
+
+9. **Plantillas del dashboard**: Permitir seleccionar diferentes plantillas UI para el panel web (minimal, full, analytics)
+
+10. **Notificaciones de servidor**: Alertar cuando el servidor cae o hay errores en los logs
+
+---
+
+**Pregunta**: ¿Cuál de estas funcionalidades te gustaría implementar primero? ¿O prefieres que profundice en alguna específicamente?

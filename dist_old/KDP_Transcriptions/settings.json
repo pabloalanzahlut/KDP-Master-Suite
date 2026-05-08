@@ -1,0 +1,21 @@
+{
+  "input_dir": "D:\\ANEXOS KDP Y DIGITALES\\KDP_MASTER\\dist\\KDP_Transcriptions\\data\\transcriptions",
+  "output_dir": "D:\\ANEXOS KDP Y DIGITALES\\KDP_MASTER\\dist\\KDP_Transcriptions\\outputs\\transcriptions_processed",
+  "blacklist": [],
+  "channels": [],
+  "ai_provider": "none",
+  "ai_api_key": "",
+  "ai_system_prompt": "Clasifica el siguiente texto en una de estas categorías: 'Legalidad y Compliance', 'Matriz de Roles (GEM)', 'Matriz de Roles y Fases SOE', 'Fórmulas y Métricas', 'Investigación de Nichos', 'Amazon Ads y Marketing', 'Conocimiento General KDP'. Responde SOLO con el nombre de la categoría.",
+  "download_queue": [],
+  "notifications": {
+    "enable_native": false,
+    "enable_internal": true,
+    "cooldown_minutes": 5,
+    "summary_mode": false
+  },
+  "dashboard": {
+    "port": 8000,
+    "host": "127.0.0.1",
+    "db_path": "data/channel_monitor.db"
+  }
+}

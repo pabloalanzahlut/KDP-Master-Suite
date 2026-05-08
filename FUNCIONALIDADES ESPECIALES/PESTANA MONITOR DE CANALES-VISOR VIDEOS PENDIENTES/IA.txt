@@ -1,0 +1,87 @@
+### 🧠 **LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Estrategia)**
+
+#### 🔹 Pilar 1: Análisis Semántico y Clasificación (1-12)
+1.  **Clasificador de Título por Categoría KDP:** IA analiza título y asigna a 1 de 18 categorías. *Caso de uso:* "Este video va a 'Amazon Ads' automáticamente".
+2.  **Detector de "Clickbait" vs "Valor":** Score 0-100 de calidad del título. *Caso de uso:* Filtrar automáticamente videos con títulos engañosos o vacíos.
+3.  **Extracción de Keywords del Título:** IA saca tags principales. *Caso de uso:* Pre-etiquetado para búsqueda futura.
+4.  **Clasificador por Formato:** Tutorial, Entrevista, Vlog, Noticias. *Caso de uso:* Filtrar solo "Tutoriales" para la KB.
+5.  **Detección de Idioma:** Identifica idioma del video (ES, EN, PT). *Caso de uso:* Ignorar videos en idiomas no deseados.
+6.  **Análisis de Sentimiento del Título:** Positivo, Negativo, Neutral. *Caso de uso:* Filtrar contenido tóxico o alarmista.
+7.  **Detector de Actualidad:** ¿Menciona "2026", "Nuevo", "Update"? *Caso de uso:* Priorizar contenido fresco y relevante.
+8.  **Clasificación por Nivel de Experto:** Principiante, Intermedio, Avanzado. *Caso de uso:* Organizar KB por audiencia.
+9.  **Extracción de Entidades Nombradas:** Nombres de herramientas, personas, marcas. *Caso de uso:* Indexación rica (ej. "Menciona Helium 10").
+10. **Detección de Patrocinios/Ads:** ¿El título sugiere contenido comercial? *Caso de uso:* Filtrar contenido promocional encubierto.
+11. **Análisis de Coherencia Título-Canal:** ¿El video coincide con la temática del canal? *Caso de uso:* Detectar "outliers" o videos fuera de lugar.
+12. **Generación de Resumen de Título:** IA reescribe título largo en frase corta. *Caso de uso:* Mejor legibilidad en la lista.
+
+#### 🔹 Pilar 2: Priorización Inteligente y Predicción (13-24)
+13. **Score de Relevancia KDP Global:** Puntúa 1-100 qué tan útil es para el negocio. *Caso de uso:* Ordenar lista por "Más Valioso" automáticamente.
+14. **Predicción de Longitud de Transcripción:** Estima palabras/minuto. *Caso de uso:* Saber si vale la pena descargar (evitar videos de 2h con poco texto).
+15. **Detección de Saturación Temática:** ¿Ya tienes mucho de este tema en KB? *Caso de uso:* Sugerir "Ignorar" si ya cubres el tema al 100%.
+16. **Predicción de Valor de Manual:** Estimación de calidad del futuro manual. *Caso de uso:* Priorizar videos que generarán mejores manuales.
+17. **Alerta de Tendencia Emergente:** Detecta keywords nuevas en títulos. *Caso de uso:* "Nueva tendencia: 'KDP AI Tools' - Priorizar".
+18. **Detección de Contenido Evergreen:** ¿Es contenido atemporal? *Caso de uso:* Priorizar contenido que no caduca.
+19. **Predicción de Duplicado Semántico:** ¿Ya cubres esto aunque el título sea distinto? *Caso de uso:* Evitar redundancia en KB.
+20. **Clasificación de Urgencia:** ¿Contenido sensible al tiempo (noticias) o no? *Caso de uso:* Procesar noticias antes de que expiren.
+21. **Score de Confianza del Canal:** Basado en historial de calidad. *Caso de uso:* Priorizar canales que siempre aportan valor.
+22. **Detección de Series/Capítulos:** Identifica "Parte 1", "Parte 2". *Caso de uso:* Agrupar series para procesar en orden.
+23. **Predicción de Engagement:** ¿El video tendrá mucha información útil? *Caso de uso:* Filtrar videos con bajo engagement potencial.
+24. **Recomendación de Acción:** "Añadir", "Ignorar", "Revisar". *Caso de uso:* Asistente de decisión rápida.
+
+#### 🔹 Pilar 3: Optimización de Flujo y Automatización (25-36)
+25. **Auto-Ignorado de Ruido:** Reglas IA para descartar vlogs, música, shorts sin valor. *Caso de uso:* Limpieza automática 24/7.
+26. **Auto-Priorización de Nichos:** Sube prioridad de videos sobre nichos configurados. *Caso de uso:* Foco automático en objetivos de negocio.
+27. **Agrupación Temática Automática:** Clustering de videos por tema. *Caso de uso:* Procesar por bloques temáticos coherentes.
+28. **Detección de Canales "Spam":** Canales que solo publican basura. *Caso de uso:* Sugerir desactivar monitoreo de canal.
+29. **Optimización de Orden de Descarga:** Ordena cola para maximizar eficiencia. *Caso de uso:* Descarga rápida de items fáciles primero.
+30. **Alerta de Cambio de Estrategia de Canal:** El canal cambia de tema drásticamente. *Caso de uso:* Avisar al usuario para re-evaluar seguimiento.
+31. **Sugerencia de Keywords para Búsqueda:** Basado en pendientes actuales. *Caso de uso:* Ayudar al usuario a filtrar mejor.
+32. **Detección de Oportunidad de Contenido:** Video viral en nicho clave. *Caso de uso:* "¡Este video tiene alto potencial! Procésalo ya".
+33. **Análisis de Competencia:** Detecta si el video es de un competidor directo. *Caso de uso:* Priorizar inteligencia competitiva.
+34. **Filtro de Calidad de Fuente:** Score de calidad basado en metadatos. *Caso de uso:* Filtrar fuentes de baja calidad.
+35. **Predicción de Tiempo de Procesamiento:** Estimación realista. *Caso de uso:* Planificación de recursos.
+36. **Auto-Limpieza de Pendientes Antiguos:** Borra pendientes > X días con bajo score. *Caso de uso:* Mantenimiento automático.
+
+#### 🔹 Pilar 4: Integración con Base de Conocimiento (37-48)
+37. **Mapeo a Matriz de Roles:** Asigna video a Rol SOE correspondiente. *Caso de uso:* Organización automática en estructura GEM.
+38. **Detección de Gaps de Conocimiento:** Video cubre tema que falta en KB. *Caso de uso:* "Este video llena un hueco en 'Fiscalidad'".
+39. **Validación de Consistencia Terminológica:** ¿Usa tus términos estándar? *Caso de uso:* Normalización previa a ingesta.
+40. **Extracción de Promesas/Beneficios:** ¿Qué ofrece el video? *Caso de uso:* Indexación por valor aportado.
+41. **Detección de Actualizaciones de TOS/Políticas:** Keywords legales. *Caso de uso:* Alerta crítica para sección Legalidad.
+42. **Clasificación por Tipo de Activo:** Texto, Gráfico, Audio (solo para info). *Caso de uso:* Filtrado por tipo de recurso.
+43. **Predicción de Longevidad en KB:** ¿Cuánto durará este video en KB? *Caso de uso:* Gestión de ciclo de vida de contenido.
+44. **Análisis de Referencias Cruzadas:** Relaciona con videos ya en KB. *Caso de uso:* Enriquecimiento de red de conocimiento.
+45. **Detección de Contenido Premium/Pago:** ¿Es contenido que deberías comprar? *Caso de uso:* Identificar oportunidades de inversión.
+46. **Validación de Formato de Salida:** ¿El video se presta a manual? *Caso de uso:* Filtrar formatos no convertibles.
+47. **Extracción de Estructura Lógica:** ¿Tiene intro, desarrollo, cierre? *Caso de uso:* Pre-validación de calidad estructural.
+48. **Sugerencia de Fusión con Manuales Existentes:** ¿Se puede integrar en manual X? *Caso de uso:* Optimización de estructura de manuales.
+
+#### 🔹 Pilar 5: Reportes Cognitivos y Asistencia (49-60)
+49. **Resumen Diario de Pendientes:** "Hoy hay 5 videos de alto valor en Ads". *Caso de uso:* Reporte ejecutivo matutino.
+50. **Análisis de Tendencias de Canales:** Qué canales están subiendo/bajando calidad. *Caso de uso:* Optimización de portfolio de canales.
+51. **Predicción de Carga de Trabajo:** "Tardarás 2h en procesar los pendientes". *Caso de uso:* Planificación de tiempo.
+52. **Detección de Anomalías:** Picos inusuales de actividad en canales. *Caso de uso:* Alerta de comportamiento extraño.
+53. **Sugerencia de Nuevos Canales:** Basado en calidad de pendientes actuales. *Caso de uso:* Expansión inteligente de red.
+54. **Análisis de ROI de Monitoreo:** Valor generado vs tiempo invertido. *Caso de uso:* Métrica de eficiencia del sistema.
+55. **Recomendación de Frecuencia de Escaneo:** Ajusta intervalo por canal. *Caso de uso:* Optimización de recursos de red.
+56. **Detección de Contenido Obsoleto:** Videos que ya no son relevantes. *Caso de uso:* Limpieza preventiva.
+57. **Asistente de Decisión Conversacional:** "¿Qué hago con estos 10 videos?". *Caso de uso:* Interacción natural con el sistema.
+58. **Generación de Checklist de Revisión:** Pasos para validar pendientes. *Caso de uso:* Estándares de calidad.
+59. **Predicción de Impacto en KB:** Cómo crecerá la KB con estos videos. *Caso de uso:* Visión estratégica.
+60. **Reporte de Salud de Pendientes:** Score global de la cola de pendientes. *Caso de uso:* Métrica de estado del sistema.
+
+---
+
+🔍 **¿CON ESTO COMPLETO 100% USO PERSONAL A NIVEL ELITE CORPORATE?**
+Sí. Esta arquitectura de **120 módulos especializados (60+60)** transforma el "Visor Videos Pendientes" de una lista estática a un **Centro de Curación y Priorización de Conocimiento KDP**, garantizando:
+
+✅ **Gestión Determinista:** Filtrado avanzado, acciones masivas, persistencia, integración con cola.
+✅ **Cognición Predictiva:** Clasificación semántica, scoring de valor, detección de saturación, optimización de flujo.
+✅ **Enfoque KDP Específico:** Categorías maestras, detección de tendencias, análisis de competencia, integración con Matriz de Roles.
+✅ **Resolución de Problemas Reales:** Ahorro de tiempo, ancho de banda y espacio. Ingesta solo de contenido de alto valor.
+✅ **TEXT-FIRST 100%:** Todo orientado a la decisión de descargar transcripciones de texto, sin dependencia de video.
+
+❓ **PARA MANTENER LA TRAYECTORIA ELITE Y EVITAR SOLAPAMIENTOS (Protocolo B):**
+¿Confirmas que ya tienes tu listado consolidado de **20 módulos SIN IA y 20 CON IA** para esta funcionalidad específica, o deseas que active la expansión de **hardening crítico** (gestión distribuida de pendientes, auditoría de decisiones, escalabilidad >10k items) para blindarlo al 100% corporativo sin repetir nada?
+
+Responde **"HARDENING"** para agregar la capa extra de resiliencia, o **"LISTO"** para pasar a la siguiente funcionalidad. 🚀

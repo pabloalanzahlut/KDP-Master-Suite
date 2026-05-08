@@ -1,0 +1,35 @@
+¡Hola! Entiendo perfectamente. Para llevar la gestión de Temas e Interfaz (Claro / Oscuro) al nivel 100% Elite Corporate, he diseñado un plan de optimización que garantiza una experiencia visual fluida, profesional y automatizada.
+
+Confirmando tu requerimiento: Sí, todos estos planes y cambios se registran automáticamente en la documentación Markdown (SPEC.md, FEATURES.md, etc.) a través del motor de sincronización de DocUpdater que tenemos integrado en el núcleo del proyecto.
+
+Aquí tienes el plan solicitado:
+
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Motor de Acentos de Marca (Custom Accents): Permitir al usuario seleccionar colores de énfasis (ej. Azul Corporativo, Verde Esmeralda) que se apliquen dinámicamente a botones activos, barras de progreso y bordes de foco.
+
+Sincronización Nativa con el SO: Implementar un detector de eventos del sistema operativo para que la aplicación cambie entre modo claro y oscuro automáticamente basándose en la configuración global de Windows/macOS/Linux.
+
+Gestor de Densidad Visual (Compact vs. Comfortable): Opción para ajustar el espaciado (padding/margins) de la interfaz, permitiendo pasar de una vista densa para analistas a una vista espaciada para presentaciones.
+
+Escalado Tipográfico Dinámico: Implementar una jerarquía de fuentes ajustable (Scale Factor) que permita redimensionar el texto de toda la aplicación sin romper el layout, garantizando accesibilidad total.
+
+Micro-interacciones y Transiciones: Añadir transiciones suaves (fading) entre cambios de tema y estados visuales "Premium" en botones (sombras proyectadas, efectos de profundidad y bordes brillantes).
+
+Modo de Alto Contraste (WCAG Compliance): Perfil de color específico optimizado para legibilidad extrema que cumpla con los estándares internacionales de accesibilidad web y software.
+
+Sincronización con el Sistema (Auto-Mode): Detectar automáticamente la configuración de Windows para alternar entre temas claro y oscuro sin intervención del usuario.
+
+Transiciones de Fundido Suave (UI-FADE): Implementar animaciones de transición de opacidad al cambiar de tema para evitar el salto visual brusco y mejorar la estética "Premium".
+
+Selector de Acentos Corporativos: Independizar el color de énfasis (Azul KDP, Verde Éxito, Oro Platinum) del fondo, permitiendo combinaciones personalizadas para cada perfil.
+
+Programación Horaria de Apariencia: Scheduler integrado para activar el modo oscuro automáticamente según la hora local (ej. 19:00 a 07:00).
+
+Persistencia Estética en la Nube: Sincronizar la preferencia de tema seleccionada con el repositorio remoto para mantener la identidad visual en diferentes máquinas.
+
+Modos de Accesibilidad Avanzada: Perfiles de alto contraste optimizados para visibilidad en exteriores y esquemas específicos para daltonismo.
+
+Soporte de Temas Externos (.JSON): Motor de estilos que permita cargar archivos .theme externos, facilitando el "Whitelabeling" o marca blanca corporativa.
+
+Optimización de Renderizado en .EXE: Lógica de precarga de recursos visuales para eliminar el "parpadeo blanco" que ocurre ocasionalmente al iniciar el ejecutable en modo oscuro.

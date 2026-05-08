@@ -1,0 +1,150 @@
+🎯 **PRÓXIMOS PASOS (Opcionales)**
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar el campo "Nombre" de un simple input de texto a un **Sistema Inteligente de Etiquetado y Clasificación de Canales KDP** garantiza que cada canal añadido tenga metadata enriquecida, nombres descriptivos automáticos, validación de coherencia con el contenido del canal y organización automática basada en las 18 categorías maestras de Amazon KDP. La separación determinista (validación, autocompletado, normalización) y cognitiva (generación de nombres con IA, análisis semántico, predicción de categorías) cumple estándares enterprise y opera 100% bajo tu flujo TEXT-FIRST.
+
+---
+
+## 📊 **CAMPO NOMBRE DEL CANAL - ARQUITECTURA ELITE CORPORATE**
+
+### 🎯 **PROPÓSITO CENTRAL**
+Transformar el campo "Nombre" de un input manual básico a un **Sistema Híbrido de Denominación Inteligente** que sugiere automáticamente nombres descriptivos basados en el contenido del canal, valida coherencia con la URL, detecta el nicho KDP específico y organiza automáticamente en la estructura de 18 categorías, reduciendo el tiempo de configuración de 2 minutos a 10 segundos por canal.
+
+**🛠️ Caso de Uso Real y Solución al Usuario Final:**
+*   **Problema:** El usuario añade un canal de YouTube sobre Amazon KDP. Debe escribir manualmente un nombre descriptivo como "Pablo Alanzahlut - KDP Expert" pero olvida añadirlo o escribe un nombre genérico. Luego, al tener 50 canales, no puede identificar rápidamente cuáles son sobre "Amazon Ads", cuáles sobre "Low Content" o cuáles sobre "Legalidad". Pierde 30 segundos por canal escribiendo nombres y luego horas organizando manualmente.
+*   **Solución Elite:** El usuario pega la URL del canal. El sistema: (1) Extrae automáticamente el nombre del canal desde YouTube API, (2) Analiza los últimos 10 videos para detectar el nicho principal (ej. "Amazon Ads"), (3) Sugiere nombre enriquecido: "Pablo Alanzahlut - Amazon Ads Expert", (4) Asigna automáticamente a categoría "Amazon Ads y Marketing", (5) Añade tags automáticos: #PPC #Campañas #Marketing. El usuario solo confirma o edita ligeramente. **Tiempo ahorrado: 30 segundos → 3 segundos por canal.**
+
+---
+
+## 📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Validación de Nombres)**
+
+### **Pilar 1: Validación y Normalización de Nombres (1-12)**
+
+1.  **Validador de Longitud Mínima/Máxima** — Verifica que el nombre tenga entre 3-100 caracteres. *Caso de uso real:* Usuario escribe "A" → sistema alerta "❌ Nombre demasiado corto (mínimo 3 caracteres)"; escribe 150 caracteres → "❌ Nombre demasiado largo (máximo 100 caracteres)".
+
+2.  **Validador de Caracteres Especiales** — Permite solo caracteres alfanuméricos, espacios, guiones y emojis básicos. *Caso de uso:* Usuario escribe "Canal@KDP#2026!" → sistema limpia automáticamente a "Canal KDP 2026" o alerta "⚠️ Caracteres especiales no permitidos".
+
+3.  **Normalizador de Mayúsculas/MINÚSCULAS** — Convierte automáticamente a Title Case (Primera Letra Mayúscula). *Caso de uso:* Usuario escribe "pablo alanzahlut - kdp expert" → sistema convierte automáticamente a "Pablo Alanzahlut - KDP Expert".
+
+4.  **Detector de Nombres Duplicados** — Verifica si el nombre ya existe en la base de datos de canales monitoreados. *Caso de uso:* Usuario intenta añadir "Pablo KDP" pero ya existe → sistema alerta "⚠️ Ya existe un canal con este nombre. ¿Usar 'Pablo KDP (2)'?".
+
+5.  **Validador de Coherencia URL-Nombre** — Verifica que el nombre guarde relación con la URL del canal. *Caso de uso:* URL es "youtube.com/@pablokdp" pero usuario escribe "Canal de Cocina" → sistema alerta "⚠️ El nombre no parece coincidir con la URL del canal".
+
+6.  **Eliminador Automático de Espacios Extra** — Elimina espacios al inicio, final y duplicados en medio. *Caso de uso:* Usuario escribe "  Pablo   KDP  " → sistema limpia automáticamente a "Pablo KDP".
+
+7.  **Validador de Idioma del Nombre** — Detecta si el nombre está en español, inglés u otro idioma. *Caso de uso:* Sistema detecta "🌐 Idioma detectado: Inglés" → alerta si usuario solo quiere canales en español.
+
+8.  **Detector de Nombres Genéricos** — Identifica nombres como "Canal1", "Test", "Nuevo Canal". *Caso de uso:* Usuario escribe "Canal1" → sistema sugiere "✏️ ¿Usar nombre descriptivo? Ej: 'Pablo KDP - Amazon Ads'".
+
+9.  **Validador de Profanidades/Spam** — Filtra palabras inapropiadas o spam en el nombre. *Caso de uso:* Nombre contiene "FREE MONEY!!!" → sistema alerta "⚠️ Nombre contiene posible spam o contenido inapropiado".
+
+10. **Autoguardado de Últimos Nombres Usados** — Guarda historial de los últimos 10 nombres personalizados. *Caso de uso:* Usuario empieza a escribir "Pab" → sistema sugiere autocompletar con "Pablo Alanzahlut - KDP Expert" del historial.
+
+11. **Validador de Unicidad por Categoría** — Verifica que no haya dos canales con mismo nombre en misma categoría. *Caso de uso:* Usuario tiene "Pablo KDP" en categoría "Amazon Ads" e intenta añadir otro "Pablo KDP" en misma categoría → alerta "⚠️ Nombre duplicado en esta categoría".
+
+12. **Normalizador de Emojis** — Permite solo emojis específicos relacionados con KDP (📚, , 🎯, etc.). *Caso de uso:* Usuario escribe "Canal KDP 📚" → sistema valida emoji permitido; escribe "Canal 💰💰" → sistema alerta "⚠️ Emoji no recomendado para nombres profesionales".
+
+### **Pilar 2: Autocompletado y Sugerencias Automáticas (13-24)**
+
+13. **Extracción Automática desde YouTube API** — Obtiene el nombre oficial del canal desde la API de YouTube. *Caso de uso real:* Usuario pega URL "youtube.com/@pablokdp" → sistema autocompleta automáticamente campo Nombre con "Pablo Alanzahlut - KDP Expert" desde YouTube.
+
+14. **Sugerencia Basada en Handle (@)** — Extrae nombre del handle de YouTube si no hay nombre personalizado. *Caso de uso:* Canal tiene handle "@pablokdp" pero no ha configurado nombre → sistema sugiere "Pablo KDP" basado en el handle.
+
+15. **Autocompletado desde Canales Similares** — Sugiere nombres basados en patrones de canales similares ya añadidos. *Caso de uso:* Usuario tiene "Pablo KDP - Amazon Ads", "María KDP - Low Content" → al añadir nuevo canal de María, sugiere "María KDP - [Categoría]".
+
+16. **Detección de Patrón de Nomenclatura** — Aprende el patrón que usa el usuario (ej. "Nombre - Categoría"). *Caso de uso:* Usuario siempre usa formato "Nombre - Categoría" → sistema sugiere automáticamente ese formato para nuevos canales.
+
+17. **Sugerencia desde Metadatos del Canal** — Usa descripción del canal para sugerir nombre más descriptivo. *Caso de uso:* Descripción dice "Experto en Amazon KDP y Low Content Books" → sistema sugiere "Pablo KDP - Low Content Expert".
+
+18. **Historial de Ediciones de Nombre** — Guarda versiones anteriores del nombre por si el usuario quiere revertir. *Caso de uso:* Usuario cambia "Pablo KDP" a "Pablo Amazon Expert" pero se arrepiente → puede revertir a versión anterior.
+
+19. **Sugerencia Basada en Videos Recientes** — Analiza títulos de últimos videos para sugerir especialización. *Caso de uso:* Últimos 5 videos son sobre "Amazon Ads" → sistema sugiere "Pablo KDP - Amazon Ads Specialist".
+
+20. **Detección de Sinónimos de Categoría** — Reconoce que "PPC", "Ads", "Publicidad" son lo mismo para Amazon KDP. *Caso de uso:* Canal se especializa en "PPC" → sistema sugiere nombre con "Amazon Ads" (término estandarizado en las 18 categorías).
+
+21. **Autocompletado Inteligente por Tecla Tab** — Permite navegar entre sugerencias con tecla Tab. *Caso de uso:* Usuario escribe "Pab" → pulsa Tab → sistema completa "Pablo Alanzahlut - KDP Expert".
+
+22. **Sugerencia desde Base de Conocimiento** — Si el canal ya está mencionado en KB, sugiere ese nombre. *Caso de uso:* Canal ya fue mencionado en transcripciones como "Pablo Alanzahlut (KDP Expert)" → sistema sugiere ese nombre exacto.
+
+23. **Detección de Abreviaturas Comunes** — Reconoce que "KDP" = "Kindle Direct Publishing". *Caso de uso:* Usuario escribe "Kindle Direct Publishing Expert" → sistema sugiere versión corta "KDP Expert" (más común en la comunidad).
+
+24. **Sugerencia Basada en Frecuencia de Búsqueda** — Si el usuario busca frecuentemente este canal, sugiere nombre prominente. *Caso de uso:* Usuario busca "Pablo KDP" 20 veces este mes → sistema sugiere nombre prominente y fácil de recordar.
+
+### **Pilar 3: Organización y Categorización Automática (25-36)**
+
+25. **Asignación Automática a 18 Categorías KDP** — Detecta automáticamente a cuál de las 18 categorías maestras pertenece. *Caso de uso real:* Nombre sugiere "Amazon Ads" → sistema asigna automáticamente a categoría #4 "Amazon Ads (PPC)".
+
+26. **Detección de Sub-Categorías** — Identifica sub-nichos dentro de categorías principales. *Caso de uso:* Nombre es "Pablo KDP - Coloring Books" → sistema asigna a "Low-Content > Coloring Books".
+
+27. **Validación de Coherencia Categoría-Nombre** — Verifica que el nombre sea coherente con la categoría asignada. *Caso de uso:* Nombre dice "Low Content" pero categoría es "Amazon Ads" → sistema alerta "⚠️ Inconsistencia detectada entre nombre y categoría".
+
+28. **Sugerencia de Tags Basados en Nombre** — Extrae keywords del nombre para usar como tags. *Caso de uso:* Nombre es "Pablo KDP - Amazon Ads Expert" → sistema extrae tags automáticos: #AmazonAds #PPC #Marketing.
+
+29. **Mapeo de Nombre a Rol SOE** — Asocia el canal con uno de los 37+1 roles GEM basado en el nombre. *Caso de uso:* Nombre contiene "SEO" → sistema sugiere asignar a Rol #6 "Especialista SEO Amazon (A9)".
+
+30. **Detección de Nivel de Experto** — Identifica si el nombre sugiere nivel principiante, intermedio o avanzado. *Caso de uso:* Nombre es "KDP para Principiantes" → sistema etiqueta como "Nivel: Principiante".
+
+31. **Agrupación Automática por Patrón de Nombre** — Agrupa canales con nombres similares. *Caso de uso:* Usuario tiene "Pablo KDP - Ads", "Pablo KDP - SEO", "Pablo KDP - Legalidad" → sistema los agrupa visualmente como "Serie Pablo KDP".
+
+32. **Validación de Consistencia de Marca** — Verifica si el nombre mantiene consistencia de branding con otros canales del mismo creador. *Caso de uso:* Usuario tiene "Pablo KDP", "María Marketing" → añade "Pablo Amazon" → sistema sugiere "✏️ ¿Usar 'Pablo KDP - Amazon' para mantener consistencia?".
+
+33. **Detección de Canales de Competencia** — Identifica si el nombre sugiere que es competencia directa. *Caso de uso:* Nombre contiene "Competencia" o es similar a canales competidores → sistema etiqueta como "⚠️ Competencia".
+
+34. **Asignación de Prioridad Basada en Nombre** — Asigna prioridad alta si el nombre contiene palabras clave importantes. *Caso de uso:* Nombre es "Amazon Ads EXPERT 2026" → sistema asigna prioridad "Alta" automáticamente.
+
+35. **Detección de Actualidad en Nombre** — Verifica si el nombre contiene año actual (2026) o está desactualizado. *Caso de uso:* Nombre es "KDP Expert 2023" → sistema alerta "⚠️ Nombre desactualizado (2023). ¿Actualizar a 2026?".
+
+36. **Mapeo de Nombre a Manual KDP** — Sugiere a qué manual (Legalidad, Fórmulas, Matriz) pertenece el contenido del canal basado en el nombre. *Caso de uso:* Nombre contiene "Legal" o "TOS" → sistema sugiere integrar en "MANUAL_LEGALIDAD.md".
+
+### **Pilar 4: UX/UI y Feedback Visual en Tiempo Real (37-48)**
+
+37. **Contador de Caracteres en Tiempo Real** — Muestra "X/100 caracteres" mientras el usuario escribe. *Caso de uso real:* Usuario ve "45/100" → sabe cuánto espacio le queda sin tener que contar mentalmente.
+
+38. **Highlight de Campo Auto-Completado** — Resalta en amarillo el campo cuando se autocompleta automáticamente. *Caso de uso:* Sistema autocompleta "Pablo KDP - Amazon Ads" → campo se resalta en amarillo → usuario sabe que puede editar si quiere.
+
+39. **Tooltip con Ejemplos de Formato** — Muestra tooltip con ejemplos: "Ej: 'Pablo KDP - Amazon Ads Expert'". *Caso de uso:* Usuario pasa mouse sobre campo → ve tooltip "Formato recomendado: 'Nombre - Especialidad - Nivel'".
+
+40. **Validación Visual Inline con Iconos** — Muestra ✓ verde o ✗ rojo al lado del campo mientras escribe. *Caso de uso:* Usuario escribe nombre válido → aparece ✓ verde inmediatamente; escribe nombre inválido → aparece ✗ rojo con mensaje.
+
+41. **Animación de Sugerencia Deslizante** — Las sugerencias aparecen con animación suave deslizándose desde abajo. *Caso de uso:* Usuario escribe "Pab" → sugerencias aparecen con animación fluida → mejor experiencia visual.
+
+42. **Botón "Limpiar Nombre" Rápido** — Botón X al lado del campo para borrar rápidamente. *Caso de uso:* Usuario quiere empezar de cero → click en X → campo se limpia instantáneamente.
+
+43. **Botón "Usar Sugerencia" Destacado** — Botón verde prominente para aceptar sugerencia automática. *Caso de uso:* Sistema sugiere "Pablo KDP - Amazon Ads Expert" → usuario ve botón verde "✓ Usar esta sugerencia" → click para aceptar.
+
+44. **Preview de Cómo se Verá en Lista** — Muestra preview de cómo se verá el nombre en la lista de canales monitoreados. *Caso de uso:* Usuario escribe nombre → ve preview "📺 Pablo KDP - Amazon Ads Expert | ✅ Activo | 45 videos" → valida antes de confirmar.
+
+45. **Indicador de Fortaleza del Nombre** — Barra de progreso que muestra qué tan descriptivo es el nombre. *Caso de uso:* Usuario escribe "Canal1" → barra muestra "20% (Muy genérico)"; escribe "Pablo KDP - Amazon Ads Expert 2026" → barra muestra "95% (Excelente)".
+
+46. **Sugerencia de Corrección Ortográfica** — Detecta y sugiere correcciones ortográficas en tiempo real. *Caso de uso:* Usuario escribe "Pablo KDP - Amazn Ads" → sistema sugiere "✏️ ¿Quisiste decir 'Amazon Ads'?".
+
+47. **Historial de Cambios Recientes** — Muestra últimas 3 ediciones del nombre con opción a revertir. *Caso de uso:* Usuario cambió nombre 3 veces → puede ver historial "1. Pablo KDP → 2. Pablo Amazon → 3. Pablo KDP - Ads" → revertir a cualquiera.
+
+48. **Atajo de Teclado Ctrl+Enter para Confirmar** — Permite confirmar nombre rápidamente con teclado. *Caso de uso:* Usuario escribe nombre → pulsa Ctrl+Enter → nombre se guarda sin tener que hacer click en botón.
+
+### **Pilar 5: Persistencia y Sincronización con Base de Datos (49-60)**
+
+49. **Guardado Automático al Perder Foco** — Guarda el nombre automáticamente cuando el usuario sale del campo. *Caso de uso real:* Usuario escribe nombre y hace click en otro campo → sistema guarda automáticamente sin necesidad de botón "Guardar".
+
+50. **Sincronización Inmediata con DB** — Actualiza la base de datos inmediatamente tras guardar. *Caso de uso:* Usuario cambia nombre → DB se actualiza instantáneamente → otros módulos ven el cambio inmediatamente.
+
+51. **Backup Automático Pre-Cambio** — Crea backup del nombre anterior antes de cambiar. *Caso de uso:* Usuario cambia nombre → sistema guarda versión anterior → si hay error, puede restaurar automáticamente.
+
+52. **Validación de Integridad Post-Guardado** — Verifica que el nombre se guardó correctamente en DB. *Caso de uso:* Tras guardar, sistema verifica "✅ Nombre 'Pablo KDP' guardado correctamente en DB (ID: CH_001234)".
+
+53. **Actualización de Estadísticas Globales** — Actualiza contadores de "Total Canales", "Canales por Categoría" tras cambiar nombre. *Caso de uso:* Usuario cambia categoría en nombre → estadísticas se actualizan automáticamente.
+
+54. **Indexación Automática para Búsqueda** — Añade el nuevo nombre a índices de búsqueda FTS5 inmediatamente. *Caso de uso:* Usuario puede buscar el canal por el nuevo nombre inmediatamente tras guardar.
+
+55. **Propagación de Cambio a Módulos Dependientes** — Notifica a otros módulos que el nombre cambió. *Caso de uso:* Usuario cambia nombre → módulo de Dashboard, módulo de Reportes, módulo de Exportación reciben notificación del cambio.
+
+56. **Logging de Auditoría de Cambio** — Registra en audit log quién cambió el nombre, cuándo y valor anterior/nuevo. *Caso de uso:* Audit log guarda "User: admin, Action: CHANGE_CHANNEL_NAME, Old: 'Pablo KDP', New: 'Pablo KDP - Amazon Ads', Timestamp: 2026-01-30 14:30".
+
+57. **Sincronización con Archivos Markdown** — Si el nombre se usa en manuales .md, actualiza automáticamente. *Caso de uso:* Nombre del canal aparece en MANUAL_LEGALIDAD.md → sistema actualiza automáticamente todas las referencias.
+
+58. **Validación de Consistencia Cross-Platform** — Verifica que el nombre sea consistente en DB, UI y archivos. *Caso de uso:* Sistema verifica "✅ Nombre consistente en: DB (SQLite), UI (Tkinter), Archivos (Markdown)".
+
+59. **Exportación Automática de Cambio** — Si hay exportación programada, incluye el cambio de nombre. *Caso de uso:* Usuario tiene exportación diaria a las 8pm → cambio de nombre se incluye automáticamente en próxima exportación.
+
+60. **Recuperación Automática tras Crash** — Si la app crashea durante cambio de nombre, recupera estado consistente. *Caso de uso:* App crashea mientras usuario cambiaba nombre → al reiniciar, sistema recupera último estado válido o nombre anterior.
+
+---

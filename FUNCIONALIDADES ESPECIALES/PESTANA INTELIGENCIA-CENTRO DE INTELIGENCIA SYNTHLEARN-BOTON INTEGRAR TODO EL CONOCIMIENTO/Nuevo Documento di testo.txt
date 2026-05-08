@@ -1,0 +1,73 @@
+🎯 PRÓXIMOS PASOS (Opcionales) - Plan de Optimización Elite Corporate
+📂 BLOQUE 1: INFRAESTRUCTURA Y GESTIÓN DE DATOS (60 Módulos SIN IA)
+Enfocado en robustez, integridad, rendimiento y trazabilidad.
+
+🧩 PUNTOS DE EXTENSIÓN PARA IA (OLLAMA LOCAL)
+Módulos SIN IA para Transformación Determinista
+Validador de Encoding UTF-8 — Previene mojibakes en archivos de salida.
+Generador de Hash SHA-256 por Archivo — Base para deduplicación exacta.
+Parser de Metadata de Archivo — Extrae fecha, tamaño, fuente para indexación.
+Validador de Estructura de Manuales — Verifica headers #, ##, ### en .md.
+Sistema de Backup Atómico Pre-Migración — Garantiza rollback seguro.
+
+Indexación Delta: Procesar solo fragmentos nuevos de archivos modificados.
+Transacciones Atómicas SQL: Asegurar que la integración en DB no deje datos corruptos ante fallos.
+Sistema de Versionado de Manuales (Git-like): Guardar estados previos de los archivos .md.
+Detección de Colisiones de Hilos: Semáforos avanzados para evitar escrituras simultáneas.
+Normalización Unicode Pro: Limpieza exhaustiva de caracteres invisibles y emojis en texto.
+Validador de Esquema Markdown: Asegurar que cada entrada respete la estructura de headers.
+Cifrado en Reposo (AES-256): Encriptar el contenido de la base de datos de conocimiento.
+Motor de Búsqueda FTS5 Optimizado: Índices de búsqueda de texto completo ultra-rápidos.
+Limpieza de Banalidad por Regex Dinámico: Filtros personalizables para "filler words".
+Detección de Duplicados por Distancia Levenshtein: Comparar similitud de texto sin LLM.
+Hash de Fragmento Único: Generar ID único por párrafo para evitar redundancia exacta.
+Extractor de Metadatos de Fuente: Capturar automáticamente fecha y origen del archivo .txt.
+Monitor de Memoria RAM: Limitar el tamaño de buffers en integraciones masivas.
+Snapshot de Seguridad: Crear copia de seguridad automática antes de iniciar la integración.
+Sistema de Deshacer (Undo): Revertir la última integración masiva con un clic.
+Control de Flujo (Throttling): Regular la velocidad de procesamiento para evitar picos de CPU.
+Trazabilidad por Usuario/Perfil: Registrar qué perfil integró qué conocimiento.
+Auditoría de Integridad de Archivos: Verificar checksums de manuales cada 5 minutos.
+Generador de TOC (Tabla de Contenidos): Actualizar índices de manuales automáticamente.
+Limpieza de "Stop-words" multilingüe: Eliminar conectores irrelevantes.
+Conversor de Formatos (SRT/VTT a TXT plano): Limpieza de marcas de tiempo.
+Detección de Idioma (Librería Estándar): Clasificar por idioma antes de integrar.
+Sincronización Diferida: Integrar en segundo plano mientras el usuario usa la app.
+Sistema de Priorización de Archivos: Integrar primero archivos marcados como "Críticos".
+Fragmentación Inteligente: Dividir manuales si superan las 10,000 líneas para rendimiento.
+Buscador de Enlaces Rotos: Validar que las fuentes mencionadas existan.
+Analizador de Legibilidad (Flesch): Medir la complejidad técnica del texto.
+Conector Webhook de Salida: Notificar a sistemas externos al finalizar integración.
+Métricas de Rendimiento: Tiempo de procesamiento por cada 1,000 palabras.
+Visor de Diferencias (Diff): Mostrar qué cambió exactamente en el manual maestro.
+Validador de Taxonomía: Impedir categorías que no estén en la lista oficial.
+Extractor de Números y KPIs: Identificar menciones de BSR o precios automáticamente.
+Filtro de Privacidad (PII): Ocultar correos o nombres reales detectados en texto.
+Logs de Operación Estructurados (JSON): Facilitar el diagnóstico técnico.
+Modo de Simulación (Dry Run): Ver qué se integraría sin escribir en disco.
+Auto-reparación de Base de Datos: Ejecutar VACUUM y REINDEX periódicamente.
+Compresión de Archivos Antiguos: Archivar versiones viejas de manuales en ZIP.
+Buscador de Palabras Clave Prohibidas: Bloquear contenido sensible.
+Soporte para Unidades de Red (NAS): Gestión de latencia en archivos remotos.
+Dashboard de Salud de Conocimiento: Porcentaje de manuales actualizados.
+Sistema de Etiquetas (Tags) Manuales: Permitir categorización manual rápida.
+Detección de Fragmentos Vacíos: Omitir bloques sin sustancia real.
+Integración con Calendario: Ver cronología de adquisición de conocimiento.
+Exportación Selectiva: Integrar solo bloques de una fecha específica.
+Validación de Codificación (UTF-8/Latin-1): Evitar errores de lectura.
+Sistema de Bloqueo de Manuales: Impedir edición manual mientras se integra.
+Mapa de Calor de Conocimiento: Ver qué categorías crecen más rápido.
+Soporte para Plantillas de Manual: Definir cómo se ve el texto integrado.
+Auto-unión de Párrafos Cortos: Mejorar la fluidez del texto.
+Extractor de Listas y Checklists: Identificar pasos secuenciales en el texto.
+Validador de Fuentes Duplicadas: No integrar dos veces la misma URL de fuente.
+Monitor de Espacio en Disco: Frenar si queda menos de 500MB.
+Sistema de Alertas por Escritura Fallida: Notificación inmediata en barra de estado.
+Soporte para Markdown Extendido: Tablas, notas al pie y fórmulas matemáticas.
+Gestor de Dependencias de Manuales: Si integras A, sugerir revisar manual B.
+Limpieza de "Timestamp Artifacts": Eliminar restos de marcas de tiempo mal borradas.
+Organización por Carpetas Automática: Mover archivos procesados a "Archivo".
+Relación de Conceptos Clave: Crear un glosario técnico basado en frecuencia.
+Exportación a JSON para Apps Externas: Facilitar la lectura del conocimiento.
+Firma Digital de Integración: Verificar que el archivo no fue alterado externamente.
+

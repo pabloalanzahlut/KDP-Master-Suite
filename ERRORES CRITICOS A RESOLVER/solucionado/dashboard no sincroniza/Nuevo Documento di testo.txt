@@ -1,0 +1,204 @@
+**DIAGNÓSTICO PUNTUAL:**
+
+El dashboard muestra **129 canales activos** pero **0 videos totales**, lo que indica que no está consultando correctamente tu base de datos local donde se almacenan los videos detectados.
+
+**SOLUCIÓN QUIRÚRGICA:**
+
+Necesitas modificar SOLO el archivo del dashboard web (`dashboard.py` o similar en tu servidor Flask/FastAPI en localhost:8000).
+
+### 1. **Endpoint de Actualización en Tiempo Real**
+
+Agrega/Modifica esta ruta en tu servidor web:
+
+```python
+from flask import jsonify
+import sqlite3
+from datetime import datetime, timedelta
+
+@app.route('/api/dashboard/stats')
+def get_dashboard_stats():
+    """Obtiene estadísticas reales de la BD local"""
+    try:
+        # Conectar a TU base de datos local (la misma que usa la app desktop)
+        db_path = "D:/ANEXOS KDP Y DIGITALES/KDP_MASTER/data/kdp_master.db"
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Canales activos
+        cursor.execute("SELECT COUNT(*) FROM channels WHERE active = 1")
+        canales_activos = cursor.fetchone()[0]
+        
+        # Videos totales detectados
+        cursor.execute("SELECT COUNT(*) FROM videos")
+        videos_totales = cursor.fetchone()[0]
+        
+        # Videos NUEVOS (no descargados aún)
+        cursor.execute("""
+            SELECT COUNT(*) FROM videos 
+            WHERE downloaded = 0 OR downloaded IS NULL
+        """)
+        videos_pendientes = cursor.fetchone()[0]
+        
+        # Videos en procesamiento
+        cursor.execute("""
+            SELECT COUNT(*) FROM videos 
+            WHERE status = 'processing'
+        """)
+        videos_procesando = cursor.fetchone()[0]
+        
+        # Videos completados
+        cursor.execute("""
+            SELECT COUNT(*) FROM videos 
+            WHERE status = 'completed' OR downloaded = 1
+        """)
+        videos_completados = cursor.fetchone()[0]
+        
+        # Videos fallidos
+        cursor.execute("""
+            SELECT COUNT(*) FROM videos 
+            WHERE status = 'failed'
+        """)
+        videos_fallidos = cursor.fetchone()[0]
+        
+        # Actividad reciente (últimos 5 videos)
+        cursor.execute("""
+            SELECT title, channel_id, created_at, status 
+            FROM videos 
+            ORDER BY created_at DESC 
+            LIMIT 5
+        """)
+        actividad_reciente = [
+            {
+                'title': row[0],
+                'channel': row[1],
+                'date': row[2],
+                'status': row[3]
+            }
+            for row in cursor.fetchall()
+        ]
+        
+        conn.close()
+        
+        return jsonify({
+            'canales_activos': canales_activos,
+            'videos_totales': videos_totales,
+            'pendientes': videos_pendientes,
+            'procesando': videos_procesando,
+            'completados': videos_completados,
+            'fallidos': videos_fallidos,
+            'actividad_reciente': actividad_reciente,
+            'ultima_actualizacion': datetime.now().strftime('%H:%M:%S')
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+```
+
+### 2. **Auto-Refresh en el Frontend (JavaScript)**
+
+En tu archivo HTML del dashboard, agrega esto:
+
+```javascript
+// Actualizar dashboard cada 10 segundos automáticamente
+function actualizarDashboard() {
+    fetch('/api/dashboard/stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Error:', data.error);
+                return;
+            }
+            
+            // Actualizar contadores
+            document.querySelector('[data-canales]').textContent = data.canales_activos;
+            document.querySelector('[data-videos-totales]').textContent = data.videos_totales;
+            document.querySelector('[data-pendientes]').textContent = data.pendientes;
+            document.querySelector('[data-procesando]').textContent = data.procesando;
+            document.querySelector('[data-completados]').textContent = data.completados;
+            document.querySelector('[data-fallidos]').textContent = data.fallidos;
+            
+            // Actualizar timestamp
+            document.querySelector('[data-timestamp]').textContent = 
+                `Última actualización: ${data.ultima_actualizacion}`;
+            
+            // Actualizar actividad reciente
+            if (data.actividad_reciente.length > 0) {
+                const actividadHTML = data.actividad_reciente.map(video => `
+                    <div class="actividad-item">
+                        <span class="titulo">${video.title}</span>
+                        <span class="fecha">${new Date(video.date).toLocaleString()}</span>
+                        <span class="estado ${video.status}">${video.status}</span>
+                    </div>
+                `).join('');
+                document.querySelector('[data-actividad]').innerHTML = actividadHTML;
+            }
+            
+            // Alerta de videos nuevos pendientes
+            if (data.pendientes > 0) {
+                mostrarNotificacion(`📥 ${data.pendientes} videos nuevos pendientes de descargar`);
+            }
+        })
+        .catch(error => console.error('Error al actualizar:', error));
+}
+
+// Ejecutar inmediatamente al cargar
+actualizarDashboard();
+
+// Actualizar cada 10 segundos
+setInterval(actualizarDashboard, 10000);
+
+function mostrarNotificacion(mensaje) {
+    // Crear notificación visual
+    const notif = document.createElement('div');
+    notif.className = 'notificacion';
+    notif.textContent = mensaje;
+    notif.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #1E90FF;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+    `;
+    document.body.appendChild(notif);
+    
+    setTimeout(() => {
+        notif.remove();
+    }, 5000);
+}
+```
+
+### 3. **Base de Datos - Verificar Tablas**
+
+Ejecuta esto en tu BD para asegurarte de que existe la estructura:
+
+```sql
+-- Si no existe la tabla videos, créala
+CREATE TABLE IF NOT EXISTS videos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    video_id TEXT UNIQUE,
+    title TEXT,
+    channel_id TEXT,
+    channel_name TEXT,
+    url TEXT,
+    status TEXT DEFAULT 'pending',
+    downloaded BOOLEAN DEFAULT 0,
+    vtt_path TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- Índice para búsquedas rápidas
+CREATE INDEX IF NOT EXISTS idx_videos_status ON videos(status);
+CREATE INDEX IF NOT EXISTS idx_videos_downloaded ON videos(downloaded);
+```
+
+**RESUMEN DE CAMBIOS:**
+1. **Backend:** Endpoint `/api/dashboard/stats` que lee DIRECTAMENTE de tu BD local
+2. **Frontend:** JavaScript que hace polling cada 10 segundos y muestra videos pendientes
+3. **Notificación:** Alerta visual cuando hay videos nuevos sin descargar
+
+**Resultado:** El dashboard mostrará en tiempo real los 129 canales, los videos totales detectados, y te alertará cuando haya videos nuevos pendientes de descargar.

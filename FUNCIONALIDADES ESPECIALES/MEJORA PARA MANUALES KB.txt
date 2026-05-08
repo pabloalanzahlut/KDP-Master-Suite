@@ -1,0 +1,48 @@
+## 🎯 PRÓXIMOS PASOS - MEJORAS PARA USO ELITE CORPORATE
+
+### Nivel 1: Experiencia de Usuario (UI/UX)
+
+1. **Dashboard de Conocimiento Interactive**: Panel web con búsqueda full-text, filtros por categoría/fecha/rol
+2. **Vista Split View**: Mostrar estructura + transcripción lado a lado
+3. **Navegación por Facets**: Filtrar por rol, fase SOE, tipo de contenido
+4. **Índice Visual**: Árbol colapsable de categorías
+
+### Nivel 2: Automatización Inteligente
+
+5. **Auto-clasificación IA**: NUEVAS transcripciones clasificadas automáticamente por tema
+6. **Detección de Duplicados PRO**: Comparar por similaridad semántica (no solo hash)
+7. **Alertas de Actualización**: Notificar cuando cambia un manual seguido
+8. **Versionado**: Historial de cambios por archivo
+
+### Nivel 3: Integración & Workflow
+
+9. **Export-selective**: Elegir qué manuales exportar
+10. **Tags/Prioridades**: Agregar metadata a transcripciones
+11. **Bookmarks/Favoritos**: Marcar transcripciones importantes
+12. **NotasPersonales**: Agregar notas propias a cada módulo
+
+### Nivel 4: Analytics & Reports
+
+13. **Métricas de Uso**: Qué se lee/search
+14. **Reportes Semanales**: Resumen de nuevo conocimiento
+15. **Heatmaps**: Temas más consultadas
+16. **Integración Chat**: Query la KB con IA
+
+### Nivel 5: Colaboración (si aplica)
+
+17. **Compartir URL**: Link directo a módulo específico
+18. **Export to Notion/Obsidian**: Formato compatible
+19. **APIREST**: Exponer KB como servicio
+
+---
+
+## Pregunta para ti:
+
+**¿Cuál de estos sería más valioso para tu uso?**
+
+- A) **Búsqueda + Dashboard** (encontrar info rápido)
+- B) **Auto-clasificación IA** (llegar nuevo y ya estar categorizado)
+- C) **Versionado + Historial** (saber qué cambió)
+- D) **Integración Chat** (preguntar a la KB)
+
+O ¿combinación?

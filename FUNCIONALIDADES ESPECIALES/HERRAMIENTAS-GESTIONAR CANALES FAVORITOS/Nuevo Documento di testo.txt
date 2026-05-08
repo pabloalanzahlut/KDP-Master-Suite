@@ -1,0 +1,33 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Para elevar la funcionalidad Gestionar Canales Favoritos al estándar Elite Corporate 100%, el plan se enfoca en la organización avanzada, la inteligencia competitiva y la automatización de la vigilancia de contenidos:
+
+Módulos de Gestión y Estructura de Datos (SIN IA):
+
+Agrupamiento por Carpetas y Etiquetas: Implementar una jerarquía lógica para organizar canales por nichos, proyectos o prioridades de investigación.
+Importación/Exportación Masiva OPML: Soporte estándar para migrar listas de canales desde otros lectores de RSS o plataformas de gestión de video.
+Monitor de Disponibilidad (Health Check): Verificación automática para detectar canales eliminados, baneados o que han cambiado su identificador único.
+Sistema de Notas y Anotaciones Técnicas: Campo de metadatos persistente para que el usuario registre observaciones estratégicas sobre cada canal.
+Filtros de Notificación Granulares: Reglas para disparar alertas solo si un canal específico sube contenido que cumpla criterios técnicos (ej. duración > 10 min).
+Ranking por Métricas de Rendimiento: Ordenamiento dinámico basado en frecuencia de subida, promedio de vistas y tasa de crecimiento mensual.
+Sincronización de Favoritos Multi-instancia: Mecanismo para exportar la lista de favoritos cifrada para su uso en diferentes estaciones de trabajo.
+Buscador Global Indexado: Motor de búsqueda rápida dentro de la lista de favoritos por nombre, descripción del canal o etiquetas de usuario.
+Historial de Actividad del Canal: Registro de cuándo fue agregado, última vez monitoreado y cuántos videos han sido procesados desde ese origen.
+Modo de Suspensión Temporal: Capacidad de pausar el monitoreo de un canal específico sin eliminarlo de la lista de favoritos para ahorrar cuota de API.
+
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Para elevar la funcionalidad Gestionar Canales Favoritos (con integración automática del archivo Libro1 y la base de datos) al estándar Elite Corporate 100%, se deben integrar los siguientes módulos:
+
+Módulos de Sincronización e Infraestructura (SIN IA):
+
+Motor de Sincronización Bidireccional: Sincronizar en tiempo real los cambios entre el archivo físico "Libro1" (Excel/CSV) y la base de datos SQLite, asegurando que ambos reflejen la misma lista de canales al instante.
+Observador de Archivo Externo (File Watcher): Implementar un monitor que detecte cambios manuales en "Libro1" fuera de la aplicación y recargue la lista de favoritos automáticamente sin intervención del usuario.
+Capa de Validación y Sanitización de Origen: Verificar la integridad de las URLs y IDs de canal dentro de "Libro1" antes de la carga para evitar errores de red o inyección de datos corruptos.
+Protocolo de Resolución de Conflictos: Definir reglas de prioridad (ej. "Prevalecer archivo sobre DB" o "Fusionar") cuando un canal existe en ambos orígenes con datos distintos.
+Detección Automática de Formato de Libro1: Módulo capaz de procesar "Libro1" independientemente de si su extensión es .xlsx, .csv o .ods.
+Carga Headless al Inicio (Bootstrap Sync): Ejecutar la unión de datos de "Libro1" y DB en un hilo de fondo al abrir la app, garantizando que la UI esté disponible de inmediato con datos actualizados.
+Snapshot de Seguridad Pre-Sincronización: Crear un punto de restauración automático de la tabla de favoritos antes de importar cambios masivos desde el archivo externo.
+Mapeo de Columnas Dinámico: Permitir que la aplicación identifique los datos de "Libro1" aunque las columnas cambien de orden o nombre (mapeo inteligente de cabeceras).
+Auditoría de Cambios Externos: Registrar detalladamente qué canales fueron añadidos, modificados o eliminados específicamente a través de la carga del archivo "Libro1".
+Exportador de Consolidación: Generar una versión maestra de "Libro1" que incluya las métricas recolectadas por la base de datos (vistas, total de videos) para uso en hojas de cálculo externas.

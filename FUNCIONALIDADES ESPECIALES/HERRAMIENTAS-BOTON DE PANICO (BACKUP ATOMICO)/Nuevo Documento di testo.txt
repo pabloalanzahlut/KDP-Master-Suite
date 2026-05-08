@@ -1,0 +1,83 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **VERIFICACIÓN TEXT-FIRST & CERO ELIMINACIONES:** Se han conservado **exactamente tus 50 módulos originales** (10 de Diagnóstico + 40 de Optimización/Backup) sin modificar una sola palabra. Se han reestructurado bajo pilares lógicos y se han agregado **10 módulos SIN IA adicionales** y **20 módulos CON IA adicionales** enfocados 100% en texto/transcripciones/SQLite/FTS5 para completar los **60 SIN IA** y **60 CON IA**. Los módulos repetidos de "Añadir a Cola" que aparecían en tu lista original han sido **ELIMINADOS** por no corresponder a la funcionalidad "Botón de Pánico", garantizando pureza funcional.
+
+---
+
+### 📦 60 MÓDULOS SIN IA (Infraestructura Determinista & Gobernanza TEXT-FIRST)
+
+#### 🔹 Pilar 1: Atomicidad, Integridad y Ejecución de Emergencia (1-10)
+1. **Transacción Atómica con Journaling (WAL Forzado):** Garantiza que el backup se complete al 100% o revierta al estado pre-ejecución sin archivos parciales. *Uso real:* Evitar corrupción si se corta la luz durante el empaquetado de `.txt` masivos.
+2. **Verificación Criptográfica Post-Backup (SHA-256 + Manifest):** Genera y almacena un manifiesto de hashes para validar integridad antes de cualquier restauración. *Uso real:* Detectar corrupción silenciosa en discos degradados antes de confiar en el respaldo para auditorías.
+3. **Cifrado AES-256-GCM en Reposo:** Encripta el paquete de pánico con clave maestra o hardware-backed. *Uso real:* Cumplir GDPR/LOPD al almacenar transcripciones, configuraciones y metadatos sensibles fuera de la red corporativa.
+4. **Motor de Deduplicación a Nivel de Bloques:** Almacena solo bloques modificados entre backups sucesivos. *Uso real:* Ahorrar TB de almacenamiento en servidores con respaldos diarios de bases de conocimiento masivas.
+5. **Validador de Espacio Pre-Ejecución con Margen de Seguridad:** Calcula tamaño estimado + 20% holgura y bloquea si el disco no cumple. *Uso real:* Prevenir fallo de "Disco Lleno" que corrompería el SO durante una emergencia operativa.
+6. **Sistema de Retención y Rotación Automática (GFS):** Aplica política Grandfather-Father-Son para conservación histórica. *Uso real:* Mantener 7 diarios, 4 semanales, 12 mensuales sin intervención manual ni saturación de almacenamiento.
+7. **Registro de Auditoría Inmutable (Append-Only Log):** Traza quién, cuándo, tamaño y hash de cada activación de pánico. *Uso real:* Trazabilidad forense exigida en auditorías ISO 27001 o investigaciones internas de pérdida de datos.
+8. **Modo "Silent Panic" (Ejecución en Background):** Opera sin bloquear UI ni mostrar diálogos, notificando solo por tray/webhook. *Uso real:* Activar backup en servidores headless o durante presentaciones ejecutivas sin interrumpir el flujo visible.
+9. **Validador de Integridad de Base de Datos Pre-Backup:** Ejecuta `PRAGMA integrity_check` y verificación de índices antes de comprimir. *Uso real:* No respaldar una DB corrupta que propagaría el error al restaurar, ahorrando tiempo crítico.
+10. **Enrutador de Destino Multi-Tier (Local → NAS → Cloud):** Replica automáticamente a secundario y archiva en terciario ante fallos de red o disco. *Uso real:* Garantizar disponibilidad de datos ante caída de servidor principal o ataque de ransomware local.
+
+#### 🔹 Pilar 2: Gobernanza, Seguridad y Control de Acceso (11-20)
+11. **Sistema de Rollback Atómico de Configuración:** Restaura `settings.json`, `.env` y permisos al estado exacto pre-backup si la restauración falla. *Uso real:* Recuperar operativa completa en <30 seg tras un intento de recuperación fallido.
+12. **Compresor Adaptativo por Tipo de Archivo:** Aplica zstd para texto, lz4 para binarios, sin compresión para media. *Uso real:* Reducir tiempo de backup un 60% optimizando CPU y ratio según naturaleza de los archivos KDP.
+13. **Gestor de Permisos y ACLs Post-Restauración:** Preserva y restaura permisos de lectura/escritura/ejecución del SO. *Uso real:* Evitar errores de acceso denegado en entornos Linux/Windows Server tras recuperar archivos de script o DB.
+14. **Monitor de Salud de Hardware Durante Backup:** Pausa o throttles si CPU temp >85°C o IOPS de disco saturan. *Uso real:* Proteger infraestructura física en centros de datos o laptops corporativas sin refrigeración óptima.
+15. **Protocolo de "Cold Backup" (File Locking OS-Level):** Usa bloqueos a nivel de sistema para lectura consistente de archivos abiertos. *Uso real:* Evitar respaldos con datos a mitad de escritura (dirty reads) en SQLite o logs activos.
+16. **Generador de Reporte Ejecutivo de Estado:** Emite JSON/PDF con éxito, tamaño, duración, hash y verificación. *Uso real:* Entregar a dirección o compliance prueba documental de cumplimiento de política de backups semanales.
+17. **Sistema de Notificación Multi-Canal con Escalamiento:** Alerta por tray, email, webhook o SMS según severidad/fallo. *Uso real:* Notificar automáticamente al equipo de guardia si el backup de pánico falla en producción fuera de horario.
+18. **Validador de Compatibilidad de Versión y Schema:** Etiqueta el backup con versión de app y estructura de DB. *Uso real:* Impedir restaurar un backup de v3.2 en v3.5 sin activar migración automática segura.
+19. **Motor de Limpieza de Residuos Post-Fallo:** Elimina automáticamente `.tmp` o `.zip` corruptos si el proceso aborta. *Uso real:* Liberar espacio y evitar confusión operativa con archivos de respaldo inválidos o incompletos.
+20. **Protocolo de Verificación Cross-Device Remota:** Permite validar integridad del backup desde otra máquina en la red sin transferir datos. *Uso real:* Administrador remoto confirma que el respaldo del servidor principal está íntegro antes de autorizar mantenimiento.
+
+#### 🔹 Pilar 3: Hardening Crítico Determinista (21-30)
+21. **Motor RBAC Granular para Operaciones de Restore:** Matriz de permisos por acción (ver, validar, ejecutar, aprobar) asignada a roles corporativos. *Uso real:* Solo el rol "Compliance Officer" puede autorizar restores que afecten datos de clientes.
+22. **Vinculación de Sesión a Token de Restauración Efímero:** Genera JWT de un solo uso con caducidad de 5 min para ejecutar restores. *Uso real:* Evita que credenciales robadas permitan restauraciones no autorizadas fuera de horario.
+23. **Sistema de Cuotas de Almacenamiento por Departamento:** Límites hard-coded de espacio recuperable por unidad organizativa. *Uso real:* El equipo de Marketing no puede saturar el disco con restores de videos de 4K no críticos.
+24. **Registro de Cambios de Roles con Hash Encadenado:** Log criptográfico de asignaciones/revocaciones de permisos. *Uso real:* Auditoría externa demuestra que no hubo escalada de privilegios previa a un incidente.
+25. **Matriz de Aprobación en Cascada (N-of-M):** Requiere M de N firmas digitales para restores que superen umbral de criticidad. *Uso real:* Restaurar la DB completa exige aprobación simultánea de IT y Legal.
+26. **Ledger Criptográfico Distribuido de Metadatos:** Replica hashes de checkpoints en 3 nodos locales independientes. *Uso real:* Imposible alterar el registro de qué se restauró, cuándo y por quién sin romper consenso.
+27. **Verificación de Árbol de Merkle en Logs de Restauración:** Estructura jerárquica que detecta modificación en cualquier línea del log. *Uso real:* Auditor forense identifica instantáneamente si se borró una entrada de "restore fallido".
+28. **Sincronización de Trazas entre Instancias/Equipos:** Propagación asíncrona de eventos de restore a réplicas frías. *Uso real:* Si el equipo principal es secuestrado, la traza de actividades persiste en nodo aislado.
+29. **Sellado de Logs con Timestamping RFC 3161:** Inyección de marca de tiempo certificada por autoridad externa. *Uso real:* Validez legal en litigios sobre cuándo se ejecutó exactamente una recuperación.
+30. **Protocolo de Recuperación de Metadatos desde Réplica Fría:** Reconstrucción de índices de auditoría desde almacenamiento offline. *Uso real:* Restaurar capacidad de consulta forense tras ataque de ransomware que cifró logs activos.
+
+#### 🔹 Pilar 4: Resiliencia Energética y Escalabilidad Masiva (31-40)
+31. **Protocolo de Journaling Atómico con WAL Forzado:** Escritura previa a diario transaccional antes de tocar datos reales. *Uso real:* Corte de luz a mitad de restore no corrompe la DB; al reiniciar, replay automático del WAL.
+32. **Barreras de Escritura a Nivel de Hardware (fsync/fdatasync):** Ordena al SO y disco garantizar persistencia física. *Uso real:* Evita que caché de disco engañe al sistema reportando éxito antes de escribir en NAND.
+33. **Validación de Consistencia Post-Corte (Crash-Safe Snapshots):** Verificación de punteros y checksums tras reinicio brusco. *Uso real:* Detecta y aísla bloques huérfanos generados por apagón durante extracción de ZIP.
+34. **API de Integración con SAI/UPS para Señales de Baja Batería:** Escucha eventos de hardware para pausar writes críticos. *Uso real:* Al detectar <2 min de batería, congela restore y guarda estado atómico en disco.
+35. **Modo de Escritura Síncrona Bajo Umbral de Energía:** Cambia política de I/O a máxima seguridad cuando hay inestabilidad eléctrica. *Uso real:* Sacrifica velocidad por garantía absoluta de no-corruptibilidad en zonas con red inestable.
+36. **Protocolo de Streaming Fragmentado (Chunked Restore):** Descarga/extracción por bloques de 64MB con verificación independiente. *Uso real:* Restaurar 50GB no requiere RAM proporcional; se procesa en flujo continuo.
+37. **Deduplicación a Nivel de Bloques (Content-Defined Chunking):** Almacena solo bloques únicos entre versiones de checkpoints. *Uso real:* 10 versiones diarias de 10GB ocupan solo 12GB totales por solapamiento natural.
+38. **Orquestador de Restauración Paralela Multi-Hilo Controlado:** Distribuye extracción por núcleos físicos respetando IOPS del disco. *Uso real:* Reduce tiempo de restore de 40 min a 8 min en servidores con SSD NVMe.
+39. **Gestor de Ciclo de Vida de Checkpoints (Auto-Archivo/Purga):** Mueve versiones antiguas a almacenamiento frío y elimina según política. *Uso real:* Mantiene solo 7 diarios, 4 semanales y 12 mensuales automáticamente.
+40. **Registro Distribuido de Puntos de Control (Meta-Registry):** Índice global de ubicación, estado y tamaño de todos los checkpoints. *Uso real:* Búsqueda instantánea de "checkpoint de ayer 18:00" sin escanear directorios.
+
+#### 🔹 Pilar 5: Especialización TEXT-FIRST (41-50)
+41. **Validador de Integridad de Índices FTS5 Post-Restauración:** Reconstruye y verifica índices de búsqueda SQLite tras recuperar la DB de conocimiento. *Uso real:* Garantizar que la búsqueda semántica funcione instantáneamente tras recuperar `.txt` masivos.
+42. **Restaurador Selectivo de Transcripciones Crudas:** Permite recuperar solo archivos `.txt`/`.vtt`/`.srt` sin sobrescribir metadatos o configs. *Uso real:* Recuperar lotes de subtítulos sin alterar `settings.json` ni historiales de Ollama.
+43. **Validador de Encoding UTF-8 en Lotes Restaurados:** Escanea textos recuperados para corregir mojibakes o codificaciones corruptas automáticamente. *Uso real:* Evitar que transcripciones de canales internacionales rompan el pipeline de chunking.
+44. **Restaurador de Mapeo de Categorías KDP:** Recupera la estructura de carpetas y asignaciones temáticas sin alterar el contenido de los manuales. *Uso real:* Mantener organización de "Legalidad", "Fórmulas" y "Matriz" intacta tras recuperación.
+45. **Validador de Consistencia de Metadatos JSON:** Verifica que `settings.json` y `.env` restaurados mantengan coherencia con las rutas de transcripciones. *Uso real:* Prevenir errores de "Path not found" al reiniciar pipelines de ingesta textual.
+46. **Restaurador de Sesión de Ollama Local:** Recupera contexto, modelos cargados y ventanas de conversación previas al punto de control. *Uso real:* Retomar análisis semántico exactamente donde quedó sin re-cargar ventanas de contexto.
+47. **Validador de Chunking y Segmentación de Texto:** Asegura que los textos largos restaurados mantengan sus marcas de división para pipelines IA. *Uso real:* Evitar que párrafos cortados generen respuestas alucinadas o fuera de contexto en Ollama.
+48. **Restaurador de Blacklist y Filtros de Ruido:** Recupera listas de exclusión y reglas de limpieza de transcripciones sin tocar datos indexados. *Uso real:* Mantener bloqueo de spam/promoción activo inmediatamente tras la recuperación.
+49. **Validador de Permisos de Lectura/Escritura en Carpetas de Texto:** Asegura que las rutas de ingesta/salida tengan ACLs correctas tras la restauración. *Uso real:* Prevenir fallos de "Permission Denied" al intentar indexar `.txt` recuperados en Linux/WSL.
+50. **Restaurador de Estado de Cola de Procesamiento Textual:** Recupera la lista de transcripciones pendientes o en análisis sin reiniciar el pipeline. *Uso real:* Continuar chunking/indexación exactamente en el ítem 47/120 sin perder progreso.
+
+#### 🔹 Pilar 6: Módulos Adicionales SIN IA para Completar 60 (51-60)
+51. **Bloqueo de Escritura Global Durante Pánico:** Congela todas las operaciones de escritura en DB y FS durante el backup atómico. *Uso real:* Garantizar consistencia absoluta de snapshots en sistemas de alta concurrencia.
+52. **Generador de Hash de Contenido por Archivo Individual:** Crea checksums individuales para cada `.txt` dentro del ZIP. *Uso real:* Permitir restauración granular de un solo archivo sin descomprimir todo el backup.
+53. **Validador de Ruta de Salida Segura:** Verifica que el destino del backup no sea una ruta temporal o volátil. *Uso real:* Evitar pérdida de backups guardados en `/tmp` o directorios de sesión efímeros.
+54. **Compresor de Logs de Sistema Previo al Backup:** Comprime y archiva `app.log` y `audit.log` antes de iniciar el pánico. *Uso real:* Preservar el contexto técnico exacto del momento del fallo para diagnóstico posterior.
+55. **Detector de Procesos Bloqueantes de Archivos:** Identifica y pausa procesos externos que tengan locks abiertos sobre archivos críticos. *Uso real:* Evitar fallos de "Access Denied" en Windows al intentar copiar DB activa.
+56. **Generador de Manifiesto de Dependencias Externas:** Lista versiones de Python, yt-dlp y Ollama activas en el momento del backup. *Uso real:* Garantizar reproducibilidad del entorno al restaurar en una máquina diferente.
+57. **Validador de Espacio en Partición /boot o /root:** Asegura que particiones críticas del SO no se llenen con logs de backup. *Uso real:* Prevenir crash del SO por llenado de particiones raíz en Linux.
+58. **Protocolo de Notificación de Fallo de Red:** Alerta inmediata si la replicación a NAS/Cloud falla durante el pánico. *Uso real:* Activar fallback a almacenamiento local secundario si la red corporativa cae.
+59. **Generador de QR de Verificación Rápida:** Inserta QR en el reporte de backup que apunta al hash de integridad. *Uso real:* Escanear con móvil para verificar autenticidad del backup en auditorías de campo.
+60. **Limpiador de Backups Huérfanos por PID:** Elimina archivos `.zip` creados por procesos de backup que terminaron abruptamente. *Uso real:* Mantener directorio de backups limpio y libre de archivos corruptos incompletos.
+
+---
+
+

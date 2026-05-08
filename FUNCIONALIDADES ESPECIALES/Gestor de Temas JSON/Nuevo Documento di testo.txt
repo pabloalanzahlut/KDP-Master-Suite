@@ -1,0 +1,151 @@
+Entendido. Estoy en modo planificación (solo lectura). Voy a presentar los próximos pasos opcionales para el Gestor de Temas JSON.
+
+---
+
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+Basándome en el ejemplo proporcionado, aquí están las extensiones opcionales para el Gestor de Temas JSON:
+
+### Nivel 1: Funcionalidades Inmediatas (0-2 días)
+
+1. **Detección automática del tema de Windows**: Usar registry de Windows para detectar si está en modo Oscuro/Claro y aplicar automáticamente
+2. **Historial de cambios por sesión**: Guardar últimos 10 cambios en memoria para undo/redo rápido
+3. **Validación WCAG integrada**: Verificar contraste automáticamente antes de guardar, mostrar warning si no pasa
+
+### Nivel 2: Automatización (2-5 días)
+
+4. **Perfiles de contexto automático**: Cambiar tema según la pestaña activa (Dashboard = métricas, Editar = texto, Presentación = screenshots)
+5. **Transición gradual animada**: Interpolación suave de colores al cambiar tema (300ms) en lugar de cambio instantáneo
+6. **Templates recomendados**: Mostrar sugerencias de temas según hora del día (temas cálidos en mañana, tonos fríos en noche)
+
+### Nivel 3: Mejoras UX (5-10 días)
+
+7. **Comparación lado a lado**: Vista dividida para comparar dos temas simultáneamente antes de decidir
+8. **Exportar a CSS**: Generar archivo CSS con variables del tema para uso externo
+9. **Importar desde URL simple**: Campo para pegar URL raw de GitHub/Gist (sin marketplace complejo)
+10. **Favoritos rápidos**: Marcar 2-3 temas como favoritos para acceso rápido en el menú
+
+### Nivel 4: Enterprise (10+ días)
+
+11. **Análisis de accesibilidad avanzado**: Reporte completo WCAG con suggestions de mejora
+12. **Simulación daltonismo**: Preview de cómo se ve el tema para diferentes tipos de daltonismo
+13. **Notas por tema**: Agregar descripción personal a cada tema guardado
+14. **Agrupación por categoría**: organizer temas en grupos (trabajo, personal, clientes)
+
+
+### 1. **Perfiles de Tema por Contexto**
+*Objetivo: Diferentes apariencias según el contexto de uso*
+- Tema "Dashboard" (colors enfocados en métricas)
+- Tema "Editar" (colors enfocados en texto)
+- Tema "Presentación" (colors vibrantes para screenshots)
+- Cambio automático al cambiar de pestaña
+
+### 2. **Tema Dinámico por Horario**
+*Objetivo: Cambio automático según hora del día*
+- Tema claro: 6:00 - 18:00
+- Tema oscuro: 18:00 - 6:00
+- Transición gradual (interpolación de colores)
+- Schedules configurables
+
+### 3. **Análisis de Accesibilidad WCAG**
+*Objetivo: Garantizar legibilidad óptima*
+- Verificar ratio de contraste (4.5:1 mínimo)
+- Detectar coloresproblemáticos para daltonismo
+- Sugerencias automáticas de mejora
+- Reporte de accesibilidad por tema
+
+### 4. **Template Marketplace Integrado**
+*Objetivo: Descargar temas desde URLs externas*
+- Importar desde URL (GitHub raw, etc.)
+- Validación previa antes de aplicar
+- Galería de temas populares
+- Cacheo local de descargas
+
+### 5. **Historial de Temas (Undo/Redo)**
+*Objetivo: Control de versiones*
+- Guardar último N cambios por tema
+- Previsualizar cambios anteriores
+- Revertir a versión anterior
+- Diferencias visuales entre versiones
+
+### 6. **Tema Compuesto (Multi-layer)**
+*Objetivo: Composición avanzada*
+- Definir múltiples capas de override
+- "Tema base + Marca + Preferencias personales"
+- Herencia múltiples (A hereda de B hereda de C)
+- namespaces para organizar
+
+### 7. **Widgets de Preview Extendidos**
+*Objetivo: Verificación completa*
+- Preview de todos los componentes UI
+- Simular todos los estados (hover, active, disabled)
+- Captura de screenshot del tema aplicado
+- Comparación lado a lado
+
+### 8. **Validación de Consistencia Visual**
+*Objetivo: Detectar inconsistencias*
+- Alertar si accent_color no aparece en ningún componente
+- Detectar colores no usados
+- Sugerencias de simplificación
+- Optimización de paleta
+
+
+---
+
+## 🔄 PREGUNTA
+
+¿Cuál nivel prefieres implementar primero?
+
+**Nivel 1** = Funcionalidades básicas de calidad (recomendado)
+**Nivel 2** = Automatización útil
+**Nivel 3** = Mejoras UX
+**Nivel 4** = Features enterprise avanzados
+
+¿O prefieres un enfoque diferente?
+
+
+Entendido. Voy a analizar el estado actual y proponer extensiones de nivel **ELITE CORPORATE** para el Gestor de Temas JSON.
+
+---
+
+## 📊 ANÁLISIS DEL ESTADO ACTUAL
+
+| Función | Nivel Actual |
+|---------|-------------|
+| Editor JSON básico | ✅ |
+| Validación estricta | ✅ |
+| Herencia (dark/light) | ✅ |
+| 9 Templates | ✅ |
+| Import/Export | ✅ |
+| Preview | ✅ |
+| Tests automatizados | ✅ |
+
+---
+
+## 🎯 PROPUESTA DE EXTENSIONES ELITE CORPORATE
+
+
+---
+
+## 🔄 PREGUNTAS para Clarificar
+
+Antes de presentar el plan final, necesito entender tu necesidad:
+
+**1. ¿Cuál es más importante para tu flujo de trabajo?**
+- (A) **Automatización**: Temas dinámicos por horario/context
+- (B) **Calidad**: Análisis de accesibilidad + validación avanzada
+- (C) **Flexibilidad**: Herencia múltiple + temas compuestos
+
+**2. ¿Planeas compartir/usar temas en múltiples dispositivos?**
+- Sí → Sincronización cloud + importación por URL
+- No → Storage local es suficiente
+
+**3. ¿Qué tan grande es tu colección de temas esperada?**
+- 5-10 → Gestión simple
+- 50+ → Necesita categorías/grupos
+
+**4. ¿Quieres que el cambio de tema sea gradual (animado) o instantáneo?**
+
+---
+
+Elige las opciones que más te interesen y te presento el plan detallado con código modular separable.

@@ -1,0 +1,185 @@
+Si tienes un canal con **1,000 videos pendientes** y ejecutas una descarga masiva o activas el monitoreo sin filtros inteligentes, ocurren los siguientes problemas críticos en una arquitectura estándar:
+
+1.  **Saturación de Cola (UI Freeze):** La interfaz gráfica se congela intentando renderizar 1,000 filas en el Treeview.
+2.  **Bloqueo de API (Rate Limiting):** YouTube bloquea tu IP temporalmente por hacer demasiadas peticiones `yt-dlp` en poco tiempo.
+3.  **Desperdicio de Recursos:** Descargas videos que ya tienes en tu Base de Conocimiento (duplicados) o videos irrelevantes (música, shorts, intros).
+8.  **Corrupción de Metadatos:** Al procesar 1,000 archivos simultáneamente, la DB SQLite puede bloquearse por escritura concurrente.
+
+Para convertir esto en una funcionalidad **100% Elite Corporate**, no debes descargar "todo". Debes implementar un **Motor de Curación Inteligente**.
+
+Aquí tienes los **60 Módulos SIN IA** y **60 CON IA** específicos para gestionar **Canales Masivos (>1000 videos)** enfocados en **Amazon KDP** y **Texto**.
+
+---
+
+### 🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar la gestión de canales masivos de una "descarga ciega" a una **"Curación Estratégica Basada en Valor"** garantiza que solo ingestes transcripciones de alto impacto para tu negocio KDP, protegiendo tu infraestructura y optimizando tu tiempo.
+
+---
+
+### 📦 LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Gestión de Masa)
+
+#### 🔹 Pilar 1: Paginación y Renderizado Virtual (1-10)
+1.  **Treeview Virtualizado (Lazy Loading)** — Carga solo los 50 videos visibles en pantalla. *Caso real:* Navegar 1,000 videos sin lag ni consumo de RAM.
+2.  **Paginación de Resultados (Next/Prev)** — Divide la lista en páginas de 100 items. *Caso real:* Control manual de carga para análisis detallado.
+3.  **Scroll Infinito con Buffer** — Carga los siguientes 100 al llegar al final del scroll. *Caso real:* Experiencia fluida tipo Netflix para listas largas.
+4.  **Cache de Miniaturas en Disco** — Guarda thumbnails localmente para no re-descargarlas. *Caso real:* Ahorro de ancho de banda al navegar historial.
+5.  **Indicador de Progreso de Carga de Lista** — Barra de progreso mientras se obtienen metadatos de 1,000 videos. *Caso real:* Feedback visual durante la inicialización lenta.
+6.  **Botón "Cargar Más" Manual** — Evita carga automática hasta que el usuario lo decida. *Caso real:* Control total sobre el consumo de datos/API.
+7.  **Filtro de Fecha Rápida (Slider)** -- Slider visual para seleccionar rango de años/meses. *Caso real:* "Solo mostrar videos de 2024-2025".
+8.  **Ordenamiento por Duración (Asc/Desc)** — Ordena lista por longitud del video antes de descargar. *Caso real:* Filtrar Shorts (<1min) o Masterclasses (>1h).
+9.  **Búsqueda Instantánea en Lista Local** — Filtra los 1,000 items cargados por texto en título. *Caso real:* Encontrar "Keyword Research" entre mil títulos.
+10. **Exportación de Lista Completa a CSV** — Descarga metadata de los 1,000 videos sin descargar los archivos. *Caso real:* Análisis externo en Excel antes de decidir qué bajar.
+
+#### 🔹 Pilar 2: Validación Pre-Descarga (Deduplicación) (11-20)
+11. **Check de Hash en DB Local** — Verifica si el VideoID ya existe en `knowledge_base.db`. *Caso real:* Saltar automáticamente los 800 videos que ya tienes.
+12. **Validación de Estado "Procesado"** — Chequea si existe el archivo `.txt` limpio en carpeta de salida. *Caso real:* Evitar reprocesar archivos ya limpios.
+13. **Marcador de "Ya en Cola"** — Identifica si el video está pendiente en la cola actual. *Caso real:* Evitar duplicados en la cola activa.
+14. **Filtro de "Vistos/Leídos"** — Marca videos cuya transcripción ya fue abierta/leída. *Caso real:* No perder tiempo revisando contenido conocido.
+15. **Comparador de Timestamps** — Compara fecha de publicación vs fecha de última modificación local. *Caso real:* Detectar si un video fue re-subido/editado.
+16. **Validación de Disponibilidad (404 Check)** — Verifica rápido si el video sigue online antes de añadirlo. *Caso real:* No añadir enlaces rotos a la cola.
+17. **Detección de Privacidad** — Identifica si el video pasó a "Privado" o "No listado". *Caso real:* Ignorar contenido que ya no es público.
+18. **Validación de Región (Geo-Block)** — Detecta si el video está bloqueado en tu país. *Caso real:* Evitar errores de descarga por restricción geográfica.
+19. **Check de Licencia (Creative Commons)** — Filtra videos con restricciones de copyright estrictas. *Caso real:* Cumplimiento legal para uso comercial KDP.
+20. **Alerta de Contenido Eliminado** — Notifica si un video de la lista fue borrado recientemente. *Caso real:* Limpieza proactiva de la lista de pendientes.
+
+#### 🔹 Pilar 3: Throttling y Protección de API (21-30)
+21. **Delay Aleatorio entre Peticiones** — Espera 2-5 segundos entre checks de metadata. *Caso real:* Evitar detección como bot por YouTube.
+22. **Límite de Peticiones por Minuto** — Tope duro de 60 requests/min. *Caso real:* Respetar límites de la API de YouTube Data v3.
+23. **Backoff Exponencial ante Error 429** — Si recibe "Too Many Requests", espera 1m, 2m, 4m... *Caso real:* Recuperación automática sin intervención humana.
+24. **Rotación de User-Agent** — Cambia identificador de navegador cada 50 peticiones. *Caso real:* Simular tráfico orgánico diverso.
+25. **Uso de Proxy Rotativo (Opcional)** — Cambia IP si se detecta bloqueo suave. *Caso real:* Continuidad operativa en entornos corporativos estrictos.
+26. **Queue de Prioridad Baja para Masivos** — Pone descargas de canales grandes en prioridad "Background". *Caso real:* No saturar la red mientras trabajas en otros proyectos.
+27. **Pausa Automática Nocturna** — Detiene la carga de metadata entre 2AM-6AM. *Caso real:* Ahorro energético y respeto a políticas de red.
+28. **Límite de Descargas Simultáneas** — Máximo 3 descargas activas de un mismo canal. *Caso real:* Evitar sobrecarga de disco/CPU.
+29. **Timeout de Conexión Ajustable** — Tiempo de espera corto para metadata, largo para descarga. *Caso real:* Eficiencia en conexiones inestables.
+30. **Reintento Limitado (Max 3)** — No intenta descargar un video fallido más de 3 veces. *Caso real:* Evitar bucles infinitos con videos corruptos.
+
+#### 🔹 Pilar 4: Selección Masiva Inteligente (31-40)
+31. **Seleccionar Solo "No Procesados"** — Checkbox único para marcar solo lo nuevo. *Caso real:* Añadir 200 videos nuevos a la cola en 1 clic.
+32. **Seleccionar por Rango de Fechas** — "Añadir todos los de este mes". *Caso real:* Catch-up mensual automatizado.
+33. **Seleccionar por Duración Mínima** — "Solo videos > 10 minutos". *Caso real:* Filtrar ruido y contenido superficial.
+34. **Excluir Palabras Clave Globales** — No añade videos con "Shorts", "Live", "Q&A". *Caso real:* Filtro de calidad automático a nivel de canal.
+35. **Incluir Solo Títulos con Keywords KDP** — Añade solo si el título contiene "Amazon", "KDP", "Ads". *Caso real:* Foco láser en nicho de negocio.
+36. **Selección Inversa** — Desmarca lo seleccionado. *Caso real:* Corrección rápida de errores de selección.
+37. **Guardar Selección como "Grupo"** — Guarda lista de IDs seleccionados. *Caso real:* Crear playlists personalizadas de estudio.
+38. **Aplicar Filtros a Selección** — Aplica reglas de nombre/duración a lo seleccionado. *Caso real:* Refinar selección masiva antes de descargar.
+39. **Confirmación de Volumen** — Alerta: "¿Seguro que quieres añadir 500 videos?". *Caso real:* Prevención de errores catastróficos.
+40. **Estimación de Espacio Total** — Muestra GB estimados de la selección. *Caso real:* Planificación de almacenamiento antes de descargar.
+
+------------------------------------------------------------------------------------------------------------------
+
+#### 🔹 Pilar 5: Auditoría y Log de Canal (41-50)
+41. **Log de Actividad por Canal** — Registro detallado de qué se añadió/cargó. *Caso real:* Auditoría forense de ingesta de datos.
+42. **Reporte de Videos Omitidos** — Lista por qué se saltaron videos (duplicados, privados). *Caso real:* Transparencia en el proceso de curación.
+43. **Historial de Escaneos** — Cuándo se escaneó el canal por última vez. *Caso real:* Programación de mantenimientos.
+44. **Contador de Errores de Metadata** — Cuántos videos fallaron al obtener info. *Caso real:* Detección de problemas de API.
+45. **Tiempo Promedio de Carga** — Métrica de rendimiento del canal. *Caso real:* Optimización de configuración de red.
+46. **Identificador Único de Sesión** — ID para rastrear esta carga específica. *Caso real:* Debugging de procesos largos.
+47. **Backup de Lista de Pendientes** — Guarda estado de selección antes de cerrar. *Caso real:* Recuperación tras crash de app.
+48. **Alerta de Cambio de Nombre de Canal** — Detecta si el canal cambió de identidad. *Caso real:* Mantenimiento de integridad de fuente.
+49. **Detección de Canales Falsos/Clones** — Alerta si la URL apunta a un clone. *Caso real:* Seguridad contra phishing de contenido.
+50. **Validación de SSL del Canal** — Verifica certificado de seguridad de la página. *Caso real:* Protección contra MITM.
+
+#### 🔹 Pilar 6: Integración con Pipeline KDP (51-60)
+51. **Asignación Automática de Categoría** — Asigna categoría KDP basada en nombre del canal. *Caso real:* Organización inmediata en KB.
+52. **Tagging por Fuente** — Añade tag "Canal_X" a todas las transcripciones. *Caso real:* Trazabilidad de origen del conocimiento.
+53. **Priorización por Rol SOE** — Asigna prioridad alta si el canal cubre rol crítico. *Caso real:* Alineación con estrategia empresarial.
+54. **Exclusión de Competencia Directa** — Filtro para no descargar canales de competidores específicos. *Caso real:* Estrategia de inteligencia selectiva.
+55. **Marcado de "Material de Referencia"** — Flag especial para videos técnicos densos. *Caso real:* Diferenciación de contenido ligero vs pesado.
+56. **Enlace a Manual Existente** — Sugiere fusionar con manual si el tema coincide. *Caso real:* Consolidación de conocimiento.
+57. **Alerta de Actualización de TOS** — Si el canal habla de cambios legales recientes. *Caso real:* Prioridad máxima para compliance.
+58. **Detección de Series/Capítulos** — Agrupa videos numerados (Parte 1, 2...). *Caso real:* Descarga ordenada para procesamiento secuencial.
+59. **Filtro de Idioma Estricto** — Rechaza videos si el audio no es el idioma configurado. *Caso real:* Pureza lingüística de la KB.
+60. **Pre-Procesamiento de Título** — Limpia emojis/caracteres raros del título antes de guardar. *Caso real:* Nombres de archivo sanitizados y seguros.
+
+------------------------------------------------------------------------------------------------------------------
+
+### 🧠 LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Curación)
+
+#### 🔹 Pilar 1: Análisis Semántico de Títulos/Descripciones (1-10)
+1.  **Scoring de Relevancia KDP (0-100)** — IA puntúa cuánto aporta el video a tu nicho. *Caso real:* Descargar solo los top 20% más valiosos.
+2.  **Detección de Clickbait vs Sustancia** — IA analiza si el título promete pero no entrega. *Caso real:* Evitar desperdiciar tiempo en contenido vacío.
+3.  **Clasificación Temática Automática** — Asigna etiqueta: "Tutorial", "Noticias", "Opinión". *Caso real:* Filtrar solo "Tutoriales Prácticos".
+4.  **Extracción de Keywords del Título** — IA saca palabras clave principales. *Caso real:* Indexación previa a la descarga.
+5.  **Detección de Contenido Obsoleto** — IA identifica fechas o versiones antiguas en título. *Caso real:* No descargar tutoriales de "KDP 2022".
+6.  **Análisis de Sentimiento del Título** — Positivo, Negativo, Urgente. *Caso real:* Priorizar contenido urgente/alertas.
+7.  **Identificación de Formato (Live vs Editado)** — Detecta si es grabación de directo. *Caso real:* Los lives suelen tener mucho ruido/conversación fiadora.
+8.  **Detección de Patrocinios en Título** — "Patrocinado por...", "Ad". *Caso real:* Filtrar contenido comercial puro.
+9.  **Clasificación por Nivel de Experto** — Principiante, Intermedio, Avanzado. *Caso real:* Adaptar ingesta a tu nivel actual.
+10. **Resumen de Descripción en 1 Línea** — IA condensa la descripción larga. *Caso real:* Vista rápida de contexto sin abrir navegador.
+
+#### 🔹 Pilar 2: Predicción de Valor y Calidad (11-20)
+11. **Predictor de Densidad Informativa** — Estima cuánta información útil tiene el video. *Caso real:* Priorizar videos densos en conocimiento.
+12. **Score de Originalidad** — ¿Es contenido único o copia de otros? *Caso real:* Valorar fuentes primarias.
+13. **Detección de "Relleno" (Fluff)** — IA predice si el video tiene mucha intro/outro. *Caso real:* Preferir contenido directo al grano.
+14. **Predicción de Longitud de Transcripción** — Estima palabras finales. *Caso real:* Gestionar expectativas de tiempo de lectura.
+15. **Análisis de Credibilidad de Fuente** — Score basado en historial del canal. *Caso real:* Confiar más en expertos verificados.
+16. **Detección de Controversia/Polarización** — Alerta si el tema es polémico. *Caso real:* Decidir si incluir contenido riesgoso en KB.
+17. **Predictor de Engagment Real** — Analiza ratio views/likes/comentarios. *Caso real:* Identificar contenido realmente valorado por la comunidad.
+18. **Detección de Series Educativas** — Identifica si es parte de un curso estructurado. *Caso real:* Priorizar aprendizaje estructurado.
+19. **Análisis de Actualidad (Trending)** — ¿Es tema de moda pasajera o evergreen? *Caso real:* Balancear KB entre tendencias y fundamentos.
+20. **Score de Aplicabilidad Práctica** — ¿Se puede aplicar inmediatamente? *Caso real:* Priorizar contenido accionable para KDP.
+
+#### 🔹 Pilar 3: Filtrado Inteligente y Personalización (21-30)
+21. **Filtro Semántico Personalizado** — "Mostrar solo videos sobre *estrategias de precios*". *Caso real:* Búsqueda natural dentro del canal.
+22. **Aprendizaje de Preferencias** — IA aprende qué videos sueles descargar/ignorar. *Caso real:* Mejora continua de recomendaciones.
+23. **Detección de Duplicados Conceptuales** — "Este video dice lo mismo que el anterior". *Caso real:* Evitar redundancia semántica.
+24. **Recomendación de "Ver Después"** — Sugiere videos relacionados dentro del mismo canal. *Caso real:* Descubrimiento de contenido profundo.
+25. **Alerta de Gap de Conocimiento** — "Este video cubre un tema que te falta". *Caso real:* Expansión estratégica de KB.
+26. **Filtro de Coherencia con Manuales** — ¿Alinea con tus manuales existentes? *Caso real:* Mantener consistencia doctrinal.
+27. **Detección de Cambio de Nicho del Canal** — Alerta si el canal empieza a hablar de otro tema. *Caso real:* Re-evaluar seguimiento del canal.
+28. **Priorización Dinámica por Objetivo** — Si tu objetivo es "Ads", sube score de videos de Ads. *Caso real:* Enfoque flexible según campaña actual.
+29. **Exclusión de Temas Sensibles** — Filtra automáticamente temas políticos/religiosos si así se configura. *Caso real:* Mantenimiento de neutralidad profesional.
+30. **Detección de Contenido Generado por IA** — Alerta si el video parece hecho 100% por IA. *Caso real:* Preferencia por contenido humano auténtico.
+
+#### 🔹 Pilar 4: Optimización de Descarga (31-40)
+31. **Programación Inteligente de Descarga** — Sugiere cuándo bajar basándose en tu uso de PC. *Caso real:* Descargar de noche si trabajas de día.
+32. **Agrupación por Tema para Batch** — Agrupa videos similares para procesar juntos. *Caso real:* Eficiencia en chunking y análisis IA.
+33. **Predicción de Tiempo de Procesamiento** — Estima cuánto tardará en limpiar/transcribir. *Caso real:* Planificación de recursos CPU.
+34. **Optimización de Orden de Cola** — Ordena por facilidad de procesamiento primero. *Caso real:* Feedback rápido de éxito.
+35. **Detección de Videos "Pesados"** — Alerta si el video es excesivamente largo (>2h). *Caso real:* Decidir si dividir o posponer.
+36. **Sugerencia de Segmentación** — "Este video debería dividirse en 3 partes". *Caso real:* Preparación para chunking óptimo.
+37. **Predicción de Fallos de Descarga** — Identifica videos propensos a error (live cortado). *Caso real:* Evitar archivos corruptos.
+38. **Balanceo de Carga por Canal** — No descargar todo de un canal a la vez. *Caso real:* Distribución equitativa de atención.
+39. **Modo "Solo Audio" Predictivo** — Si es podcast/conferencia, sugiere bajar solo audio. *Caso real:* Ahorro de ancho de banda innecesario.
+40. **Compresión Predictiva** — Sugiere comprimir transcripciones largas. *Caso real:* Gestión eficiente de espacio.
+
+#### 🔹 Pilar 5: Integración Contextual con KB (41-50)
+41. **Mapeo a Roles SOE** — Asigna video a Rol #4 (Analista) o #6 (SEO). *Caso real:* Distribución automática de tareas.
+42. **Vinculación con Entradas Existentes** — "Relacionar con entrada #402". *Caso real:* Tejido de red de conocimiento.
+43. **Detección de Contradicciones** — "Este video contradice lo que dice el Manual de Legalidad". *Caso real:* Alerta de conflicto de información.
+44. **Actualización de Entradas Viejas** — "Este video actualiza la entrada de 2023". *Caso real:* Mantenimiento de vigencia de KB.
+45. **Generación de Resumen Previo** — IA genera resumen antes de descargar. *Caso real:* Decisión informada sin gastar ancho de banda.
+46. **Extracción de Preguntas Frecuentes** — IA saca preguntas que el video responde. *Caso real:* Creación de FAQ automática.
+47. **Identificación de Herramientas Mencionadas** — Lista software/herramientas citadas. *Caso real:* Indexación de recursos útiles.
+48. **Detección de Casos de Estudio** — Identifica ejemplos reales narrados. *Caso real:* Valor alto para aprendizaje práctico.
+49. **Clasificación de Formato de Aprendizaje** — Teórico vs Práctico. *Caso real:* Balance en metodología de estudio.
+50. **Alerta de Profundidad Insuficiente** — "Video muy superficial para tu nivel". *Caso real:* Filtrado de calidad avanzada.
+
+#### 🔹 Pilar 6: Reportes y Estrategia (51-60)
+51. **Reporte de Salud del Canal** — Score general de calidad del canal. *Caso real:* Decidir si dejar de seguirlo.
+52. **Análisis de Evolución de Contenido** — Cómo ha cambiado el enfoque del canal. *Caso real:* Monitoreo de tendencias de creadores.
+53. **Predicción de Futuros Videos** — IA sugiere qué podría publicar el canal. *Caso real:* Anticipación de necesidades de información.
+54. **Benchmarking vs Otros Canales** — Comparativa de calidad con canales similares. *Caso real:* Selección de mejores fuentes.
+55. **ROI de Tiempo de Visualización** — Valor obtenido vs tiempo invertido. *Caso real:* Optimización de productividad personal.
+56. **Detección de Saturación de Tema** — "Ya tienes muchos videos sobre este subtema". *Caso real:* Diversificación de conocimiento.
+57. **Sugerencia de Nuevos Canales** — Basado en este canal, recomienda otros. *Caso real:* Expansión de red de fuentes.
+58. **Alerta de Declive de Calidad** — "Los últimos 10 videos son de menor calidad". *Caso real:* Re-evaluación proactiva.
+59. **Generación de Plan de Estudio** — Crea ruta de aprendizaje con videos del canal. *Caso real:* Estructuración educativa automática.
+60. **Resumen Ejecutivo del Canal** — Informe de 1 párrafo sobre el valor del canal. *Caso real:* Presentación rápida a stakeholders/equipo.
+
+
+Implementa una función en ProcessingService que use la IA para traducir fragmentos críticos de transcripciones descargadas en otros idiomas.
+
+Modifica el Módulo 59 para que asigne automáticamente un tag [REQUIRES_TRANSLATION] en la base de datos si el video no está en el idioma principal.
+
+---
+
+🔍 **¿CON ESTO COMPLETO 100% USO PERSONAL A NIVEL ELITE CORPORATE?**
+Sí. Esta arquitectura transforma el problema de "1,000 videos" en una oportunidad de **Curación Estratégica Automatizada**. No descargas basura; ingestas conocimiento de élite alineado con tus objetivos KDP, protegiendo tu infraestructura y maximizando tu ROI intelectual.
+
+❓ **PARA MANTENER LA TRAYECTORIA ELITE Y EVITAR SOLAPAMIENTOS (Protocolo B):**
+¿Confirmas que ya tienes tu listado consolidado de **20 módulos SIN IA y 20 CON IA** para esta funcionalidad específica, o deseas que active la expansión de **hardening crítico** (gestión distribuida de colas masivas, auditoría de integridad de metadatos, escalabilidad de rendering >10k items) para blindarlo al 100% corporativo sin repetir nada?
+
+Responde **"HARDENING"** para agregar la capa extra de resiliencia, o **"LISTO"** para pasar a la siguiente funcionalidad. 🚀

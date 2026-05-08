@@ -1,0 +1,185 @@
+{
+  "timestamp": "2026-04-24T10:00:04.560355",
+  "manuals_analyzed": [
+    {
+      "file": "MANUAL_LEGALIDAD.md",
+      "status": "OK",
+      "total_lines": 279629,
+      "total_sections": 674,
+      "banal_sections": 10,
+      "file_size_kb": 10079.9
+    },
+    {
+      "file": "MANUAL de FÓRMULAS.MD",
+      "status": "OK",
+      "total_lines": 65870,
+      "total_sections": 441,
+      "banal_sections": 13,
+      "file_size_kb": 2153.7
+    },
+    {
+      "file": "MATRIZ_MAESTRA.md",
+      "status": "OK",
+      "total_lines": 21517,
+      "total_sections": 215,
+      "banal_sections": 5,
+      "file_size_kb": 702.6
+    }
+  ],
+  "total_sections": 1330,
+  "duplicate_sections": [
+    {
+      "hash": "9a20bb0354da78ba0d2fff1806bbe43d",
+      "manual": "MANUAL de FÓRMULAS.MD",
+      "header": "# 📚 MASTER_KB - ÍNDICE DE CONOCIMIENTO KDP v4.0",
+      "start_line": 234,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "# 📚 MASTER_KB - ÍNDICE DE CONOCIMIENTO KDP v4.0",
+      "is_banal": true,
+      "line_count": 7
+    },
+    {
+      "hash": "043b97146a90004212e2561fcd538c6d",
+      "manual": "MANUAL de FÓRMULAS.MD",
+      "header": "## 📁 Archivos de la Base de Conocimiento",
+      "start_line": 241,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "## 📁 Archivos de la Base de Conocimiento",
+      "is_banal": false,
+      "line_count": 14
+    },
+    {
+      "hash": "36bb4de8e82719c35a87ed457551c7f2",
+      "manual": "MANUAL de FÓRMULAS.MD",
+      "header": "## 🔑 18 CATEGORÍAS KDP (INVARIABLES)",
+      "start_line": 255,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "## 🔑 18 CATEGORÍAS KDP (INVARIABLES)",
+      "is_banal": false,
+      "line_count": 25
+    },
+    {
+      "hash": "82ca5e0aa30815b6275911c791e40424",
+      "manual": "MANUAL de FÓRMULAS.MD",
+      "header": "## 👥 37+1 ROLES GEM (FIJOS)",
+      "start_line": 280,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "## 👥 37+1 ROLES GEM (FIJOS)",
+      "is_banal": false,
+      "line_count": 45
+    },
+    {
+      "hash": "d9802e5b93c6a887e754f2c9d9288662",
+      "manual": "MANUAL de FÓRMULAS.MD",
+      "header": "## 📊 Estadísticas del Sistema (MERGE v4.0)",
+      "start_line": 325,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "## 📊 Estadísticas del Sistema (MERGE v4.0)",
+      "is_banal": false,
+      "line_count": 11
+    },
+    {
+      "hash": "5e0a8359d806f57822a1aff47edf29d1",
+      "manual": "MANUAL de FÓRMULAS.MD",
+      "header": "## 🔄 Historial de Procesamiento",
+      "start_line": 336,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "## 🔄 Historial de Procesamiento",
+      "is_banal": false,
+      "line_count": 9
+    },
+    {
+      "hash": "a0694ed6e8f85796ac50ebd8808f92b3",
+      "manual": "MANUAL de FÓRMULAS.MD",
+      "header": "## ⚙️ Configuración Ollama",
+      "start_line": 345,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "## ⚙️ Configuración Ollama",
+      "is_banal": false,
+      "line_count": 22
+    },
+    {
+      "hash": "9a20bb0354da78ba0d2fff1806bbe43d",
+      "manual": "MATRIZ_MAESTRA.md",
+      "header": "# 📚 MASTER_KB - ÍNDICE DE CONOCIMIENTO KDP v4.0",
+      "start_line": 34,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "# 📚 MASTER_KB - ÍNDICE DE CONOCIMIENTO KDP v4.0",
+      "is_banal": true,
+      "line_count": 7
+    },
+    {
+      "hash": "043b97146a90004212e2561fcd538c6d",
+      "manual": "MATRIZ_MAESTRA.md",
+      "header": "## 📁 Archivos de la Base de Conocimiento",
+      "start_line": 41,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "## 📁 Archivos de la Base de Conocimiento",
+      "is_banal": false,
+      "line_count": 14
+    },
+    {
+      "hash": "36bb4de8e82719c35a87ed457551c7f2",
+      "manual": "MATRIZ_MAESTRA.md",
+      "header": "## 🔑 18 CATEGORÍAS KDP (INVARIABLES)",
+      "start_line": 55,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "## 🔑 18 CATEGORÍAS KDP (INVARIABLES)",
+      "is_banal": false,
+      "line_count": 25
+    },
+    {
+      "hash": "82ca5e0aa30815b6275911c791e40424",
+      "manual": "MATRIZ_MAESTRA.md",
+      "header": "## 👥 37+1 ROLES GEM (FIJOS)",
+      "start_line": 80,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "## 👥 37+1 ROLES GEM (FIJOS)",
+      "is_banal": false,
+      "line_count": 45
+    },
+    {
+      "hash": "d9802e5b93c6a887e754f2c9d9288662",
+      "manual": "MATRIZ_MAESTRA.md",
+      "header": "## 📊 Estadísticas del Sistema (MERGE v4.0)",
+      "start_line": 125,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "## 📊 Estadísticas del Sistema (MERGE v4.0)",
+      "is_banal": false,
+      "line_count": 11
+    },
+    {
+      "hash": "5e0a8359d806f57822a1aff47edf29d1",
+      "manual": "MATRIZ_MAESTRA.md",
+      "header": "## 🔄 Historial de Procesamiento",
+      "start_line": 136,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "## 🔄 Historial de Procesamiento",
+      "is_banal": false,
+      "line_count": 9
+    },
+    {
+      "hash": "a0694ed6e8f85796ac50ebd8808f92b3",
+      "manual": "MATRIZ_MAESTRA.md",
+      "header": "## ⚙️ Configuración Ollama",
+      "start_line": 145,
+      "original_manual": "MANUAL_LEGALIDAD.md",
+      "original_header": "## ⚙️ Configuración Ollama",
+      "is_banal": false,
+      "line_count": 22
+    }
+  ],
+  "banal_sections": [],
+  "unique_sections_per_manual": {
+    "MANUAL_LEGALIDAD.md": 664,
+    "MANUAL de FÓRMULAS.MD": 428,
+    "MATRIZ_MAESTRA.md": 210
+  },
+  "summary": {
+    "total_manuals": 3,
+    "total_sections": 1330,
+    "total_duplicates": 14,
+    "total_banal": 28,
+    "health_score": 96.8
+  }
+}

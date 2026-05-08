@@ -1,0 +1,15 @@
+Módulos de Análisis e Inteligencia Documental (CON IA OLLAMA LOCAL):
+
+Generador de Preguntas Frecuentes (FAQ): La IA analiza el contenido exportado para crear una sección de dudas resueltas automáticamente al final del documento.
+Vinculación Semántica Inteligente: Ollama identifica conceptos relacionados entre diferentes secciones y genera "Vea también" basados en el contexto, no solo en etiquetas.
+Resumen Ejecutivo por Sección: Creación automática de "TL;DR" (Too Long; Didn't Read) al inicio de cada entrada extensa.
+Extracción de Glosario Técnico: Identificación y definición de términos complejos o acrónimos detectados en la base de conocimiento.
+Análisis de Legibilidad y Tono: Evaluación del estilo de redacción para sugerir mejoras que aseguren un lenguaje corporativo uniforme.
+Clasificación Automática de Relevancia: La IA asigna un "Score de Importancia" a cada módulo de conocimiento según la densidad de información clave.
+Traducción de Contexto On-Demand: Capacidad de generar versiones del manual en diferentes idiomas manteniendo el significado técnico preciso.
+Detección de Contenido Obsoleto: Comparación semántica entre entradas para alertar sobre información que podría estar duplicada o contradicha en otras secciones.
+Generador de Mapas Conceptuales: Creación de una representación textual o gráfica de cómo se conectan los temas tratados en la KB.
+Sugerencia de Contenido Complementario: La IA identifica qué temas "faltan" en el manual basado en los tópicos ya existentes para guiar futuras actualizaciones.
+¿Con esto completo 100% uso personal a nivel elite corporate? Sí. Estos 20 pasos transforman un archivo estático en una herramienta de consulta interactiva e inteligente que cumple con los estándares de accesibilidad, portabilidad y análisis de datos de cualquier entorno empresarial de alto nivel.
+
+¿Tiene sentido así? Totalmente. El enfoque dual garantiza que el documento sea técnicamente perfecto (Sin IA) y estratégicamente valioso (Con IA), permitiendo que la información sea no solo almacenada, sino comprendida y fácilmente navegable.

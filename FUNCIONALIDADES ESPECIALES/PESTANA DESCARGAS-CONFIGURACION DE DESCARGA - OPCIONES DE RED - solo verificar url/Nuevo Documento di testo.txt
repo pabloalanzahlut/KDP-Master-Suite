@@ -1,0 +1,67 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar "Solo Verificar URL" de un simple ping a un **Sistema de Validación Inteligente de Fuentes** garantiza que solo URLs válidas, accesibles, seguras y estratégicamente relevantes entren a tu pipeline, evitando errores de descarga, baneos por URLs inválidas y pérdida de tiempo en contenido no disponible. La separación determinista (validación técnica, HTTP, DNS) y cognitiva (relevancia semántica, predicción de valor, análisis de riesgo) cumple estándares de calidad empresarial.
+
+📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista de Validación)**
+
+1. **Validador de Sintaxis de URL** — Verifica que la URL cumpla con RFC 3986 antes de cualquier petición. *Uso real:* Rechazar URLs malformadas como "youtube.com/watch" sin ID.
+2. **Extractor de Video ID** — Parsea y extrae el identificador único del video desde diferentes formatos de URL. *Uso real:* Normalizar "youtu.be/abc123" y "youtube.com/watch?v=abc123" al mismo ID.
+3. **Verificador de Dominio Permitido** — Valida que el dominio sea youtube.com, vimeo.com u otros permitidos en whitelist. *Uso real:* Bloquear dominios sospechosos o no soportados.
+4. **DNS Resolver con Timeout** — Resuelve el DNS del dominio con timeout configurable (default 3s). *Uso real:* Detectar dominios inexistentes sin bloquear la UI.
+5. **HTTP HEAD Request Validator** — Realiza petición HEAD para verificar disponibilidad sin descargar contenido. *Uso real:* Confirmar que el video existe sin gastar ancho de banda.
+6. **SSL Certificate Validator** — Verifica que el certificado SSL sea válido y no esté expirado. *Uso real:* Prevenir ataques MITM en redes públicas.
+7. **HTTP Status Code Interpreter** — Interpreta códigos de respuesta (200, 403, 404, 429) y sugiere acciones. *Uso real:* Diferenciar entre "video privado" (403) y "no existe" (404).
+8. **Rate Limit Detector** — Detecta respuestas 429 y calcula tiempo de espera antes de reintentar. *Uso real:* Evitar baneos temporales por exceso de peticiones.
+9. **Redirect Chain Follower** — Sigue redirecciones HTTP (301, 302) hasta URL final. *Uso real:* Resolver URLs acortadas como "youtu.be" a URL completa.
+10. **User-Agent Rotation Engine** — Rota User-Agents para evitar detección como bot. *Uso real:* Simular navegador Chrome/Firefox legítimo.
+11. **Cookie Jar Manager** — Gestiona cookies de sesión para URLs que requieren autenticación. *Uso real:* Verificar videos privados o miembros del canal.
+12. **Proxy Configuration Validator** — Verifica configuración de proxy antes de realizar petición. *Uso real:* Asegurar que proxy esté activo y funcional.
+13. **Response Time Measurer** — Mide latencia de respuesta del servidor en milisegundos. *Uso real:* Alertar si servidor responde >5s (posible bloqueo).
+14. **Content-Type Validator** — Verifica que Content-Type sea texto/html o aplicación/json válido. *Uso real:* Detectar páginas de error o CAPTCHA.
+15. **CAPTCHA Detector** — Analiza respuesta HTML para detectar presencia de CAPTCHA. *Uso real:* Alertar al usuario que necesita resolver CAPTCHA manualmente.
+16. **Login Requirement Detector** — Detecta si la URL requiere login para acceder. *Uso real:* Identificar videos privados o solo para miembros.
+17. **Age Restriction Checker** — Verifica si el video tiene restricción de edad. *Uso real:* Alertar que se requiere cuenta verificada.
+18. **Region Restriction Validator** — Detecta bloqueos geográficos del contenido. *Uso real:* Identificar videos no disponibles en tu región.
+19. **Privacy Status Checker** — Verifica si video es público, no listado o privado. *Uso real:* Rechazar videos privados automáticamente.
+20. **Embed Restriction Detector** — Detecta si el video permite incrustación externa. *Uso real:* Identificar videos con restricciones de embed.
+21. **Live Stream Detector** — Identifica si es transmisión en vivo o video grabado. *Uso real:* Manejar diferente lógica para streams activos.
+22. **Premiere Status Checker** — Detecta si es estreno programado. *Uso real:* Alertar que el video aún no está disponible.
+23. **Video Duration Parser** — Extrae duración del video desde metadatos. *Uso real:* Validar que duración sea >0 y <límite configurado.
+24. **File Size Estimator** — Calcula tamaño estimado basado en duración y calidad. *Uso real:* Pre-verificar espacio en disco disponible.
+25. **Upload Date Validator** — Verifica fecha de publicación del video. *Uso real:* Filtrar videos más antiguos de X días.
+26. **View Count Verifier** — Obtiene contador de visualizaciones. *Uso real:* Filtrar videos con <X vistas (posible spam).
+27. **Channel Existence Validator** — Verifica que el canal del video exista y esté activo. *Uso real:* Evitar videos de canales eliminados.
+28. **Channel Status Checker** — Verifica si el canal está verificado o tiene strikes. *Uso real:* Alertar sobre canales con problemas.
+29. **Subtitle Availability Checker** — Verifica disponibilidad de subtítulos/closed captions. *Uso real:* Validar que existan subtítulos antes de encolar.
+30. **Subtitle Language Detector** — Detecta idiomas disponibles de subtítulos. *Uso real:* Filtrar videos sin subtítulos en idioma deseado.
+31. **Format Availability Checker** — Verifica formatos disponibles (mp4, webm, etc.). *Uso real:* Asegurar que exista formato compatible.
+32. **Quality Options Detector** — Detecta calidades disponibles (360p, 720p, 1080p, 4K). *Uso real:* Validar que exista calidad mínima requerida.
+33. **Audio Track Verifier** — Verifica disponibilidad de pista de audio. *Uso real:* Detectar videos sin audio o con audio corrupto.
+34. **Thumbnail Availability Checker** — Verifica que exista miniatura del video. *Uso real:* Validar integridad del video.
+35. **Description Length Validator** — Mide longitud de descripción del video. *Uso real:* Filtrar videos con descripciones vacías (posible spam).
+36. **Title Character Validator** — Verifica que título no tenga caracteres inválidos. *Uso real:* Prevenir errores de codificación.
+37. **URL Blacklist Checker** — Verifica si URL está en lista negra local. *Uso real:* Bloquear videos previamente rechazados.
+38. **Domain Reputation Checker** — Consulta reputación de dominio en listas públicas. *Uso real:* Detectar dominios maliciosos.
+39. **Phishing URL Detector** — Analiza patrones de URL phishing (typosquatting). *Uso real:* Detectar "youtbe.com" en lugar de "youtube.com".
+40. **Malware URL Scanner** — Consulta URL en bases de datos de malware. *Uso real:* Prevenir descarga de contenido malicioso.
+41. **Concurrent Request Limiter** — Limita peticiones simultáneas para no saturar red. *Uso real:* Máximo 5 verificaciones simultáneas.
+42. **Request Queue Manager** — Encola peticiones de verificación para procesamiento ordenado. *Uso real:* Evitar race conditions.
+43. **Retry Logic Engine** — Reintenta peticiones fallidas con backoff exponencial. *Uso real:* Reintentar tras timeout de red.
+44. **Timeout Configurator** — Configura timeouts por tipo de verificación (DNS, HTTP, SSL). *Uso real:* DNS=3s, HTTP=10s, SSL=5s.
+45. **Connection Pool Manager** — Gestiona pool de conexiones HTTP reutilizables. *Uso real:* Mejorar rendimiento en verificaciones masivas.
+46. **Bandwidth Throttler** — Limita ancho de banda usado por verificaciones. *Uso real:* No saturar red durante verificación.
+47. **Cache Response Engine** — Cachea respuestas de verificación por X minutos. *Uso real:* No verificar misma URL 2 veces en 10 min.
+48. **Verification Report Generator** — Genera reporte detallado de estado de URL. *Uso real:* Mostrar al usuario por qué fue rechazada.
+49. **Batch URL Validator** — Valida múltiples URLs en paralelo con límites controlados. *Uso real:* Verificar 100 URLs en <30s.
+50. **URL Normalization Engine** — Normaliza URLs a formato canónico. *Uso real:* "HTTPS://YOUTUBE.COM" → "https://youtube.com".
+51. **Duplicate URL Detector** — Detecta URLs duplicadas en cola actual. *Uso real:* Evitar añadir mismo video 2 veces.
+52. **Playlist URL Parser** — Detecta si URL es playlist y extrae IDs de videos. *Uso real:* Validar cada video de playlist individualmente.
+53. **Channel URL Resolver** — Resuelve URL de canal a ID de canal. *Uso real:* "youtube.com/c/Nombre" → "UC123456".
+54. **Short URL Expander** — Expande URLs cortas a URL completa. *Uso real:* "youtu.be/abc" → "youtube.com/watch?v=abc".
+55. **Mobile URL Converter** — Convierte URLs móviles a desktop. *Uso real:* "m.youtube.com" → "youtube.com".
+56. **Verification Timeout Handler** — Maneja timeouts gracefully sin bloquear UI. *Uso real:* Si timeout, marcar como "no verificable".
+57. **Error Code Mapper** — Mapea códigos de error a mensajes amigables. *Uso real:* "403" → "Video privado o bloqueado".
+58. **Verification Status Tracker** — Rastrea estado de verificación (pendiente, en progreso, completada). *Uso real:* Mostrar progreso en UI.
+59. **Verification Log Persister** — Persiste logs de verificación en SQLite. *Uso real:* Auditoría de URLs verificadas.
+60. **Network Connectivity Checker** — Verifica conectividad a internet antes de validar. *Uso real:* Alertar si no hay internet.
+

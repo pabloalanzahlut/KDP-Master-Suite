@@ -1,0 +1,18 @@
+Módulos de Enriquecimiento Inteligente (CON IA OLLAMA LOCAL):
+
+Generador de Narrativa Ejecutiva: Utilizar Ollama para leer los datos del reporte y redactar un resumen ejecutivo en lenguaje natural que explique los hallazgos clave (ej: "La categoría 'Finanzas' ha crecido un 40%, considere liberar espacio").
+Detección de Anomalías de Clasificación: IA que analice si hay videos en una categoría que semánticamente pertenecen a otra, sugiriendo una re-categorización para mantener la integridad de la base.
+Predicción de Saturación de Almacenamiento: Inferencia basada en tendencias históricas para predecir en qué fecha una categoría agotará el espacio en disco asignado.
+Análisis de Sentimiento de Metadatos: Analizar los títulos y descripciones de una categoría completa para identificar el "tópico dominante" y el sentimiento predominante de los contenidos recolectados.
+Sugerencias de Optimización de Nicho: Basado en la cantidad de contenido, la IA sugiere si una categoría es demasiado amplia y debería dividirse en sub-categorías más específicas.
+
+Descubrimiento Automático de Tendencias: IA que resalta nichos que están ganando tracción antes de que el usuario lo note.
+Predicción de Rentabilidad por Categoría: Estimación de qué nicho generará más engagement basándose en métricas históricas.
+Modelado de Tópicos (LDA): Creación automática de subcategorías basadas en la densidad de palabras clave en los metadatos.
+Análisis de Tono Emocional Agregado: Resumen del sentimiento predominante en todos los contenidos de una categoría.
+Alertas de Saturación de Contenido: Aviso proactivo si una categoría tiene demasiados videos similares (redundancia de nicho).
+Análisis de Brecha Estratégica: Sugerencia de contenidos "faltantes" que podrían complementar una categoría existente.
+Comparativa de Estilo con Competencia: Cotejo del estilo de contenido local con los líderes del sector en la categoría.
+Etiquetado Semántico Refinado: IA que mejora los nombres de las categorías definidos por el usuario para mayor precisión.
+Clustering Visual de Miniaturas: Agrupamiento de videos dentro de una categoría por su estilo visual y paleta de colores.
+Matriz de Correlación de Rendimiento: Vínculo inteligente entre la duración de los videos y el éxito de la categoría.

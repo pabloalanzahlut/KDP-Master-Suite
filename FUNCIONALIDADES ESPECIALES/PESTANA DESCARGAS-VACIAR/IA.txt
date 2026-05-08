@@ -1,0 +1,22 @@
+Módulos de Inteligencia y Estrategia (CON IA OLLAMA LOCAL)
+Análisis de Relevancia Temática: La IA advierte antes de vaciar: "Atención: La cola contiene 5 videos críticos sobre [Categoría 15: Legalidad] que aún no han sido procesados".
+Detección de Patrones de Descarte: Ollama analiza qué tipo de contenido sueles vaciar (ej. videos de baja duración) y sugiere una regla de filtrado automático para el futuro.
+Resumen Ejecutivo de Pérdida: Al vaciar, la IA genera un párrafo breve: "Has descartado aproximadamente 14 horas de contenido sobre Estrategias Amazon Ads".
+Smart-Keep (Conservación Inteligente): Opción de "Vaciar todo excepto lo importante", donde la IA selecciona los videos con mayor potencial de conocimiento según tu MATRIZ.
+Predictor de Redundancia: La IA identifica si los videos que vas a vaciar ya existen con contenido idéntico en tu Base de Conocimiento local, validando la acción de limpieza.
+Justificación Semántica de Acción: El sistema pide una razón breve y la IA la vincula al reporte de eficiencia (ej: "Contenido obsoleto" vs "Error de red").
+Análisis de Impacto en Almacenamiento: La IA proyecta cuánto espacio en disco ganarás y cuánto tiempo de procesamiento ahorrarás al confirmar el vaciado.
+Recomendador de Alternativas: Si vacías un lote de videos por "Baja Calidad", la IA busca y sugiere automáticamente 3 fuentes de mayor autoridad sobre el mismo tema.
+Detección de Errores Sistémicos: Si vacías muchos videos que fallaron, la IA analiza los logs y determina si el error es de la URL o si necesitas actualizar el motor de descargas.
+Comandante de Limpieza Natural: Permitir vaciar la cola mediante comandos como: "Ollama, vacía todos los videos de menos de 10 minutos que hablen de vlogs personales".
+
+Análisis Preventivo de Impacto: IA predice consecuencias de vaciar (ej: "Eliminarás 3 fuentes únicas críticas para [Categoría X]")
+Sugerencia Inteligente de Retención: IA recomienda qué items NO vaciar basándose en valor estratégico histórico
+Detección de Vaciados Impulsivos: IA detecta patrones de vaciado errático y solicita confirmación adicional
+Clasificación Automática Pre-Vaciado: IA separa contenido valioso vs descartable y muestra reporte antes de vaciar
+Generación de Resumen de Lo Eliminado: IA crea documento con síntesis del conocimiento perdido al vaciar
+Recomendación de Archivado: IA sugiere mover items a archivo permanente en lugar de vaciar definitivamente
+Predicción de Arrepentimiento: Modelo entrenado en historial que advierte: "80% de probabilidad de que restaures esto"
+Optimización de Espacio Inteligente: IA calcula qué subset mínimo vaciar para alcanzar X GB libres
+Auditoría Semántica de Vaciado: IA analiza si el vaciado genera gaps temáticos en la base de conocimiento
+Asistente de Decisión Conversacional: Chat con Ollama: "¿Debería vaciar toda la cola o solo los videos de >1h?"

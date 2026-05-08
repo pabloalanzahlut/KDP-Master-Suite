@@ -1,0 +1,21 @@
+## 🎯 PRÓXIMOS PASOS (Opcionales) - Dashboard
+
+1. **Panel de configuración UI**: Añadir sección en Settings para activar/desactivar auth, SSE y regenerar token sin editar JSON
+2. **Dashboard embebido en GUI**: Integrar el dashboard HTML dentro de `gui_app.py` usando `webview` o `tkinterweb` en lugar de servidor separado
+3. **Métricas avanzadas**: Añadir gráficos de tendencia (videos/semana), canales más activos, tiempos de procesamiento
+4. **Control desde dashboard**: Botones para iniciar/detener monitor, forzar escaneo, cambiar prioridad de canales
+5. **Alertas configurables**: Notificaciones visuales en dashboard para阈值 (ej. >50 videos pendientes = alerta roja)
+6. **Exportar datos**: Botón para exportar stats a CSV/JSON desde el propio dashboard
+7. **Theme toggle**: Selector modo claro/oscuro persistente en localStorage
+8. **Monitoreo de rendimiento**: Mostrar tiempo de respuesta de queries, count de conexiones SSE activas
+
+### ⚖️ Priorización sugerida
+
+| Pri | Feature | Justificación |
+|-----|---------|----------------|
+| 1 | Panel config UI | Completa el ciclo UX (evita editar JSON) |
+| 2 | Dashboard embebido | Unifica app, elimina puerto separado |
+| 3 | Métricas avanzadas | Añade valor sin complejidad |
+| 4 | Alertas threshold | Útil para operación |
+
+¿Qué te parece esta lista? ¿Alguna preferencia o querés que profundice en alguna?

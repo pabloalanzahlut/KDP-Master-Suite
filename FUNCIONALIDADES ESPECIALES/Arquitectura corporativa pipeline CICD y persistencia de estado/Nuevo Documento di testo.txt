@@ -1,0 +1,43 @@
+## 🎯 PRÓXIMOS PASOS (PIPELINE CI/CD + PERSISTENCIA DE ESTADO)
+
+Analizado el proyecto: **ya tiene** `tools/ci_cd/`, `build_exe.py`, `auto_build.py`, `db_manager.py`, `knowledge_db.py`. A continuación, mejoras **NO implementadas**:
+
+---
+
+### **INFRAESTRUCTURA DE PIPELINE CI/CD**
+
+| # | Feature | Descripción | Prioridad |
+|---|---------|-------------|-----------|
+| 1 | **Pipeline Multi-Entorno** | `dev → staging → production` con promoción automática | Alta |
+| 2 | **Automated Rollback** | Revertir a build estable si smoke test falla post-deploy | Alta |
+| 3 | **Security Scan Integration** | Escaneo de vulnerabilidades (bandit/safety) en pipeline | Media |
+| 4 | **Performance Benchmark Gate** | Benchmarks automatizados con PASS/FAIL threshold | Media |
+| 5 | **Dockerized Build Environment** | Contenedor Docker para builds reproducibles | Baja |
+| 6 | **Code Signing** | Firmado digital del .exe para autenticidad | Baja |
+| 7 | **Pipeline-as-Code** | Definiciones YAML/GitHub Actions para pipeline | Media |
+
+---
+
+### **PERSISTENCIA DE ESTADO AVANZADA**
+
+| # | Feature | Descripción | Prioridad |
+|---|---------|-------------|-----------|
+| 1 | **State Encryption** | Cifrar datos sensibles (API keys, credenciales) en BD/JSON | Alta |
+| 2 | **Incremental Sync** | Sincronizar solo cambios vs. reescribir archivos enteros | Alta |
+| 3 | **State Versioning & Snapshots** | Historial versionado de state con restore point | Media |
+| 4 | **State Integrity Validation** | Checksum/hash en carga para detectar corrupción | Media |
+| 5 | **Automatic Schema Migration** | Migrar state al actualizar estructura de datos | Alta |
+| 6 | **State Compression** | Compresión gzip/json para reducir tamaño | Baja |
+| 7 | **Cross-Device Cloud Sync** | Sync opcional a almacenamiento cloud | Baja |
+
+---
+
+### **PREGUNTA DE ACLARACIÓN**
+
+¿Qué nivel de inversión priorizas?
+
+- **Nivel 1 (Quick Win)**: Rollback + State Encryption + Integrity Validation
+- **Nivel 2 (Core Elite)**: Nivel 1 + Multi-Environment + Versioning + Migration
+- **Nivel 3 (Full Corporate)**: Todo lo anterior + Docker + Code Signing + Cloud Sync
+
+¿Te interesa alguna de estas opciones o hay algo específico que necesites ?

@@ -1,0 +1,146 @@
+🎯 **PRÓXIMOS PASOS (Opcionales)**
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar el "Visor Activos" de un simple contador a un **Centro de Inteligencia de Monitoreo Activo de Canales KDP** garantiza visibilidad en tiempo real del estado de canales, detección proactiva de contenido nuevo, optimización de recursos de monitoreo y alertas inteligentes sobre actividad de canales estratégicos de Amazon KDP. La separación determinista (métricas, filtros, estadísticas) y cognitiva (análisis predictivo, scoring de relevancia, priorización inteligente) cumple estándares de monitoreo empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+---
+
+## 📊 **VISOR ACTIVOS - ARQUITECTURA ELITE CORPORATE**
+
+### 🎯 **PROPÓSITO CENTRAL**
+Transformar el contador "0" en un **Dashboard Inteligente de Canales Activos KDP** que proporcione visibilidad granular del estado de monitoreo, detecte patrones de publicación, optimice intervalos de escaneo y alerte sobre actividad relevante de canales estratégicos sobre Amazon KDP.
+
+---
+
+## 📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Monitoreo)**
+
+### **Pilar 1: Visualización y Métricas en Tiempo Real (1-12)**
+
+1. **Contador Dinámico de Canales Activos con Animación** — Muestra número de canales activos con transición fluida y código de colores. *Caso de uso real:* Usuario ve inmediatamente que tiene 12 canales activos monitoreando contenido KDP, con verde indicando "todos operativos".
+
+2. **Badge de Estado con Código de Colores Semánticos** — Cambia color según estado: verde (100% activos), amarillo (algunos inactivos >7 días), rojo (múltiples errores). *Caso de uso:* Usuario identifica rápidamente que 3 de 15 canales están inactivos sin revisar lista completa.
+
+3. **Tooltip con Desglose Detallado** — Al pasar mouse, muestra "X activos, Y inactivos (>7 días), Z con errores de API". *Caso de uso:* Verificación rápida del estado de salud del portfolio de canales KDP sin navegar a otras vistas.
+
+4. **Indicador de Última Sincronización por Canal** — Muestra "Última sync: hace X minutos" con actualización automática cada 30s. *Caso de uso:* Usuario confirma que los datos de canales KDP están actualizados antes de tomar decisiones.
+
+5. **Mini-Gráfico de Actividad Semanal** — Sparkline mostrando canales activos vs inactivos últimos 7 días. *Caso de uso:* Identificar tendencia: "Esta semana 3 canales dejaron de publicar sobre Amazon KDP".
+
+6. **Contador de Canales por Categoría KDP Activa** — Breakdown: "5 Amazon Ads, 4 Legalidad, 3 Nichos activos hoy". *Caso de uso:* Usuario detecta que categoría "Amazon Ads" tiene más actividad esta semana.
+
+7. **Indicador de Cobertura de las 18 Categorías** — Muestra "X/18 categorías con canales activos hoy". *Caso de uso:* Usuario ve que solo 8/18 categorías tienen actividad hoy y decide añadir más canales.
+
+8. **Métricas de Publicaciones Hoy** — Muestra "X videos detectados hoy en canales activos". *Caso de uso:* Evaluar productividad diaria: "Hoy se detectaron 23 videos nuevos sobre KDP".
+
+9. **Contador de Canales Prioritarios Activos** — Muestra cuántos canales "Prioridad Alta" están activos. *Caso de uso:* Saber que los 5 canales críticos sobre "Amazon Ads" están siendo monitoreados activamente.
+
+10. **Score de Salud del Portfolio Activo** — Score 0-100 basado en % activos, errores, última sync. *Caso de uso:* Usuario ve score 78/100 y sabe que debe revisar 2 canales con errores de API.
+
+11. **Badge de Nuevos Canales Activos (últimas 24h)** — Muestra "+X nuevos activos" si canales se activaron recientemente. *Caso de uso:* Confirmar que nuevos canales añadidos están siendo monitoreados correctamente.
+
+12. **Contador de Canales con Filtros Activos** — Muestra cuántos canales activos tienen filtros de palabras clave configurados. *Caso de uso:* Verificar que 10/12 canales activos están filtrando contenido automáticamente.
+
+### **Pilar 2: Análisis Estadístico y Tendencias (13-24)**
+
+13. **Tendencia Histórica de Actividad (7/30/90 días)** — Gráfico de línea mostrando evolución de canales activos. *Caso de uso:* Usuario ve que pasó de 8 a 15 canales activos en 3 meses, confirmando crecimiento del sistema KDP.
+
+14. **Promedio de Videos por Canal Activo** — Calcula media de videos detectados por canal activo semanalmente. *Caso de uso:* Identificar que "Canal KDP Pro" publica 10 videos/semana vs "Canal Básico" que publica 1, ayudando a priorizar recursos.
+
+15. **Distribución por Frecuencia de Publicación** — Muestra cuántos canales activos publican diario, semanal, mensual. *Caso de uso:* Ajustar intervalos de escaneo: "8 canales publican los martes, optimizar escaneo ese día".
+
+16. **Tasa de Crecimiento de Canales Activos** — Calcula % de crecimiento mensual de canales activos. *Caso de uso:* Reportar a dirección que el portfolio de canales KDP creció 40% este trimestre.
+
+17. **Ranking de Canales Activos por Volumen** — Lista top 5 canales activos con más videos detectados este mes. *Caso de uso:* Identificar que "Canal KDP Master" es la fuente más productiva y merece atención prioritaria.
+
+18. **Contador de Canales Inactivos (>14 días sin videos)** — Alerta sobre canales que dejaron de publicar contenido KDP. *Caso de uso:* Detectar que 2 canales sobre "Amazon Ads" dejaron de publicar y decidir si eliminarlos o contactar al creador.
+
+19. **Métrica de Cobertura Temática Activa** — Muestra % de las 18 categorías KDP con canales activos publicando. *Caso de uso:* Usuario ve 55% de cobertura activa y decide añadir canales sobre "Low-Content" que están inactivos.
+
+20. **Distribución por Idioma de Contenido Activo** — Muestra cuántos canales activos publican en ES, EN, PT. *Caso de uso:* Verificar balance: "8 canales en español, 4 en inglés" para estrategia multilingüe KDP.
+
+21. **Contador de Canales Verificados Activos** — Muestra cuántos canales activos tienen verificación YouTube. *Caso de uso:* Priorizar canales verificados como fuentes más confiables de información KDP.
+
+22. **Métrica de Engagement Promedio de Canales Activos** — Calcula promedio de views/likes por canal activo. *Caso de uso:* Identificar canales de alta calidad (10k views) vs baja calidad (100 views) para priorizar descargas.
+
+23. **Tendencia de Actividad por Hora del Día** — Muestra cuándo publican más los canales activos. *Caso de uso:* Ajustar intervalos de escaneo: "Los canales KDP publican más a las 10am y 3pm".
+
+24. **Ratio de Contenido Único vs Duplicado en Activos** — Muestra % de videos únicos detectados en canales activos. *Caso de uso:* Detectar que 30% del contenido se repite entre canales activos y optimizar filtros anti-duplicados.
+
+### **Pilar 3: Alertas y Notificaciones Proactivas (25-36)**
+
+25. **Alerta de Canal Activo sin Configurar** — Notifica cuando canal está activo pero no tiene filtros/prioridad configurada. *Caso de uso:* Usuario añade canal KDP y recibe recordatorio "Configura filtros para 'Amazon Ads Pro'".
+
+26. **Alerta de Canal Activo sin Videos en 7 Días** — Notifica canales activos que dejaron de publicar contenido KDP. *Caso de uso:* Detectar rápidamente que canal clave sobre "Legalidad KDP" dejó de subir contenido.
+
+27. **Alerta de Saturación de Canales Activos** — Alerta si supera X canales activos (ej. >50) consumiendo recursos. *Caso de uso:* Prevenir sobrecarga del sistema antes de que ocurra: "Tienes 52 canales activos, considera desactivar 10".
+
+28. **Alerta de Duplicación Temática en Activos** — Detecta si 3+ canales activos cubren exactamente mismo tema KDP. *Caso de uso:* Optimizar portfolio: "5 canales activos sobre 'Amazon Ads', elimina 2 redundantes".
+
+29. **Alerta de Canal Activo de Baja Calidad** — Basado en engagement/views bajos constantes. *Caso de uso:* Identificar canales activos que consumen recursos API pero aportan poco valor KDP.
+
+30. **Alerta de Cobertura Incompleta en Activos** — Notifica categorías KDP sin canales activos publicando. *Caso de uso:* "No tienes canales activos sobre 'Internacionalización' publicando esta semana".
+
+31. **Alerta de Configuración Incorrecta en Activos** — Detecta intervalos de escaneo muy cortos/largos en canales activos. *Caso de uso:* "Canal activo tiene intervalo 5 min pero publica semanalmente - optimiza a 1440 min".
+
+32. **Alerta de Error de API en Canal Activo** — Notifica canales activos con errores de conexión YouTube API. *Caso de uso:* Resolver rápidamente problemas técnicos antes de perder datos KDP importantes.
+
+33. **Alerta de Cambio de Frecuencia en Activo** — Detecta cuando canal activo cambia patrón de publicación. *Caso de uso:* Canal que pasó de semanal a diario requiere ajustar intervalo automáticamente.
+
+34. **Alerta de Canal Competidor Detectado en Activos** — Basado en análisis de keywords en canales activos. *Caso de uso:* "Canal activo menciona frecuentemente 'competencia' - revisar si es fuente confiable KDP".
+
+35. **Alerta de Contenido Obsoleto en Activos** — Canales activos que solo publican contenido antiguo/republicado. *Caso de uso:* Detectar canales activos que republican videos de 2022 como "nuevos" sobre KDP.
+
+36. **Alerta de Límite de API Cercano por Activos** — Notifica cuando se acerca al límite de YouTube API por muchos canales activos. *Caso de uso:* Prevenir interrupciones del servicio: "Límite API en 2 horas, desactiva 5 canales".
+
+### **Pilar 4: Filtros y Segmentación Avanzada (37-48)**
+
+37. **Filtro por Estado de Actividad (Activos/Inactivos)** — Toggle rápido para ver solo canales activos o inactivos. *Caso de uso:* Revisar rápidamente los 3 canales inactivos para decidir si reactivarlos o eliminarlos.
+
+38. **Filtro por Categoría KDP en Activos** — Filtra canales activos por las 18 categorías maestras. *Caso de uso:* Ver solo canales activos de "Amazon Ads" para auditoría temática semanal.
+
+39. **Filtro por Prioridad en Activos** — Muestra solo canales activos Prioridad Alta/Media/Baja. *Caso de uso:* Enfocarse en los 5 canales críticos activos que requieren atención inmediata hoy.
+
+40. **Filtro por Fecha de Activación** — Filtra canales activos por "activados últimos 7/30/90 días". *Caso de uso:* Revisar performance de canales recién activados sobre KDP.
+
+41. **Filtro por Idioma en Activos** — Muestra solo canales activos en ES/EN/PT/etc. *Caso de uso:* Auditar balance de contenido multilingüe activo: "Ver solo canales en español activos".
+
+42. **Filtro por Frecuencia de Publicación en Activos** — Filtra canales activos por diario/semanal/mensual. *Caso de uso:* Identificar canales activos de alta frecuencia para escaneo prioritario KDP.
+
+43. **Filtro por Tamaño de Audiencia en Activos** — Filtra canales activos por suscriptores (>10k, >100k, >1M). *Caso de uso:* Enfocarse en canales activos de alta autoridad sobre Amazon KDP.
+
+44. **Filtro por Tasa de Engagement en Activos** — Filtra canales activos por views/likes promedio. *Caso de uso:* Identificar canales activos de alta calidad vs baja calidad para priorizar descargas KDP.
+
+45. **Filtro por Configuración de Filtros en Activos** — Muestra canales activos con/sin filtros de keywords configurados. *Caso de uso:* Verificar que todos los canales activos tengan filtros anti-spam configurados.
+
+46. **Filtro por Último Video en Activos** — Filtra canales activos por "videos en últimos 7/30 días". *Caso de uso:* Identificar canales activos recientemente publicando sobre KDP.
+
+47. **Filtro por Errores en Activos** — Muestra solo canales activos con errores de conexión/API. *Caso de uso:* Resolver rápidamente problemas técnicos en canales activos críticos.
+
+48. **Filtro Personalizado por Keywords en Activos** — Filtra canales activos que mencionan keywords específicas KDP. *Caso de uso:* "Mostrar solo canales activos que mencionan 'Amazon Ads' frecuentemente".
+
+### **Pilar 5: Exportación y Reportes (49-60)**
+
+49. **Exportar Lista de Activos a CSV** — Exporta canales activos con metadata a CSV. *Caso de uso:* Crear backup o compartir portfolio de canales activos KDP con equipo.
+
+50. **Exportar Estadísticas de Activos a PDF** — Genera reporte PDF con métricas de canales activos. *Caso de uso:* Presentar a dirección el crecimiento: "15 canales activos, 230 videos/mes detectados".
+
+51. **Exportar Configuración de Activos a JSON** — Exporta configuración de canales activos para integración con otras herramientas. *Caso de uso:* Sincronizar con dashboard externo o sistema de BI empresarial.
+
+52. **Reporte de Cobertura Temática de Activos** — Genera gráfico de las 18 categorías KDP con canales activos. *Caso de uso:* Identificar visualmente gaps: "Solo 8/18 categorías tienen canales activos".
+
+53. **Reporte de Actividad Semanal de Activos** — Muestra videos detectados por canal activo esta semana. *Caso de uso:* Evaluación semanal de productividad: "Esta semana 45 videos nuevos de canales activos".
+
+54. **Reporte de Canales Activos Inactivos** — Lista canales que estaban activos pero dejaron de publicar. *Caso de uso:* Decidir qué canales reactivar o eliminar del portfolio KDP.
+
+55. **Reporte de Performance de Activos** — Compara views, engagement, frecuencia de canales activos. *Caso de uso:* Identificar top performers y underperformers entre canales activos KDP.
+
+56. **Reporte de Crecimiento Histórico de Activos** — Muestra evolución del portfolio de activos en el tiempo. *Caso de uso:* Demostrar ROI: "De 8 a 20 canales activos en 6 meses".
+
+57. **Reporte de Configuración de Activos** — Exporta configuración de todos los canales activos. *Caso de uso:* Backup de configuración o migración a otro sistema de monitoreo KDP.
+
+58. **Reporte de Errores y Alertas de Activos** — Lista todos los errores ocurridos en canales activos. *Caso de uso:* Diagnóstico técnico y resolución de problemas en canales activos.
+
+59. **Dashboard Resumen Ejecutivo de Activos** — Vista consolidada con KPIs principales de canales activos. *Caso de uso:* Revisión rápida matutina: "15 activos, 3 con errores, 23 videos hoy".
+
+60. **Programación de Reportes Automáticos de Activos** — Configura envío automático semanal/mensual de reportes de activos. *Caso de uso:* Recibir cada lunes email con resumen de actividad de canales activos KDP.
+
+---

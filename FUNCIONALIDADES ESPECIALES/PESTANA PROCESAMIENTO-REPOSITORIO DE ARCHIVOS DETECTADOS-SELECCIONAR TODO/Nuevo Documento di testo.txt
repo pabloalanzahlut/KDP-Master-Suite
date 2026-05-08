@@ -1,0 +1,81 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Elevar un botón de "Seleccionar Todo" de una acción visual básica a un **Motor de Orquestación de Lotes Inteligente y Seguro** garantiza que la selección masiva de transcripciones opere sin congelar la UI, valide integridad, optimice recursos del pipeline de texto y prepare el lote para procesamiento, exportación o análisis con precisión corporativa. La separación determinista (rendimiento, seguridad, validación, estado) y cognitiva (filtrado semántico, predicción de recursos, agrupación temática, control de calidad) cumple estándares de gestión documental empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+🔍 **VERIFICACIÓN CONTRA `gui_app.py`:** CERO solapamientos con `select_all_files()`. El código actual solo itera `tree.get_children()` y aplica `selection_add()`. Tu arquitectura transforma esta acción en un **Sistema de Gestión de Lotes de Activos Textuales** con validación atómica, optimización de recursos, auditoría y filtrado cognitivo.
+
+---
+
+### 📦 LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Orquestación de Lotes)
+
+#### 🔹 Pilar 1: Mecánica de Selección y Rendimiento (1-12)
+1. **Selección Atómica por Bloques (Chunked Selection)** — Selecciona en lotes de 50 items para evitar congelamiento de UI. *Uso real:* Marcar 5,000 transcripciones sin lag perceptible.
+2. **Validador de Estado de Archivos Pre-Selección** — Verifica que archivos no estén bloqueados por otros procesos antes de incluirlos. *Uso real:* Excluir `.txt` abiertos en editores externos.
+3. **Generador de Snapshot de Estado Pre-Selección** — Guarda estado actual del Treeview para permitir Undo inmediato. *Uso real:* Revertir selección accidental con Ctrl+Z.
+4. **Optimizador de Renderizado (Double Buffering)** — Actualiza visualización de filas seleccionadas sin parpadeo. *Uso real:* Transición suave al marcar miles de entradas.
+5. **Selector Respetuoso con Filtros Activos** — Aplica "Seleccionar Todo" solo a resultados filtrados visibles. *Uso real:* Si buscas "Amazon Ads", solo selecciona esos resultados.
+6. **Validador de Extensiones Válidas (.txt/.vtt/.srt/.md)** — Ignora archivos temporales o binarios en la selección. *Uso real:* Mantener pureza del pipeline de texto.
+7. **Contador en Tiempo Real de Ítems Seleccionados** — Actualiza label/status bar instantáneamente sin polling. *Uso real:* Feedback numérico inmediato al usuario.
+8. **Deshabilitador de Interacciones Durante Carga** — Bloquea clicks adicionales mientras se procesa selección masiva. *Uso real:* Prevenir selección duplicada o conflictos de estado.
+9. **Gestor de Prioridad Visual (Highlight Gradient)** — Resalta filas seleccionadas con degradado sutil sin perder legibilidad. *Uso real:* Identificación clara en listas densas.
+10. **Validador de Integridad de Ruta** — Verifica que paths existan físicamente antes de agregar a selección. *Uso real:* Excluir entradas huérfanas de la DB.
+11. **Selector Invertido (Toggle All)** — Selecciona lo no marcado e ignora lo ya seleccionado. *Uso real:* Operaciones de exclusión rápida.
+12. **Buffer de Operaciones en Cola Post-Selección** — Encola acciones (procesar/exportar) para ejecución asíncrona. *Uso real:* Evitar bloqueo del hilo principal tras selección masiva.
+
+#### 🔹 Pilar 2: Orquestación de Batch y Validación (13-24)
+13. **Orquestador de Acciones Batch (Procesar/Eliminar/Exportar)** — Prepara lote estructurado para siguiente etapa del pipeline. *Uso real:* Transición limpia a procesamiento o exportación.
+14. **Validador de Espacio/Recursos para Lote Seleccionado** — Calcula impacto en disco/RAM antes de ejecutar operación. *Uso real:* Alertar si lote excede capacidad disponible.
+15. **Generador de Manifiesto de Lote (JSON Sidecar)** — Crea archivo con paths, tamaños, hashes y metadatos del lote. *Uso real:* Trazabilidad completa para auditorías.
+16. **Bloqueo de Selección por Permisos RBAC** — Restringe "Select All" según rol de usuario activo. *Uso real:* Solo Admin/Procesador puede seleccionar lotes críticos.
+17. **Selector por Rango de Fechas/Metadatos** — Selecciona automáticamente items dentro de ventana temporal. *Uso real:* "Seleccionar transcripciones de Q1 2026".
+18. **Validador de Duplicados de Ruta en Selección** — Alerta si hay paths duplicados en el lote marcado. *Uso real:* Prevenir procesamiento redundante.
+19. **Optimizador de Memoria para Listas >10k Items** — Libera referencias de UI no visibles tras selección. *Uso real:* Estabilidad en repositorios masivos.
+20. **Sincronizador de Estado con Base de Datos** — Marca en DB como `pending_batch` o `selected`. *Uso real:* Consistencia entre UI y persistencia.
+21. **Gestor de Conflictos de Selección Concurrente** — Previene que múltiples hilos modifiquen selección simultáneamente. *Uso real:* Thread-safety en operaciones paralelas.
+22. **Validador de Formato de Texto (Encoding Check)** — Verifica compatibilidad UTF-8 antes de incluir en lote. *Uso real:* Evitar errores de parsing downstream.
+23. **Selector por Estado de Procesamiento** — Filtra selección por "Pendiente", "Fallido" o "Completado". *Uso real:* Re-procesar solo items con error.
+24. **Generador de Reporte Rápido de Selección** — Resumen estructurado de ítems marcados (tamaño, tipo, origen). *Uso real:* Validación visual pre-ejecución.
+
+#### 🔹 Pilar 3: Seguridad, Rollback y Auditoría (25-36)
+25. **Sistema de Undo/Redo para Selección** — Revierte o restaura última acción de marcado masivo. *Uso real:* Recuperación inmediata ante error humano.
+26. **Validador de Seguridad de Path (Traversal Check)** — Bloquea selección de rutas sensibles o fuera de sandbox. *Uso real:* Prevenir acceso a directorios del sistema.
+27. **Bloqueo de Archivos en Uso (File Lock Check)** — Excluye automáticamente archivos con lock activo. *Uso real:* Evitar `PermissionDenied` en ejecución.
+28. **Generador de Hash Combinado del Lote** — Checksum único que representa integridad del lote seleccionado. *Uso real:* Verificación de consistencia post-operación.
+29. **Validador de Tamaño Máximo de Lote Configurable** — Límite duro para evitar sobrecarga de pipeline. *Uso real:* Control operativo en entornos corporativos.
+30. **Selector por Patrón de Nombre (Regex/Glob)** — Selecciona por coincidencia de filename sin búsqueda manual. *Uso real:* "Seleccionar `*_clean.txt`".
+31. **Gestor de Sesión de Selección Persistente** — Guarda estado de selección al cerrar app y restaura al abrir. *Uso real:* Continuidad operativa tras reinicio.
+32. **Validador de Consistencia de Metadatos** — Verifica que metadata en UI coincida con archivo físico. *Uso real:* Detectar desincronización DB-FS.
+33. **Optimizador de Scroll durante Selección** — Mantiene viewport estable y sigue último item seleccionado. *Uso real:* UX predecible en listas largas.
+34. **Selector por Carpeta/Origen** — Agrupa y selecciona por directorio padre automáticamente. *Uso real:* Operaciones por canal o proyecto.
+35. **Validador de Permisos de Escritura en Lote** — Verifica que se pueda operar sobre todos los archivos marcados. *Uso real:* Prevenir fallos parciales en batch.
+36. **Generador de Alertas de Selección Masiva** — Notifica si se supera umbral configurable de items. *Uso real:* Prevención de operaciones accidentales.
+
+#### 🔹 Pilar 4: UI/UX y Feedback Sistemas (37-48)
+37. **Indicador Visual de Progreso de Selección** — Barra o spinner sutil durante marcado masivo. *Uso real:* Feedback de estado en tiempo real.
+38. **Tooltips Enriquecidos por Selección Múltiple** — Muestra resumen al pasar mouse sobre grupo seleccionado. *Uso real:* Información contextual sin abrir paneles.
+39. **Navegación por Teclado Optimizada (Ctrl+A, Shift+Click)** — Atajos nativos mejorados para selección rápida. *Uso real:* Productividad para power users.
+40. **Feedback Auditivo Sutil para Completado** — Sonido discreto al finalizar selección masiva. *Uso real:* Confirmación sin mirar pantalla.
+41. **Validador de Estado del Sistema (CPU/RAM)** — Pausa selección si recursos están críticos. *Uso real:* Protección de estabilidad del equipo.
+42. **Selector por Etiquetas/Tags Asignados** — Filtra selección por metadatos de categorización. *Uso real:* Operaciones por nicho o prioridad.
+43. **Gestor de Prioridad de Ejecución del Lote** — Ordena selección por importancia antes de enviar a pipeline. *Uso real:* Procesamiento estratégico.
+44. **Validador de Compatibilidad de Pipeline** — Verifica que todos los archivos sean procesables por el motor actual. *Uso real:* Evitar ítems incompatibles.
+45. **Selector por Calidad de Transcripción** — Filtra por score de limpieza/legibilidad. *Uso real:* Solo procesar transcripciones de alta fidelidad.
+46. **Generador de Checklist de Validación Pre-Batch** — Lista de verificación interactiva antes de operar. *Uso real:* Confirmación consciente de acciones críticas.
+47. **Optimizador de Consultas a DB para Metadatos** — Batch fetch para speed al cargar info de selección. *Uso real:* Respuesta instantánea en repositorios grandes.
+48. **Validador de Integridad Post-Selección** — Verifica que selección en UI coincida con estado interno. *Uso real:* Detección de inconsistencias silenciosas.
+
+#### 🔹 Pilar 5: Persistencia, Cuotas y Estado (49-60)
+49. **Registro de Auditoría de Selección** — Log forense de quién, cuándo, cuántos y filtros aplicados. *Uso real:* Trazabilidad corporativa.
+50. **Sistema de Cuotas de Selección por Usuario** — Límites por rol/perfil para control de recursos. *Uso real:* Gobernanza en equipos multi-usuario.
+51. **Selector por Fuente/Canal de Origen** — Agrupa y selecciona por proveedor del texto. *Uso real:* Operaciones por creador o plataforma.
+52. **Validador de Versiones de Archivo** — Selecciona solo versión más reciente si hay duplicados temporales. *Uso real:* Evitar procesamiento de versiones obsoletas.
+53. **Gestor de Exclusión Manual (Blacklist de Selección)** — Permite marcar items para ignorar en futuros "Select All". *Uso real:* Excepciones persistentes.
+54. **Selector por Complejidad de Texto (Palabras/Líneas)** — Filtra por longitud o densidad estructural. *Uso real:* Balanceo de carga por tamaño.
+55. **Validador de Estado de Backup Pre-Lote** — Verifica que exista backup reciente antes de operar selección masiva. *Uso real:* Seguridad ante operaciones destructivas.
+56. **Generador de Ruta Temporal para Lote** — Crea workspace aislado para procesamiento seguro. *Uso real:* Aislamiento de operaciones críticas.
+57. **Selector por Idioma Detectado** — Filtra selección por idioma del contenido textual. *Uso real:* Pipeline multilingüe organizado.
+58. **Validador de Consistencia de Encoding en Lote** — Asegura uniformidad de codificación en selección. *Uso real:* Prevención de mojibakes en batch.
+59. **Gestor de Restauración de Estado Pre-Fallo** — Rollback automático si selección interrumpe operación crítica. *Uso real:* Resiliencia ante errores.
+60. **Selector Inteligente por Estado de Cola** — Integra selección con estado actual de procesamiento. *Uso real:* Evitar marcar items ya en ejecución.
+
+---

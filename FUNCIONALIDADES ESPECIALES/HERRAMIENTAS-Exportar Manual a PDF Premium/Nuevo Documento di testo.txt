@@ -1,0 +1,35 @@
+Módulos de Infraestructura y Control (SIN IA)
+
+Motor de Plantillas CSS Dinámicas: Implementar un selector de estilos profesionales que permita cargar archivos .css externos para personalizar bordes, tipografías y colores corporativos sin tocar el código fuente.
+Cifrado AES-256 y Protección por Contraseña: Añadir una capa de seguridad para proteger los manuales exportados, permitiendo definir contraseñas de apertura y restringir permisos de impresión o copia de texto.
+Generador de Marcas de Agua Dinámicas: Inserción automática de sellos de "CONFIDENCIAL", logos de empresa o el identificador del usuario en el fondo de cada página para garantizar la trazabilidad de la información.
+Inyector de Metadatos XMP (Estándar ISO): Módulo para incrustar campos de autoría, derechos de autor, empresa y palabras clave directamente en las propiedades del archivo PDF para cumplimiento normativo.
+Sistema de Distribución Multi-Destino (Cloud Sync): Opción para subir el PDF resultante automáticamente a repositorios seguros (SharePoint, AWS S3, Google Drive) una vez finalizada la renderización.
+Soporte de Activos Vectoriales y Ecuaciones: Integrar el renderizado de gráficos SVG y notación técnica (LaTeX) para asegurar que los diagramas de flujo y fórmulas mantengan nitidez infinita al imprimir.
+Gestor de Tipografía Corporativa Embebida: Módulo que empaqueta las fuentes específicas del negocio dentro del PDF, garantizando que el diseño sea idéntico en cualquier dispositivo u OS.
+Auditoría Forense de Exportación: Registro detallado en audit.log y en la base de datos de quién generó el reporte, qué contenido exacto incluyó y el hash SHA-256 del documento final.
+Lógica de Maquetación Multi-Columna: Capacidad de exportar en formatos tipo "Informe de Consultoría" con columnas paralelas, optimizando la lectura en documentos extensos de conocimiento.
+Compilador de Anexos Automáticos: Módulo que recolecta fragmentos de código, tablas de datos SQL o imágenes referenciadas y las organiza en una sección de apéndices al final del manual.
+
+📦 LISTA 1: 20 MÓDULOS SIN IA (Infraestructura & Control Determinista)
+
+Motor de Plantillas CSS Dinámicas: Carga .css externos para branding corporativo sin tocar código. Uso real: Aplicar paleta y tipografía de la marca institucional en 1 clic para auditorías externas.
+Cifrado AES-256 y Protección por Contraseña: Restringe apertura, impresión y copia de texto. Uso real: Distribuir manuales de "Fórmulas y Métricas" solo a personal autorizado con credenciales rotativas.
+Generador de Marcas de Agua Dinámicas: Inserta sellos "CONFIDENCIAL", logos o ID de usuario por página. Uso real: Trazar filtraciones internas identificando al empleado que descargó el documento.
+Inyector de Metadatos XMP (Estándar ISO): Incrusta autoría, copyright y keywords en propiedades del PDF. Uso real: Cumplir normativas de gestión documental empresarial (ISO 15489) para indexación en repositorios legales.
+Sistema de Distribución Multi-Destino (Cloud Sync): Sube automáticamente a SharePoint/S3/Drive tras renderizar. Uso real: Publicar la "Matriz de Roles" en el drive corporativo sin intervención manual.
+Soporte de Activos Vectoriales y Ecuaciones: Renderiza SVG y LaTeX con nitidez infinita. Uso real: Exportar diagramas de flujo de compliance y fórmulas de pricing sin pixelado en impresión 4K.
+Gestor de Tipografía Corporativa Embebida: Empaqueta fuentes propietarias dentro del PDF. Uso real: Garantizar que el manual se vea idéntico en Mac, Linux y Windows sin dependencias de sistema.
+Auditoría Forense de Exportación: Log inmutable con hash SHA-256, usuario y timestamp. Uso real: Demostrar en juicio o auditoría que el documento no fue alterado post-generación.
+Lógica de Maquetación Multi-Columna: Formato consultoría con columnas paralelas. Uso real: Optimizar lectura de manuales de 200+ páginas en tablets ejecutivas o impresión duplex.
+Compilador de Anexos Automáticos: Recolecta código, tablas SQL e imágenes en apéndices. Uso real: Separar cuerpo teórico de referencias técnicas para mantener flujo de lectura limpio.
+Validador de Estructura de Paginación: Verifica cortes de página huérfanos y viudas. Uso real: Evitar que títulos queden al final de hoja o párrafos se separen de su lista asociada.
+Compresor de Activos Binarios Pre-Render: Optimiza imágenes embebidas a WebP/AVIF sin pérdida perceptual. Uso real: Reducir peso de manuales con capturas de pantalla de 80MB a 12MB para envío por email corporativo.
+Motor de Numeración Jerárquica Automática: Genera índices 1.1, 1.1.2 dinámicos según profundidad de headers. Uso real: Mantener referencias cruzadas exactas en documentos legales de alta complejidad.
+Gestor de Permisos de Impresión Granular: Permite imprimir solo capítulos específicos o en escala de grises. Uso real: Cumplir políticas de ahorro de tóner y control de copias en departamentos financieros.
+Validador de Compatibilidad de Lectores PDF: Testea renderizado en Acrobat, Foxit, Preview y navegadores. Uso real: Asegurar que el manual no rompa maquetación en el lector por defecto de la empresa.
+Sistema de Firmas Digitales PAdES: Añade firma electrónica avanzada válida legalmente. Uso real: Validar manuales de procedimiento como documentos oficiales firmados por dirección.
+Renderizador de Tablas Dinámicas con Paginación Inteligente: Divide tablas largas automáticamente entre páginas manteniendo headers. Uso real: Exportar matrices de roles o tablas de comisiones sin cortar datos visualmente.
+Motor de Generación de QR de Verificación: Inserta QR en pie de página que apunta al hash de integridad. Uso real: Escanear con móvil para verificar autenticidad del PDF impreso en auditorías de campo.
+Validador de Accesibilidad PDF/UA: Asegura etiquetas ARIA, orden de lectura y contraste para lectores de pantalla. Uso real: Cumplir normativas de inclusión corporativa y evitar sanciones por documentos inaccesibles.
+Protocolo de Rollback de Exportación Fallida: Elimina archivos .part o corruptos si el render se interrumpe. Uso real: Liberar disco y evitar confusión con manuales incompletos tras cortes de energía.

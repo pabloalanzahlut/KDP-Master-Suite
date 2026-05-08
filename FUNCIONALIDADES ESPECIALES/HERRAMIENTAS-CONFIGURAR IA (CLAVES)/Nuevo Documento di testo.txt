@@ -1,0 +1,16 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Para elevar la funcionalidad Configurar IA (Claves) al estándar Elite Corporate 100%, el plan se enfoca en la seguridad de nivel bancario, la orquestación de proveedores y la optimización dinámica de recursos:
+
+Módulos de Seguridad y Gestión de Infraestructura (SIN IA):
+
+Bóveda Cifrada de Claves (Hardware-Backed): Implementación de cifrado AES-256 con derivación de claves basada en hardware (machine-id) para que las llaves solo funcionen en la estación de trabajo original.
+Validador de Conectividad y Latencia: Sistema de "Ping" técnico a los endpoints de IA (Ollama/OpenAI) que verifique no solo la validez de la clave, sino la velocidad de respuesta antes de guardarla.
+Gestor de Cuotas y Presupuestos: Configuración de límites de gasto o de tokens diarios por clave para evitar costos inesperados en APIs comerciales.
+Sistema de Ofuscación Dinámica (Masking): Protección visual que oculta las claves en la UI con políticas de "solo lectura bajo demanda" y registro de quién visualizó la clave.
+Rotación Programada de Credenciales: Módulo que alerta y gestiona el cambio periódico de llaves de API para cumplir con normativas de seguridad corporativa.
+Configuración de Proxy de Salida: Interfaz para definir rutas de red específicas, túneles SSH o Proxies para el tráfico de la IA, esencial en entornos corporativos restringidos.
+Soporte de Variables de Entorno (.env) Seguras: Capacidad de importar y sincronizar claves directamente desde variables de entorno del sistema operativo.
+Selector de Endpoint Personalizado: Permitir la configuración de URLs base personalizadas para redireccionar el tráfico a servidores locales de inferencia o balanceadores de carga.
+Auditoría de Cambios de Configuración: Registro inmutable en la base de datos de cada modificación realizada en los parámetros de IA (qué clave se cambió y cuándo).
+Modo Failover (Respaldo Cold-Standby): Configuración de claves secundarias que se activan automáticamente si la principal falla o agota su cuota.

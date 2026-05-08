@@ -1,0 +1,27 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Para elevar la funcionalidad del Botón Pausar en el Sector de Cola de Procesamiento por Lotes al estándar Elite Corporate 100%, el plan se enfoca en la gestión atómica de estados, la liberación quirúrgica de recursos de hardware y la persistencia de sesión indestructible:
+
+Módulos de Gestión de Estado e Infraestructura (SIN IA):
+
+Cierre Atómico de Conexiones: Implementación de interrupción limpia de sockets HTTP activos sin dejar descriptores de archivo abiertos ni fugas de memoria.
+Persistencia del Puntero de Descarga (Resume-Support): Guardado del byte-offset exacto en el archivo .part para garantizar que la reanudación sea bit a bit idéntica.
+Liberación de Memoria Virtual (RAM Flushing): Módulo que vacía los buffers de red y punteros de memoria asignados al proceso de descarga al entrar en estado de pausa.
+Gestión de Señales SIGTERM a FFmpeg: Envío de señales de terminación controlada a los subprocesos de conversión para evitar que los archivos de video resultantes queden corruptos o inaccesibles.
+Snapshot de Estado de Cola: Guardado automático e instantáneo del índice actual, metadatos y progreso de la cola en un archivo JSON de respaldo al momento del clic.
+Bloqueo de UI Dinámico (State Locking): Deshabilitación de controles conflictivos durante la transición de "Corriendo" a "Pausado" para evitar colisiones de hilos.
+Monitor de Integridad de Archivos Temporales: Verificador que asegura que los archivos parcialmente descargados no sean modificados por otros procesos del sistema mientras están en pausa.
+Gestor de Hilos Worker (Thread Parking): Suspensión real de los hilos de ejecución en lugar de bucles de espera pasiva, minimizando el uso de CPU a casi 0% durante la pausa.
+Time-Stamping de Interrupción: Registro técnico de la duración de la pausa para calcular métricas de eficiencia operativa (Throughput) reales del sistema.
+Re-validación Automática de Cookies: Módulo que comprueba si los tokens de sesión de YouTube siguen activos al reanudar, especialmente después de pausas prolongadas (superior a 1 hora).
+
+Pausa Granular por Item: Pausar elementos individuales dentro de la cola sin detener toda la operación
+Pausa Programada por Tiempo: Configurar pausa automática después de X minutos/horas de procesamiento
+Pausa Condicional por Recursos: Pausar automáticamente si CPU >80%, RAM >85%, o disco <10GB disponible
+Puntos de Control (Checkpoints): Guardar estado exacto cada N elementos procesados para recuperación precisa
+Pausa con Snapshot de Estado: Capturar estado completo (progreso, logs, errores) al pausar para auditoría
+Reanudación Selectiva Post-Pausa: Elegir si reanudar desde el último item o saltar elementos específicos
+Indicador Visual de Tiempo en Pausa: Mostrar cronómetro de cuánto tiempo lleva pausada la cola
+Pausa de Emergencia con Rollback: Botón pánico que pausa y revierte el último elemento en proceso
+Historial de Pausas Registradas: Log persistente con timestamp, duración y razón de cada pausa
+Pausa Multi-Nivel (Global/Por Canal/Por Categoría): Pausar solo videos de un canal específico mientras otros continúan

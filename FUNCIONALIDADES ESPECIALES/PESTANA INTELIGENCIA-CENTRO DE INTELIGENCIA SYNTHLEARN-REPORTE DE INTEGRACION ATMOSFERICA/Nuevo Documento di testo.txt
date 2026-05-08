@@ -1,0 +1,82 @@
+🎯 **PRÓXIMOS PASOS (Opcionales)**
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar el "Reporte de Integración Atmosférica" de un simple log de texto a un **Centro de Visualización Inteligente de Integración de Conocimiento** garantiza trazabilidad completa, métricas de calidad, análisis de impacto y visualización ejecutiva del proceso de integración de transcripciones en la Base de Conocimiento. La separación determinista (métricas, estadísticas, validación) y cognitiva (análisis de patrones, predicción de valor, optimización semántica) cumple estándares de inteligencia de negocios empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+🔍 **VERIFICACIÓN CONTRA `gui_app.py`:** El método `run_analysis()` actual solo itera archivos `.txt` y llama a `integrator.analyze_text()` con actualizaciones básicas de UI. Tu arquitectura transforma esto en un **Sistema de Inteligencia de Integración** con métricas en tiempo real, análisis de duplicados, scoring de calidad, visualización de categorías y reporte ejecutivo automatizado.
+
+---
+
+### 📦 LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Visualización de Reportes)
+
+#### 🔹 Pilar 1: Métricas en Tiempo Real y Estadísticas (1-12)
+1. **Contador de Archivos Procesados en Tiempo Real** — Muestra "X/Y completados" durante integración. *Uso real:* Ver progreso exacto sin esperar al final.
+2. **Velocidad de Procesamiento (archivos/minuto)** — Calcula tasa de integración actual. *Uso real:* Detectar cuellos de botella en tiempo real.
+3. **Tiempo Transcurrido Total** — Muestra duración de sesión de integración. *Uso real:* Planificar sesiones futuras basándose en histórico.
+4. **Tiempo Promedio por Archivo** — Calcula media de tiempo de procesamiento. *Uso real:* Identificar archivos anómalamente lentos.
+5. **Contador de Entradas Exitosas** — Suma total de entradas integradas en KB. *Uso real:* Medir volumen de conocimiento añadido.
+6. **Contador de Duplicados Detectados** — Suma de entradas omitidas por duplicidad. *Uso real:* Cuantificar redundancia en fuente.
+7. **Contador de Errores de Procesamiento** — Suma de fallos durante integración. *Uso real:* Diagnosticar problemas de calidad de fuente.
+8. **Porcentaje de Completitud** — Muestra % de archivos procesados del total. *Uso real:* Feedback visual de avance.
+9. **Estimador de Tiempo Restante (ETA)** — Calcula tiempo faltante basado en velocidad actual. *Uso real:* Planificar pausa o finalización.
+10. **Distribución por Categoría KDP** — Muestra count de entradas por cada una de las 18 categorías. *Uso real:* Ver balance temático en tiempo real.
+11. **Tamaño Total de Conocimiento Añadido** — Calcula KB/MB de texto integrado. *Uso real:* Medir crecimiento de base de conocimiento.
+12. **Ratio de Éxito vs Fallo** — Calcula % de éxito sobre total procesado. *Uso real:* Evaluar calidad global del lote.
+
+#### 🔹 Pilar 2: Visualización y Formato de Reporte (13-24)
+13. **Formato de Reporte con Colores Semánticos** — Usa verde (éxito), rojo (error), naranja (advertencia). *Uso real:* Identificación visual rápida de estados.
+14. **Agrupación por Canal de Origen** — Organiza resultados agrupados por canal YouTube. *Uso real:* Ver contribución por fuente.
+15. **Agrupación por Fecha de Procesamiento** — Organiza resultados por fecha/hora. *Uso real:* Trazabilidad temporal.
+16. **Highlighting de Términos Clave** — Resalta categorías, duplicados, errores en texto. *Uso real:* Escaneo rápido de información crítica.
+17. **Vista Jerárquica Colapsable** — Permite expandir/contraer secciones del reporte. *Uso real:* Navegación eficiente en reportes largos.
+18. **Numeración Secuencial de Entradas** — Asigna ID único a cada entrada integrada. *Uso real:* Referencia precisa para auditoría.
+19. **Timestamp por Cada Operación** — Registra hora exacta de cada integración. *Uso real:* Trazabilidad forense completa.
+20. **Resumen Ejecutivo Auto-Generado** — Crea resumen al inicio del reporte con totales. *Uso real:* Vista rápida sin leer todo el reporte.
+21. **Sección de Estadísticas Detalladas** — Tabla con métricas completas al final. *Uso real:* Análisis post-procesamiento.
+22. **Listado de Archivos Fallidos** — Sección específica con errores detallados. *Uso real:* Diagnóstico y reintentos focalizados.
+23. **Listado de Duplicados Omitidos** — Sección con duplicados detectados y razón. *Uso real:* Auditoría de redundancia.
+24. **Mapa de Calor de Categorías** — Visualización de densidad por categoría. *Uso real:* Identificar categorías saturadas vs vacías.
+
+#### 🔹 Pilar 3: Exportación y Persistencia (25-36)
+25. **Exportación de Reporte a TXT** — Guarda reporte completo como archivo de texto. *Uso real:* Archivo histórico para auditoría.
+26. **Exportación de Reporte a HTML** — Genera versión HTML navegable con estilos. *Uso real:* Compartir con equipo vía web.
+27. **Exportación de Reporte a PDF** — Genera PDF formateado profesionalmente. *Uso real:* Documentación formal para compliance.
+28. **Exportación de Estadísticas a CSV** — Exporta métricas a CSV para Excel. *Uso real:* Análisis externo de tendencias.
+29. **Exportación de Entradas Integradas a JSON** — Exporta lista de entradas con metadata. *Uso real:* Integración con otros sistemas.
+30. **Auto-Guardado de Reporte en Logs** — Guarda automáticamente en carpeta logs/. *Uso real:* Backup automático sin intervención.
+31. **Nombre de Archivo con Timestamp** — Usa formato `reporte_YYYYMMDD_HHMMSS`. *Uso real:* Organización cronológica automática.
+32. **Compresión ZIP de Reportes Antiguos** — Comprime reportes >30 días automáticamente. *Uso real:* Ahorro de espacio sin perder historial.
+33. **Rotación de Reportes (Máximo N)** — Mantiene solo últimos X reportes. *Uso real:* Control de espacio en disco.
+34. **Hash de Integridad del Reporte** — Genera SHA-256 del reporte exportado. *Uso real:* Verificación de integridad para auditoría.
+35. **Firma Digital del Reporte** — Firma reporte con certificado si está disponible. *Uso real:* Autenticidad para compliance legal.
+36. **Backup Automático Pre-Integración** — Copia estado actual antes de iniciar. *Uso real:* Rollback en caso de fallo catastrófico.
+
+#### 🔹 Pilar 4: Filtrado y Búsqueda en Reporte (37-48)
+37. **Búsqueda de Texto en Reporte** — Permite buscar términos en reporte generado. *Uso real:* Encontrar entrada específica rápidamente.
+38. **Filtro por Categoría KDP** — Muestra solo entradas de categoría seleccionada. *Uso real:* Análisis focalizado por nicho.
+39. **Filtro por Estado (Éxito/Error/Duplicado)** — Muestra solo entradas con estado específico. *Uso real:* Diagnosticar problemas específicos.
+40. **Filtro por Canal de Origen** — Muestra solo entradas de canal específico. *Uso real:* Auditoría por fuente.
+41. **Filtro por Rango de Fechas** — Muestra entradas en período específico. *Uso real:* Análisis temporal.
+42. **Filtro por Tamaño de Entrada** — Muestra entradas >X o <Y palabras. *Uso real:* Identificar contenido muy corto/largo.
+43. **Ordenamiento por Categoría** — Ordena resultados alfabéticamente por categoría. *Uso real:* Organización lógica.
+44. **Ordenamiento por Fecha** — Ordena cronológicamente (asc/desc). *Uso real:* Ver evolución temporal.
+45. **Ordenamiento por Tamaño** — Ordena por número de palabras. *Uso real:* Identificar contenido más denso.
+46. **Vista Previa de Contenido** — Muestra primeras 100 palabras de entrada. *Uso real:* Verificación rápida de relevancia.
+47. **Resaltado de Coincidencias de Búsqueda** — Resalta términos buscados en reporte. *Uso real:* Identificación visual rápida.
+48. **Contador de Resultados Filtrados** — Muestra "X de Y resultados mostrados". *Uso real:* Contexto de filtrado aplicado.
+
+#### 🔹 Pilar 5: Validación y Control de Calidad (49-60)
+49. **Validador de Integridad de Entrada** — Verifica que entrada tenga contenido >0 palabras. *Uso real:* Prevenir entradas vacías en KB.
+50. **Validador de Encoding UTF-8** — Verifica que texto sea UTF-8 válido. *Uso real:* Prevenir mojibakes en KB.
+51. **Validador de Longitud Mínima** — Alerta si entrada <X palabras configurables. *Uso real:* Filtrar contenido muy corto.
+52. **Validador de Ausencia de Ruido** — Verifica que no queden marcas de tiempo o spam. *Uso real:* Garantizar calidad de limpieza.
+53. **Validador de Consistencia de Categoría** — Verifica que categoría asignada sea válida. *Uso real:* Prevenir categorías inválidas en KB.
+54. **Validador de Duplicados Exactos** — Verifica hash exacto contra KB existente. *Uso real:* Prevenir duplicación perfecta.
+55. **Validador de Metadata Completa** — Verifica que tenga fuente, fecha, categoría. *Uso real:* Trazabilidad completa.
+56. **Validador de Estructura de Párrafos** — Verifica que tenga saltos de línea lógicos. *Uso real:* Legibilidad en KB.
+57. **Validador de Ausencia de Caracteres Invisibles** — Detecta \u200B, \uFEFF, etc. *Uso real:* Limpieza de artefactos.
+58. **Validador de Consistencia de Timestamps** — Verifica que fecha sea lógica (no futura). *Uso real:* Integridad temporal.
+59. **Validador de Permisos de Escritura** — Verifica que se pueda escribir en KB. *Uso real:* Prevenir fallos silenciosos.
+60. **Validador de Espacio en Disco** — Verifica espacio suficiente antes de integrar. *Uso real:* Prevenir fallos por disco lleno.
+
+---
+

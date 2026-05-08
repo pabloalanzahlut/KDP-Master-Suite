@@ -1,0 +1,66 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar "No Sobrescribir Existentes" de un simple checkbox a un **Sistema de Protección de Activos Textuales** garantiza que cada transcripción, manual y entrada de conocimiento esté protegida contra sobrescritura accidental, corrupción o pérdida de datos. La separación determinista (validación de archivos, hashes, versionado) y cognitiva (detección semántica de duplicados, análisis de valor) cumple estándares de integridad de datos empresarial.
+
+📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Protección de Archivos)**
+
+1. **Validador de Existencia de Archivo por Hash** — Verifica si existe archivo con mismo nombre y hash SHA-256 antes de descargar. *Uso real:* Evitar descargar transcripción idéntica que ya existe en outputs/.
+2. **Sistema de Verificación por Video ID** — Extrae ID de YouTube y verifica si ya existe transcripción asociada en DB. *Uso real:* Prevenir duplicados aunque el URL tenga parámetros diferentes.
+3. **Comparador de Timestamps de Modificación** — Compara fecha de modificación del archivo local vs fecha de publicación del video. *Uso real:* Detectar si archivo local es más reciente y protegerlo.
+4. **Validador de Integridad de Contenido** — Calcula hash del archivo existente y lo compara con hash registrado en DB. *Uso real:* Detectar corrupción silenciosa antes de sobrescribir.
+5. **Sistema de Backup Automático Pre-Escritura** — Crea copia de seguridad con timestamp antes de cualquier sobrescritura. *Uso real:* Recuperar versión anterior si nueva transcripción tiene errores.
+6. **Detector de Archivos en Uso por Otros Procesos** — Verifica si archivo está bloqueado por otro proceso antes de escribir. *Uso real:* Prevenir corrupción por escritura concurrente.
+7. **Validador de Espacio en Disco Suficiente** — Calcula espacio necesario para backup + nuevo archivo antes de operar. *Uso real:* Evitar fallo a mitad de escritura por disco lleno.
+8. **Sistema de Versionado Semántico de Archivos** — Añade sufijo _v2, _v3 a archivos cuando existe versión previa. *Uso real:* Mantener historial de versiones sin perder datos.
+9. **Comparador de Tamaño de Archivo Anómalo** — Alerta si nuevo archivo es significativamente más pequeño/grande que el existente. *Uso real:* Detectar descargas incompletas o corrupción.
+10. **Validador de Encoding Consistente** — Verifica que encoding del nuevo archivo sea compatible con el existente. *Uso real:* Prevenir problemas de codificación UTF-8 vs Latin-1.
+11. **Sistema de Lock File por Transcripción** — Crea archivo .lock mientras se procesa para evitar escritura concurrente. *Uso real:* Prevenir race conditions en procesamiento paralelo.
+12. **Verificador de Permisos de Escritura** — Valida permisos de archivo/directorio antes de intentar escritura. *Uso real:* Detectar problemas de permisos en sistemas Linux/Windows Server.
+13. **Validador de Nombre de Archivo Seguro** — Sanitiza nombres para evitar caracteres inválidos en SO destino. *Uso real:* Prevenir errores en Windows con caracteres como : * ? " < > |.
+14. **Sistema de Recuperación ante Fallo de Escritura** — Mantiene archivo original intacto si escritura falla a mitad. *Uso real:* Garantizar atomicidad de operaciones de archivo.
+15. **Comparador de Metadatos de Archivo** — Compara metadata (autor, fecha, tags) entre versión existente y nueva. *Uso real:* Detectar si nueva versión tiene menos metadata.
+16. **Validador de Estructura de Directorios** — Verifica que estructura de carpetas exista antes de escribir. *Uso real:* Prevenir errores de "Path not found".
+17. **Sistema de Cuotas de Almacenamiento por Proyecto** — Limita espacio total para transcripciones por categoría. *Uso real:* Evitar que un proyecto sature el disco.
+18. **Detector de Archivos Huérfanos** — Identifica archivos sin registro en DB para limpieza o recuperación. *Uso real:* Mantener consistencia entre FS y DB.
+19. **Validador de Consistencia DB-FS** — Sincroniza estado entre base de datos y sistema de archivos. *Uso real:* Detectar discrepancias por fallos anteriores.
+20. **Sistema de Journaling de Operaciones** — Registra cada operación de escritura en log transaccional. *Uso real:* Permitir rollback ante fallos críticos.
+21. **Comparador de Líneas de Texto** — Cuenta líneas en archivo existente vs nuevo para detectar pérdidas. *Uso real:* Alertar si nueva transcripción tiene menos contenido.
+22. **Validador de Formato de Salida** — Verifica que formato (.txt, .md, .json) sea compatible con configuración. *Uso real:* Prevenir errores de formato inesperado.
+23. **Sistema de Prioridad de Escritura** — Cola operaciones de escritura por prioridad de proyecto. *Uso real:* Evitar saturación de I/O en discos mecánicos.
+24. **Detector de Patrones de Escritura Sospechosos** — Alerta si múltiples escrituras rápidas al mismo archivo. *Uso real:* Prevenir corrupción por bucles de reescritura.
+25. **Validador de Integridad Post-Escritura** — Verifica hash del archivo escrito contra hash calculado. *Uso real:* Confirmar que escritura fue exitosa y completa.
+26. **Sistema de Retención de Versiones** — Mantiene N versiones históricas antes de eliminar automáticamente. *Uso real:* Cumplir políticas de retención documental.
+27. **Comparador de Checksums de Bloques** — Verifica integridad bloque por bloque en archivos grandes. *Uso real:* Detectar corrupción parcial en transcripciones largas.
+28. **Validador de Consistencia de Índices** — Actualiza índices de búsqueda tras escritura exitosa. *Uso real:* Mantener FTS5 sincronizado con archivos físicos.
+29. **Sistema de Notificación de Conflictos** — Alerta al usuario cuando detecta intento de sobrescritura. *Uso real:* Permitir decisión manual en casos ambiguos.
+30. **Detector de Cambios en Estructura de Carpetas** — Monitorea modificaciones en estructura de directorios. *Uso real:* Prevenir reorganizaciones accidentales.
+31. **Validador de Ruta Relativa vs Absoluta** — Normaliza rutas para evitar duplicados por diferentes formas de referencia. *Uso real:* Evitar "data/trans.txt" vs "/home/user/data/trans.txt".
+32. **Sistema de Cache de Estado de Archivos** — Mantiene cache en RAM de estado de archivos para validación rápida. *Uso real:* Reducir I/O de disco en validaciones frecuentes.
+33. **Comparador de Atributos de Archivo** — Verifica atributos (solo lectura, oculto, sistema) antes de escribir. *Uso real:* Respetar atributos de protección del SO.
+34. **Validador de Consistencia de Timezone** — Normaliza timestamps a UTC para evitar inconsistencias. *Uso real:* Prevenir problemas en sistemas multi-zona horaria.
+35. **Sistema de Recuperación de Archivos Eliminados** — Mantiene papelera de reciclaje interna para transcripciones. *Uso real:* Recuperar archivos eliminados accidentalmente.
+36. **Detector de Fragmentación de Disco** — Alerta si disco está fragmentado y afecta rendimiento de escritura. *Uso real:* Optimizar rendimiento en HDDs.
+37. **Validador de Consistencia de Codificación** — Verifica que todos los archivos usen misma codificación (UTF-8). *Uso real:* Prevenir problemas de mezcla de encodings.
+38. **Sistema de Monitoreo de I/O** — Monitorea operaciones de lectura/escritura en tiempo real. *Uso real:* Detectar anomalías o cuellos de botella.
+39. **Comparador de Metadatos Extendidos** — Verifica xattrs, ACLs y otros metadatos del SO. *Uso real:* Preservar metadatos de seguridad en entornos corporativos.
+40. **Validador de Consistencia de Permisos Heredados** — Verifica que nuevos archivos hereden permisos correctos del directorio padre. *Uso real:* Mantener seguridad consistente en estructura de carpetas.
+41. **Sistema de Alerta de Espacio Crítico** — Notifica cuando espacio libre cae bajo umbral configurable. *Uso real:* Prevenir fallos de escritura por disco lleno.
+42. **Detector de Archivos Temporales Huérfanos** — Identifica y limpia archivos .tmp, .part abandonados. *Uso real:* Liberar espacio de descargas fallidas.
+43. **Validador de Consistencia de Links Simbólicos** — Verifica que symlinks apunten a destinos válidos. *Uso real:* Prevenir referencias rotas en estructura de proyectos.
+44. **Sistema de Compresión Automática de Archivos Antiguos** — Comprime versiones antiguas para ahorrar espacio. *Uso real:* Mantener historial sin saturar disco.
+45. **Comparador de Firmas Digitales de Archivo** — Verifica firmas digitales si existen en archivos. *Uso real:* Validar autenticidad en entornos de alta seguridad.
+46. **Validador de Consistencia de Hard Links** — Verifica integridad de hard links entre archivos. *Uso real:* Mantener consistencia en sistemas con deduplicación.
+47. **Sistema de Monitoreo de Cambios en Tiempo Real** — Usa inotify/ReadDirectoryChangesW para detectar modificaciones. *Uso real:* Reacción inmediata a cambios externos.
+48. **Detector de Patrones de Acceso Anómalos** — Alerta si archivo es accedido/modificado fuera de patrón normal. *Uso real:* Detectar actividad maliciosa o errores de script.
+49. **Validador de Consistencia de Extended Attributes** — Verifica xattrs en sistemas que los soportan. *Uso real:* Preservar metadatos en macOS/Linux.
+50. **Sistema de Cuotas de Escritura por Usuario** — Limita escrituras por sesión de usuario. *Uso real:* Prevenir abuso o errores de bucle infinito.
+51. **Comparador de ACLs (Access Control Lists)** — Verifica listas de control de acceso entre versiones. *Uso real:* Mantener seguridad granular en entornos Windows Server.
+52. **Validador de Consistencia de Resource Forks** — Verifica resource forks en macOS. *Uso real:* Preservar metadatos completos en sistemas Apple.
+53. **Sistema de Replicación de Archivos Críticos** — Replica transcripciones importantes en ubicación secundaria. *Uso real:* Redundancia ante fallo de disco primario.
+54. **Detector de Corrupción Silenciosa (Bit Rot)** — Verifica checksums periódicamente para detectar degradación. *Uso real:* Prevenir pérdida de datos por degradación de medio.
+55. **Validador de Consistencia de Sparse Files** — Verifica archivos dispersos en sistemas que los soportan. *Uso real:* Optimizar almacenamiento en archivos grandes con huecos.
+56. **Sistema de Archivado Automático por Edad** — Mueve archivos antiguos a almacenamiento frío automáticamente. *Uso real:* Optimizar costo de almacenamiento.
+57. **Comparador de Filesystem Quotas** — Verifica cuotas de filesystem antes de escribir. *Uso real:* Prevenir fallos por exceder cuota de usuario/grupo.
+58. **Validador de Consistencia de Case Sensitivity** — Normaliza nombres considerando case sensitivity del SO. *Uso real:* Prevenir conflictos en sistemas case-sensitive.
+59. **Sistema de Monitoreo de Salud de Disco** — Consulta SMART data para predecir fallos de disco. *Uso real:* Migrar datos antes de fallo catastrófico.
+60. **Validador de Consistencia Cross-Platform** — Verifica compatibilidad de nombres y atributos entre Windows/Linux/macOS. *Uso real:* Garantizar portabilidad de transcripciones entre sistemas.

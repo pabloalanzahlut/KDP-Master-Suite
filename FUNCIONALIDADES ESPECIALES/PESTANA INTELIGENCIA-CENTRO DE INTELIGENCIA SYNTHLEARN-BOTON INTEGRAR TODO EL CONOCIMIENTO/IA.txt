@@ -1,0 +1,70 @@
+🧠 BLOQUE 2: INTELIGENCIA ESTRATÉGICA (60 Módulos CON IA OLLAMA LOCAL)
+Enfocado en análisis semántico, razonamiento y valor añadido.
+
+Módulos CON IA para Transformación Cognitiva
+Clasificador Semántico por Categoría KDP — Asigna automáticamente a 1 de 18 categorías.
+Detector de Duplicados Conceptuales (Embeddings) — Evita redundancia temática en KB.
+Scoring de Calidad de Transcripción — Puntúa 1-100 para priorizar integración.
+Generador de Resumen Ejecutivo por Manual — Crea abstracts para MASTER_KB_CONSOLIDADO.txt.
+Recomendador de Fusión de Contenido — Sugiere qué secciones merges en manuales .md.
+
+Clasificación Multicapa: Asignar categoría principal y 3 subcategorías.
+Resumen Ejecutivo de Integración: Generar un párrafo de "lo que aprendimos hoy".
+Detección Semántica de Duplicados: Identificar ideas iguales con palabras diferentes.
+Mapeo Automático de Roles GEM: Asignar cada fragmento al rol correspondiente.
+Extracción de Action Items: Convertir consejos en tareas pendientes.
+Análisis de Contradicciones: Detectar si el texto nuevo contradice manuales previos.
+Generación de Preguntas de Autoevaluación: Crear tests basados en el texto.
+Traducción Técnica Contextual: Traducir conceptos de KDP (inglés/español).
+Detección de Sentimiento del Experto: Identificar si un consejo es cauteloso o agresivo.
+Sintetizador de Perspectivas: Combinar 3 fuentes sobre un mismo nicho en un solo texto.
+Identificador de Entidades Nombradas (NER): Extraer nombres de herramientas y autores.
+Buscador Semántico (RAG Local): Preguntar a la KB y obtener respuestas citando fuentes.
+Generador de Glosario Inteligente: Definir términos complejos detectados.
+Sugerencia de Nuevas Categorías: Identificar temas emergentes no categorizados.
+Evaluación de Relevancia KDP: Puntuación del 1 al 10 sobre utilidad estratégica.
+Conversor de Lenguaje Coloquial a Técnico: Formalizar transcripciones de YouTube.
+Detección de Sesgos: Identificar si la información está desactualizada (ej. datos de 2021).
+Inferencia de "Gates" de Decisión: Identificar puntos críticos para el flujo SOE.
+Smart Tagging: Generar etiquetas descriptivas que no estaban en el texto original.
+Recomendación de Lectura Cruzada: "Si te interesó esto, lee el Módulo X de Legalidad".
+Identificador de Fórmulas y Métricas: Extraer y validar lógica matemática.
+Análisis de Autoridad: Ponderar conocimiento según el prestigio del canal/fuente.
+Clustering de Nichos: Agrupar fragmentos de investigación por similaridad.
+Generador de Analogías: Explicar conceptos complejos de KDP con ejemplos simples.
+Detección de Alucinaciones en Texto: Validar datos contra la base de datos interna.
+Smart Banal Filter: Identificar si un bloque de 50 palabras no aporta valor real.
+Ranking de "Gold Nuggets": Resaltar los consejos más valiosos de una integración masiva.
+Análisis de Tendencias Semánticas: Ver qué temas están ganando tracción.
+Generador de SOPs (Procedimientos): Crear manuales de "paso a paso" desde el texto.
+Smart Cross-Linking: Insertar enlaces entre manuales automáticamente.
+Extracción de Competidores: Identificar marcas o autores mencionados.
+Detección de Urgencia: Marcar consejos sobre "Cambios de política" como alertas.
+Identificador de Metáforas de Venta: Extraer ángulos de marketing del texto.
+Revisor de Estilo Corporativo: Asegurar que el conocimiento tenga un tono uniforme.
+Generador de Hipótesis de Mercado: Proponer experimentos basados en la data.
+Análisis de Riesgo Legal: Identificar frases que sugieran peligro de baneo.
+Sugerencia de Mejoras en Portada: Extraer tips de diseño de transcripciones.
+Contextualizador de Siglas: Explicar qué significan ACOS, ROAS, BSR en el contexto.
+Extractor de "Puntos de Dolor" del Cliente: Identificar qué quejas menciona el experto.
+Smart Archival: Sugerir qué conocimiento es probablemente obsoleto.
+Generador de Comparativas: Crear tablas comparativas de herramientas desde texto.
+Identificador de Estrategias de Pricing: Extraer rangos de precios sugeridos.
+Smart Checklist Generator: Crear listas de verificación para publicar libros.
+Análisis de Embudo de Ventas: Clasificar fragmentos según la etapa del funnel.
+Generador de Resúmenes para Móvil: Versiones cortas para lectura rápida.
+Smart Formatting: Convertir bloques de texto en tablas o listas Markdown.
+Identificador de Nichos "Evergreen": Clasificar la durabilidad del conocimiento.
+Análisis de Facilidad de Implementación: Clasificar consejos como "Fácil" o "Complejo".
+Generador de Títulos de Módulos: Crear encabezados atractivos y descriptivos.
+Detección de Estrategias "Black Hat": Advertir sobre tácticas prohibidas por Amazon.
+Smart Notification Builder: Crear el texto de la notificación Windows Toast.
+Extracción de Casos de Estudio: Identificar y resumir ejemplos reales de éxito.
+Asistente de "Brainstorming" sobre KB: Generar ideas basadas en todo lo integrado.
+Analizador de Coherencia de Taxonomía: Avisar si un manual tiene temas mezclados.
+Generador de Notas al Pie: Explicar conceptos sin ensuciar el texto principal.
+Predictor de Impacto en Ventas: Estimar cuánto podría ayudar este consejo.
+Smart Relationship Mapper: Dibujar (en texto) cómo se conectan dos manuales.
+Extracción de Palabras Clave de Búsqueda (Amazon): Identificar términos de SEO.
+Generador de Resúmenes por Rol: "Resumen para el Diseñador", "Resumen para el Copy".
+Smart Integration Agent: Un hilo de IA que decide si un texto es digno de ser integrado.

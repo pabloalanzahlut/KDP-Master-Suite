@@ -1,0 +1,150 @@
+🎯 **PRÓXIMOS PASOS (Opcionales)**
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar el campo "URL del Canal" de un simple input de texto a un **Sistema Inteligente de Validación y Enriquecimiento de Fuentes KDP** garantiza que cada URL añadida sea automáticamente validada, normalizada, categorizada y enriquecida con metadata predictiva antes de integrarse al monitor. La separación determinista (validación de sintaxis, normalización de URLs, verificación de existencia) y cognitiva (análisis de relevancia KDP, scoring de autoridad, predicción de valor) cumple estándares enterprise y opera 100% bajo tu flujo TEXT-FIRST.
+
+---
+
+## 📊 **INPUT URL DEL CANAL - ARQUITECTURA ELITE CORPORATE**
+
+### 🎯 **PROPÓSITO CENTRAL**
+Transformar el campo de URL básico en un **Portal Inteligente de Ingesta de Canales KDP** que valida, normaliza, enriquece y predice el valor estratégico de cada canal antes de añadirlo al sistema, previniendo errores, duplicados y contenido irrelevante.
+
+**🛠️ Caso de Uso Real y Solución al Usuario Final:**
+*   **Problema:** El usuario encuentra 5 canales de YouTube sobre Amazon KDP y quiere añadirlos. Debe copiar y pegar cada URL manualmente, verificar que sean válidas, escribir el nombre de cada canal, y no sabe si el canal es relevante hasta después de añadirlo. Pierde 15 minutos en validación manual y riesgo de añadir canales de baja calidad.
+*   **Solución Elite:** El usuario pega las 5 URLs en el campo. El sistema: (1) Valida automáticamente que sean URLs de YouTube válidas, (2) Normaliza diferentes formatos (youtube.com/c/, youtube.com/@, youtu.be/), (3) Extrae metadata del canal (nombre, suscriptores, descripción), (4) Analiza si el contenido es relevante para Amazon KDP, (5) Detecta si ya están en el monitor, (6) Asigna categoría automática, (7) Calcula score de prioridad. El usuario ve preview de los 5 canales con "3 relevantes para KDP, 2 no relacionados" y confirma con 1 clic. **Tiempo ahorrado: 15 minutos → 30 segundos.**
+
+---
+
+## 📦 **LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Validación)**
+
+### **Pilar 1: Validación de Sintaxis y Formato de URL (1-12)**
+
+1.  **Validador de Sintaxis YouTube en Tiempo Real** — Verifica que la URL siga patrón válido de YouTube mientras el usuario escribe. *Caso de uso real:* Usuario escribe "youtube.com/canal" → aparece ✓ verde inmediatamente; escribe "youtbe.com" → aparece ✗ rojo con mensaje "URL inválida".
+
+2.  **Detector Automático de Tipo de URL** — Identifica si es URL de canal, video, playlist o handle (@). *Caso de uso:* Usuario pega "https://youtu.be/abc123" → sistema detecta "Es video individual, ¿extraer canal que lo publicó?".
+
+3.  **Normalizador de URLs Multi-Formato** — Convierte todas las variantes a formato estándar youtube.com/channel/ID. *Caso de uso:* Usuario pega "youtube.com/@pabloalanzahlut", "youtu.be/abc123", "youtube.com/c/PabloKDP" → todas se convierten a "youtube.com/channel/UC...".
+
+4.  **Validador de Handle (@) de YouTube** — Verifica que handles @ existan y sean válidos. *Caso de uso:* Usuario escribe "@CanalKDP" → sistema verifica que el handle existe antes de permitir añadir.
+
+5.  **Extractor de Channel ID desde URL** — Obtiene ID único del canal (UC...) desde cualquier formato de URL. *Caso de uso:* Sistema extrae "UCxyz123" para identificación única, evitando duplicados por URLs diferentes del mismo canal.
+
+6.  **Validador de Dominio YouTube** — Verifica que la URL sea de youtube.com o youtu.be (no dominios falsos). *Caso de uso:* Previene phishing: "youtube-fake.com/canal" → rechazado automáticamente.
+
+7.  **Detector de Parámetros Inválidos** — Identifica y elimina parámetros innecesarios (?si=, ?feature=). *Caso de uso:* Usuario pega URL con tracking "youtube.com/watch?v=abc&si=xyz" → sistema limpia a "youtube.com/watch?v=abc".
+
+8.  **Validador de Longitud de URL** — Verifica que URL no exceda longitud máxima permitida. *Caso de uso:* Previene errores de base de datos por URLs excesivamente largas (>2048 caracteres).
+
+9.  **Detector de Caracteres Especiales Inválidos** — Identifica caracteres no permitidos en URLs de YouTube. *Caso de uso:* URL con espacios o caracteres especiales → sistema los codifica automáticamente (%20, etc.).
+
+10. **Validador de Protocolo (HTTP/HTTPS)** — Asegura que URL use protocolo seguro HTTPS. *Caso de uso:* "http://youtube.com" → automáticamente convertido a "https://youtube.com".
+
+11. **Detector de URLs Acortadas** — Identifica si es bit.ly, tinyurl, etc. y expande antes de validar. *Caso de uso:* Usuario pega "bit.ly/kdp-channel" → sistema expande a URL completa de YouTube y valida.
+
+12. **Validador de Accesibilidad de URL** — Verifica que la URL no esté bloqueada por robots.txt o restricciones. *Caso de uso:* Canal privado/restringido → alerta "⚠️ Este canal puede tener restricciones de acceso".
+
+### **Pilar 2: Verificación de Existencia y Estado del Canal (13-24)**
+
+13. **Verificador de Existencia vía API YouTube** — Consulta API para confirmar que el canal existe y está activo. *Caso de uso real:* Usuario añade URL → sistema verifica "✅ Canal activo con 15K suscriptores" vs "❌ Canal eliminado o no encontrado".
+
+14. **Detector de Canal Terminado/Cerrado** — Verifica si el canal fue cerrado por el creador o YouTube. *Caso de uso:* Sistema alerta "❌ Este canal fue cerrado en 2024 → no se puede monitorear".
+
+15. **Validador de Estado de Monetización** — Verifica si el canal está monetizado (indicador de calidad). *Caso de uso:* Preview muestra "💰 Canal monetizado" → usuario prioriza canales profesionales.
+
+16. **Extractor de Fecha de Creación del Canal** — Obtiene cuándo se creó el canal para detectar antigüedad. *Caso de uso:* Sistema detecta "📅 Canal creado: Enero 2026 (hace 2 semanas)" → alerta posible canal nuevo/spam.
+
+17. **Verificador de Canal Verificado** — Detecta si el canal tiene check de verificación de YouTube. *Caso de uso:* Preview muestra "✓ Canal verificado" → usuario prioriza fuentes confiables.
+
+18. **Detector de Canal en Vivo Actual** — Verifica si el canal está transmitiendo en vivo ahora. *Caso de uso:* Sistema detecta "🔴 En vivo ahora" → sugiere "¿Añadir para monitorear streams sobre KDP?".
+
+19. **Validador de Visibilidad del Canal** — Verifica si es público, no listado o privado. *Caso de uso:* Canal privado → alerta "⚠️ Canal privado → no se pueden obtener videos públicos".
+
+20. **Extractor de País/Región del Canal** — Obtiene ubicación geográfica del canal. *Caso de uso:* Sistema detecta "🌍 España" → usuario filtra canales por región para contenido localizado en su mercado.
+
+21. **Verificador de Idioma Principal** — Detecta idioma principal del contenido del canal. *Caso de uso:* Sistema detecta "🌐 Idioma: Inglés" → alerta si usuario solo quiere contenido en español.
+
+22. **Detector de Restricciones de Edad** — Verifica si el canal tiene contenido 18+. *Caso de uso:* Canal con restricciones → alerta "⚠️ Contenido 18+ → puede no ser apropiado para KB profesional".
+
+23. **Validador de Tasa de Subida** — Verifica frecuencia histórica de publicaciones. *Caso de uso:* Sistema detecta "📊 Última publicación: hace 8 meses" → alerta "Canal inactivo, ¿añadir de todas formas?".
+
+24. **Extractor de Estadísticas Públicas** — Obtiene views totales, suscriptores, videos totales. *Caso de uso:* Preview muestra "📊 25K subs | 342 videos | 2.1M views" → usuario evalúa autoridad del canal.
+
+### **Pilar 3: Prevención de Duplicados y Conflictos (25-36)**
+
+25. **Detector de Duplicados por Channel ID** — Verifica si el Channel ID ya existe en la base de datos. *Caso de uso real:* Usuario intenta añadir mismo canal con URL diferente → sistema alerta "⚠️ Este canal ya está en tu monitor (ID: UCxyz123)".
+
+26. **Validador de URLs Alternativas del Mismo Canal** — Detecta si se está intentando añadir el mismo canal con diferente formato de URL. *Caso de uso:* Usuario tiene "youtube.com/c/KDPMaster" e intenta añadir "youtube.com/@kdpmaster" → sistema detecta que es el mismo canal.
+
+27. **Detector de Redirección de Canal** — Verifica si el canal fue redirigido a otro canal. *Caso de uso:* Sistema detecta "🔄 Este canal redirige a @NuevoCanalKDP → ¿Añadir el nuevo canal en su lugar?".
+
+28. **Validador de Límite de Canales por Categoría** — Alerta si se excede número máximo configurado de canales en una categoría. *Caso de uso:* Usuario tiene 20 canales de "Amazon Ads" → sistema alerta "⚠️ Límite recomendado: 15 canales por categoría".
+
+29. **Detector de Canales Relacionados/Clones** — Identifica canales que parecen clones o tienen contenido muy similar. *Caso de uso:* Sistema detecta "⚠️ Este canal tiene 95% contenido similar a @CanalExistente → posible duplicación".
+
+30. **Validador de Permisos de API** — Verifica que la API de YouTube tenga permisos para acceder al canal. *Caso de uso:* Sistema alerta "⚠️ Canal con restricciones de API → metadata limitada disponible".
+
+31. **Detector de Canales Bloqueados/Shadowban** — Identifica canales con restricciones de YouTube (shadowban). *Caso de uso:* Sistema detecta "⚠️ Canal con restricciones de comunidad → visibilidad limitada".
+
+32. **Validador de Consistencia de Branding** — Verifica si el canal tiene branding consistente (logo, banner, nombre). *Caso de uso:* Sistema alerta "⚠️ Canal sin logo/banner → posible canal de baja calidad o abandonado".
+
+33. **Detector de Cambio de Nicho Reciente** — Identifica si el canal cambió recientemente de temática. *Caso de uso:* Sistema detecta "⚠️ Canal cambió de 'Cocina' a 'KDP' hace 2 semanas → posible cambio de estrategia".
+
+34. **Validador de Frecuencia de Publicación Histórica** — Analiza patrón histórico de publicación para detectar consistencia. *Caso de uso:* Sistema detecta "📊 Patrón: 1 video/semana (consistente)" vs "📊 Patrón: Irregular (0-5 videos/mes)".
+
+35. **Detector de Canales Inactivos Prolongados** — Identifica canales sin actividad por >6 meses. *Caso de uso:* Sistema alerta "⚠️ Sin publicaciones desde hace 8 meses → canal posiblemente abandonado".
+
+36. **Validador de Límite Global de Canales** — Verifica si se excede límite total de canales monitoreados. *Caso de uso:* Sistema tiene 100 canales → alerta "⚠️ Límite recomendado: 100 canales → rendimiento puede degradarse".
+
+### **Pilar 4: UX/UI y Feedback en Tiempo Real (37-48)**
+
+37. **Autocompletado Inteligente de URLs** — Sugiere URLs basadas en historial de canales añadidos. *Caso de uso real:* Usuario escribe "@pab" → sistema sugiere "@pabloalanzahlut", "@pablokdp" del historial.
+
+38. **Validación Visual Inline con Iconos** — Muestra iconos ✓/✗/️ al lado del campo mientras se escribe. *Caso de uso:* Usuario escribe URL → aparece ✓ verde inmediatamente → feedback visual sin esperar.
+
+39. **Sugerencia de Corrección de URLs** — Si la URL tiene error común, sugiere corrección automática. *Caso de uso:* Usuario escribe "youtbe.com/canal" → sistema sugiere "¿Quisiste decir youtube.com/canal?".
+
+40. **Preview de Metadata en Tooltip** — Muestra tooltip con nombre del canal, suscriptores al pasar mouse sobre URL válida. *Caso de uso:* Usuario pasa mouse sobre URL → tooltip muestra "Pablo KDP | 25K subs | 342 videos".
+
+41. **Contador de Caracteres Restantes** — Muestra cuántos caracteres faltan para límite máximo de URL. *Caso de uso:* Usuario ve "150/2048 caracteres" → sabe cuánto espacio tiene disponible.
+
+42. **Highlight de Campos Auto-Completados** — Resalta campos que el sistema completó automáticamente. *Caso de uso:* Campo "Nombre" se autocompleta → se resalta en amarillo → usuario sabe que puede editarlo.
+
+43. **Animación de Carga durante Validación** — Muestra spinner mientras se valida URL contra API de YouTube. *Caso de uso:* Usuario pega URL → aparece spinner 1-2s → feedback de "procesando".
+
+44. **Mensaje de Error Descriptivo** — Muestra mensaje claro cuando URL es inválida con sugerencia de solución. *Caso de uso:* URL inválida → mensaje "❌ URL inválida. Formato esperado: youtube.com/canal o @handle".
+
+45. **Botón de Pegar desde Portapapeles Inteligente** — Detecta automáticamente URLs en portapapeles y sugiere pegar. *Caso de uso:* Usuario copia URL en navegador → al hacer click en campo, aparece "📋 URL detectada en portapapeles: ¿Pegar?".
+
+46. **Soporte para Múltiples URLs Simultáneas** — Permite pegar varias URLs separadas por coma o nueva línea. *Caso de uso:* Usuario pega 5 URLs → sistema las separa y valida cada una individualmente.
+
+47. **Historial de URLs Añadidas Recientemente** — Muestra dropdown con últimas 10 URLs añadidas. *Caso de uso:* Usuario hace click en campo → dropdown muestra "Últimas URLs: @canal1, @canal2..." → acceso rápido.
+
+48. **Confirmación Reversible (Undo) Post-Adición** — Permite deshacer la adición de canal en los últimos 10 segundos. *Caso de uso:* Usuario añade canal por error → ve "✅ Añadido [Deshacer]" → click en "Deshacer" → canal se elimina.
+
+### **Pilar 5: Integración con Base de Datos y Persistencia (49-60)**
+
+49. **Inserción Atómica en SQLite** — Añade canal a DB con transacción atómica (todo o nada). *Caso de uso real:* Si falla validación a mitad del proceso, no deja canales a medio añadir → integridad de datos garantizada.
+
+50. **Generación Automática de Channel_ID Único Interno** — Genera ID único interno para el canal (independiente de YouTube). *Caso de uso:* Sistema asigna "CH_001234" → permite tracking interno incluso si canal cambia URL.
+
+51. **Timestamp de Fecha de Adición Automático** — Registra automáticamente cuándo se añadió el canal. *Caso de uso:* DB guarda "added_at: 2026-01-30 14:30:22" → permite filtrar por "canales añadidos esta semana".
+
+52. **Asignación Automática de Categoría por Defecto** — Asigna categoría "General" o detectada automáticamente basada en URL. *Caso de uso:* Canal se añade con categoría "Amazon KDP" detectada → usuario puede cambiar si quiere.
+
+53. **Configuración de Monitoreo por Defecto** — Aplica configuración predeterminada (intervalo, prioridad) al nuevo canal. *Caso de uso:* Nuevo canal se añade con "Intervalo: 60min, Prioridad: Media" → configuración consistente.
+
+54. **Registro de Fuente de Adición** — Registra cómo se añadió el canal (manual, drag&drop, importación). *Caso de uso:* DB guarda "source: manual_url_input" → analytics de cómo los usuarios añaden canales.
+
+55. **Sincronización Inmediata de UI Post-Adición** — Actualiza lista de canales monitoreados inmediatamente tras añadir. *Caso de uso:* Usuario añade canal → lista se actualiza instantáneamente → no necesita refrescar.
+
+56. **Backup Automático Pre-Adición Masiva** — Crea punto de restauración antes de añadir múltiples canales. *Caso de uso:* Antes de añadir 20 canales, sistema crea backup → si algo sale mal, se puede revertir.
+
+57. **Validación de Integridad Post-Adición** — Verifica que el canal se guardó correctamente en DB. *Caso de uso:* Tras añadir, sistema verifica "✅ Canal CH_001234 guardado correctamente en DB".
+
+58. **Indexación Automática para Búsqueda FTS5** — Añade canal a índices de búsqueda FTS5 inmediatamente. *Caso de uso:* Usuario puede buscar el canal por nombre inmediatamente tras añadirlo.
+
+59. **Actualización de Estadísticas Globales** — Actualiza contadores de "Total Canales", "Canales Activos" en dashboard. *Caso de uso:* Contador superior cambia de "Total: 15" a "Total: 16" → feedback inmediato.
+
+60. **Logging de Auditoría de Adición** — Registra en audit log quién añadió qué canal y cuándo. *Caso de uso:* Audit log guarda "User: admin, Action: ADD_CHANNEL, Channel: @kdpmaster, Timestamp: 2026-01-30 14:30" → trazabilidad completa.
+
+---

@@ -1,0 +1,92 @@
+He revisado la documentación. Aquí está el análisis de brechas:
+
+## 📊 Funcionalidades Documentadas SIN Implementar
+
+### Del Backlog (Sprint Actual y Próximo):
+| ID | Funcionalidad | Estado | Prioridad |
+|----|--------------|--------|-----------|
+| US-001 | Mejorar detección de nuevos videos en Monitor | 🚧 In Progress | Alta |
+
+## Plan: Mejora Integral de Detección de Videos
+
+### 1. Aumentar profundidad de detección (`monitor_service.py`)
+- **Cambiar `playlistend` de 30 a 50-100** en `_get_channel_videos()` y `_check_single_channel()`
+- Esto capturará más videos por verificación
+
+### 2. Detección inteligente de videos (`monitor_service.py`)
+- **Detectar videos republicados**: Comparar `upload_date` vs fecha de descubrimiento
+- **Detectar cambios de título**: Actualizar título si cambió en YouTube
+- **Distinguir shorts vs videos normales**: Usar `duration` o `categories` para filtrar
+
+### 3. Filtrado por fecha (`monitor_service.py` + `db_manager.py`)
+- Añadir parámetro `max_age_days` para ignorar videos mayores a N días
+- Añadir a `check_for_new_videos()` y `check_for_new_videos_parallel()`
+
+### 4. Deduplicación por contenido (`db_manager.py`)
+- Añadir campo `content_checksum` a la tabla `videos`
+- Comparar con transcripción descargada antes de procesar
+
+### 5. Mejor logging y notificaciones
+- Añadir logging estructurado para cada tipo de detección
+- Notificación diferenciada: "X nuevos | Y reposts | Z actualizados"
+
+---
+
+## Archivos a modificar:
+
+| Archivo | Cambios |
+|---------|---------|
+| `app/services/monitor_service.py` | playlistend, filtrado fecha, detección inteligente |
+| `app/database/db_manager.py` | Añadir campo checksum, métodos de consulta por fecha |
+| `app/ui/tabs/monitor_tab.py` | Estadísticas adicionales en UI |
+
+---
+
+### Prioridad de implementación:
+1. Aumentar `playlistend` (fácil, alto impacto)
+2. Añadir filtrado por fecha (medio, evita procesar basura)
+3. Detección de reposts/cambios (medio, mejora calidad)
+4. Deduplicación por checksum (avanzado, para transcripciones)
+
+
+------------------------------------------------------------------------------------------------------------
+
+| US-002 | Dashboard web responsive con métricas en tiempo real | 📅 To Do | Alta |
+| US-003 | Optimizar procesamiento paralelo de transcripciones | 📅 To Do | Media |
+
+------------------------------------------------------------------------------------------------------------
+
+| US-004 | Clasificación automática mejorada con IA multi-categoría | 📅 To Do | Alta |
+| US-007 | Exportación de KB a formato legible (PDF/HTML) | 📅 To Do | Media |
+
+------------------------------------------------------------------------------------------------------------
+
+### Del Backlog General - Épica: Pipeline:
+- [ ] **Procesamiento Batch con Progreso Individual**: Barras de progreso por archivo
+- [ ] **Detección de Contenido Duplicado entre Canales**
+- [ ] **Extracción de Metadata Enriquecida** (título, descripción, tags, duración)
+- [ ] **Validación de Integridad Post-Descarga** (checksum MD5)
+
+### Épica: Monitor Inteligente:
+- [ ] **Filtros por Palabras Clave**
+- [ ] **Programación Horaria**
+- [ ] **Notificaciones Windows Toast**
+
+### Épica: Base de Datos:
+- [ ] **Indexación de Archivos en DB** (usa `os.walk()` actualmente)
+- [ ] **Transacciones Batch** (`executemany()`)
+- [ ] ** Exportación PDF/HTML
+
+### Deuda Técnica:
+- [ ] Pruebas unitarias para servicios core
+- [ ] Migración de `.env` a sistema centralizado con validación
+- [ ] Manejo errores yt-dlp
+- [ ] Actualizar dependencias de Python
+
+---
+
+**Resumen**: Hay ~15+ funcionalidades documentadas aún sin implementar, siendo las más importantes:
+2. **Dashboard web responsive** (alta prioridad)
+3. **Exportación de KB a PDF/HTML**
+4. **Notificaciones Windows Toast**
+5. **Filtros por palabras clave en monitor**

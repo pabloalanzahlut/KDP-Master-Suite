@@ -1,0 +1,81 @@
+🎯 **PRÓXIMOS PASOS (Opcionales)**
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Elevar el botón "INICIAR LIMPIEZA" de un simple script de procesamiento a un **Motor Orquestado de Sanitización y Optimización de Activos Textuales** garantiza que cada transcripción cruda (`.vtt`, `.srt`, `.txt`) se transforme en conocimiento limpio, estructurado y listo para indexación con integridad atómica, trazabilidad forense y optimización cognitiva. La separación determinista (validación, seguridad, rendimiento) y cognitiva (filtrado semántico, scoring de calidad, adaptación predictiva) cumple estándares de gestión documental empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+🔍 **VERIFICACIÓN CONTRA `gui_app.py` y `process_tab.py`:** CERO solapamientos. El código actual solo itera archivos seleccionados y llama a `ProcessingService.process_files` con callbacks básicos. Tu arquitectura transforma esta acción en un **Pipeline de Limpieza Inteligente** con validación pre-ejecución, rollback seguro, métricas en tiempo real, control de recursos, y capa cognitiva de Ollama para limpieza semántica y deduplicación conceptual.
+
+---
+
+### 📦 LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Orquestación de Limpieza)
+
+#### 🔹 Pilar 1: Validación Pre-Ejecución y Seguridad (1-12)
+1. **Validador de Integridad de Archivos Fuente** — Verifica que archivos `.vtt`/`.srt` no estén corruptos antes de iniciar. *Uso real:* Evitar crashes por archivos truncados o encoding inválido.
+2. **Checklist de Requisitos Previos (Pre-flight)** — Valida espacio en disco, permisos de escritura y estado de servicios dependientes. *Uso real:* Prevenir fallos a mitad de proceso por disco lleno o permisos denegados.
+3. **Snapshot de Estado Pre-Limpieza (Rollback Point)** — Crea copia de seguridad automática de archivos seleccionados antes de modificar. *Uso real:* Recuperación instantánea si la limpieza corrompe datos críticos.
+4. **Validador de Compatibilidad de Encoding (UTF-8 Forzado)** — Detecta y convierte Latin1/ASCII a UTF-8 automáticamente. *Uso real:* Prevenir mojibakes en transcripciones multilingües.
+5. **Bloqueo de Archivos en Uso (File Locking)** — Excluye archivos abiertos por otros procesos para evitar race conditions. *Uso real:* Evitar errores "Permission Denied" en entornos multi-usuario.
+6. **Validador de Formato de Entrada Estricto** — Filtra solo extensiones soportadas (`.vtt`, `.srt`, `.txt`) y rechaza binarios. *Uso real:* Mantener pipeline libre de basura o archivos no procesables.
+7. **Detección de Archivos Vacíos o Nulos** — Identifica y omite archivos <1KB o sin contenido textual real. *Uso real:* Ahorrar recursos de procesamiento en descargas fallidas.
+8. **Validador de Consistencia de Timestamps** — Verifica que timestamps en `.vtt`/`.srt` sean progresivos y válidos. *Uso real:* Detectar subtítulos rotos o mal sincronizados antes de limpiar.
+9. **Sistema de Cuotas de Procesamiento por Lote** — Limita cantidad máxima de archivos simultáneos según capacidad del sistema. *Uso real:* Prevenir saturación de CPU/RAM en lotes masivos.
+10. **Validador de Ruta de Salida Accesible** — Verifica que directorio de salida exista y sea escribible. *Uso real:* Prevenir fallos de escritura al guardar resultados limpios.
+11. **Detección de Duplicados por Hash Pre-Limpieza** — Identifica archivos idénticos y omite procesamiento redundante. *Uso real:* Ahorrar tiempo y espacio en repositorios con copias múltiples.
+12. **Validador de Integridad de Base de Conocimiento** — Verifica que `knowledge_base.db` no esté corrupta antes de indexar resultados. *Uso real:* Prevenir corrupción en cascada al insertar datos limpios.
+
+#### 🔹 Pilar 2: Orquestación de Ejecución y Rendimiento (13-24)
+13. **Motor de Procesamiento Atómico (All-or-Nothing)** — Garantiza que lote se complete o revierta completamente sin estados intermedios. *Uso real:* Evitar KB parcialmente actualizada tras fallo.
+14. **Gestor de Prioridad de Procesamiento (Queue Ordering)** — Ordena archivos por tamaño, complejidad o fecha para optimizar throughput. *Uso real:* Procesar archivos pequeños primero para feedback rápido.
+15. **Throttling Inteligente de CPU/RAM** — Ajusta hilos activos según carga del sistema en tiempo real. *Uso real:* Evitar congelamiento de UI durante limpieza masiva.
+16. **Cache de Metadatos de Archivos en RAM** — Almacena stats de archivos frecuentes para acceso instantáneo. *Uso real:* Acelerar validaciones y reportes de progreso.
+17. **Buffer de Escritura Optimizado (4KB/64KB)** — Ajusta tamaño de buffer según tipo de disco (SSD/HDD). *Uso real:* Maximizar velocidad de guardado de archivos limpios.
+18. **Procesamiento Paralelo Seguro (Thread Pool)** — Distribuye carga entre núcleos con sincronización de estado. *Uso real:* Aprovechar multi-core sin corromper archivos compartidos.
+19. **Checkpoint de Progreso cada N Archivos** — Guarda estado intermedio para reanudación tras crash. *Uso real:* Retomar limpieza exactamente donde se detuvo.
+20. **Liberación Automática de Memoria (GC Trigger)** — Fuerza garbage collection tras lotes grandes para prevenir leaks. *Uso real:* Mantener estabilidad en sesiones prolongadas.
+21. **Validador de Salida Post-Limpieza** — Verifica que archivo limpio tenga tamaño >0 y encoding válido. *Uso real:* Detectar fallos silenciosos de escritura.
+22. **Sistema de Reintentos con Backoff Exponencial** — Reintenta archivos fallidos con espera progresiva. *Uso real:* Recuperarse de bloqueos temporales de disco o red.
+23. **Optimizador de I/O para Discos Mecánicos** — Agrupa escrituras secuenciales para minimizar seek time. *Uso real:* Mejorar rendimiento en HDDs tradicionales.
+24. **Monitor de Latencia de Escritura** — Alerta si velocidad de guardado cae bajo umbral crítico. *Uso real:* Detectar fallos de disco o cuellos de botella tempranos.
+
+#### 🔹 Pilar 3: Trazabilidad, Auditoría y Cumplimiento (25-36)
+25. **Registro Forense de Operaciones (Audit Log)** — Log inmutable de quién, cuándo, qué archivos y resultado. *Uso real:* Trazabilidad completa para auditorías corporativas.
+26. **Generador de Hash SHA-256 por Archivo Limpio** — Calcula huella digital de cada resultado para verificación. *Uso real:* Garantizar integridad de conocimiento indexado.
+27. **Reporte de Estadísticas de Limpieza** — Resumen de archivos procesados, fallidos, tamaño ahorrado, tiempo total. *Uso real:* Dashboard ejecutivo de eficiencia operativa.
+28. **Validador de Cumplimiento de Plantilla de Salida** — Verifica que archivos limpios sigan estructura estándar (headers, metadata). *Uso real:* Consistencia para integración con otros sistemas.
+29. **Sistema de Alertas de Anomalías** — Notifica si tasa de fallo excede umbral configurable. *Uso real:* Detección temprana de problemas sistémicos.
+30. **Exportador de Log de Limpieza a CSV/JSON** — Permite análisis externo de métricas de procesamiento. *Uso real:* Integración con herramientas de BI o monitoreo.
+31. **Validador de Retención de Originales** — Configura si archivos crudos se archivan, eliminan o mantienen. *Uso real:* Cumplir políticas de retención documental.
+32. **Sistema de Cuotas de Almacenamiento Post-Limpieza** — Alerta si espacio usado supera límites definidos. *Uso real:* Prevenir saturación de repositorio de conocimiento.
+33. **Verificador de Permisos de Acceso Post-Limpieza** — Asegura que archivos limpios tengan ACLs correctas. *Uso real:* Seguridad en entornos multi-rol.
+34. **Generador de Certificado de Integridad de Lote** — Documento firmado con hash global del lote procesado. *Uso real:* Prueba legal de que datos no fueron alterados post-limpieza.
+35. **Sistema de Rotación de Logs de Procesamiento** — Archiva logs antiguos automáticamente para ahorrar espacio. *Uso real:* Mantenimiento preventivo de sistema.
+36. **Validador de Consistencia Temporal de Lote** — Verifica que timestamps de procesamiento sean coherentes y progresivos. *Uso real:* Detectar desincronización de reloj o procesos colgados.
+
+#### 🔹 Pilar 4: UI/UX, Feedback y Control Operativo (37-48)
+37. **Barra de Progreso Granular por Archivo** — Muestra % completado para cada archivo individual. *Uso real:* Feedback visual preciso durante lotes largos.
+38. **Contador en Tiempo Real de Archivos Procesados** — Actualiza label con "X/Y completados" sin lag. *Uso real:* Monitoreo operativo sin distracciones.
+39. **Estimador de Tiempo Restante (ETA Dinámico)** — Calcula tiempo faltante basado en velocidad actual. *Uso real:* Planificación de recursos y pausas.
+40. **Botón de Pausa/Reanudación Seguro** — Permite detener y continuar sin perder estado. *Uso real:* Flexibilidad operativa en entornos dinámicos.
+41. **Panel de Errores Detallados** — Lista archivos fallidos con razón específica y opción de reintento. *Uso real:* Diagnóstico rápido y corrección focalizada.
+42. **Notificación Toast de Finalización** — Alerta discreta al completar lote con resumen. *Uso real:* Confirmación sin interrumpir flujo de trabajo.
+43. **Modo de Verbose/Silent Toggle** — Alterna entre log detallado o solo alertas críticas. *Uso real:* Adaptar ruido visual según preferencia del operador.
+44. **Selector de Nivel de Limpieza (Ligero/Estándar/Agresivo)** — Configura profundidad de procesamiento antes de iniciar. *Uso real:* Balance entre velocidad y calidad según necesidad.
+45. **Validador de Estado de UI Post-Limpieza** — Verifica que treeview y contadores se sincronicen correctamente. *Uso real:* Prevenir inconsistencias visuales tras operación.
+46. **Sistema de Undo para Limpieza Masiva** — Permite revertir última limpieza si se seleccionaron archivos incorrectos. *Uso real:* Recuperación ante error humano.
+47. **Indicador de Recurso en Uso (CPU/RAM/Disco)** — Muestra métricas de sistema durante procesamiento. *Uso real:* Monitoreo de salud del equipo en tiempo real.
+48. **Botón de Abrir Carpeta de Resultados** — Acceso directo a directorio de salida tras finalizar. *Uso real:* Flujo de trabajo continuo sin navegación manual.
+
+#### 🔹 Pilar 5: Persistencia, Recuperación y Escalabilidad (49-60)
+49. **Checkpoint de Configuración de Lote** — Guarda parámetros usados (nivel, filtros, rutas) para reutilización. *Uso real:* Replicar configuraciones exitosas sin reconfigurar.
+50. **Sistema de Recuperación ante Crash (Auto-Resume)** — Detecta lote interrumpido y ofrece continuar donde quedó. *Uso real:* Resiliencia ante cortes de energía o cierres forzados.
+51. **Validador de Integridad de Índice FTS5 Post-Limpieza** — Verifica que índice de búsqueda se actualice correctamente. *Uso real:* Garantizar búsqueda instantánea tras inserción.
+52. **Gestor de Archivos Huérfanos Post-Limpieza** — Identifica y limpia temporales o archivos incompletos. *Uso real:* Mantener repositorio ordenado y libre de basura.
+53. **Sistema de Migración de Esquema de Salida** — Adapta formato de salida si hay cambios de versión. *Uso real:* Compatibilidad hacia adelante sin romper pipelines.
+54. **Validador de Consistencia de Metadatos Extendidos** — Verifica que xattrs/ACLs se preserven tras limpieza. *Uso real:* Mantener seguridad y contexto en sistemas enterprise.
+55. **Optimizador de Compresión de Logs de Lote** — Comprime registros históricos para ahorrar espacio. *Uso real:* Eficiencia de almacenamiento a largo plazo.
+56. **Sistema de Cuotas de Usuario por Lote** — Limita cantidad de archivos procesables por sesión/rol. *Uso real:* Control de recursos en entornos multi-tenant.
+57. **Validador de Ruta Relativa vs Absoluta** — Normaliza paths para consistencia cross-platform. *Uso real:* Portabilidad entre Windows/Linux/macOS sin errores.
+58. **Gestor de Prioridad de Escritura en Disco** — Asigna prioridad I/O según criticidad del archivo. *Uso real:* Asegurar que archivos críticos se guarden primero.
+59. **Sistema de Alerta de Fragmentación de Disco** — Notifica si fragmentación afecta rendimiento de limpieza. *Uso real:* Mantenimiento preventivo de hardware.
+60. **Generador de Plan de Limpieza Optimizado** — Sugiere orden, nivel y recursos basado en historial. *Uso real:* Automatización inteligente de flujo operativo.
+
+---

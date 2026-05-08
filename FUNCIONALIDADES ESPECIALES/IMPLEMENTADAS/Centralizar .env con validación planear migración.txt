@@ -1,0 +1,42 @@
+Basándome en la funcionalidad de configuración centralizada implementada, aquí están los **próximos pasos opcionales** que podrían agregarse:
+
+---
+
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+1. **Panel de configuración UI**: Crear pestaña/panel en la GUI para editar variables de entorno visualmente sin editar `.env` manualmente
+
+2. **Validación dinámica**: Añadir botón en UI para "Test Config" que verifique conectividad con Ollama, BD, etc.
+
+3. **Entornos múltiples (dev/staging/prod)**: Soporte para `.env.dev`, `.env.prod` conmutables desde UI
+
+4. **Export/Import de configuración**: Botón para exportar config actual como JSON y restaurar desde backup
+
+5. **Hot Reload de configuración**: Recargar config sin reiniciar la app (útil para cambios en .env durante desarrollo)
+
+6. **Secrets cifrados**: Cifrar API Keys sensibles en disco usando clave maestra (evitar guardar secrets en texto plano)
+
+7. **Historial de cambios**: Guardar auditoría de qué usuario/cuando cambió cada variable
+
+8. **Validación de URLs**: Verificar que URLs de servicios (Ollama, APIs externas) respondan correctamente antes de guardar
+
+9. **Mapeo de variables faltantes**: Detectar y предложer автоматически variables que existen en código pero no en .env
+
+10. **Template de validación**: Mostrar en UI qué variables del .env.template faltan por configurar
+
+---
+
+## 🔄 Dependencias entre features
+
+| Feature | Depende de | Prioridad |
+|---------|------------|-----------|
+| Panel UI Config | - | Alta |
+| Validación dinámica | Panel UI | Media |
+| Hot Reload | - | Media |
+| Entornos múltiples | Panel UI | Baja |
+| Export/Import | - | Baja |
+| Secrets cifrados | Panel UI | Baja |
+
+---
+
+¿Hay alguno de estos que te interese priorizar o que prefieras modificar/alcanzar?

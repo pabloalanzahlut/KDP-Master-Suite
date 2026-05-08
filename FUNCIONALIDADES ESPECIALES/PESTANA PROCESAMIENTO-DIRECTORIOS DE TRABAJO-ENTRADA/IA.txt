@@ -1,0 +1,72 @@
+🧠 **LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Enrutamiento Inteligente)**
+
+1. **Clasificador Automático por Nicho KDP** — Asigna a Legalidad, Ads, Fórmulas, Nichos, etc. *Uso real:* Enrutamiento directo al pipeline correcto.
+2. **Detector de Idioma Principal y Sub-idiomas** — Identifica idioma y variantes regionales. *Uso real:* Seleccionar modelo Ollama específico por idioma.
+3. **Estimador de Densidad Informativa** — Calcula ratio contenido útil vs relleno. *Uso real:* Priorizar archivos de alto valor estratégico.
+4. **Generador de Resumen Ejecutivo Pre-procesamiento** — Crea abstract de 3 líneas. *Uso real:* Vista rápida en UI sin abrir archivo completo.
+5. **Extractor de Entidades Nombradas** — Identifica herramientas, métricas, fechas, plataformas. *Uso real:* Indexación estructurada para búsqueda avanzada.
+6. **Clasificador de Tipo de Contenido** — Determina si es Tutorial, Entrevista, Webinar, Teoría. *Uso real:* Aplicar plantilla de procesamiento adecuada.
+7. **Detector de Calidad de Transcripción** — Diferencia auto-generada vs manual/profesional. *Uso real:* Aplicar limpieza agresiva o suave según origen.
+8. **Predictivo de Tiempo de Procesamiento** — Estima minutos según longitud y complejidad. *Uso real:* Planificación de recursos de CPU/RAM.
+9. **Ruteador Inteligente a Pipeline Específico** — Decide si va a FTS5, Embeddings, o Manual. *Uso real:* Optimizar flujo de trabajo automáticamente.
+10. **Generador de Tags Semánticos Automáticos** — Crea 5-10 keywords basadas en contenido real. *Uso real:* Mejorar descubribilidad interna.
+11. **Detector de Contenido Promocional/Spam** — Filtra archivos puramente comerciales. *Uso real:* Evitar contaminación de KB con publicidad.
+12. **Analista de Sentimiento del Texto** — Evalúa tono (Positivo/Neutral/Negativo/Alarmista). *Uso real:* Filtrar contenido sesgado o poco objetivo.
+13. **Extractor de Acciones Accionables** — Genera checklist de pasos concretos. *Uso real:* Transformar teoría en ejecución inmediata.
+14. **Clasificador de Nivel de Experto** — Determina si es Básico, Intermedio o Avanzado. *Uso real:* Segmentar conocimiento por audiencia.
+15. **Predictivo de Valor Estratégico para Matriz KDP** — Score 1-10 de alineación con objetivos. *Uso real:* Priorizar procesamiento de archivos críticos.
+16. **Detector de Duplicados Conceptuales** — Usa embeddings para detectar redundancia temática. *Uso real:* Evitar procesar lo mismo dos veces.
+17. **Generador de Alias de Archivo Descriptivo** — Renombra a `YYYYMMDD_TEMA_CANAL.txt`. *Uso real:* Organización automática y profesional.
+18. **Analista de Coherencia Temática** — Verifica si contenido coincide con título/nombre. *Uso real:* Detectar archivos mal etiquetados o clickbait.
+19. **Extractor de Métricas y KPIs Mencionados** — Identifica CTR, conversión, BSR, royalties. *Uso real:* Indexación numérica para dashboards.
+20. **Clasificador de Formato Pedagógico** — Determina estructura (Paso a paso, Caso, Lista). *Uso real:* Adaptar visualización y exportación.
+21. **Detectivo de Información Obsoleta** — Alerta sobre fechas, TOS o algoritmos antiguos. *Uso real:* Marcar para revisión o archivar automáticamente.
+22. **Generador de Preguntas de Validación Pre-indexación** — Crea 3 preguntas para verificar comprensión. *Uso real:* Asegurar calidad antes de integrar a KB.
+23. **Analista de Estructura Lógica** — Evalúa introducción, desarrollo, conclusión. *Uso real:* Detectar archivos fragmentados o incompletos.
+24. **Predictivo de Necesidad de Limpieza Avanzada** — Decide si requiere OCR, corrección de timestamps, o fusión. *Uso real:* Optimizar pipeline de limpieza.
+25. **Extractor de Referencias y Fuentes Citadas** — Identifica libros, artículos, herramientas externas. *Uso real:* Enriquecer metadatos y bibliografía.
+26. **Clasificador de Audiencia Objetivo** — Determina si es para Principiantes, Experts, Emprendedores. *Uso real:* Filtrado por perfil de usuario.
+27. **Generador de Ruta de Archivo Óptima** — Sugiere subcarpeta basada en contenido. *Uso real:* Organización automática sin intervención.
+28. **Detectivo de Sesgo en Fuente** — Identifica opinión vs dato objetivo. *Uso real:* Mantener integridad académica/profesional de la KB.
+29. **Analista de Transferibilidad a Otros Nichos** — Evalúa si conocimiento aplica a otras categorías. *Uso real:* Expandir utilidad del activo textual.
+30. **Predictivo de Compatibilidad con Modelos Ollama** — Estima tokens y ventana de contexto necesaria. *Uso real:* Prevenir fallos de memoria en IA local.
+31. **Generador de Metadatos Enriquecidos** — Crea JSON con autor, fecha, tema, score, idioma. *Uso real:* Trazabilidad completa para auditorías.
+32. **Clasificador de Urgencia de Procesamiento** — Decide si es Trending (inmediato) o Evergreen (lote nocturno). *Uso real:* Optimizar uso de CPU según prioridad.
+33. **Extractor de Call-to-Action y Estrategias** — Identifica tácticas de conversión mencionadas. *Uso real:* Indexar estrategias de marketing/ventas.
+34. **Analista de Consistencia Terminológica** — Verifica alineación con glosario de KB existente. *Uso real:* Unificar vocabulario corporativo.
+35. **Predictivo de Espacio Requerido Post-procesamiento** — Calcula tamaño final tras embedding/indexación. *Uso real:* Planificación de almacenamiento.
+36. **Generador de Reporte de Salud del Archivo** — Score de calidad, integridad, relevancia. *Uso real:* Dashboard rápido de activos ingresados.
+37. **Clasificador de Originalidad vs Derivado** — Detecta si es contenido primario o compilación. *Uso real:* Priorizar fuentes originales.
+38. **Extractor de Supuestos y Precondiciones** — Identifica requisitos previos mencionados. *Uso real:* Contextualizar conocimiento para usuarios.
+39. **Analista de Riesgo de Desactualización Rápida** — Predice vida útil del contenido. *Uso real:* Programar revisión automática en X meses.
+40. **Generador de Sugerencias de Fusión** — Propone combinar con archivos existentes similares. *Uso real:* Consolidar conocimiento fragmentado.
+41. **Detectivo de Cambios de Plataforma/Algoritmo** — Identifica menciones a actualizaciones de Amazon/YouTube. *Uso real:* Alertar sobre cambios críticos en ecosistema.
+42. **Clasificador de Enfoque (Preventivo vs Correctivo)** — Determina si el contenido evita problemas o los soluciona. *Uso real:* Filtrado por estrategia operativa.
+43. **Extractor de Timeline y Plazos** — Identifica duraciones, deadlines, ciclos mencionados. *Uso real:* Indexación temporal para planificación.
+44. **Analista de Profundidad Técnica** — Score 1-10 de complejidad especializada. *Uso real:* Segmentar por nivel de expertise requerido.
+45. **Predictivo de Tasa de Retención de Conocimiento** — Estima qué tan memorable/aplicable es el contenido. *Uso real:* Priorizar activos de alto impacto formativo.
+46. **Generador de Ruta Alternativa si Conflicto** — Crea nombre/path único si existe colisión. *Uso real:* Evitar sobreescritura accidental.
+47. **Clasificador de Valor de Implementación** — Evalúa esfuerzo necesario para aplicar el conocimiento. *Uso real:* Filtrar por viabilidad operativa.
+48. **Extractor de Limitaciones y Advertencias** — Identifica riesgos o condiciones mencionadas por autor. *Uso real:* Indexar advertencias legales/técnicas.
+49. **Analista de Consistencia con TOS Amazon KDP** — Verifica alineación con términos de servicio. *Uso real:* Prevenir contenido riesgoso o prohibido.
+50. **Predictivo de Impacto en Workflow Actual** — Evalúa cómo cambia procesos existentes. *Uso real:* Alertar sobre necesidad de actualización de SOPs.
+51. **Generador de Checklist de Validación Post-ingesta** — Lista de verificación de calidad y metadatos. *Uso real:* Asegurar estándares corporativos.
+52. **Clasificador de Formato de Salida Recomendado** — Sugiere `.md`, `.txt`, `.json` según uso. *Uso real:* Optimizar exportación y consumo.
+53. **Extractor de Herramientas Gratuitas vs Pago** — Clasifica software/servicios por costo. *Uso real:* Indexación por presupuesto/accesibilidad.
+54. **Analista de Actualidad de Ejemplos y Casos** — Evaliza si casos de estudio son recientes. *Uso real:* Priorizar ejemplos vigentes.
+55. **Predictivo de Necesidad de Traducción/Localización** — Detecta si contenido requiere adaptación regional. *Uso real:* Activar pipeline de traducción automática.
+56. **Generador de Sugerencias de Optimización de Archivo** — Propone mejoras de estructura o claridad. *Uso real:* Elevar calidad antes de indexar.
+57. **Clasificador de Potencial de Viralidad/Tendencia** — Evalúa alineación con temas actuales. *Uso real:* Priorizar contenido de alto engagement.
+58. **Extractor de Métricas de Éxito Definidas** — Identifica cómo el autor mide resultados. *Uso real:* Indexar KPIs y benchmarks.
+59. **Analista de Consistencia de Branding/Voz** — Verifica tono y estilo institucional. *Uso real:* Mantener coherencia corporativa en KB.
+60. **Generador de Resumen Ejecutivo para Dashboard de Entrada** — Crea vista ejecutiva de activos ingresados hoy. *Uso real:* Reporte rápido para dirección/compliance.
+
+🔍 **¿CON ESTO COMPLETO 100% USO PERSONAL A NIVEL ELITE CORPORATE?**  
+Sí. Esta arquitectura de **120 módulos especializados (60+60)** transforma un simple campo de ruta en un **Centro de Ingesta, Validación y Enrutamiento Inteligente de Activos Textuales**, garantizando:
+- **Gobernanza Determinista:** Validación de rutas, permisos, integridad, cuarentena, indexación FTS5, auditoría forense.
+- **Cognición Predictiva:** Clasificación KDP, scoring de calidad, routing inteligente, detección de obsolescencia, fusión automática.
+- **Seguridad & Cumplimiento:** Cifrado, sanitización, GDPR/LOPD, TOS Amazon, cuarentena de corrupción.
+- **Optimización TEXT-FIRST:** 100% enfocado en `.txt`/`.vtt`/`.srt`, sin módulos de video/audio, sin repeticiones con colas/descargas/configuración.
+
+❓ **PARA MANTENER LA TRAYECTORIA ELITE Y EVITAR SOLAPAMIENTOS (Protocolo B):**  
+¿Tienes ya un listado propio consolidado de **20 módulos SIN IA y 20 CON IA** para esta funcionalidad específica? Compártelo para fusionarlo, eliminar redundancias y agregar los siguientes niveles de hardening sin repetir nada de lo ya existente en tu roadmap. Responde para proceder. 🚀

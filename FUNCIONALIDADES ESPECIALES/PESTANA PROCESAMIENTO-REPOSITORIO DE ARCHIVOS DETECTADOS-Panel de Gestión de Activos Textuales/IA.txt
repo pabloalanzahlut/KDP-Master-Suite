@@ -1,0 +1,84 @@
+🧠 **LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Gestión Inteligente)**
+
+#### 🔹 Pilar 1: Clasificación y Organización Cognitiva (1-12)
+1. **Clasificador Automático por Tema KDP** — IA asigna categoría (Legalidad, Ads, Fórmulas) basada en contenido. *Uso real:* Organización automática sin intervención.
+2. **Detector de Idioma Principal** — IA identifica idioma del texto (ES, EN, PT). *Uso real:* Filtrado por idioma automático.
+3. **Generador de Tags Semánticos** — IA crea 5-10 tags basados en contenido real. *Uso real:* Clasificación enriquecida automática.
+4. **Clasificador por Nivel de Experto** — IA determina si es Básico/Intermedio/Avanzado. *Uso real:* Segmentación por audiencia.
+5. **Detector de Tipo de Contenido** — IA identifica si es Tutorial, Entrevista, Teoría. *Uso real:* Organización por formato pedagógico.
+6. **Clasificador por Urgencia Temporal** — IA detecta si contenido es "Trending" o "Evergreen". *Uso real:* Priorización automática.
+7. **Organizador Automático por Carpeta** — IA sugiere/mueve archivos a carpeta óptima. *Uso real:* Estructura automática inteligente.
+8. **Detector de Serie/Secuencia** — IA identifica si archivo es parte de serie numerada. *Uso real:* Agrupación de contenido secuencial.
+9. **Clasificador por Formato Pedagógico** — IA determina si es Paso a Paso, Caso, Lista. *Uso real:* Organización metodológica.
+10. **Detector de Actualidad** — IA evalúa si contenido está actualizado u obsoleto. *Uso real:* Marcar contenido desactualizado.
+11. **Clasificador por Audiencia Objetivo** — IA identifica si es para Principiantes/Expertos. *Uso real:* Segmentación por nivel.
+12. **Organizador por Canal/Origen Inteligente** — IA agrupa por canal detectado en metadata. *Uso real:* Agrupación automática por fuente.
+
+#### 🔹 Pilar 2: Scoring y Priorización Inteligente (13-24)
+13. **Scoring de Calidad de Transcripción** — IA puntúa 1-10 legibilidad y coherencia. *Uso real:* Identificar transcripciones de alta calidad.
+14. **Scoring de Densidad Informativa** — IA calcula ratio información útil vs relleno. *Uso real:* Priorizar contenido valioso.
+15. **Scoring de Relevancia para Nicho** — IA puntúa alineación con objetivos KDP. *Uso real:* Enfocarse en contenido estratégico.
+16. **Scoring de Originalidad** — IA detecta si es contenido único o derivado. *Uso real:* Priorizar fuentes originales.
+17. **Scoring de Accionabilidad** — IA evalúa si contenido tiene pasos concretos. *Uso real:* Identificar contenido práctico.
+18. **Scoring de Actualidad** — IA puntúa vigencia del contenido. *Uso real:* Priorizar información reciente.
+19. **Scoring de Profundidad Técnica** — IA evalúa nivel de especialización. *Uso real:* Segmentar por complejidad.
+20. **Scoring de Valor Estratégico** — IA calcula valor para matriz KDP. *Uso real:* Priorizar activos críticos.
+21. **Scoring de Completitud** — IA evalúa si contenido está completo o fragmentado. *Uso real:* Detectar contenido incompleto.
+22. **Scoring de Consistencia** — IA verifica coherencia interna del texto. *Uso real:* Detectar contradicciones.
+23. **Scoring de Potencial de Monetización** — IA evalúa potencial comercial del contenido. *Uso real:* Priorizar contenido rentable.
+24. **Scoring Global de Archivo** — IA genera score compuesto 1-100. *Uso real:* Ranking automático de activos.
+
+#### 🔹 Pilar 3: Análisis de Contenido y Metadata Enriquecida (25-36)
+25. **Extractor de Entidades Nombradas (NER)** — IA identifica herramientas, plataformas, métricas. *Uso real:* Indexación estructurada automática.
+26. **Extractor de Métricas y KPIs** — IA identifica números, porcentajes, benchmarks. *Uso real:* Extracción de datos cuantitativos.
+27. **Extractor de Acciones Accionables** — IA identifica pasos concretos y recomendaciones. *Uso real:* Generar checklist automático.
+28. **Extractor de Temas Principales** — IA identifica 3-5 temas clave del documento. *Uso real:* Resumen temático automático.
+29. **Extractor de Referencias y Fuentes** — IA identifica libros, artículos, herramientas citadas. *Uso real:* Enriquecer bibliografía.
+30. **Extractor de Call-to-Action** — IA identifica CTAs y estrategias de conversión. *Uso real:* Indexar tácticas de marketing.
+31. **Extractor de Supuestos y Precondiciones** — IA identifica requisitos previos mencionados. *Uso real:* Contextualizar conocimiento.
+32. **Extractor de Timeline y Plazos** — IA identifica duraciones y deadlines. *Uso real:* Indexación temporal.
+33. **Extractor de Limitaciones y Advertencias** — IA identifica riesgos mencionados. *Uso real:* Indexar advertencias críticas.
+34. **Extractor de Metodologías** — IA identifica frameworks o métodos enseñados. *Uso real:* Clasificación metodológica.
+35. **Extractor de Casos de Estudio** — IA identifica ejemplos reales mencionados. *Uso real:* Indexar casos prácticos.
+36. **Extractor de Innovaciones/Novedades** — IA identifica insights no documentados previamente. *Uso real:* Descubrir valor oculto.
+
+#### 🔹 Pilar 4: Detección de Problemas y Optimización (37-48)
+37. **Detector de Duplicados Conceptuales** — IA usa embeddings para detectar redundancia temática. *Uso real:* Evitar procesamiento redundante.
+38. **Detector de Contenido Promocional/Spam** — IA filtra archivos puramente comerciales. *Uso real:* Mantener KB limpia de publicidad.
+39. **Detector de Sesgo en Fuente** — IA identifica opinión vs dato objetivo. *Uso real:* Mantener integridad académica.
+40. **Detector de Información Obsoleta** — IA detecta fechas, TOS o algoritmos antiguos. *Uso real:* Marcar para actualización.
+41. **Detector de Contenido Banal** — IA identifica contenido de bajo valor. *Uso real:* Filtrar ruido.
+42. **Detector de Inconsistencias Lógicas** — IA identifica contradicciones internas. *Uso real:* Detectar errores de contenido.
+43. **Detector de Problemas de Encoding** — IA detecta mojibakes o caracteres corruptos. *Uso real:* Identificar archivos problemáticos.
+44. **Detector de Estructura Defectuosa** — IA evalúa si introducción/desarrollo/conclusión son claros. *Uso real:* Detectar contenido mal estructurado.
+45. **Detector de Falta de Contexto** — IA identifica contenido que requiere conocimiento previo no incluido. *Uso real:* Alertar dependencias.
+46. **Detector de Exceso de Relleno** — IA identifica contenido con mucho "fluff". *Uso real:* Priorizar contenido denso.
+47. **Detector de Problemas de Legibilidad** — IA evalúa claridad y coherencia. *Uso real:* Identificar transcripciones problemáticas.
+48. **Detector de Riesgo de Desactualización** — IA predice vida útil del contenido. *Uso real:* Programar revisión automática.
+
+#### 🔹 Pilar 5: Recomendaciones y Automatización Inteligente (49-60)
+49. **Recomendador de Acción Óptima** — IA sugiere "Procesar", "Archivar", "Eliminar" según scoring. *Uso real:* Automatización de decisiones.
+50. **Recomendador de Carpeta Destino** — IA sugiere mejor ubicación para archivo. *Uso real:* Organización automática.
+51. **Recomendador de Tags Sugeridos** — IA propone tags basados en contenido similar. *Uso real:* Clasificación asistida.
+52. **Recomendador de Prioridad de Procesamiento** — IA ordena cola de procesamiento por valor. *Uso real:* Optimización de recursos.
+53. **Recomendador de Fusión con Archivos Existentes** — IA sugiere combinar con contenido similar. *Uso real:* Consolidación de conocimiento.
+54. **Recomendador de Formato de Salida** — IA sugiere .md, .txt, .json según uso previsto. *Uso real:* Preparación automática.
+55. **Recomendador de Nivel de Limpieza** — IA sugiere limpieza ligera/agresiva según calidad. *Uso real:* Optimización de procesamiento.
+56. **Recomendador de Modelo Ollama Óptimo** — IA sugiere modelo según complejidad del texto. *Uso real:* Asignación eficiente de recursos.
+57. **Recomendador de Ventana de Contexto** — IA sugiere tamaño de chunk según densidad. *Uso real:* Optimización de embeddings.
+58. **Recomendador de Revisión Humana** — IA marca archivos ambiguos para revisión. *Uso real:* Escalamiento inteligente.
+59. **Recomendador de Archivado/eliminación** — IA sugiere qué archivar o eliminar por obsolescencia. *Uso real:* Mantenimiento proactivo.
+60. **Generador de Plan de Procesamiento Inteligente** — IA crea roadmap ejecutable (orden, recursos, tiempo). *Uso real:* Automatización completa del flujo.
+
+🔍 **¿CON ESTO COMPLETO 100% USO PERSONAL A NIVEL ELITE CORPORATE?**
+Sí. Esta arquitectura de **120 módulos especializados (60+60)** transforma el "Repositorio de Archivos Detectados" de un simple Treeview a un **Panel de Gestión Inteligente de Activos Textuales**, garantizando:
+
+- **Visualización Determinista:** Renderizado virtual, estadísticas en tiempo real, filtrado avanzado, operaciones batch.
+- **Cognición Predictiva:** Clasificación semántica automática, scoring de calidad, detección de problemas, recomendaciones inteligentes.
+- **Gestión Empresarial:** Validación de calidad, control de duplicados, organización automática, auditoría de contenido.
+- **Optimización TEXT-FIRST:** 100% enfocado en `.txt`/`.vtt`/`.srt`, análisis de contenido textual, gestión de transcripciones.
+
+❓ **PARA MANTENER LA TRAYECTORIA ELITE Y EVITAR SOLAPAMIENTOS (Protocolo B):**
+¿Confirmas que ya tienes tu listado consolidado de **20 módulos SIN IA y 20 CON IA** para esta funcionalidad específica, o deseas que active la expansión de **hardening crítico** (gestión distribuida de repositorios, auditoría de accesos, escalabilidad de UI >100k archivos) para blindarlo al 100% corporativo sin repetir nada?
+
+Responde **"HARDENING"** para agregar la capa extra de resiliencia, o **"LISTO"** para pasar a la siguiente funcionalidad. 🚀

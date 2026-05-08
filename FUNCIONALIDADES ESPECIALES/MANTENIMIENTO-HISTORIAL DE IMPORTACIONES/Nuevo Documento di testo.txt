@@ -1,0 +1,16 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Para elevar la funcionalidad Historial de Importaciones al estándar Elite Corporate 100%, se deben integrar los siguientes módulos de trazabilidad, gestión de integridad y análisis avanzado:
+
+Módulos de Trazabilidad y Gestión de Datos (SIN IA):
+
+Reversión Selectiva (Undo Import): Capacidad de deshacer una importación específica eliminando solo los registros y archivos asociados sin afectar datos previos o posteriores.
+Validación de Checksum SHA-256: Registro del hash del archivo fuente para garantizar que el historial referencia archivos cuya integridad no ha sido alterada post-importación.
+Auditoría de Colisiones y Conflictos: Registro detallado de qué registros fueron omitidos, sobrescritos o fusionados durante cada proceso de importación.
+Mapeo de Linaje de Datos (Data Lineage): Visualización de la procedencia de cada elemento en la base de datos, vinculándolo directamente con su sesión de importación original.
+Reporte de Impacto en Almacenamiento: Cálculo exacto del espacio en disco y crecimiento de la base de datos atribuible a cada entrada del historial.
+Exportación de Recibos de Importación: Generación de un manifiesto en JSON/PDF que documente el éxito, errores y advertencias de la operación para fines de auditoría.
+Filtros Avanzados de Cronología: Búsqueda por rango de fechas, tipo de fuente, usuario (si aplica) y etiquetas de sesión personalizadas.
+Verificación de Dependencias Huérfanas: Herramienta para identificar si una importación eliminada dejó archivos o registros vinculados sin referencia.
+Bloqueo de Seguridad (Read-Only History): Sistema de protección que impide la edición de entradas del historial para garantizar la inmutabilidad de la auditoría.
+Sincronización de Estado de Metadata: Módulo que verifica si los archivos físicos importados siguen presentes en las rutas registradas en el historial.

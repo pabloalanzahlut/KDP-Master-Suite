@@ -1,0 +1,25 @@
+🎯 PRÓXIMOS PASOS (Opcionales)
+
+Funcionalidad: Gestión de Cola / Botón Vaciar (Downloads Tab)
+Módulos de Infraestructura y Gobernanza (SIN IA)
+Vaciado Selectivo por Estados: Implementar lógica para vaciar solo elementos con errores (403, 404) o solo elementos completados, protegiendo los que están "En Espera".
+Snapshot de Respaldo Automático: Generar un archivo JSON temporal con el estado de la cola justo antes del vaciado para permitir una restauración total en caso de error humano.
+Sincronización Atómica con DB: Asegurar que al vaciar la cola en la UI, los registros correspondientes en kdp_master.db se marquen como "Descartados" para mantener la integridad estadística.
+Limpieza de Residuos Físicos (.part): Módulo que identifica y ofrece eliminar archivos temporales incompletos vinculados a las URLs que se están quitando de la cola.
+Control de Acceso por Roles (PIN): Solicitar una confirmación de seguridad o PIN corporativo antes de un vaciado masivo (>50 items) para evitar sabotajes o accidentes.
+Exportación Preventiva a CSV: Opción de "Vaciar y Exportar", que guarda la lista de URLs eliminadas en un reporte histórico antes de limpiar la interfaz.
+Sistema de "Papelera de Cola": Mover los elementos vaciados a un buffer oculto que permita el "Deshacer" (Undo) durante los primeros 60 segundos post-vaciado.
+Validación de Dependencias de KB: Advertencia crítica si se intenta vaciar una URL que ya posee metadatos enriquecidos o indexación parcial en la Base de Conocimiento.
+Auditoría de Acción (Audit Log): Registro obligatorio en el log de auditoría detallando fecha, hora, cantidad de items vaciados y el usuario que ejecutó la acción.
+Reclamación Forzada de Recursos: Al vaciar, ejecutar una limpieza inmediata de la memoria RAM y resetear el pool de hilos de yt-dlp para liberar el sistema.
+
+Vaciado Selectivo por Criterios: Vaciar solo elementos con estado específico (fallidos/completados/pendientes)
+Confirmación Graduada de Riesgo: Dialog diferenciado según cantidad (>10 items = confirmación doble + CAPTCHA interno)
+Recuperación de Cola Vaciada (Undo): Papelera temporal de 24h para restaurar colas eliminadas accidentalmente
+Exportación Pre-Vaciado Automática: Guardar snapshot JSON/CSV de la cola antes de vaciar (backup obligatorio)
+Vaciado Diferido con Countdown: Programar vaciado en X minutos con cancelación preventiva
+Protección de Items Marcados: Bloqueo de vaciado para elementos etiquetados como "Crítico/Protegido"
+Vaciado Parcial por Porcentaje: Eliminar el 50%/75% más antiguo de la cola sin afectar recientes
+Registro de Auditoría de Vaciados: Log permanente con timestamp, cantidad eliminada, usuario, razón
+Vaciado Condicional por Tamaño: Vaciar solo elementos que excedan X GB o Y minutos de duración
+Sincronización Transaccional de Vaciado: Garantizar atomicidad (todo o nada) ante fallos del sistema

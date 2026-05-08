@@ -1,0 +1,38 @@
+Módulos de Inteligencia y Estrategia (CON IA OLLAMA LOCAL)
+
+Selección Semántica Grupal: Capacidad de decir: "Selecciona todos los que hablen de fiscalidad" y que la IA marque los elementos basándose en el título y descripción.
+Filtrado por Valor de Conocimiento: La IA analiza la cola y selecciona "Todos" los que tengan un alto potencial de enriquecer la Matriz Maestra, ignorando contenido banal.
+Detección de Duplicados en Selección: Al marcar "Todos", la IA resalta automáticamente los videos que son semánticamente idénticos para evitar descargas redundantes.
+Priorización Predictiva de Lote: Ollama reordena la selección de "Todos" colocando al principio los videos más críticos para el flujo de trabajo corporativo actual.
+Análisis de Impacto en Almacenamiento: La IA advierte: "Seleccionar todos excederá el espacio disponible en un 15%; sugiero desmarcar 4 videos de larga duración".
+Agrupación Automática por Categorías KDP: La IA selecciona "Todos" y los agrupa visualmente en las 18 categorías invariables antes de iniciar el procesamiento.
+Identificador de Sesgos en la Cola: Al seleccionar todos, la IA informa: "Tu selección está sesgada hacia [Tema A]; te faltan fuentes sobre [Tema B] detectadas en tu histórico".
+Smart-Select por Perfil de Usuario: Selección automática basada en el comportamiento histórico (ej: "Seleccionar todos los videos de canales que usualmente descargas completos").
+Validación de Relevancia Temporal: La IA sugiere desmarcar videos seleccionados cuyos temas ya están obsoletos según la base de conocimiento integrada.
+Comandante de Selección Natural: Interfaz de texto para ejecutar: "Ollama, selecciona todos los videos de menos de 10 minutos que tengan más de 50k vistas".
+
+🤖 MÓDULOS CON IA (Ollama Local - 10)
+
+Priorización Inteligente de Cola / Priorización Inteligente de Cola: IA analiza metadatos y reordena automáticamente por relevancia/urgencia
+Detección de Contenido Duplicado: IA identifica transcripciones similares antes de descargar
+Categorización Automática Pre-Descarga: IA predice categorías basándose en títulos/descripciones
+Predicción de Tiempo de Procesamiento: IA estima duración total basada en patrones históricos
+Recomendaciones de Lotes Óptimos: IA sugiere agrupar videos relacionados para procesamiento eficiente
+Detección de Anomalías en Cola: IA identifica URLs sospechosas o contenido inadecuado
+Generación Automática de Nombres de Lote: IA crea nombres descriptivos inteligentes para cada lote
+Análisis de Sentimiento Pre-Descarga: IA evalúa tono/tema del contenido antes de procesar
+Optimización Dinámica de Recursos: IA ajusta concurrencia según carga del sistema en tiempo real
+Resumen Predictivo de Resultados: IA genera preview de qué conocimiento se obtendrá del lote
+
+CON IA OLLAMA (10) - Inteligencia Estratégica
+
+Selección Semántica Grupal ⭐⭐⭐
+Filtrado por Valor de Conocimiento ⭐⭐⭐
+Detección de Duplicados Semánticos ⭐⭐⭐
+
+Análisis de Impacto en Almacenamiento ⭐⭐
+Agrupación Automática por 18 Categorías KDP ⭐⭐
+Identificador de Sesgos en la Cola ⭐
+Smart-Select por Perfil Histórico ⭐⭐
+Validación de Relevancia Temporal ⭐
+Comandante de Selección Natural (NLP) ⭐⭐⭐

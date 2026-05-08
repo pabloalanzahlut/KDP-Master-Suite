@@ -1,0 +1,14 @@
+{
+  "max_backups": 10,
+  "include_dirs": [
+    "data",
+    "themes"
+  ],
+  "exclude_patterns": [
+    "__pycache__",
+    "*.pyc",
+    ".git",
+    "*.zip"
+  ],
+  "last_backup": "2026-04-14T13:08:55.577708"
+}

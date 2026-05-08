@@ -1,0 +1,75 @@
+## 🎯 PRÓXIMOS PASOS ( Mejoras Modular Tcl/Tk )
+
+Basándome en la implementación actual de `build_exe.py:_find_tcl_tk_data()`, estas son las mejoras propuestas:
+
+---
+
+### 1. **Validación Pre-Build de Tcl/Tk**
+- Verificar integridad de archivos detectados antes de construir
+- Detectar versiones incompatibles (Tcl 8.5 vs 8.6)
+- Alertar si hay conflictos de versión
+
+### 2. **Modo Diagnóstico Expandido**
+- `--verbose-tcl` o `--debug-tcl` para ver todo el proceso de detección
+- Mostrar: ruta origen → ruta destino → tamaño → checksum
+- Exportar a JSON para soporte técnico
+
+### 3. **Configuración Flexible via YAML/JSON**
+- Permitir overriding de rutas Tcl/Tk en `build_config.json`
+- ```json
+  {
+    "tcl": {
+      "library": "C:/custom/tcl8.6",
+      "tk_library": "C:/custom/tk8.6"
+    }
+  }
+  ```
+
+### 4. **Fallback Automático Inteligente**
+- Si estrategia principal falla → intentar alternativas automáticamente
+- Logging de qué estrategia funciona para aprendizaje
+
+### 5. **Validación Post-Build Automática**
+- Ejecutar mini-test de Tkinter después del build
+- Verificar que la app puede importar `tkinter` sin error
+- Reportar automáticamente: "Tcl/Tk OK" o "FALLÓ"
+
+### 6. **Detección de Versión en Runtime**
+- Mostrar en Settings UI qué versión de Tcl/Tk usa el ejecutable
+- Útil para debug de usuario finales
+
+### 7. **Soporte Multi-Plataforma Expandido**
+- Mejorar detección en Linux (rutas `/usr/lib/tcl8.6`)
+- Mejorar detección en macOS (`/Library/Tcl`)
+- Detectar Conda environments automáticamente
+
+### 8. **Cache de Detección**
+- Guardar rutas detectadas en `.tcl_cache.json`
+- Evitar recalcular en builds subsecuentes (si versiones no cambian)
+
+### 9. **Alertas de Obsolescencia**
+- Advertir si Python está próximos a EOL
+- Advertir si Tcl/Tk versión no tiene soporte
+
+---
+
+## 📊 PRIORIZACIÓN RECOMENDADA
+
+| # | Funcionalidad | Complejidad | Impacto | Prioridad |
+|---|-------------|------------|---------|----------|
+| 1 | Validación Pre-Build | Baja | Alto | 🔴 P0 |
+| 2 | Validación Post-Build | Baja | Alto | 🔴 P0 |
+| 3 | Fallback Automático | Media | Alto | 🔴 P0 |
+| 4 | Modo Diagnóstico | Baja | Medio | 🟡 P1 |
+| 5 | Configuración Flexible | Media | Medio | 🟡 P1 |
+| 6 | Runtime Version Info | Baja | Medio | 🟢 P2 |
+| 7 | Cache de Detección | Baja | Bajo | 🟢 P2 |
+| 8 | Multi-Plataforma | Alta | Bajo | 🟢 P2 |
+
+---
+
+## ❓ PREGUNTAS CLARIFICADORAS
+
+1. **¿Quieres que Prioridad 0 sea solo las 3 primeras (Validación Pre/Post + Fallback)?**
+2. **¿Prefieres configuración via JSON externo o argumentos CLI?**
+3. **¿El objetivo es solo Windows o también Linux/Mac eventually?**

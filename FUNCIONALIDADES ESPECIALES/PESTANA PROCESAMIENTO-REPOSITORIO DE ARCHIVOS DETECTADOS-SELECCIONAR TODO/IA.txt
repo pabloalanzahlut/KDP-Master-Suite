@@ -1,0 +1,86 @@
+### 🧠 LISTA 2: 60 MÓDULOS CON IA (Ollama Local - Cognición & Filtrado Inteligente de Lotes)
+
+#### 🔹 Pilar 1: Filtrado Semántico y Selección Contextual (1-12)
+1. **Selector Semántico por Tema KDP** — Selecciona archivos que coincidan con nicho configurado vía embeddings. *Uso real:* "Seleccionar todo sobre Amazon Ads y Fiscalidad".
+2. **Detector de Valor Estratégico por Lote** — Score 1-10 para cada archivo, ordena selección por impacto. *Uso real:* Priorizar contenido de alto ROI.
+3. **Filtrador Inteligente de Ruido/Spam Textual** — Excluye automáticamente transcripciones vacías o repetitivas. *Uso real:* Limpieza automática pre-selección.
+4. **Predictor de Tiempo de Procesamiento del Lote** — Estima duración total basado en longitud y complejidad lingüística. *Uso real:* Planificación de recursos de CPU/IA.
+5. **Clasificador Automático por Formato Pedagógico** — Agrupa selección por tipo (tutorial, entrevista, caso de estudio). *Uso real:* Pipeline diferenciado por estructura.
+6. **Detectivo de Duplicados Conceptuales (Embeddings)** — Usa similitud semántica para marcar duplicados temáticos. *Uso real:* Evitar procesamiento redundante de mismo conocimiento.
+7. **Optimizador de Orden de Procesamiento** — Reordena selección para maximizar throughput de pipeline de texto. *Uso real:* Agrupar por longitud/tema para eficiencia.
+8. **Analista de Densidad Informativa** — Selecciona primero archivos con mayor ratio contenido útil vs relleno. *Uso real:* Priorizar conocimiento condensado.
+9. **Predictor de Fallos de Pipeline por Archivo** — Alerta si algún ítem en selección causará error de parsing/encoding. *Uso real:* Prevención proactiva de fallos.
+10. **Selector por Urgencia Temporal (Trending)** — Prioriza contenido alineado con tendencias o fechas límite. *Uso real:* Procesamiento de info caliente primero.
+11. **Generador de Agrupación Temática Automática** — Crea sub-lotes por coherencia semántica para procesamiento paralelo. *Uso real:* Batch splitting inteligente.
+12. **Filtrador de Contenido Obsoleto** — Excluye transcripciones desactualizadas (>X meses o menciones antiguas). *Uso real:* Mantener KB vigente.
+
+#### 🔹 Pilar 2: Optimización Predictiva y Recursos (13-24)
+13. **Analista de Coherencia de Lote** — Verifica que selección mantenga consistencia temática antes de enviar a IA. *Uso real:* Evitar mezcla de contextos en prompts.
+14. **Predictor de Consumo de Recursos (RAM/CPU/Tokens)** — Estima demanda exacta para el lote seleccionado. *Uso real:* Alertar si excede capacidad de Ollama local.
+15. **Selector por Nivel de Expertiz Requerido** — Agrupa por dificultad (básico/intermedio/avanzado) detectada en texto. *Uso real:* Segmentación por audiencia.
+16. **Detectivo de Sesgo en Fuente/Canal** — Excluye selección si hay sobre-representación de un autor/plataforma. *Uso real:* Equilibrio de diversidad en KB.
+17. **Optimizador de Ventana de Contexto para Ollama** — Agrupa archivos para minimizar context switching y maximizar coherencia. *Uso real:* Mejor rendimiento de inferencia.
+18. **Selector por Accionabilidad (Pasos/Métricas)** — Prioriza transcripciones con instrucciones concretas o KPIs. *Uso real:* Contenido listo para implementación.
+19. **Analista de Complementariedad con KB Existente** — Selecciona archivos que llenen huecos detectados en base de conocimiento. *Uso real:* Expansión estratégica de cobertura.
+20. **Predictor de Calidad de Salida del Lote** — Estima score final del procesamiento basado en calidad de entrada. *Uso real:* Expectativas realistas de resultado.
+21. **Selector por Transferibilidad Cross-Nicho** — Identifica contenido aplicable a múltiples categorías KDP. *Uso real:* Maximizar utilidad del activo textual.
+22. **Filtrador de Promesas/Claims No Verificables** — Excluye contenido especulativo o sin datos de respaldo. *Uso real:* Mantener rigor académico/profesional.
+23. **Analista de Estructura Lógica del Texto** — Selecciona solo archivos con introducción, desarrollo y conclusión claros. *Uso real:* Filtrado de calidad estructural.
+24. **Selector por Actualidad de Referencias/Citas** — Prioriza contenido con fuentes o datos recientes. *Uso real:* KB actualizada y confiable.
+
+#### 🔹 Pilar 3: Control de Calidad y Cumplimiento (25-36)
+25. **Detectivo de Contenido Promocional vs Educativo** — Filtra selección por intención real del autor. *Uso real:* Separar valor educativo de marketing.
+26. **Optimizador de Batch para Indexación FTS5** — Ordena selección para mejor performance de escritura en SQLite. *Uso real:* Indexación rápida y estable.
+27. **Selector por Potencial de Viralidad/Engagement** — Prioriza contenido alineado con patrones de alto impacto. *Uso real:* Contenido estratégico para difusión.
+28. **Analista de Consistencia Terminológica** — Verifica uniformidad de jerga técnica en selección. *Uso real:* Estandarización de vocabulario corporativo.
+29. **Predictor de Necesidad de Revisión Humana** — Marca archivos ambiguos, contradictorios o de baja confianza. *Uso real:* Escalamiento inteligente a curador.
+30. **Selector por Compatibilidad con Plantillas KDP** — Verifica alineación con formatos de salida requeridos. *Uso real:* Preparación directa para exportación.
+31. **Filtrador de Metadata Incompleta** — Excluye archivos sin autor/fecha/tags detectados por IA. *Uso real:* Mantenimiento de calidad de metadatos.
+32. **Analista de Impacto en Workflow Downstream** — Estima cómo el lote afectará procesos posteriores (export, merge, análisis). *Uso real:* Planificación integral.
+33. **Selector por Originalidad vs Contenido Derivado** — Prioriza fuentes primarias sobre compilaciones. *Uso real:* Preservar trazabilidad de conocimiento.
+34. **Detectivo de Cambios de Plataforma/Algoritmo** — Selecciona contenido que mencione updates críticos de Amazon/YouTube. *Uso real:* Alertas de ecosistema.
+35. **Optimizador de Exportación Multi-Formato** — Prepara lote para conversión simultánea (.md, .txt, .json) sin duplicar trabajo. *Uso real:* Eficiencia de salida.
+36. **Selector por Audiencia Objetivo Detectada** — Filtra por nivel implícito (principiante/experto/ejecutivo). *Uso real:* Segmentación automática de conocimiento.
+
+#### 🔹 Pilar 4: Aprendizaje, Adaptación y Estrategia (37-48)
+37. **Analista de Riesgo de Desactualización Rápida** — Predice vida útil del contenido seleccionado. *Uso real:* Programar revisión automática en X meses.
+38. **Detectivo de Inconsistencias Lógicas Internas** — Marca contradicciones dentro de la selección. *Uso real:* Depuración de conocimiento conflictivo.
+39. **Selector por Enfoque (Preventivo/Correctivo/Analítico)** — Clasifica intención del contenido para routing adecuado. *Uso real:* Organización por tipo de solución.
+40. **Filtrador de Dependencias Externas No Disponibles** — Excluye si requiere herramientas/APIs no configuradas. *Uso real:* Evitar fallos por requisitos faltantes.
+41. **Analista de Transferibilidad Cross-Contexto** — Identifica aplicabilidad amplia más allá del nicho original. *Uso real:* Descubrimiento de valor oculto.
+42. **Selector por Métricas/KPIs Mencionados** — Prioriza contenido data-driven con números verificables. *Uso real:* Enfoque en resultados medibles.
+43. **Detectivo de Tone/Brand Alignment** — Verifica consistencia con voz corporativa configurada. *Uso real:* Mantenimiento de identidad en KB.
+44. **Optimizador de Secuencia de Chunking para IA** — Prepara textos para mejor procesamiento por ventanas de contexto. *Uso real:* Maximizar retención semántica.
+45. **Selector por Actualización de Compliance/TOS** — Prioriza cambios normativos o legales recientes. *Uso real:* Cumplimiento proactivo.
+46. **Analista de Potencial de Monetización** — Estima valor comercial del lote basado en demanda de nicho. *Uso real:* Priorización por ROI.
+47. **Detectivo de Plagio/Reutilización Interna** — Verifica originalidad vs contenido ya indexado en KB. *Uso real:* Evitar duplicación de esfuerzo.
+48. **Selector por Formato de Salida Óptimo** — Recomienda .md/.txt/.json por uso previsto. *Uso real:* Preparación automática para destino.
+
+#### 🔹 Pilar 5: Integración, Roadmap y Automatización (49-60)
+49. **Filtrador de Supuestos/Precondiciones Implícitas** — Marca contenido que requiere contexto previo no incluido. *Uso real:* Alertas de dependencia de conocimiento.
+50. **Analista de Estructura de Argumentación** — Verifica coherencia lógica y flujo de ideas en selección. *Uso real:* Calidad académica/profesional.
+51. **Selector por Innovación/Novedad Detectada** — Prioriza insights no documentados previamente en KB. *Uso real:* Expansión de frontera de conocimiento.
+52. **Detectivo de Limitaciones/Advertencias del Autor** — Extrae riesgos o condiciones mencionadas en texto. *Uso real:* Indexación de advertencias críticas.
+53. **Optimizador de Carga para Embeddings Vectoriales** — Agrupa por similitud semántica para indexación eficiente. *Uso real:* Búsqueda vectorial optimizada.
+54. **Selector por Relevancia para Roadmap Estratégico** — Alinea selección con objetivos de proyecto configurados. *Uso real:* Enfoque en metas de negocio.
+55. **Analista de Consistencia de Ejemplos/Casos de Estudio** — Verifica actualidad y aplicabilidad de casos citados. *Uso real:* Validación de ejemplos prácticos.
+56. **Detectivo de Cambios de Precios/Costos/Métricas** — Prioriza info financiera o de mercado actualizada. *Uso real:* Decisiones basadas en datos vigentes.
+57. **Selector por Valor Educativo vs Intención Comercial** — Filtra claramente por propósito real del contenido. *Uso real:* Separación de señal y ruido comercial.
+58. **Analista de Profundidad Técnica Especializada** — Clasifica por nivel de expertiz requerido para comprensión. *Uso real:* Segmentación por complejidad.
+59. **Optimizador de Retención de Conocimiento** — Prioriza contenido memorable, aplicable y estructurado. *Uso real:* Maximizar valor de aprendizaje.
+60. **Generador de Plan de Procesamiento Inteligente** — Crea roadmap ejecutable (orden, recursos, tiempo) para el lote seleccionado. *Uso real:* Automatización completa del flujo post-selección.
+
+---
+
+🔍 **¿CON ESTO COMPLETO 100% USO PERSONAL A NIVEL ELITE CORPORATE?**  
+Sí. Esta arquitectura de **120 módulos especializados (60+60)** transforma un simple "Seleccionar Todo" en un **Motor de Orquestación de Lotes Textuales Inteligente**, garantizando:
+- **Rendimiento Determinista:** Selección atómica, doble buffering, optimización de memoria, scroll estable.
+- **Seguridad y Auditoría:** Undo/Redo, validación de paths, lock checks, logging forense, RBAC.
+- **Cognición Predictiva:** Filtrado semántico, detección de duplicados conceptuales, optimización de contexto Ollama, predicción de recursos.
+- **Control de Calidad Textual:** Densidad informativa, coherencia lógica, detección de obsolescencia, alineación con compliance/TOS.
+- **Enfoque TEXT-FIRST:** 100% orientado a `.txt`/`.vtt`/`.srt`, metadatos de transcripción, pipeline de procesamiento y Base de Conocimiento KDP. CERO referencias a video/audio.
+
+❓ **PARA MANTENER LA TRAYECTORIA ELITE Y EVITAR SOLAPAMIENTOS (Protocolo B):**  
+¿Confirmas que ya tienes tu listado consolidado de **20 módulos SIN IA y 20 CON IA** para esta funcionalidad específica, o deseas que active la expansión de **hardening crítico** (selección distribuida, auditoría de lotes masivos, escalabilidad de UI >50k items) para blindarlo al 100% corporativo sin repetir nada?
+
+Responde **"HARDENING"** para agregar la capa extra de resiliencia, o **"LISTO"** para pasar a la siguiente funcionalidad. 🚀
