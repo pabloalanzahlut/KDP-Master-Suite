@@ -20,3 +20,42 @@ description: Restricciones críticas y principios fundamentales del sistema KDP_
 <enforcement>
 Esta regla tiene prioridad sobre todas las demás. Si una instrucción del usuario entra en conflicto con estas reglas globales, el agente debe notificar la violación <GLOBAL_RULE_VIOLATION> y detener la ejecución.
 </enforcement>
+
+---
+
+### <git_github_flujo>
+**Auto-commit y Push a GitHub - Flujo Obligatorio**
+
+Para cada cambio significativo en el código (programas, configuración, docs):
+
+1. **Verificar repositorio existente**:
+   ```bash
+   git remote -v
+   ```
+   - Si NO hay repositorio remoto → **NOTIFICAR** al usuario y NO hacer push
+   - Si SÍ hay repositorio → Proceder al paso 2
+
+2. **Agregar archivos modificados**:
+   ```bash
+   git add <archivos>
+   ```
+
+3. **Crear commit con mensaje descriptivo**:
+   ```bash
+   git commit -m "tipo: descripción corta
+   - Cambio 1
+   - Cambio 2"
+   ```
+   - Prefijos válidos: `fix:`, `feat:`, `docs:`, `refactor:`, `chore:`
+
+4. **Push a GitHub**:
+   ```bash
+   git push origin <branch>
+   ```
+
+**Reglas adicionales**:
+- Siempre verificar que el repositorio existe antes de hacer push
+- Si el proyecto tiene su propio repositorio, usarlo; si no, usar el principal del workspace
+- Incluir descripción clara de qué cambió
+- Commits pequeños y frecuentes > commits grandes
+</git_github_flujo>
