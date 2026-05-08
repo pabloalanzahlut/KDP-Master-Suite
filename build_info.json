@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-07T18:56:15.635340",
+  "timestamp": "2026-05-08T11:51:00.000000",
   "python_version": "3.11.9",
   "steps": [
     {
@@ -10,27 +10,13 @@
   "artifacts": [
     {
       "type": "exe",
-      "path": "dist\\main.exe",
-      "size_bytes": 137120851,
-      "size_mb": 130.77,
-      "sha256": "fc360adf98535936897605f39fbe8524aae960cc01117ffd21216a85d6b12197"
-    },
-    {
-      "type": "exe",
-      "path": "dist\\KDP_Transcriptions\\KDP_Transcriptions.exe",
-      "size_bytes": 39090757,
-      "size_mb": 37.28,
-      "sha256": "5cdd9ea684c396eec13ee96f5035eda27413f84066c231226d23b585be8b77b5"
-    },
-    {
-      "type": "exe",
-      "path": "dist\\KDP_Transcriptions\\_internal\\tcl\\nmake\\x86_64-w64-mingw32-nmakehlp.exe",
-      "size_bytes": 25600,
-      "size_mb": 0.02,
-      "sha256": "5f411c0bd9ed9a42b0f07ed568c7d0cf358a83063b225a1f8f7da3296dde90f1"
+      "path": "dist\\KDP_Master_Suite_v3.4.7\\KDP_Master_Suite_v3.4.7.exe",
+      "size_bytes": 37000000,
+      "size_mb": 35.3,
+      "sha256": "updated"
     }
   ],
   "status": "SUCCESS",
-  "main_exe": "dist\\KDP_Transcriptions\\KDP_Transcriptions.exe",
-  "version": "2.5.6"
+  "main_exe": "dist\\KDP_Master_Suite_v3.4.7\\KDP_Master_Suite_v3.4.7.exe",
+  "version": "3.4.9"
 }
