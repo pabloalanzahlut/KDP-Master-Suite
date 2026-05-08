@@ -8,6 +8,7 @@ import sys
 import shutil
 import hashlib
 import subprocess
+import shlex
 import json
 from datetime import datetime
 from pathlib import Path
@@ -15,13 +16,14 @@ from pathlib import Path
 PROJECT_ROOT = Path(".").resolve()
 BUILD_DIR = PROJECT_ROOT / "build"
 DIST_DIR = PROJECT_ROOT / "dist"
-SPEC_FILE = PROJECT_ROOT / "KDP_Transcriptions.spec"
+SPEC_FILE = PROJECT_ROOT / "KDP_Master_Suite_v3.4.7.spec"
 VERSION_FILE = PROJECT_ROOT / "VERSION.txt"
 
 
 class BuildPipeline:
-    def __init__(self, clean_first=False):
+    def __init__(self, clean_first=False, extra_pyinstaller_args=""):
         self.clean_first = clean_first
+        self.extra_pyinstaller_args = shlex.split(extra_pyinstaller_args, posix=(os.name != 'nt')) if extra_pyinstaller_args else []
         self.build_info = {
             "timestamp": datetime.now().isoformat(),
             "python_version": sys.version.split()[0],
@@ -74,6 +76,7 @@ class BuildPipeline:
             "--clean",
             "--noconfirm"
         ]
+        cmd.extend(self.extra_pyinstaller_args)
         
         result = subprocess.run(cmd, capture_output=True, text=True, cwd=str(PROJECT_ROOT))
         

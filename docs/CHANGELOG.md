@@ -21,12 +21,21 @@
 - docs/60_MODULOS_CON_IA.md: Nueva documentación completa
 - docs/60_MODULOS_SIN_IA.md: Documentación existente
 
-## v3.4.8 (2024-06-01) - AI Cognition Pilar 4 & Mass Download Optimization
+## v3.4.9 (2026-05-08) - Fix: tkinter Error & Intelligence Modules
+### 🐛 Bug Fixes
+- ✅ **Error "-style" corregido**: Eliminado configure(style=) inválido en línea 3259
+- ✅ **Pestaña Configuración visible**: Corregido error de sintaxis en try/except
+- ✅ **customtkinter incluido**: Agregado al spec de PyInstaller
+- ✅ **Módulos Inteligencia**: Incluidos integrate_knowledge y ollama_pool en build
+- ✅ **Directorios agregados**: app/ y modules/ ahora en spec
+
 ### 🚀 Nuevas Funcionalidades
 - ✅ **Cognición IA (Módulos 31-40)**: Integración de predicción de tiempo de procesamiento, programación inteligente de descargas y detección de videos pesados.
 - ✅ **Filtro Semántico Avanzado**: Capacidad de la IA para detectar duplicados conceptuales y gaps de conocimiento antes de la descarga.
 - ✅ **Safety Engine**: Detección de contenido generado 100% por IA y filtrado automático de temas sensibles/polémicos.
 - ✅ **Optimización de Batch**: Agrupación automática por temas para procesamiento eficiente en lote.
+
+## v3.4.8 (2024-06-01) - AI Cognition Pilar 4 & Mass Download Optimization
 
 ## v3.4.7 (2024-05-30) - Advanced Configuration Central Elite
 ### 🚀 Nuevas Funcionalidades
