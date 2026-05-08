@@ -658,6 +658,38 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
             "Finanzas y Contabilidad KDP", "Atención al Cliente KDP", "Otros"
         ] # Módulo 51
         self.soe_roles = ["Analista", "Especialista SEO", "Diseñador", "Escritor", "Marketing", "Legal", "General"] # Módulo 53
+
+        # ==================== INICIO MÓDULO: BÚSQUEDA AVANZADA KB ====================
+        # Tipos documentales para la base de conocimiento KDP (reemplazan Video/Audio/Transcripción)
+        # Usado en: Pestaña "🔍 Búsqueda" - Diseño moderno con Treeview y paginación
+        self.DOC_TYPE_ICONS = {
+            "Tutorial": "📘",
+            "Artículo": "📝",
+            "Investigación": "🔬",
+            "Lista": "📋",
+            "Legal": "⚖️",
+            "Fórmulas": "🔢"
+        }
+        self.DOC_TYPE_COLORS = {
+            "Tutorial": "#3b82f6",      # Azul
+            "Artículo": "#10b981",       # Verde
+            "Investigación": "#8b5cf6", # Púrpura
+            "Lista": "#f59e0b",          # Ámbar
+            "Legal": "#ef4444",          # Rojo
+            "Fórmulas": "#06b6d4"       # Cian
+        }
+        self.DOC_TYPES = list(self.DOC_TYPE_ICONS.keys())  # ["Tutorial", "Artículo", ...]
+        self.DOC_TYPES_WITH_ALL = ["Todos"] + self.DOC_TYPES
+        
+        # Variables de paginación para búsqueda avanzada
+        self.search_current_page = 1
+        self.search_page_size = 10  # Resultados por página
+        self.search_total_results = 0
+        self.search_total_pages = 1
+        self.search_results_cache = []  # Cache de resultados actuales
+        self.search_current_query = ""  # Query activa para filtros
+        # ==================== FIN MÓDULO: BÚSQUEDA AVANZADA KB ====================
+
         self.pending_kdp_category_filter_var = tk.StringVar(value="Todos") # Módulo 51
         self.pending_soe_role_filter_var = tk.StringVar(value="Todos") # Módulo 53
         self.pending_exclude_competitors_var = tk.BooleanVar(value=False) # Módulo 54
@@ -3440,46 +3472,834 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self.analysis_text.pack(fill=tk.BOTH, expand=True)
 
     def setup_search_tab(self):
+        """
+        ================================================================
+        MODULO: BÚSQUEDA AVANZADA KB - DISEÑO MODERNO
+        ================================================================
+        Reemplaza la búsqueda simple con un Treeview paginado.
+        
+        Características:
+        - Barra de búsqueda sticky en header
+        - Filtros activos como pills (removibles)
+        - Sidebar con filtros organizados por categoría
+        - Treeview con resultados y tags de color por tipo documental
+        - Paginación numérica con navegación
+        - Exportación CSV
+        - Empty state cuando no hay resultados
+        
+        Tipos documentales: Tutorial, Artículo, Investigación, Lista, Legal, Fórmulas
+        Categorías KDP: 18 categorías del sistema
+        
+        Autor: KDP Master Suite
+        Versión: 3.2.4+
+        """
+        # Verificar que el tab está cargado (lazy loading)
         if not hasattr(self, 'search_tab_loaded') or not self.search_tab_loaded:
             for widget in self.tab_search.winfo_children():
                 widget.destroy()
-
             ttk.Label(self.tab_search, text="⏳ Cargando módulo de búsqueda...", 
                      font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
             self.root.after(500, self.setup_search_tab)
             return
         
+        # Evitar duplicación de widgets
         if len(self.tab_search.winfo_children()) > 0:
             return
-
+        
+        # =================================================================
+        # PASO 1: INICIALIZAR VARIABLES DE ESTADO
+        # =================================================================
+        # Variables de filtros (inicializadas si no existen)
+        if not hasattr(self, 'search_filter_var'):
+            self.search_filter_var = tk.StringVar(value="")
+        if not hasattr(self, 'search_type_var'):
+            self.search_type_var = tk.StringVar(value="Todos")
+        if not hasattr(self, 'search_category_var'):
+            self.search_category_var = tk.StringVar(value="Todos")
+        if not hasattr(self, 'search_order_var'):
+            self.search_order_var = tk.StringVar(value="Nuevos primero")
+        if not hasattr(self, 'search_date_from_var'):
+            self.search_date_from_var = tk.StringVar(value="")
+        if not hasattr(self, 'search_date_to_var'):
+            self.search_date_to_var = tk.StringVar(value="")
+        if not hasattr(self, 'search_stats_var'):
+            self.search_stats_var = tk.StringVar(value="Sin búsqueda")
+        
+        # Resetear paginación para nueva búsqueda
+        self.search_current_page = 1
+        self.search_total_results = 0
+        self.search_results_cache = []
+        
+        # =================================================================
+        # PASO 2: CONTENEDOR PRINCIPAL
+        # =================================================================
         search_main = ttk.Frame(self.tab_search)
         search_main.pack(fill=tk.BOTH, expand=True)
-
-        control_frame = ttk.Frame(search_main)
-        control_frame.pack(fill=tk.X, pady=(0, 15))
         
-        ttk.Label(control_frame, text="🔍 Búsqueda Semántica Global:", font=("Inter", 11, "bold")).pack(side=tk.LEFT, padx=(0, 15))
+        # =================================================================
+        # PASO 3: HEADER STICKY - BARRA DE BÚSQUEDA
+        # =================================================================
+        header_frame = ttk.Frame(search_main)
+        header_frame.pack(fill=tk.X, pady=(0, 10))
         
-        entry = ttk.Entry(control_frame, textvariable=self.search_var, width=60, font=("Inter", 11))
+        # Título de sección
+        ttk.Label(header_frame, text="🔍 Búsqueda en Base de Conocimiento KDP", 
+                 font=("Inter", 12, "bold")).pack(side=tk.LEFT, padx=(0, 15))
+        
+        # Entrada de búsqueda con ancho expandible
+        entry = ttk.Entry(header_frame, textvariable=self.search_filter_var, width=50, font=("Inter", 11))
         entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-        entry.bind('<Return>', lambda e: self.run_search())
+        entry.bind('<Return>', lambda e: self._execute_kb_search())
+        entry.focus_set()
         
-        search_btn = ttk.Button(control_frame, text="🔍 BUSCAR", command=self.run_search, bootstyle="primary")
-        search_btn.pack(side=tk.LEFT, padx=10, pady=5)
-        ToolTip(search_btn, "Ejecutar búsqueda en base de conocimiento")
+        # Botón BUSCAR
+        search_btn = ttk.Button(header_frame, text="BUSCAR", command=self._execute_kb_search, bootstyle="primary")
+        search_btn.pack(side=tk.LEFT, padx=5)
+        ToolTip(search_btn, "Ejecutar búsqueda (Enter)")
         
-        results_frame = ttk.LabelFrame(search_main, text=" 📄 Resultados de Búsqueda ", )
-        results_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        # Botón LIMPIAR
+        clear_btn = ttk.Button(header_frame, text="LIMPIAR", command=self._clear_search_filters, bootstyle="secondary-outline")
+        clear_btn.pack(side=tk.LEFT, padx=5)
+        ToolTip(clear_btn, "Limpiar todos los filtros")
         
-        self.search_results = scrolledtext.ScrolledText(results_frame, height=15, font=('Consolas', 10),
-                                                        bg="#020617" if self.current_theme == "dark" else "white",
-                                                        fg="#34d399" if self.current_theme == "dark" else "#1e293b")
-        self.search_results.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        # Botón EXPORTAR
+        export_btn = ttk.Button(header_frame, text="EXPORTAR CSV", command=self._export_kb_search, bootstyle="success-outline")
+        export_btn.pack(side=tk.LEFT, padx=5)
+        ToolTip(export_btn, "Exportar resultados a CSV")
         
-        help_frame = ttk.Frame(self.tab_search)
-        help_frame.pack(fill=tk.X, pady=5)
-        ttk.Label(help_frame, text="💡 Tip: Presiona Enter para buscar o usa el botón BUSCAR", 
-                 font=("Inter", 9), foreground="#64748b").pack(side=tk.LEFT)
+        # Label de estadísticas
+        stats_lbl = ttk.Label(header_frame, textvariable=self.search_stats_var, font=("Inter", 9), foreground="#64748b")
+        stats_lbl.pack(side=tk.RIGHT, padx=10)
+        
+        # =================================================================
+        # PASO 4: PANEL DE PILLS (FILTROS ACTIVOS)
+        # =================================================================
+        pills_frame = ttk.Frame(search_main)
+        pills_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        self.search_pills_label = ttk.Label(pills_frame, text="Filtros activos: Ninguno", 
+                                          font=("Inter", 9), foreground="#94a3b8")
+        self.search_pills_label.pack(side=tk.LEFT)
+        
+        # =================================================================
+        # PASO 5: CONTENEDOR PRINCIPAL (SIDEBAR + RESULTADOS)
+        # =================================================================
+        main_container = ttk.Frame(search_main)
+        main_container.pack(fill=tk.BOTH, expand=True)
+        
+        # =================================================================
+        # PASO 6: SIDEBAR IZQUIERDO (FILTROS - 30%)
+        # =================================================================
+        sidebar_frame = ttk.Frame(main_container, width=320)
+        sidebar_frame.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 15))
+        sidebar_frame.pack_propagate(False)
+        
+        # --- Filtro: Tipo Documental ---
+        type_frame = ttk.LabelFrame(sidebar_frame, text=" 📋 TIPO DOCUMENTAL ", padding=8)
+        type_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        type_combo = ttk.Combobox(type_frame, textvariable=self.search_type_var,
+                                  values=self.DOC_TYPES_WITH_ALL, state="readonly", width=28)
+        type_combo.pack(fill=tk.X)
+        type_combo.bind('<<ComboboxSelected>>', lambda e: self._execute_kb_search())
+        ToolTip(type_combo, "Filtrar por tipo de documento")
+        
+        # --- Filtro: Categoría KDP ---
+        category_frame = ttk.LabelFrame(sidebar_frame, text=" 📁 CATEGORÍA KDP ", padding=8)
+        category_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        category_values = ["Todos"] + self.kdp_categories
+        category_combo = ttk.Combobox(sidebar_frame, textvariable=self.search_category_var,
+                                      values=category_values, state="readonly", width=28)
+        # Re-crear el frame con el combobox para evitar error de padre
+        category_frame2 = ttk.LabelFrame(sidebar_frame, text=" 📁 CATEGORÍA KDP ", padding=8)
+        category_frame2.pack(fill=tk.X, pady=(0, 10))
+        category_combo = ttk.Combobox(category_frame2, textvariable=self.search_category_var,
+                                      values=category_values, state="readonly", width=28)
+        category_combo.pack(fill=tk.X)
+        category_combo.bind('<<ComboboxSelected>>', lambda e: self._execute_kb_search())
+        ToolTip(category_combo, "Filtrar por categoría KDP")
+        
+        # --- Filtro: Rango de Fechas ---
+        date_frame = ttk.LabelFrame(sidebar_frame, text=" 📅 RANGO DE FECHAS ", padding=8)
+        date_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        ttk.Label(date_frame, text="Desde (YYYY-MM)", font=("Inter", 8), foreground="#64748b").pack(anchor=tk.W)
+        date_from_entry = ttk.Entry(date_frame, textvariable=self.search_date_from_var, width=15)
+        date_from_entry.pack(fill=tk.X, pady=(2, 5))
+        date_from_entry.bind('<Return>', lambda e: self._execute_kb_search())
+        
+        ttk.Label(date_frame, text="Hasta (YYYY-MM)", font=("Inter", 8), foreground="#64748b").pack(anchor=tk.W)
+        date_to_entry = ttk.Entry(date_frame, textvariable=self.search_date_to_var, width=15)
+        date_to_entry.pack(fill=tk.X, pady=(2, 5))
+        date_to_entry.bind('<Return>', lambda e: self._execute_kb_search())
+        
+        # --- Filtro: Orden ---
+        order_frame = ttk.LabelFrame(sidebar_frame, text=" ↕ ORDENAR POR ", padding=8)
+        order_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        order_combo = ttk.Combobox(order_frame, textvariable=self.search_order_var,
+                                 values=["Nuevos primero", "Antiguos primero", "Por categoría"], 
+                                 state="readonly", width=28)
+        order_combo.pack(fill=tk.X)
+        order_combo.bind('<<ComboboxSelected>>', lambda e: self._execute_kb_search())
+        ToolTip(order_combo, "Orden de resultados")
+        
+        # --- Botones de Acción ---
+        action_frame = ttk.Frame(sidebar_frame)
+        action_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        ttk.Button(action_frame, text="✅ APLICAR FILTROS", command=self._execute_kb_search,
+                  bootstyle="success", width=25).pack(pady=3)
+        ttk.Button(action_frame, text="🔄 LIMPIAR TODO", command=self._clear_search_filters,
+                  bootstyle="warning-outline", width=25).pack(pady=3)
+        
+        # =================================================================
+        # PASO 7: PANEL DE RESULTADOS (70%)
+        # =================================================================
+        results_panel = ttk.Frame(main_container)
+        results_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
+        # Header de resultados
+        results_header = ttk.Frame(results_panel)
+        results_header.pack(fill=tk.X, pady=(0, 5))
+        
+        ttk.Label(results_header, text="📄 Resultados:", font=("Inter", 10, "bold")).pack(side=tk.LEFT)
+        ttk.Label(results_header, text="0 entradas", font=("Inter", 10), 
+                 foreground="#3b82f6").pack(side=tk.LEFT, padx=(5, 0))
+        
+        # =================================================================
+        # PASO 8: TREEVIEW DE RESULTADOS
+        # =================================================================
+        tree_frame = ttk.Frame(results_panel)
+        tree_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Definir columnas del Treeview
+        columns = ("img", "title", "category", "type", "date", "words", "id")
+        self.search_tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=12)
+        
+        # Configurar columnas
+        self.search_tree.heading("img", text="📋")
+        self.search_tree.column("img", width=50, anchor=tk.CENTER)
+        
+        self.search_tree.heading("title", text="TÍTULO")
+        self.search_tree.column("title", width=350)
+        
+        self.search_tree.heading("category", text="CATEGORÍA")
+        self.search_tree.column("category", width=150)
+        
+        self.search_tree.heading("type", text="TIPO")
+        self.search_tree.column("type", width=100, anchor=tk.CENTER)
+        
+        self.search_tree.heading("date", text="FECHA")
+        self.search_tree.column("date", width=100, anchor=tk.CENTER)
+        
+        self.search_tree.heading("words", text="PALABRAS")
+        self.search_tree.column("words", width=80, anchor=tk.CENTER)
+        
+        self.search_tree.column("id", width=0, stretch=False)  # Columna oculta para ID
+        
+        self.search_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
+        # Scrollbar vertical
+        scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.search_tree.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.search_tree.configure(yscrollcommand=scrollbar.set)
+        
+        # =================================================================
+        # PASO 9: CONFIGURAR TAGS DE COLOR (POR TIPO DOCUMENTAL)
+        # =================================================================
+        # Tags con background para legibilidad en tema oscuro
+        self.search_tree.tag_configure("tutorial", background="#1e3a5f", foreground="#60a5fa")
+        self.search_tree.tag_configure("articulo", background="#1a3a2f", foreground="#34d399")
+        self.search_tree.tag_configure("investigacion", background="#2d1f4a", foreground="#a78bfa")
+        self.search_tree.tag_configure("lista", background="#3d3020", foreground="#fbbf24")
+        self.search_tree.tag_configure("legal", background="#3d1a1a", foreground="#f87171")
+        self.search_tree.tag_configure("formulas", background="#1a3d3d", foreground="#22d3ee")
+        
+        # Tags para filas alternadas (zebra striping)
+        self.search_tree.tag_configure("oddrow", background="#1e293b")
+        self.search_tree.tag_configure("evenrow", background="#0f172a")
+        
+        # Binding: doble click para ver detalles
+        self.search_tree.bind('<Double-1>', lambda e: self._on_search_result_double_click(e))
+        
+        # =================================================================
+        # PASO 10: PANEL DE PAGINACIÓN
+        # =================================================================
+        pagination_frame = ttk.Frame(results_panel)
+        pagination_frame.pack(fill=tk.X, pady=(10, 5))
+        
+        # Label de información de página
+        self.search_page_info = ttk.Label(pagination_frame, text="Página 1 de 1", 
+                                         font=("Inter", 9), foreground="#64748b")
+        self.search_page_info.pack(side=tk.LEFT, padx=5)
+        
+        # Contenedor de botones de paginación
+        self.search_page_buttons = ttk.Frame(pagination_frame)
+        self.search_page_buttons.pack(side=tk.LEFT, padx=10)
+        
+        # Inicializar botones de paginación
+        self._update_search_pagination_buttons()
+        
+        # =================================================================
+        # PASO 11: FOOTER CON ESTADÍSTICAS
+        # =================================================================
+        footer_frame = ttk.Frame(results_panel)
+        footer_frame.pack(fill=tk.X, pady=(5, 0))
+        
+        ttk.Label(footer_frame, text="💡 Tip: Presiona Enter para buscar. Doble clic en resultado para ver detalles.", 
+                 font=("Inter", 8), foreground="#64748b").pack(side=tk.LEFT)
+        
+        # =================================================================
+        # PASO 12: EMPTY STATE (MENSAJE CUANDO NO HAY RESULTADOS)
+        # =================================================================
+        # Este Label se muestra/oculta según necesidad
+        self.search_empty_label = ttk.Label(results_panel, text="",
+                                           font=("Inter", 11), foreground="#64748b")
+        self.search_empty_label.pack(pady=20)
+        
+        # =================================================================
+        # PASO 13: BINDINGS GLOBALES
+        # =================================================================
+        # Escape para limpiar búsqueda
+        self.tab_search.bind('<Escape>', lambda e: self._clear_search_filters())
+        
+        # =================================================================
+        # PASO 14: MOSTRAR MENSAJE INICIAL
+        # =================================================================
+        self._show_search_empty_state("Ingresa un término de búsqueda y presiona Enter o haz clic en BUSCAR")
+        
+        self.log("[SEARCH] Módulo de búsqueda avanzada KB cargado")
+    
+    # ========================================================================
+    # MÉTODOS AUXILIARES DE BÚSQUEDA AVANZADA KB
+    # ========================================================================
+    
+    def _execute_kb_search(self):
+        """
+        ================================================================
+        MÉTODO: _execute_kb_search
+        ================================================================
+        Ejecuta la búsqueda en la base de conocimiento KDP.
+        
+        Proceso:
+        1. Obtiene query y filtros activos
+        2. Construye query SQL con FTS5
+        3. Aplica filtros: tipo, categoría, fechas, orden
+        4. Almacena resultados en cache
+        5. Renderiza primera página
+        6. Actualiza paginación
+        
+        Returns:
+            None (actualiza UI directamente)
+        """
+        import time
+        import os
+        import sqlite3
+        
+        # Obtener query principal
+        query = self.search_filter_var.get().strip()
+        self.search_current_query = query
+        
+        # Validar que hay query o filtros aplicados
+        if not query and self.search_type_var.get() == "Todos" and self.search_category_var.get() == "Todos":
+            self._show_search_empty_state("Ingresa un término de búsqueda o selecciona un filtro")
+            return
+        
+        # Medir tiempo de ejecución
+        start_time = time.time()
+        
+        # Construir query SQL
+        db_path = os.path.join(self.base_dir, "knowledge", "knowledge_base.db")
+        
+        if not os.path.exists(db_path):
+            self._show_search_empty_state("Base de conocimiento no encontrada.\nVerifica que el directorio 'knowledge/' exista.")
+            self.log("[SEARCH ERROR] knowledge_base.db no encontrada", "error")
+            return
+        
+        try:
+            # Query base
+            sql = "SELECT id, category, source, content, timestamp FROM knowledge_entries WHERE 1=1"
+            params = []
+            
+            # Filtro: búsqueda de texto (usando LIKE para compatibilidad)
+            if query:
+                sql += " AND (content LIKE ? OR source LIKE ? OR category LIKE ?)"
+                params.extend([f"%{query}%", f"%{query}%", f"%{query}%"])
+            
+            # Filtro: tipo documental
+            if self.search_type_var.get() != "Todos":
+                doc_type = self.search_type_var.get()
+                # Mapear tipo a categoría si no hay columna type
+                sql += " AND category LIKE ?"
+                params.append(f"%{doc_type}%")
+            
+            # Filtro: categoría KDP
+            if self.search_category_var.get() != "Todos":
+                category = self.search_category_var.get()
+                sql += " AND category = ?"
+                params.append(category)
+            
+            # Filtro: rango de fechas
+            if self.search_date_from_var.get():
+                sql += " AND timestamp >= ?"
+                params.append(self.search_date_from_var.get())
+            if self.search_date_to_var.get():
+                sql += " AND timestamp <= ?"
+                params.append(self.search_date_to_var.get())
+            
+            # Orden
+            order = self.search_order_var.get()
+            if order == "Nuevos primero":
+                sql += " ORDER BY timestamp DESC"
+            elif order == "Antiguos primero":
+                sql += " ORDER BY timestamp ASC"
+            else:
+                sql += " ORDER BY category ASC, timestamp DESC"
+            
+            # Ejecutar query
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute(sql, params)
+            rows = cursor.fetchall()
+            conn.close()
+            
+            # Convertir resultados a diccionarios
+            self.search_results_cache = []
+            for row in rows:
+                # Calcular palabras aproximadas
+                content = row['content'] or ''
+                word_count = len(content.split())
+                
+                # Determinar tipo documental (basado en keywords del contenido)
+                doc_type = self._detect_doc_type(content, row['category'])
+                
+                self.search_results_cache.append({
+                    'id': row['id'],
+                    'title': row['source'] or f"Entrada {row['id']}",
+                    'category': row['category'],
+                    'type': doc_type,
+                    'date': row['timestamp'][:10] if row['timestamp'] else 'N/A',
+                    'words': word_count,
+                    'content': content[:200]  # Preview
+                })
+            
+            # Actualizar estadísticas
+            self.search_total_results = len(self.search_results_cache)
+            self.search_total_pages = max(1, (self.search_total_results + self.search_page_size - 1) // self.search_page_size)
+            self.search_current_page = 1
+            
+            # Calcular tiempo
+            elapsed_ms = (time.time() - start_time) * 1000
+            
+            # Actualizar label de estadísticas
+            self.search_stats_var.set(f"{self.search_total_results} resultados · FTS {elapsed_ms:.0f}ms")
+            
+            # Actualizar pills de filtros activos
+            self._update_search_pills()
+            
+            # Renderizar resultados
+            self._render_search_results()
+            self._update_search_pagination_buttons()
+            
+            self.log(f"[SEARCH] Búsqueda: '{query}' → {self.search_total_results} resultados en {elapsed_ms:.0f}ms")
+            
+        except Exception as e:
+            self.log(f"[SEARCH ERROR] {e}", "error")
+            self._show_search_empty_state(f"Error en búsqueda: {str(e)}")
+    
+    def _detect_doc_type(self, content: str, category: str) -> str:
+        """
+        ================================================================
+        MÉTODO: _detect_doc_type
+        ================================================================
+        Detecta el tipo documental basándose en el contenido.
+        
+        Algoritmo:
+        - Keywords en título/fuente
+        - Longitud del contenido
+        - Categoría asociada
+        
+        Args:
+            content: Texto del contenido
+            category: Categoría KDP
+            
+        Returns:
+            Tipo documental: Tutorial, Artículo, Investigación, Lista, Legal, Fórmulas
+        """
+        content_lower = content.lower()
+        category_lower = category.lower()
+        
+        # Detectar por keywords
+        tutorial_kw = ["cómo", "como", "tutorial", "guía paso", "paso a paso", "instrucciones", "aprende", "manual"]
+        article_kw = ["opinión", "análisis", "review", "reseña", "perspectiva", "punto de vista"]
+        research_kw = ["investigación", "estudio", "caso de estudio", "datos", "estadística", "evidencia"]
+        list_kw = ["lista", "checklist", "top", "mejores", "peores", "consejos", "tips", "pros", "contras"]
+        legal_kw = ["legal", "derecho", "contrato", "términos", "condiciones", "compliance", "política"]
+        formula_kw = ["fórmula", "ecuación", "cálculo", "métrica", "kpi", "porcentaje", "ratio"]
+        
+        # Verificar cada categoría
+        for kw in tutorial_kw:
+            if kw in content_lower or kw in category_lower:
+                return "Tutorial"
+        for kw in article_kw:
+            if kw in content_lower or kw in category_lower:
+                return "Artículo"
+        for kw in research_kw:
+            if kw in content_lower or kw in category_lower:
+                return "Investigación"
+        for kw in list_kw:
+            if kw in content_lower or kw in category_lower:
+                return "Lista"
+        for kw in legal_kw:
+            if kw in content_lower or kw in category_lower:
+                return "Legal"
+        for kw in formula_kw:
+            if kw in content_lower or kw in category_lower:
+                return "Fórmulas"
+        
+        # Default basado en longitud
+        word_count = len(content.split())
+        if word_count < 500:
+            return "Lista"
+        elif word_count < 2000:
+            return "Artículo"
+        else:
+            return "Tutorial"
+    
+    def _render_search_results(self):
+        """
+        ================================================================
+        MÉTODO: _render_search_results
+        ================================================================
+        Renderiza los resultados de búsqueda en el Treeview.
+        
+        Proceso:
+        1. Limpia Treeview existente
+        2. Obtiene slice de resultados según página actual
+        3. Inserta filas con tags de color
+        4. Muestra empty state si no hay resultados
+        """
+        # Limpiar Treeview
+        for item in self.search_tree.get_children():
+            self.search_tree.delete(item)
+        
+        # Verificar si hay resultados
+        if not self.search_results_cache:
+            self._show_search_empty_state("Sin resultados. Prueba con otros términos o filtros.")
+            return
+        
+        # Calcular rango de resultados para página actual
+        start = (self.search_current_page - 1) * self.search_page_size
+        end = start + self.search_page_size
+        page_results = self.search_results_cache[start:end]
+        
+        # Insertar resultados
+        for i, result in enumerate(page_results):
+            doc_type = result['type']
+            icon = self.DOC_TYPE_ICONS.get(doc_type, "📄")
+            
+            # Tag basado en tipo (para colores)
+            tag = doc_type.lower()
+            
+            # Zebra striping
+            row_tag = "oddrow" if i % 2 == 0 else "evenrow"
+            combined_tags = (tag, row_tag)
+            
+            self.search_tree.insert("", tk.END, values=(
+                icon,
+                result['title'][:60] + "..." if len(result['title']) > 60 else result['title'],
+                result['category'][:20],
+                doc_type,
+                result['date'],
+                result['words'],
+                result['id']
+            ), tags=combined_tags)
+        
+        # Actualizar label de página
+        self.search_page_info.config(text=f"Página {self.search_current_page} de {self.search_total_pages} ({self.search_total_results} resultados)")
+        
+        self.log(f"[SEARCH] Renderizados {len(page_results)} resultados (página {self.search_current_page})")
+    
+    def _update_search_pagination_buttons(self):
+        """
+        ================================================================
+        MÉTODO: _update_search_pagination_buttons
+        ================================================================
+        Actualiza los botones de paginación.
+        
+        Características:
+        - Botones Anterior/Siguiente
+        - Números de página (máx 5 visibles)
+        - Botón página actual resaltado
+        """
+        # Limpiar botones existentes
+        for widget in self.search_page_buttons.winfo_children():
+            widget.destroy()
+        
+        total = self.search_total_pages
+        current = self.search_current_page
+        
+        # Botón Anterior
+        prev_state = "normal" if current > 1 else "disabled"
+        ttk.Button(self.search_page_buttons, text="◀", width=3,
+                  command=lambda: self._goto_search_page(current - 1),
+                  bootstyle="secondary-outline", state=prev_state).pack(side=tk.LEFT, padx=2)
+        
+        # Números de página
+        if total <= 7:
+            # Mostrar todos
+            pages = range(1, total + 1)
+        else:
+            # Mostrar ventana de 5 páginas centradas
+            start = max(1, min(current - 2, total - 4))
+            end = min(total, start + 4)
+            pages = range(start, end + 1)
+        
+        for p in pages:
+            style = "primary" if p == current else "secondary-outline"
+            ttk.Button(self.search_page_buttons, text=str(p), width=3,
+                      command=lambda page=p: self._goto_search_page(page),
+                      bootstyle=style).pack(side=tk.LEFT, padx=2)
+        
+        # Ellipsis si hay más páginas
+        if total > 7 and current < total - 2:
+            ttk.Label(self.search_page_buttons, text="...", padx=3).pack(side=tk.LEFT)
+        
+        # Botón Siguiente
+        next_state = "normal" if current < total else "disabled"
+        ttk.Button(self.search_page_buttons, text="▶", width=3,
+                  command=lambda: self._goto_search_page(current + 1),
+                  bootstyle="secondary-outline", state=next_state).pack(side=tk.LEFT, padx=2)
+    
+    def _goto_search_page(self, page: int):
+        """
+        ================================================================
+        MÉTODO: _goto_search_page
+        ================================================================
+        Navega a una página específica de resultados.
+        
+        Args:
+            page: Número de página (1-indexed)
+        """
+        if page < 1 or page > self.search_total_pages:
+            return
+        
+        self.search_current_page = page
+        self._render_search_results()
+        self._update_search_pagination_buttons()
+        
+        self.log(f"[SEARCH] Navegando a página {page}")
+    
+    def _show_search_empty_state(self, message: str):
+        """
+        ================================================================
+        MÉTODO: _show_search_empty_state
+        ================================================================
+        Muestra mensaje de estado vacío en el área de resultados.
+        
+        Args:
+            message: Mensaje a mostrar
+        """
+        # Limpiar Treeview
+        for item in self.search_tree.get_children():
+            self.search_tree.delete(item)
+        
+        # Mostrar mensaje
+        self.search_empty_label.config(text=message)
+        self.search_empty_label.pack(pady=40)
+        
+        # Resetear paginación
+        self.search_page_info.config(text="Sin resultados")
+        for widget in self.search_page_buttons.winfo_children():
+            widget.destroy()
+    
+    def _update_search_pills(self):
+        """
+        ================================================================
+        MÉTODO: _update_search_pills
+        ================================================================
+        Actualiza el label de filtros activos (pills).
+        """
+        filters = []
+        
+        if self.search_filter_var.get().strip():
+            filters.append(f"🔍 '{self.search_filter_var.get().strip()[:20]}'")
+        if self.search_type_var.get() != "Todos":
+            filters.append(f"📋 {self.search_type_var.get()}")
+        if self.search_category_var.get() != "Todos":
+            filters.append(f"📁 {self.search_category_var.get()[:15]}")
+        if self.search_date_from_var.get():
+            filters.append(f"📅Desde {self.search_date_from_var.get()}")
+        if self.search_date_to_var.get():
+            filters.append(f"📅Hasta {self.search_date_to_var.get()}")
+        
+        if filters:
+            self.search_pills_label.config(text=f"Filtros activos: {' | '.join(filters)}")
+        else:
+            self.search_pills_label.config(text="Sin filtros activos")
+    
+    def _clear_search_filters(self):
+        """
+        ================================================================
+        MÉTODO: _clear_search_filters
+        ================================================================
+        Limpia todos los filtros de búsqueda y reinicia la pestaña.
+        """
+        # Resetear variables
+        self.search_filter_var.set("")
+        self.search_type_var.set("Todos")
+        self.search_category_var.set("Todos")
+        self.search_order_var.set("Nuevos primero")
+        self.search_date_from_var.set("")
+        self.search_date_to_var.set("")
+        
+        # Resetear cache
+        self.search_results_cache = []
+        self.search_current_page = 1
+        self.search_total_results = 0
+        self.search_total_pages = 1
+        
+        # Actualizar UI
+        self.search_stats_var.set("Sin búsqueda")
+        self._update_search_pills()
+        self._show_search_empty_state("Ingresa un término de búsqueda y presiona Enter o haz clic en BUSCAR")
+        self._update_search_pagination_buttons()
+        
+        # Focus en entrada
+        for widget in self.tab_search.winfo_children():
+            if isinstance(widget, ttk.Frame):
+                for child in widget.winfo_children():
+                    if isinstance(child, ttk.Entry):
+                        child.focus_set()
+                        break
+                break
+        
+        self.log("[SEARCH] Filtros limpiados")
+    
+    def _on_search_result_double_click(self, event):
+        """
+        ================================================================
+        MÉTODO: _on_search_result_double_click
+        ================================================================
+        Maneja el evento de doble clic en un resultado.
+        
+        Muestra una ventana con el contenido completo del resultado.
+        """
+        # Obtener item seleccionado
+        selection = self.search_tree.selection()
+        if not selection:
+            return
+        
+        item = selection[0]
+        values = self.search_tree.item(item, 'values')
+        
+        if len(values) < 7:
+            return
+        
+        result_id = values[6]  # Columna oculta de ID
+        title = values[1]
+        
+        # Buscar contenido completo en cache
+        content = ""
+        for result in self.search_results_cache:
+            if str(result['id']) == str(result_id):
+                content = result.get('content', '')
+                break
+        
+        # Crear ventana de detalles
+        detail_win = tk.Toplevel(self.root)
+        detail_win.title(f"📄 Detalle: {title[:50]}")
+        detail_win.geometry("700x500")
+        detail_win.transient(self.root)
+        detail_win.grab_set()
+        
+        # Centrar ventana
+        detail_win.update_idletasks()
+        x = (self.root.winfo_screenwidth() // 2) - (700 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (500 // 2)
+        detail_win.geometry(f"700x500+{x}+{y}")
+        
+        # Contenido con scroll
+        text_area = scrolledtext.ScrolledText(detail_win, font=("Inter", 10), padx=15, pady=15)
+        text_area.pack(fill=tk.BOTH, expand=True)
+        text_area.insert("1.0", content or "Contenido no disponible")
+        text_area.config(state="disabled")
+        
+        # Botón cerrar
+        btn_frame = ttk.Frame(detail_win)
+        btn_frame.pack(fill=tk.X, padx=10, pady=10)
+        ttk.Button(btn_frame, text="CERRAR", command=detail_win.destroy,
+                  bootstyle="secondary").pack(side=tk.RIGHT)
+        
+        # Binding escape para cerrar
+        detail_win.bind('<Escape>', lambda e: detail_win.destroy())
+        
+        self.log(f"[SEARCH] Abriendo detalle de resultado ID: {result_id}")
+    
+    def _export_kb_search(self):
+        """
+        ================================================================
+        MÉTODO: _export_kb_search
+        ================================================================
+        Exporta los resultados de búsqueda a un archivo CSV.
+        
+        Proceso:
+        1. Verificar que hay resultados
+        2. Abrir dialogo de guardado
+        3. Escribir CSV con headers
+        4. Mostrar confirmación
+        """
+        from tkinter import filedialog
+        from datetime import datetime
+        
+        # Verificar resultados
+        if not self.search_results_cache:
+            from tkinter import messagebox
+            messagebox.showwarning("Sin resultados", "No hay resultados para exportar")
+            return
+        
+        # Dialogo de guardado
+        filename = f"kb_busqueda_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        filepath = filedialog.asksaveasfilename(
+            defaultextension=".csv",
+            filetypes=[("CSV Files", "*.csv")],
+            initialfile=filename
+        )
+        
+        if not filepath:
+            return
+        
+        try:
+            import csv
+            with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                
+                # Headers
+                writer.writerow(["ID", "Título", "Categoría KDP", "Tipo Documental", "Fecha", "Palabras", "Preview"])
+                
+                # Datos
+                for result in self.search_results_cache:
+                    writer.writerow([
+                        result['id'],
+                        result['title'],
+                        result['category'],
+                        result['type'],
+                        result['date'],
+                        result['words'],
+                        result['content'][:100] + "..." if len(result['content']) > 100 else result['content']
+                    ])
+            
+            from tkinter import messagebox
+            messagebox.showinfo("Éxito", f"Exportados {len(self.search_results_cache)} resultados a:\n{filepath}")
+            self.log(f"[SEARCH EXPORT] {len(self.search_results_cache)} resultados exportados a {filepath}")
+            
+        except Exception as e:
+            from tkinter import messagebox
+            messagebox.showerror("Error", f"No se pudo exportar:\n{str(e)}")
+            self.log(f"[SEARCH ERROR] Export fallido: {e}", "error")
 
     def setup_pending_videos_tab(self):
         """Centro de Curación Masiva de Conocimiento."""

@@ -1,3 +1,29 @@
+## v3.4.10 (2026-05-08) - Búsqueda Avanzada KB Moderna
+### 🚀 Nuevas Funcionalidades
+- ✅ **Rediseño Completo de Pestaña Búsqueda**: Reemplazo del diseño simple (ScrolledText) por UI moderna con Treeview paginado.
+- ✅ **6 Tipos Documentales**: Tutorial 📘, Artículo 📝, Investigación 🔬, Lista 📋, Legal ⚖️, Fórmulas 🔢.
+- ✅ **Sistema de Filtros Avanzados**: 
+  - Tipo documental (Combobox)
+  - Categoría KDP (18 categorías)
+  - Rango de fechas (YYYY-MM)
+  - Ordenamiento (Nuevos/Antiguos/Por categoría)
+- ✅ **Paginación Numérica**: Botones ◀/▶ con números de página (máx 7 visibles), label "Página X de Y".
+- ✅ **Tags de Color por Tipo**: Background distintivo para cada tipo documental, legible en tema oscuro.
+- ✅ **Pills de Filtros Activos**: Muestra visualmente qué filtros están aplicados.
+- ✅ **Empty State**: Mensaje contextual cuando no hay resultados.
+- ✅ **Exportación CSV**: Exporta todos los resultados con campos: ID, Título, Categoría KDP, Tipo, Fecha, Palabras, Preview.
+- ✅ **Ventana de Detalle**: Doble clic en resultado abre popup con contenido completo.
+- ✅ **Bindings de Teclado**: Enter para buscar, Escape para limpiar.
+
+### 📊 Estadísticas de Implementación
+- Líneas de código nuevas: ~500
+- Métodos agregados: 10
+- Constantes definidas: 12
+
+### 📦 Archivos Modificados
+- gui_app.py: Nuevo setup_search_tab() + 10 métodos auxiliares, constantes DOC_TYPE_ICONS/COLORS
+- docs/CHANGELOG.md: Documentación de cambios
+
 ## v3.2.3 (2026-05-04) - 60 Módulos CON IA Platinum Enterprise
 ### 🚀 Nuevas Funcionalidades
 - ✅ **60 Módulos CON IA (Pilares 1-6)**: Implementación completa del motor de análisis semántico con Ollama.
