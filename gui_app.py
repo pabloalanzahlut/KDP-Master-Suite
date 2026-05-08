@@ -440,6 +440,14 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self.root.state('normal')
         
         self.current_theme = "cosmo" # Bootstrap theme por defecto
+        self.analyze_tab_loaded = False
+        self.search_tab_loaded = False
+        self.channel_monitor_tab_loaded = False
+        self.dashboard_tab_loaded = False
+        self.pending_tab_loaded = False
+        self.review_tab_loaded = False
+        self.settings_tab_loaded = False
+        self.schedule_tab_loaded = False
 
         self.style = ttk.Style() 
         self.configure_styles()
@@ -818,7 +826,8 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                 logging.error(f"ChannelMonitorService no disponible: {e}")
                 self._monitor_service = False
                 self._monitor_service_failed = True
-        self._monitor_service.session_id = self._generate_session_id() # Módulo 46: Asignar ID de sesión
+        if self._monitor_service is not False and self._monitor_service:
+            self._monitor_service.session_id = self._generate_session_id() # Módulo 46: Asignar ID de sesión
         return self._monitor_service if self._monitor_service is not False else None
 
     # ==================== FIN MÓDULO: MONITOR SERVICE PROPERTY ====================
@@ -2947,6 +2956,23 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                     self.integrator = None
             
             self.log("🔄 Servicios en background completados")
+            
+            self.root.after(100, lambda: setattr(self, 'analyze_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'search_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'channel_monitor_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'dashboard_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'pending_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'review_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'settings_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'schedule_tab_loaded', True))
+            self.root.after(300, self.setup_analyze_tab)
+            self.root.after(350, self.setup_search_tab)
+            self.root.after(400, self.setup_channel_monitor_tab)
+            self.root.after(450, self.setup_dashboard_tab)
+            self.root.after(500, self.setup_pending_videos_tab)
+            self.root.after(550, self.setup_review_tab)
+            self.root.after(600, self.setup_settings_tab)
+            self.root.after(650, self.setup_schedule_tab)
         except Exception as e:
             self.log(f"❌ Error en servicios background: {e}", "error")
     
@@ -3369,11 +3395,24 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         process_tab.setup_process_tab(self)
 
     def setup_analyze_tab(self):
+        if not hasattr(self, 'analyze_tab_loaded') or not self.analyze_tab_loaded:
+            for widget in self.tab_analyze.winfo_children():
+                widget.destroy()
+
+            ttk.Label(self.tab_analyze, text="⏳ Cargando módulos de Inteligencia IA...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_analyze_tab)
+            return
+        
         if not self.integrator:
-            ttk.Label(self.tab_analyze, text="❌ Módulo 'integrate_knowledge' no encontrado.", foreground="#ef4444", font=("Inter", 12, "bold")).pack(pady=40)
+            ttk.Label(self.tab_analyze, text="⚠️ Módulo Integrador no disponible.\nVerificando nuevamente...", 
+                     foreground="#f59e0b", font=("Inter", 11)).pack(pady=40)
+            self.root.after(1000, self.setup_analyze_tab)
             return
 
-        # Encabezado de Pestaña
+        for widget in self.tab_analyze.winfo_children():
+            widget.destroy()
+            
         header = ttk.Frame(self.tab_analyze)
         header.pack(fill=tk.X, pady=10)
         ttk.Label(header, text="🧠 Centro de Inteligencia SynthLearn", style="Header.TLabel").pack(side=tk.LEFT)
@@ -3382,11 +3421,11 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         btn_frame = ttk.Frame(self.tab_analyze)
         btn_frame.pack(fill=tk.X, pady=10)
         
-        intel_btn = ttk.Button(btn_frame, text="🧠 Integrar Todo el Conocimiento", command=self.run_analysis, bootstyle="primary")
-        intel_btn.pack(side=tk.LEFT, padx=5)
+        intel_btn = ttk.Button(btn_frame, text="🧠 Integrar Conocimiento", command=self.run_analysis, bootstyle="primary")
+        intel_btn.pack(side=tk.LEFT, padx=5, pady=5)
         
         if KBExporter:
-            html_btn = ttk.Button(btn_frame, text="🌐 Exportar Índice Web Navegable", command=self.generate_html, bootstyle="success")
+            html_btn = ttk.Button(btn_frame, text="🌐 Exportar Índice Web", command=self.generate_html, bootstyle="success")
             html_btn.pack(side=tk.LEFT, padx=5, ipady=5)
             ToolTip(html_btn, "Genera una interfaz HTML para navegar por la base de conocimiento")
 
@@ -3400,8 +3439,19 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self.analysis_text.pack(fill=tk.BOTH, expand=True)
 
     def setup_search_tab(self):
-        # Header y Herramientas de Búsqueda
-        search_main = ttk.Frame(self.tab_search, )
+        if not hasattr(self, 'search_tab_loaded') or not self.search_tab_loaded:
+            for widget in self.tab_search.winfo_children():
+                widget.destroy()
+
+            ttk.Label(self.tab_search, text="⏳ Cargando módulo de búsqueda...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_search_tab)
+            return
+        
+        if len(self.tab_search.winfo_children()) > 0:
+            return
+
+        search_main = ttk.Frame(self.tab_search)
         search_main.pack(fill=tk.BOTH, expand=True)
 
         control_frame = ttk.Frame(search_main)
@@ -3413,24 +3463,37 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
         entry.bind('<Return>', lambda e: self.run_search())
         
-        search_btn = ttk.Button(control_frame, text="🔍 EJECUTAR BÚSQUEDA", command=self.run_search, bootstyle="primary")
-        search_btn.pack(side=tk.LEFT, padx=10)
+        search_btn = ttk.Button(control_frame, text="🔍 BUSCAR", command=self.run_search, bootstyle="primary")
+        search_btn.pack(side=tk.LEFT, padx=10, pady=5)
+        ToolTip(search_btn, "Ejecutar búsqueda en base de conocimiento")
         
-        # Resultados con mejor presentación
-        results_frame = ttk.LabelFrame(search_main, text=" 📄 Fragmentos de Conocimiento Encontrados ", )
-        results_frame.pack(fill=tk.BOTH, expand=True)
+        results_frame = ttk.LabelFrame(search_main, text=" 📄 Resultados de Búsqueda ", )
+        results_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
         
-        self.search_results = scrolledtext.ScrolledText(results_frame, height=15, font=('Inter', 10),
-                                                        bg="#1e293b" if self.current_theme == "dark" else "white",
-                                                        fg="#f1f5f9" if self.current_theme == "dark" else "#1e293b",
-                                                        spacing1=5)
-        self.search_results.pack(fill=tk.BOTH, expand=True)
+        self.search_results = scrolledtext.ScrolledText(results_frame, height=15, font=('Consolas', 10),
+                                                        bg="#020617" if self.current_theme == "dark" else "white",
+                                                        fg="#34d399" if self.current_theme == "dark" else "#1e293b")
+        self.search_results.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        # Pie de página de búsqueda
+        help_frame = ttk.Frame(self.tab_search)
+        help_frame.pack(fill=tk.X, pady=5)
+        ttk.Label(help_frame, text="💡 Tip: Presiona Enter para buscar o usa el botón BUSCAR", 
+                 font=("Inter", 9), foreground="#64748b").pack(side=tk.LEFT)
 
     def setup_pending_videos_tab(self):
-        """[Módulos 1-10] Centro de Curación Masiva de Conocimiento."""
-        main = ttk.Frame(self.tab_pending_mass, )
+        """Centro de Curación Masiva de Conocimiento."""
+        if not hasattr(self, 'pending_tab_loaded') or not self.pending_tab_loaded:
+            for widget in self.tab_pending_mass.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_pending_mass, text="⏳ Cargando Videos Pendientes...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_pending_videos_tab)
+            return
+        
+        if len(self.tab_pending_mass.winfo_children()) > 0:
+            return
+        
+        main = ttk.Frame(self.tab_pending_mass)
         main.pack(fill=tk.BOTH, expand=True)
 
         # --- PANEL SUPERIOR: FILTROS Y BUSQUEDA (Módulos 7, 9) ---
@@ -3543,12 +3606,12 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         ttk.Button(header_btn_container, text="🔄 Sincronizar DB", command=self.load_pending_videos, bootstyle="warning").pack(pady=2)
 
         # --- CUERPO: TREEVIEW VIRTUALIZADO + PREVIEW (Módulos 1, 3, 4, 8) ---
-        body_paned = ttk.PanedWindow(main, orient=tk.HORIZONTAL)
+        body_paned = tk.PanedWindow(main, orient=tk.HORIZONTAL)
         body_paned.pack(fill=tk.BOTH, expand=True)
 
         # Panel Izquierdo: Lista de Videos
         list_container = ttk.Frame(body_paned)
-        body_paned.add(list_container, weight=4)
+        body_paned.add(list_container)
 
         cols = ("id", "title", "channel", "duration", "date", "status")
         self.pending_tree = ttk.Treeview(list_container, columns=cols, show="headings", height=18)
@@ -3585,7 +3648,7 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
 
         # Panel Derecho: Vista Previa (Módulo 4: Cache de Miniaturas)
         self.pending_preview_frame = ttk.LabelFrame(body_paned, text=" 👁️ Vista Previa (Módulo 4) ", )
-        body_paned.add(self.pending_preview_frame, weight=1)
+        body_paned.add(self.pending_preview_frame)
 
         self.pending_thumb_lbl = ttk.Label(self.pending_preview_frame, text="Selecciona un video\npara ver miniatura", 
                                          anchor="center", justify=tk.CENTER)
@@ -3621,11 +3684,22 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
 
     def setup_review_tab(self):
         """Configura la pestaña de Cola de Revisión Humana."""
-        if not review_tab:
-            ttk.Label(self.tab_review, text="❌ Módulo 'review_tab' no encontrado.", foreground="#ef4444", font=("Inter", 12, "bold")).pack(pady=40)
+        if not hasattr(self, 'review_tab_loaded') or not self.review_tab_loaded:
+            for widget in self.tab_review.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_review, text="⏳ Cargando Cola de Revisión...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_review_tab)
             return
         
-        # Assuming review_tab has a setup_review_tab method similar to other tabs
+        if len(self.tab_review.winfo_children()) > 0:
+            return
+        
+        if not review_tab:
+            ttk.Label(self.tab_review, text="⚠️ Módulo de revisión no disponible.", 
+                     foreground="#f59e0b", font=("Inter", 11)).pack(pady=40)
+            return
+        
         review_tab.setup_review_tab(self)
 
     def on_pending_video_select(self, event):
@@ -4774,12 +4848,20 @@ Descripción: {video.get('description', '')[:800]}
     # ===== MÉTODOS DEL MONITOR DE CANALES =====
     
     def setup_channel_monitor_tab(self):
-        """
-        Configura la pestaña de Monitor de Canales con principios UI/UX de Canva/Figma
-        """
-        # Contenedor principal
+        """Configura la pestaña de Monitor de Canales."""
+        if not hasattr(self, 'channel_monitor_tab_loaded') or not self.channel_monitor_tab_loaded:
+            for widget in self.tab_channel_monitor.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_channel_monitor, text="⏳ Cargando Monitor de Canales...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_channel_monitor_tab)
+            return
+        
+        if len(self.tab_channel_monitor.winfo_children()) > 0:
+            return
+        
         main_container = ttk.Frame(self.tab_channel_monitor)
-        main_container.pack(fill=tk.BOTH, expand=True, )
+        main_container.pack(fill=tk.BOTH, expand=True)
         
         # ===== HEADER CON ESTADÍSTICAS =====
         stats_frame = ttk.Frame(main_container)
@@ -4875,12 +4957,12 @@ Descripción: {video.get('description', '')[:800]}
                   bootstyle="success").pack(side=tk.LEFT, padx=(10, 0))
         
         # ===== PANEL DIVIDIDO: LISTA + CONTROLES =====
-        paned = ttk.PanedWindow(main_container, orient=tk.HORIZONTAL)
+        paned = tk.PanedWindow(main_container, orient=tk.HORIZONTAL)
         paned.pack(fill=tk.BOTH, expand=True)
         
         # Panel izquierdo: Lista de canales
         left_panel = ttk.Frame(paned)
-        paned.add(left_panel, weight=3)
+        paned.add(left_panel)
         
         list_frame = ttk.LabelFrame(left_panel, text=" 📋 Canales Monitoreados ", )
         list_frame.pack(fill=tk.BOTH, expand=True)
@@ -4926,7 +5008,7 @@ Descripción: {video.get('description', '')[:800]}
         
         # Panel derecho: Controles y logs
         right_panel = ttk.Frame(paned, padding=(10, 0, 0, 0))
-        paned.add(right_panel, weight=1)
+        paned.add(right_panel)
         
         # Controles de monitoreo
         control_frame = ttk.LabelFrame(right_panel, text=" ⚙️ Control de Monitoreo ", )
@@ -5553,12 +5635,33 @@ Descripción: {video.get('description', '')[:800]}
     # ==================== FIN MÓDULO: SHOW_MONITOR_STATS (FIX-009) ====================
 
     def setup_schedule_tab(self):
+        """Configura la pestaña de Programación Horaria."""
+        if not hasattr(self, 'schedule_tab_loaded') or not self.schedule_tab_loaded:
+            for widget in self.tab_schedule.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_schedule, text="⏳ Cargando Programación...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_schedule_tab)
+            return
+        
+        if len(self.tab_schedule.winfo_children()) > 0:
+            return
+        
         schedule_tab.setup_schedule_tab(self)
     
     def setup_settings_tab(self):
-        """
-        MÓDULO REFACTORIZADO: Configuración Robusta, Sin Typos, Validación de Keys y Layout Responsive.
-        """
+        """Configuración Robusta con Validación de Keys y Layout Responsive."""
+        if not hasattr(self, 'settings_tab_loaded') or not self.settings_tab_loaded:
+            for widget in self.tab_settings.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_settings, text="⏳ Cargando Configuración...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_settings_tab)
+            return
+        
+        if len(self.tab_settings.winfo_children()) > 0:
+            return
+        
         is_dark = self.current_theme in ["darkly", "cyborg", "dark"]
         card_bg = "#1e293b" if is_dark else "#ffffff"
         border_color = "#334155" if is_dark else "#e2e8f0"
@@ -5632,7 +5735,7 @@ Descripción: {video.get('description', '')[:800]}
         google_entry = ttk.Entry(api_card, textvariable=self.google_api_var, show="•", width=30)
         google_entry.grid(row=0, column=1, sticky=tk.W, padx=10)
         google_entry.insert(0, self.settings.get("google_video_ai_key", ""))
-        google_entry.config(validate="focusout", validatecommand=(self.register(self._validate_api_key), "%P"))
+        google_entry.config(validate="focusout", validatecommand=(self.root.register(self._validate_api_key), "%P"))
         ttk.Label(api_card, text="Ej: AIzaSy...", font=("Segoe UI", 8), foreground=muted_fg).grid(row=1, column=1, sticky=tk.W, padx=10)
         
         ttk.Label(api_card, text="AWS Rekognition Key", font=("Segoe UI", 9, "bold")).grid(row=2, column=0, sticky=tk.W, pady=10)
@@ -5640,7 +5743,7 @@ Descripción: {video.get('description', '')[:800]}
         aws_entry = ttk.Entry(api_card, textvariable=self.aws_api_var, show="•", width=30)
         aws_entry.grid(row=2, column=1, sticky=tk.W, padx=10)
         aws_entry.insert(0, self.settings.get("aws_rekognition_key", ""))
-        aws_entry.config(validate="focusout", validatecommand=(self.register(self._validate_api_key), "%P"))
+        aws_entry.config(validate="focusout", validatecommand=(self.root.register(self._validate_api_key), "%P"))
         ttk.Label(api_card, text="Ej: AKIA...", font=("Segoe UI", 8), foreground=muted_fg).grid(row=3, column=1, sticky=tk.W, padx=10)
 
         # === TARJETA 4: MONITOREO AVANZADO ===
@@ -8167,7 +8270,6 @@ Descripción: {video.get('description', '')[:800]}
     
     def apply_specific_theme(self, theme_name):
         """Aplica un tema Bootstrap específico con soporte multi-theme."""
-        # Si es el tema custom Teal, usamos 'darkly' como base y aplicamos overrides
         is_custom_teal = theme_name == "teal_dark"
         base_theme = "darkly" if is_custom_teal else theme_name
 
@@ -8178,15 +8280,17 @@ Descripción: {video.get('description', '')[:800]}
         
         try:
             self.current_theme = theme_name
-            self.root.theme_use(base_theme)
-            self.configure_styles() # Re-aplicar overrides personalizados (Teal y Nav)
+            # CORREGIDO: Usar método correcto para ttkbootstrap
+            self.root.tk.call("ttk::style", "theme", "use", base_theme)
+            self.configure_styles()
             self.save_theme_preference(theme_name)
             self.log(f"🎨 Tema aplicado: {theme_name}")
         except Exception as e:
             self.logger.error(f"Error aplicando tema {theme_name}: {e}")
-            # Fallback a darkly
-            self.current_theme = "darkly"
-            self.root.theme_use("darkly")
+            try:
+                self.root.tk.call("ttk::style", "theme", "use", "darkly")
+            except:
+                pass
 
     def _create_nav_buttons(self):
         """Crea los botones de la barra lateral mapeados a las pestañas."""
@@ -8516,7 +8620,18 @@ Descripción: {video.get('description', '')[:800]}
     
     def setup_dashboard_tab(self):
         """Configura la pestaña de Dashboard Web."""
-        frame = ttk.Frame(self.tab_dashboard, )
+        if not hasattr(self, 'dashboard_tab_loaded') or not self.dashboard_tab_loaded:
+            for widget in self.tab_dashboard.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_dashboard, text="⏳ Cargando Dashboard...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_dashboard_tab)
+            return
+        
+        if len(self.tab_dashboard.winfo_children()) > 0:
+            return
+        
+        frame = ttk.Frame(self.tab_dashboard)
         frame.pack(fill=tk.BOTH, expand=True)
         
         # Header
