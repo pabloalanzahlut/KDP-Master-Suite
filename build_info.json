@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-08T11:51:00.000000",
+  "timestamp": "2026-05-08T12:25:39.259006",
   "python_version": "3.11.9",
   "steps": [
     {
@@ -11,12 +11,19 @@
     {
       "type": "exe",
       "path": "dist\\KDP_Master_Suite_v3.4.7\\KDP_Master_Suite_v3.4.7.exe",
-      "size_bytes": 37000000,
-      "size_mb": 35.3,
-      "sha256": "updated"
+      "size_bytes": 38397208,
+      "size_mb": 36.62,
+      "sha256": "4223f703bbe67b4c05c3abdcb2e23d0afb39bf13c693634318bb185a27da8586"
+    },
+    {
+      "type": "exe",
+      "path": "dist\\KDP_Transcriptions\\KDP_Transcriptions.exe",
+      "size_bytes": 37880645,
+      "size_mb": 36.13,
+      "sha256": "102bc534c17adfe65ce2e5aa868a2e6d29d5f2d729d978c343042d687ede7cee"
     }
   ],
   "status": "SUCCESS",
-  "main_exe": "dist\\KDP_Master_Suite_v3.4.7\\KDP_Master_Suite_v3.4.7.exe",
-  "version": "3.4.9"
+  "main_exe": "dist\\KDP_Transcriptions\\KDP_Transcriptions.exe",
+  "version": "3.4.10"
 }
