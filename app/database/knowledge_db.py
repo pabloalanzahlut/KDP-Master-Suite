@@ -2,12 +2,13 @@
 KDP MASTER - Knowledge Base Database Manager
 =============================================
 Gestiona la persistencia de entradas de conocimiento en knowledge_base.db.
-Soporta dual-write: archivos markdown + SQLite.
+Soporta dual-write: archivos markdown + SQLite + FTS5.
 """
 
 import sqlite3
 import os
 import sys
+import json
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple
@@ -45,7 +46,7 @@ class KnowledgeDBManager:
         return conn
 
     def init_database(self):
-        """Crea la tabla de conocimiento si no existe."""
+        """Crea la tabla de conocimiento si no existe con soporte para búsqueda avanzada."""
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -54,13 +55,26 @@ class KnowledgeDBManager:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     category TEXT NOT NULL,
                     source TEXT,
-                    content TEXT NOT NULL UNIQUE,
-                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                    content TEXT NOT NULL,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             """)
+            conn.commit()
+            self._migrate_schema(conn, cursor)
+            self._init_fts_table(conn, cursor)
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_kb_category ON knowledge_entries(category)")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_kb_source ON knowledge_entries(source)")
-            cursor.execute("CREATE INDEX IF NOT EXISTS idx_kb_content ON knowledge_entries(content)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_kb_timestamp ON knowledge_entries(timestamp)")
+            try:
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_kb_tipo ON knowledge_entries(tipo)")
+            except sqlite3.OperationalError:
+                pass
+            try:
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_kb_status ON knowledge_entries(status)")
+            except sqlite3.OperationalError:
+                pass
             conn.commit()
             logger.info("Knowledge base database initialized at %s", self.db_path)
         except Exception as e:
@@ -69,36 +83,100 @@ class KnowledgeDBManager:
             raise
         finally:
             conn.close()
+    
+    def _migrate_schema(self, conn, cursor):
+        """Migra el schema de la base de datos de forma no destructiva."""
+        try:
+            cursor.execute("PRAGMA table_info(knowledge_entries)")
+            columns = {row[1] for row in cursor.fetchall()}
+            new_columns = {
+                'tipo': 'TEXT DEFAULT "Artículo"',
+                'status': 'TEXT DEFAULT "Procesado"',
+                'estructura': 'TEXT',
+                'formato': 'TEXT',
+                'palabras': 'INTEGER DEFAULT 0',
+                'confidence_score': 'REAL DEFAULT 0.0',
+                'metadata_json': 'TEXT'
+            }
+            for col_name, col_def in new_columns.items():
+                if col_name not in columns:
+                    cursor.execute(f"ALTER TABLE knowledge_entries ADD COLUMN {col_name} {col_def}")
+            conn.commit()
+        except Exception as e:
+            logger.debug("Migración schema: %s", e)
+    
+    def _init_fts_table(self, conn, cursor):
+        """Inicializa la tabla virtual FTS5 para búsqueda full-text."""
+        try:
+            cursor.execute("""
+                CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_fts USING fts5(
+                    content, category, tipo, source, content_rowid='id'
+                )
+            """)
+            cursor.execute("""
+                CREATE TRIGGER IF NOT EXISTS knowledge_ai AFTER INSERT ON knowledge_entries BEGIN
+                    INSERT INTO knowledge_fts(rowid, content, category, tipo, source)
+                    VALUES (new.id, new.content, new.category, COALESCE(new.tipo, 'Artículo'), new.source);
+                END
+            """)
+            cursor.execute("""
+                CREATE TRIGGER IF NOT EXISTS knowledge_ad AFTER DELETE ON knowledge_entries BEGIN
+                    DELETE FROM knowledge_fts WHERE rowid = old.id;
+                END
+            """)
+            cursor.execute("""
+                CREATE TRIGGER IF NOT EXISTS knowledge_au AFTER UPDATE ON knowledge_entries BEGIN
+                    DELETE FROM knowledge_fts WHERE rowid = old.id;
+                    INSERT INTO knowledge_fts(rowid, content, category, tipo, source)
+                    VALUES (new.id, new.content, new.category, COALESCE(new.tipo, 'Artículo'), new.source);
+                END
+            """)
+            cursor.execute("DELETE FROM knowledge_fts")
+            cursor.execute("INSERT INTO knowledge_fts(rowid, content, category, tipo, source) SELECT id, content, category, COALESCE(tipo, 'Artículo'), source FROM knowledge_entries")
+            conn.commit()
+            logger.debug("FTS5 triggers inicializados")
+        except Exception as e:
+            logger.warning("FTS5 init: %s", e)
 
-    def insert_entry(self, category: str, source: str, content: str, timestamp: str = None, auto_export: bool = True) -> Tuple[bool, str]:
+    def insert_entry(self, category: str, source: str, content: str, timestamp: str = None, 
+                  auto_export: bool = True, tipo: str = "Artículo", status: str = "Procesado",
+                  estructura: str = None, formato: str = None, metadata: dict = None) -> Tuple[bool, str]:
         """
         Inserta una nueva entrada de conocimiento.
 
         Args:
-            category: Categor&iacute;a del conocimiento
+            category: Categoría del conocimiento
             source: Fuente del conocimiento
             content: Contenido del conocimiento
             timestamp: Timestamp opcional (default: ahora)
-            auto_export: Si True, regenera exports HTML despu&eacute;s de insertar
+            auto_export: Si True, regenera exports HTML después de insertar
+            tipo: Tipo de contenido (Tutorial, Artículo, Investigación, Lista, Legal, Fórmulas)
+            status: Estado (Procesado, Pendiente, Error)
+            estructura: Estructura del contenido
+            formato: Formato del contenido
+            metadata: Metadata adicional como dict
 
         Returns:
             Tuple (success, message)
         """
         if timestamp is None:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-
+        
+        palabras = len(content.split())
+        metadata_json = json.dumps(metadata, ensure_ascii=False) if metadata else None
+        confidence_score = self._calculate_confidence(content, estructura, formato)
+        
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
             cursor.execute("""
-                INSERT INTO knowledge_entries (category, source, content, timestamp)
-                VALUES (?, ?, ?, ?)
-            """, (category, source, content.strip(), timestamp))
+                INSERT INTO knowledge_entries (category, source, content, timestamp, tipo, status, estructura, formato, palabras, confidence_score, metadata_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (category, source, content.strip(), timestamp, tipo, status, estructura, formato, palabras, confidence_score, metadata_json))
             conn.commit()
             entry_id = cursor.lastrowid
             logger.debug("Knowledge entry inserted: %s from %s (ID: %d)", category, source, entry_id)
             
-            # Regeneraci&oacute;n autom&aacute;tica de exports si est&aacute; habilitado
             if auto_export:
                 self._trigger_auto_export()
             
@@ -112,6 +190,19 @@ class KnowledgeDBManager:
             return False, str(e)
         finally:
             conn.close()
+
+    def _calculate_confidence(self, content: str, estructura: str = None, formato: str = None) -> float:
+        """Calcula un score de confianza basado en la calidad del contenido."""
+        score = 0.5
+        if estructura:
+            score += 0.1
+        if formato:
+            score += 0.1
+        if len(content.split()) > 100:
+            score += 0.1
+        if any(kw in content.lower() for kw in ['procedimiento', 'instrucción', 'regla', 'protocolo']):
+            score += 0.1
+        return min(score, 1.0)
     
     def _trigger_auto_export(self):
         """Dispara regeneraci&oacute;n autom&aacute;tica de exports."""
@@ -154,6 +245,190 @@ class KnowledgeDBManager:
         except Exception as e:
             logger.error("Error searching knowledge entries: %s", e)
             return []
+        finally:
+            conn.close()
+    
+    def search_advanced(self, query: str = None, tipo: str = None, status: str = None,
+                        date_from: str = None, date_to: str = None, order: str = "newest",
+                        page: int = 1, page_size: int = 50) -> Dict:
+        """
+        Búsqueda avanzada con filtros y paginación.
+
+        Args:
+            query: Término de búsqueda
+            tipo: Tipo de contenido (Tutorial, Artículo, Investigación, Lista, Legal, Fórmulas)
+            status: Estado (Procesado, Pendiente, Error)
+            date_from: Fecha inicio (YYYY-MM)
+            date_to: Fecha fin (YYYY-MM)
+            order: Orden (newest, oldest)
+            page: Número de página
+            page_size: Resultados por página
+
+        Returns:
+            Dict con 'results', 'total', 'page', 'pages', 'elapsed_ms'
+        """
+        import time
+        start_time = time.time()
+        
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            conditions = []
+            params = []
+            
+            if query and query.strip():
+                conditions.append("content LIKE ?")
+                params.append(f'%{query.strip()}%')
+            
+            if tipo and tipo != "Todos":
+                conditions.append("tipo = ?")
+                params.append(tipo)
+            
+            if status and status != "Todos":
+                conditions.append("status = ?")
+                params.append(status)
+            
+            if date_from:
+                conditions.append("timestamp >= ?")
+                params.append(f"{date_from}-01")
+            
+            if date_to:
+                conditions.append("timestamp <= ?")
+                params.append(f"{date_to}-31")
+            
+            where_clause = " AND ".join(conditions) if conditions else "1=1"
+            
+            order_clause = "timestamp DESC" if order == "newest" else "timestamp ASC"
+            
+            count_query = f"SELECT COUNT(*) FROM knowledge_entries WHERE {where_clause}"
+            cursor.execute(count_query, params)
+            total = cursor.fetchone()[0]
+            
+            offset = (page - 1) * page_size
+            data_query = f"""
+                SELECT id, category, source, tipo, status, estructura, formato, 
+                       palabras, confidence_score, timestamp, 
+                       substr(content, 1, 200) as content_preview
+                FROM knowledge_entries 
+                WHERE {where_clause}
+                ORDER BY {order_clause}
+                LIMIT {page_size} OFFSET {offset}
+            """
+            cursor.execute(data_query, params)
+            rows = [dict(row) for row in cursor.fetchall()]
+            
+            elapsed_ms = (time.time() - start_time) * 1000
+            pages = (total + page_size - 1) // page_size if total > 0 else 1
+            
+            return {
+                'results': rows,
+                'total': total,
+                'page': page,
+                'pages': pages,
+                'elapsed_ms': elapsed_ms
+            }
+        except Exception as e:
+            logger.error("Error en búsqueda avanzada: %s", e)
+            return {'results': [], 'total': 0, 'page': 1, 'pages': 1, 'elapsed_ms': 0}
+        finally:
+            conn.close()
+    
+    def search_fts(self, query: str, limit: int = 50) -> List[Dict]:
+        """
+        Búsqueda full-text usando FTS5.
+
+        Args:
+            query: Término de búsqueda
+            limit: Límite de resultados
+
+        Returns:
+            Lista de diccionarios con resultados
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("""
+                SELECT k.id, k.category, k.source, k.tipo, k.status, k.timestamp,
+                       snippet(knowledge_fts, 0, '<mark>', '</mark>', '...', 30) as snippet
+                FROM knowledge_fts f
+                JOIN knowledge_entries k ON f.rowid = k.id
+                WHERE knowledge_fts MATCH ?
+                ORDER BY rank
+                LIMIT ?
+            """, (query, limit))
+            return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            logger.error("Error en búsqueda FTS5: %s", e)
+            return []
+        finally:
+            conn.close()
+    
+    def get_tipos(self) -> List[str]:
+        """Obtiene todos los tipos únicos."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT DISTINCT tipo FROM knowledge_entries WHERE tipo IS NOT NULL ORDER BY tipo")
+            return [row['tipo'] for row in cursor.fetchall()]
+        except Exception as e:
+            logger.error("Error getting tipos: %s", e)
+            return []
+        finally:
+            conn.close()
+    
+    def get_status_list(self) -> List[str]:
+        """Obtiene todos los estados únicos."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("SELECT DISTINCT status FROM knowledge_entries WHERE status IS NOT NULL ORDER BY status")
+            return [row['status'] for row in cursor.fetchall()]
+        except Exception as e:
+            logger.error("Error getting status: %s", e)
+            return []
+        finally:
+            conn.close()
+    
+    def update_entry_status(self, entry_id: int, status: str) -> bool:
+        """Actualiza el estado de una entrada."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("UPDATE knowledge_entries SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (status, entry_id))
+            conn.commit()
+            return cursor.rowcount > 0
+        except Exception as e:
+            logger.error("Error updating status: %s", e)
+            conn.rollback()
+            return False
+        finally:
+            conn.close()
+    
+    def rebuild_fts_index(self) -> Tuple[int, float]:
+        """Reconstruye el índice FTS5 desde la tabla principal."""
+        import time
+        start_time = time.time()
+        
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("DELETE FROM knowledge_fts")
+            cursor.execute("""
+                INSERT INTO knowledge_fts(rowid, content, category, tipo, source)
+                SELECT id, content, category, tipo, source FROM knowledge_entries
+            """)
+            conn.commit()
+            count = cursor.rowcount
+            elapsed = (time.time() - start_time) * 1000
+            logger.info("FTS5 index rebuilt: %d entries in %.0fms", count, elapsed)
+            return count, elapsed
+        except Exception as e:
+            logger.error("Error rebuilding FTS5: %s", e)
+            conn.rollback()
+            return 0, 0
         finally:
             conn.close()
 
@@ -221,14 +496,136 @@ class KnowledgeDBManager:
             conn.close()
 
     def get_categories(self) -> List[str]:
-        """Obtiene todas las categor&iacute;as &uacute;nicas presentes en la DB."""
+        """Obtiene todas las categorías únicas."""
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
-            cursor.execute("SELECT DISTINCT category FROM knowledge_entries ORDER BY category")
+            cursor.execute("SELECT DISTINCT category FROM knowledge_entries WHERE category IS NOT NULL ORDER BY category")
             return [row['category'] for row in cursor.fetchall()]
         except Exception as e:
             logger.error("Error getting categories: %s", e)
+            return []
+        finally:
+            conn.close()
+    
+    def search_entries(self, query: str = None, filters: dict = None, page: int = 1, 
+                       page_size: int = 20, order_by: str = "timestamp DESC") -> Dict:
+        """
+        Alias para compatibilidad con enhanced search tab.
+        
+        Args:
+            query: Término de búsqueda
+            filters: dict con 'type', 'category', 'date_from', 'date_to'
+            page: Número de página
+            page_size: Resultados por página
+            order_by: Orden SQL
+        
+        Returns:
+            dict con 'entries', 'total', 'pages', 'elapsed_ms'
+        """
+        tipo = filters.get('type') if filters else None
+        category = filters.get('category') if filters else None
+        date_from = filters.get('date_from') if filters else None
+        date_to = filters.get('date_to') if filters else None
+        
+        order = "newest" if "DESC" in order_by.upper() else "oldest"
+        
+        result = self.search_advanced(
+            query=query,
+            tipo=tipo,
+            status=None,
+            date_from=date_from,
+            date_to=date_to,
+            order=order,
+            page=page,
+            page_size=page_size
+        )
+        
+        entries = []
+        for row in result.get('results', []):
+            entries.append({
+                'id': row.get('id'),
+                'source': row.get('source'),
+                'category': row.get('category'),
+                'type': row.get('tipo'),
+                'content': row.get('content_preview', ''),
+                'timestamp': row.get('timestamp'),
+                'palabras': row.get('palabras', 0),
+                'confidence_score': row.get('confidence_score', 0)
+            })
+        
+        return {
+            'entries': entries,
+            'total': result.get('total', 0),
+            'pages': result.get('pages', 1),
+            'elapsed_ms': result.get('elapsed_ms', 0)
+        }
+    
+    def get_entries_filtered(self, filters: dict = None, order_by: str = "timestamp DESC", 
+                             limit: int = 1000) -> Dict:
+        """
+        Listar entradas con filtros sin búsqueda de texto.
+        
+        Args:
+            filters: dict con 'type', 'category', 'date_from', 'date_to'
+            order_by: Orden SQL
+            limit: Máximo de resultados
+        
+        Returns:
+            dict con 'entries', 'total'
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            conditions = []
+            params = []
+            
+            if filters:
+                if filters.get('type') and filters['type'] != "Todos":
+                    conditions.append("tipo = ?")
+                    params.append(filters['type'])
+                if filters.get('category') and filters['category'] != "Todos":
+                    conditions.append("category = ?")
+                    params.append(filters['category'])
+                if filters.get('date_from'):
+                    conditions.append("timestamp >= ?")
+                    params.append(filters['date_from'])
+                if filters.get('date_to'):
+                    conditions.append("timestamp <= ?")
+                    params.append(filters['date_to'])
+            
+            where_clause = " AND ".join(conditions) if conditions else "1=1"
+            
+            cursor.execute(f"SELECT COUNT(*) FROM knowledge_entries WHERE {where_clause}", params)
+            total = cursor.fetchone()[0]
+            
+            cursor.execute(f"""
+                SELECT id, source, category, tipo, content, timestamp, palabras, confidence_score
+                FROM knowledge_entries 
+                WHERE {where_clause}
+                ORDER BY {order_by}
+                LIMIT ?
+            """, params + [limit])
+            
+            entries = [dict(row) for row in cursor.fetchall()]
+            
+            return {'entries': entries, 'total': total}
+        except Exception as e:
+            logger.error("Error en get_entries_filtered: %s", e)
+            return {'entries': [], 'total': 0}
+        finally:
+            conn.close()
+    
+    def query_raw(self, sql: str, params: tuple = ()) -> List:
+        """Ejecuta query SQL raw y retorna resultados."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(sql, params)
+            return cursor.fetchall()
+        except Exception as e:
+            logger.error("Error query_raw: %s", e)
             return []
         finally:
             conn.close()
