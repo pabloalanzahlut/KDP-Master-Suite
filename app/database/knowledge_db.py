@@ -780,3 +780,299 @@ class KnowledgeDBManager:
     def close(self):
         """Cierra conexiones activas (no necesario con SQLite por conexi&oacute;n ef&iacute;mera, pero por consistencia de API)."""
         pass
+    
+    # ================================================================
+    # FASE 1: INFRAESTRUCTURA CORE (Módulos 1-15)
+    # ================================================================
+    
+    def normalize_query(self, query: str) -> str:
+        """
+        MÓDULO 4: Normalización Unicode (Fold Accents)
+        Normaliza la búsqueda ignorando tildes y caracteres especiales.
+        """
+        import unicodedata
+        if not query:
+            return query
+        normalized = unicodedata.normalize('NFD', query)
+        return ''.join(c for c in normalized if not unicodedata.combining(c))
+    
+    def search_bm25(self, query: str, limit: int = 50, filters: dict = None) -> Dict:
+        """
+        MÓDULO 16: Ranking BM25
+        Implementa el algoritmo BM25 para ordenar resultados por relevancia.
+        """
+        import time
+        start_time = time.time()
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("SELECT COUNT(*) FROM knowledge_entries")
+            N = cursor.fetchone()[0]
+            cursor.execute("SELECT AVG(palabras) FROM knowledge_entries WHERE palabras > 0")
+            avg_len = cursor.fetchone()[0] or 1000
+            
+            k1, b = 1.5, 0.75
+            query_terms = query.split()
+            
+            conditions = ["content LIKE ?"]
+            params = [f'%{term}%' for term in query_terms]
+            
+            if filters:
+                if filters.get('tipo') and filters['tipo'] != "Todos":
+                    conditions.append("tipo = ?")
+                    params.append(filters['tipo'])
+                if filters.get('category') and filters['category'] != "Todos":
+                    conditions.append("category = ?")
+                    params.append(filters['category'])
+            
+            cursor.execute(f"""
+                SELECT id, category, source, tipo, content, palabras, timestamp,
+                       substr(content, 1, 200) as content_preview
+                FROM knowledge_entries
+                WHERE {' AND '.join(conditions)}
+                LIMIT ?
+            """, params + [limit * 3])
+            
+            results = []
+            for row in cursor.fetchall():
+                doc_len = row[5] or avg_len
+                content_lower = (row[4] or "").lower()
+                
+                score = 0.0
+                for term in query_terms:
+                    tf = content_lower.count(term.lower())
+                    if tf > 0:
+                        cursor.execute("SELECT COUNT(*) FROM knowledge_entries WHERE content LIKE ?", (f'%{term.lower()}%',))
+                        ni = cursor.fetchone()[0] or 1
+                        idf = max(0, (N - ni + 0.5) / (ni + 0.5))
+                        tf_norm = (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * (doc_len / avg_len)))
+                        score += idf * tf_norm
+                
+                results.append({
+                    'id': row[0], 'category': row[1], 'source': row[2], 'tipo': row[3],
+                    'content_preview': row[7], 'timestamp': row[6], 'bm25_score': score
+                })
+            
+            results.sort(key=lambda x: x['bm25_score'], reverse=True)
+            return {'results': results[:limit], 'total': len(results[:limit]), 
+                    'elapsed_ms': (time.time() - start_time) * 1000, 'algorithm': 'BM25'}
+        except Exception as e:
+            logger.error("Error BM25: %s", e)
+            return {'results': [], 'total': 0, 'elapsed_ms': 0}
+        finally:
+            conn.close()
+    
+    def search_with_proximity(self, query: str, distance: int = 10, limit: int = 50) -> Dict:
+        """
+        MÓDULO 19: Búsqueda por Proximidad (NEAR)
+        """
+        import time
+        start_time = time.time()
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            terms = query.split()
+            if len(terms) < 2:
+                return self.search_advanced(query=query, page_size=limit)
+            
+            conditions, params = [], []
+            for i in range(len(terms) - 1):
+                conditions.append("LOWER(content) LIKE ? AND LOWER(content) LIKE ?")
+                params.extend([f'%{terms[i].lower()}%', f'%{terms[i+1].lower()}%'])
+            
+            cursor.execute(f"""
+                SELECT id, category, source, tipo, content, timestamp, substr(content, 1, 200) as content_preview
+                FROM knowledge_entries
+                WHERE {' AND '.join(conditions)}
+                LIMIT ?
+            """, params + [limit])
+            
+            return {'results': [dict(row) for row in cursor.fetchall()], 'total': len(cursor.fetchall()),
+                    'elapsed_ms': (time.time() - start_time) * 1000}
+        except Exception as e:
+            logger.error("Error proximidad: %s", e)
+            return {'results': [], 'total': 0}
+        finally:
+            conn.close()
+    
+    def get_term_frequency(self, term: str) -> Dict:
+        """
+        MÓDULO 12: Contador de Frecuencia de Términos
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM knowledge_entries
+                WHERE LOWER(content) LIKE LOWER(?)
+            """, (f'%{term}%',))
+            return {'term': term, 'documents_count': cursor.fetchone()[0]}
+        finally:
+            conn.close()
+    
+    def validate_integrity(self) -> Dict:
+        """
+        MÓDULO 15: Validación de Integridad SQL
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("SELECT COUNT(*) FROM knowledge_entries")
+            total_entries = cursor.fetchone()[0]
+            cursor.execute("SELECT COUNT(*) FROM knowledge_fts")
+            total_fts = cursor.fetchone()[0]
+            cursor.execute("PRAGMA integrity_check")
+            integrity = cursor.fetchone()[0]
+            
+            return {'status': 'OK' if integrity == 'ok' else 'ERROR',
+                    'total_entries': total_entries, 'total_fts_index': total_fts,
+                    'sqlite_integrity': integrity}
+        except Exception as e:
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
+    
+    def detect_language(self, text: str) -> str:
+        """
+        MÓDULO 9: Detección de Idioma (ES/EN)
+        """
+        if not text:
+            return 'unknown'
+        
+        spanish = ['el', 'la', 'los', 'las', 'de', 'que', 'es', 'en', 'con', 'para']
+        english = ['the', 'and', 'is', 'in', 'to', 'of', 'for', 'with', 'on', 'at']
+        
+        words = text.lower().split()
+        es = sum(1 for w in words if w in spanish)
+        en = sum(1 for w in words if w in english)
+        
+        return 'es' if es > en else 'en' if en > es else 'unknown'
+    
+    def get_snippet_with_context(self, content: str, query: str, before: int = 50, after: int = 100) -> str:
+        """
+        MÓDULO 5: Snippets Dinámicos Configurables
+        """
+        if not content or not query:
+            return content[:200] if content else ""
+        
+        pos = content.lower().find(query.lower())
+        if pos == -1:
+            return content[:200]
+        
+        start, end = max(0, pos - before), min(len(content), pos + len(query) + after)
+        snippet = content[start:end]
+        return ("..." + snippet + "...") if start > 0 or end < len(content) else snippet
+    
+    def rebuild_fts_index(self) -> Dict:
+        """
+        Reconstruye el índice FTS5 completo.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("INSERT INTO knowledge_fts(knowledge_fts) VALUES('rebuild')")
+            conn.commit()
+            cursor.execute("SELECT COUNT(*) FROM knowledge_fts")
+            return {'status': 'SUCCESS', 'indexed_count': cursor.fetchone()[0]}
+        except Exception as e:
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
+    
+    # ================================================================
+    # FASE 3: FILTROS AVANZADOS (Módulos 36-45)
+    # ================================================================
+    
+    def collapse_similar_results(self, results: List[Dict], threshold: float = 0.95) -> List[Dict]:
+        """
+        MÓDULO 39: Colapso de Resultados Similares (>95%)
+        """
+        if not results:
+            return results
+        
+        collapsed = []
+        for result in results:
+            is_duplicate = False
+            for existing in collapsed:
+                similarity = self._calculate_similarity(
+                    result.get('content', ''), existing.get('content', '')
+                )
+                if similarity >= threshold:
+                    is_duplicate = True
+                    break
+            if not is_duplicate:
+                collapsed.append(result)
+        
+        return collapsed
+    
+    def _calculate_similarity(self, text1: str, text2: str) -> float:
+        """
+        Calcula similitud entre dos textos (Jaccard simple).
+        """
+        if not text1 or not text2:
+            return 0.0
+        
+        words1 = set(text1.lower().split())
+        words2 = set(text2.lower().split())
+        
+        intersection = words1 & words2
+        union = words1 | words2
+        
+        return len(intersection) / len(union) if union else 0.0
+    
+    def detect_links_in_content(self, content: str) -> List[str]:
+        """
+        MÓDULO 44: Detección de Enlaces en Fragmentos
+        Extrae URLs del contenido.
+        """
+        import re
+        url_pattern = r'https?://[^\s]+|www\.[^\s]+'
+        return re.findall(url_pattern, content)
+    
+    # ================================================================
+    # FASE 4: UI/UX Y EXPORTACIÓN (Módulos 46-60)
+    # ================================================================
+    
+    def compress_index(self) -> Dict:
+        """
+        MÓDULO 59: Compresión de Índice
+        Optimiza el tamaño en disco de la base de datos.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("VACUUM")
+            cursor.execute("SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size()")
+            new_size = cursor.fetchone()[0]
+            return {'status': 'SUCCESS', 'new_size_bytes': new_size}
+        except Exception as e:
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
+    
+    def verify_source_file(self, source: str) -> Dict:
+        """
+        MÓDULO 41: Verificación de Origen en Tiempo Real
+        Verifica si el archivo fuente existe.
+        """
+        import os
+        
+        base_path = os.path.dirname(self.db_path)
+        
+        possible_paths = [
+            os.path.join(base_path, "manuals", source),
+            os.path.join(base_path, "transcriptions", source),
+            os.path.join(base_path, source)
+        ]
+        
+        for path in possible_paths:
+            if os.path.exists(path):
+                return {'exists': True, 'path': path, 'size': os.path.getsize(path)}
+        
+        return {'exists': False, 'path': None}
