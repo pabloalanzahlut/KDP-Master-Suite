@@ -32,7 +32,6 @@ import threading
 import re
 import urllib.request
 import urllib.error
-import calendar
 import atexit
 import time
 from pathlib import Path
@@ -3202,6 +3201,12 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self.tab_dashboard = ttk.Frame(self.notebook, padding=15)
         self.notebook.add(self.tab_dashboard, text=" 📊 Dashboard ")
         
+        # Pestaña 7: Metadatos - Dashboard de enriquecimiento
+        if MetadataDashboard:
+            self.tab_metadata = ttk.Frame(self.notebook, padding=15)
+            self.notebook.add(self.tab_metadata, text=" ✨ Metadatos ")
+            self.setup_metadata_tab()
+        
         # Pestaña 11: Videos Pendientes - LAZY LOADING
         self.tab_pending_mass = ttk.Frame(self.notebook, padding=15)
         self.notebook.add(self.tab_pending_mass, text=" 🎥 Videos Pendientes ")
@@ -3472,6 +3477,27 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                                                        fg="#34d399" if self.current_theme == "dark" else "#1e293b")
         self.analysis_text.pack(fill=tk.BOTH, expand=True)
 
+    def setup_metadata_tab(self):
+        """Configura la pestaña de Metadatos y Enriquecimiento."""
+        if not MetadataDashboard:
+            ttk.Label(self.tab_metadata, text="Componente no disponible", 
+                     font=("Segoe UI", 11)).pack(pady=20)
+            return
+        
+        for widget in self.tab_metadata.winfo_children():
+            widget.destroy()
+        
+        # Dashboard de metadatos
+        self.metadata_dashboard = MetadataDashboard(self.tab_metadata, db_manager=self.db)
+        self.metadata_dashboard.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Botón actualizar
+        btn_frame = ttk.Frame(self.tab_metadata)
+        btn_frame.pack(fill=tk.X, padx=10, pady=(0, 10))
+        
+        ttk.Button(btn_frame, text="🔄 Actualizar Stats", 
+                  command=self.metadata_dashboard.refresh_stats).pack(side=tk.LEFT, padx=5)
+
     def setup_search_tab(self):
         """
         ================================================================
@@ -3543,7 +3569,6 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self.search_total_results = 0
         self.search_results_cache = []
         
-        
         # =================================================================
         # PASO 2: CONTENEDOR PRINCIPAL
         # =================================================================
@@ -3577,40 +3602,10 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         clear_btn.pack(side=tk.LEFT, padx=5)
         ToolTip(clear_btn, "Limpiar todos los filtros")
         
-        # Botón EXPORTAR CSV
+        # Botón EXPORTAR
         export_btn = ttk.Button(header_frame, text="EXPORTAR CSV", command=self._export_kb_search, bootstyle="success-outline")
         export_btn.pack(side=tk.LEFT, padx=5)
-        ToolTip(export_btn, "Exportar todos los resultados a CSV")
-        
-        # Módulo 26: Exportar seleccionados
-        export_sel_btn = ttk.Button(header_frame, text="📤", command=self._export_selected_to_csv, 
-                                    bootstyle="secondary", width=3)
-        export_sel_btn.pack(side=tk.LEFT, padx=2)
-        ToolTip(export_sel_btn, "Exportar solo seleccionados")
-        
-        # Módulo 60: Exportar JSON
-        export_json_btn = ttk.Button(header_frame, text="📋", command=self._export_to_json, 
-                                     bootstyle="secondary", width=3)
-        export_json_btn.pack(side=tk.LEFT, padx=2)
-        ToolTip(export_json_btn, "Exportar a JSON para BI")
-        
-        # Módulo 35: Snapshot
-        snapshot_btn = ttk.Button(header_frame, text="📸", command=self._save_search_snapshot, 
-                                  bootstyle="secondary", width=3)
-        snapshot_btn.pack(side=tk.LEFT, padx=2)
-        ToolTip(snapshot_btn, "Guardar snapshot de resultados")
-        
-        # Módulo 28: Filtrar resultados
-        filter_btn = ttk.Button(header_frame, text="🔍", command=self._filter_results_inplace, 
-                                bootstyle="secondary", width=3)
-        filter_btn.pack(side=tk.LEFT, padx=2)
-        ToolTip(filter_btn, "Filtrar resultados actuales")
-        
-        # Módulo 33: Regex
-        regex_btn = ttk.Button(header_frame, text=".*", command=self._run_regex_search, 
-                               bootstyle="secondary", width=3)
-        regex_btn.pack(side=tk.LEFT, padx=2)
-        ToolTip(regex_btn, "Búsqueda con expresiones regulares")
+        ToolTip(export_btn, "Exportar resultados a CSV")
         
         # Label de estadísticas
         stats_lbl = ttk.Label(header_frame, textvariable=self.search_stats_var, font=("Inter", 9), foreground="#64748b")
@@ -3707,183 +3702,6 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         ttk.Button(action_frame, text="🔄 LIMPIAR TODO", command=self._clear_search_filters,
                   bootstyle="warning-outline", width=25).pack(pady=3)
         self.log("[SEARCH DEBUG] PASO 6e: action_frame completado")
-        
-        # =================================================================
-        # FASE 2: FILTROS AVANZADOS (Módulos 17-25)
-        # =================================================================
-        advanced_frame = ttk.LabelFrame(sidebar_frame, text=" ⚡ BÚSQUEDA AVANZADA ")
-        advanced_frame.pack(fill=tk.X, pady=(15, 10), padx=5)
-        
-        # Módulo 17: Operadores Booleanos (ayuda visual)
-        help_text = "Usa: AND, OR, NOT, \"frase exacta\", NEAR"
-        ttk.Label(advanced_frame, text=help_text, font=("Consolas", 8), 
-                 foreground="#64748b", wraplength=250).pack(pady=5, padx=5)
-        
-        # Módulo 18: Opciones de búsqueda exacta
-        exact_frame = ttk.Frame(advanced_frame)
-        exact_frame.pack(fill=tk.X, padx=5, pady=3)
-        
-        self.search_exact_phrase_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(exact_frame, text="Frase exacta (comillas)", 
-                       variable=self.search_exact_phrase_var).pack(anchor=tk.W)
-        
-        self.search_case_sensitive_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(exact_frame, text="Distinguir mayúsculas", 
-                       variable=self.search_case_sensitive_var).pack(anchor=tk.W)
-        
-        # Módulo 22: Snippets dinámicos (configurable)
-        snippet_frame = ttk.Frame(advanced_frame)
-        snippet_frame.pack(fill=tk.X, padx=5, pady=3)
-        
-        ttk.Label(snippet_frame, text="Tamaño snippet:", font=("Inter", 8)).pack(side=tk.LEFT)
-        self.search_snippet_size_var = tk.StringVar(value="200")
-        snippet_combo = ttk.Combobox(snippet_frame, textvariable=self.search_snippet_size_var,
-                                    values=["100", "200", "300", "500"], width=6, state="readonly")
-        snippet_combo.pack(side=tk.LEFT, padx=5)
-        
-        # Módulo 25: Búsquedas favorites (guardar/recuperar)
-        fav_frame = ttk.Frame(advanced_frame)
-        fav_frame.pack(fill=tk.X, padx=5, pady=5)
-        
-        ttk.Label(fav_frame, text="Búsquedas guardadas:", font=("Inter", 8)).pack(anchor=tk.W)
-        
-        self.search_favorites_var = tk.StringVar(value="")
-        self.search_favorites_combo = ttk.Combobox(fav_frame, textvariable=self.search_favorites_var,
-                                                   width=22, state="readonly")
-        self.search_favorites_combo.pack(fill=tk.X, pady=3)
-        self.search_favorites_combo.bind('<<ComboboxSelected>>', lambda e: self._load_search_favorite())
-        
-        fav_buttons = ttk.Frame(fav_frame)
-        fav_buttons.pack(fill=tk.X)
-        ttk.Button(fav_buttons, text="💾 Guardar", command=self._save_search_favorite,
-                  width=12).pack(side=tk.LEFT, padx=2)
-        ttk.Button(fav_buttons, text="🗑️ Eliminar", command=self._delete_search_favorite,
-                  width=12).pack(side=tk.LEFT, padx=2)
-        
-        # Cargar favoritos al iniciar
-        self._load_search_favorites_list()
-        
-        # =================================================================
-        # FASE 2 CONTINUACIÓN: Más Filtros (Módulos 9, 13, 14, 20)
-        # =================================================================
-        
-        # Módulo 9: Filtro por Idioma
-        lang_frame = ttk.LabelFrame(sidebar_frame, text=" 🌐 IDIOMA ")
-        lang_frame.pack(fill=tk.X, pady=(10, 5), padx=5)
-        
-        self.search_language_var = tk.StringVar(value="Todos")
-        lang_combo = ttk.Combobox(lang_frame, textvariable=self.search_language_var,
-                                  values=["Todos", "Español", "Inglés"], 
-                                  state="readonly", width=20)
-        lang_combo.pack(pady=5, padx=5)
-        
-        # Módulo 14: Filtro por Tamaño de Fragmento
-        size_frame = ttk.LabelFrame(sidebar_frame, text=" 📏 TAMAÑO ")
-        size_frame.pack(fill=tk.X, pady=(5, 5), padx=5)
-        
-        self.search_size_var = tk.StringVar(value="Cualquiera")
-        size_combo = ttk.Combobox(size_frame, textvariable=self.search_size_var,
-                                   values=["Cualquiera", "Corto (<100)", "Medio (100-500)", "Largo (>500)"], 
-                                   state="readonly", width=20)
-        size_combo.pack(pady=5, padx=5)
-        
-        # Módulo 13: Modo de Vista
-        view_frame = ttk.LabelFrame(sidebar_frame, text=" 👁️ VISTA ")
-        view_frame.pack(fill=tk.X, pady=(5, 5), padx=5)
-        
-        self.search_compact_view_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(view_frame, text="Vista compacta", 
-                       variable=self.search_compact_view_var).pack(pady=5, padx=5)
-        
-        # Módulo 20: Búsqueda con Prefijos
-        prefix_frame = ttk.LabelFrame(sidebar_frame, text=" 🔤 PREFIJOS ")
-        prefix_frame.pack(fill=tk.X, pady=(5, 10), padx=5)
-        
-        self.search_prefix_var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(prefix_frame, text="Buscar pub* = publicación", 
-                       variable=self.search_prefix_var).pack(pady=5, padx=5)
-        ttk.Label(prefix_frame, text="Ejemplos: pub*, mark*, se*", 
-                 font=("Consolas", 7), foreground="#64748b").pack(pady=(0, 5))
-        
-        # =================================================================
-        # FASE 3: FILTROS AVANZADOS (Módulos 36-45)
-        # =================================================================
-        
-        # Módulo 36: Filtro por Árbol de Categorías
-        cat_tree_frame = ttk.LabelFrame(sidebar_frame, text=" 🌲 CATEGORÍAS ")
-        cat_tree_frame.pack(fill=tk.X, pady=(10, 5), padx=5)
-        
-        self.search_category_tree_var = tk.StringVar(value="Todos")
-        
-        # Crear checkboxes para categorías principales
-        self.search_categories_check = {}
-        for cat in self.kdp_categories[:8]:
-            var = tk.BooleanVar(value=True)
-            self.search_categories_check[cat] = var
-            ttk.Checkbutton(cat_tree_frame, text=cat, variable=var).pack(anchor=tk.W, padx=5)
-        
-        ttk.Button(cat_tree_frame, text="Seleccionar Todas", 
-                  command=lambda: [v.set(True) for v in self.search_categories_check.values()],
-                  width=20).pack(pady=3)
-        
-        # Módulo 37: Filtro por Rango de Fechas de Fuente
-        date_source_frame = ttk.LabelFrame(sidebar_frame, text=" 📅 FECHA FUENTE ")
-        date_source_frame.pack(fill=tk.X, pady=(5, 5), padx=5)
-        
-        self.search_date_range_var = tk.StringVar(value="Cualquiera")
-        date_range_combo = ttk.Combobox(date_source_frame, textvariable=self.search_date_range_var,
-                                       values=["Cualquiera", "Última semana", "Último mes", 
-                                              "Últimos 3 meses", "Último año", "Personalizado"],
-                                       state="readonly", width=20)
-        date_range_combo.pack(pady=5, padx=5)
-        
-        # Módulo 40: Ordenamiento por Fuente
-        source_frame = ttk.LabelFrame(sidebar_frame, text=" 📡 ORDENAR POR ")
-        source_frame.pack(fill=tk.X, pady=(5, 5), padx=5)
-        
-        self.search_order_source_var = tk.StringVar(value="Relevancia")
-        source_combo = ttk.Combobox(source_frame, textvariable=self.search_order_source_var,
-                                   values=["Relevancia", "Más reciente", "Más antiguo", 
-                                          "Mayor contenido", "Por fuente"],
-                                   state="readonly", width=20)
-        source_combo.pack(pady=5, padx=5)
-        
-        # Módulo 45: Filtro de Solo Manuales Maestros
-        master_frame = ttk.LabelFrame(sidebar_frame, text=" 📚 TIPO FUENTE ")
-        master_frame.pack(fill=tk.X, pady=(5, 10), padx=5)
-        
-        self.search_master_only_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(master_frame, text="Solo Manuales Maestros", 
-                       variable=self.search_master_only_var).pack(pady=5, padx=5)
-        
-        self.search_transcriptions_only_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(master_frame, text="Solo Transcripciones", 
-                       variable=self.search_transcriptions_only_var).pack(pady=3, padx=5)
-        
-        # =================================================================
-        # FASE 4: UI/UX Y EXPORTACIÓN (Módulos 46-60)
-        # =================================================================
-        
-        # Módulo 52: Carga Diferida - Configuración
-        perf_frame = ttk.LabelFrame(sidebar_frame, text=" ⚡ RENDIMIENTO ")
-        perf_frame.pack(fill=tk.X, pady=(10, 10), padx=5)
-        
-        self.search_lazy_load_var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(perf_frame, text="Carga diferida (más rápido)", 
-                       variable=self.search_lazy_load_var).pack(pady=5, padx=5)
-        
-        self.search_page_size_var = tk.StringVar(value="50")
-        ttk.Label(perf_frame, text="Resultados por página:", font=("Inter", 8)).pack()
-        page_size_combo = ttk.Combobox(perf_frame, textvariable=self.search_page_size_var,
-                                       values=["20", "50", "100", "200"], width=10, state="readonly")
-        page_size_combo.pack(pady=3)
-        
-        # Módulo 54: Indicador de Relevancia
-        self.search_show_relevance_var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(perf_frame, text="Mostrar score de relevancia", 
-                       variable=self.search_show_relevance_var).pack(pady=5, padx=5)
-        
-        self.log("[SEARCH DEBUG] FASE 2-4: Filtros avanzados completados")
 
         # =================================================================
         # PASO 7: PANEL DE RESULTADOS (70%)
@@ -3895,73 +3713,80 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
             # Header de resultados
         results_header = ttk.Frame(results_panel)
         results_header.pack(fill=tk.X, pady=(0, 5))
-        
+            
         ttk.Label(results_header, text="📄 Resultados:", font=("Inter", 10, "bold")).pack(side=tk.LEFT)
         ttk.Label(results_header, textvariable=self.search_results_label_var, font=("Inter", 10, "bold"), 
-                 foreground="#3b82f6").pack(side=tk.LEFT, padx=(5, 0))
-        
+                     foreground="#3b82f6").pack(side=tk.LEFT, padx=(5, 0))
+            
         ttk.Label(results_header, textvariable=self.search_fts_time_var, font=("Consolas", 8), 
-                 foreground="#64748b").pack(side=tk.LEFT, padx=(20, 0))
+                     foreground="#64748b").pack(side=tk.LEFT, padx=(20, 0))
         self.log("[SEARCH DEBUG] PASO 7a: results_header completado")
-        
-        # =================================================================
-        # PASO 8: TREEVIEW DE RESULTADOS
-        # =================================================================
+            
+            # =================================================================
+            # PASO 8: TREEVIEW DE RESULTADOS
+            # =================================================================
         tree_frame = ttk.Frame(results_panel)
         tree_frame.pack(fill=tk.BOTH, expand=True)
         self.log("[SEARCH DEBUG] PASO 8: tree_frame creado")
-        
-        # Definir columnas del Treeview
+            
+         # Definir columnas del Treeview
         columns = ("img", "title", "category", "type", "date", "words", "id")
         self.search_tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=12)
-        
-        # Configurar columnas
+            
+            # Configurar columnas
         self.search_tree.heading("img", text="📋")
         self.search_tree.column("img", width=50, anchor=tk.CENTER)
-        
+            
         self.search_tree.heading("title", text="TÍTULO")
         self.search_tree.column("title", width=350)
-        
+            
         self.search_tree.heading("category", text="CATEGORÍA")
         self.search_tree.column("category", width=150)
-        
+            
         self.search_tree.heading("type", text="TIPO")
         self.search_tree.column("type", width=100, anchor=tk.CENTER)
-        
+            
         self.search_tree.heading("date", text="FECHA")
         self.search_tree.column("date", width=100, anchor=tk.CENTER)
-        
+            
         self.search_tree.heading("words", text="PALABRAS")
         self.search_tree.column("words", width=80, anchor=tk.CENTER)
-        
+            
         self.search_tree.column("id", width=0, stretch=False)  # Columna oculta para ID
-        
+            
         self.search_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        
+            
         # Scrollbar vertical
         scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.search_tree.yview)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.search_tree.configure(yscrollcommand=scrollbar.set)
         self.log("[SEARCH DEBUG] PASO 8: Treeview creado y configurado")
-        
-        # =================================================================
-        # PASO 9: CONFIGURAR TAGS DE COLOR (POR TIPO DOCUMENTAL)
-        # =================================================================
-        # Tags con background para legibilidad en tema oscuro
-        self.search_tree.tag_configure("tutorial", background="#1e3a5f", foreground="#60a5fa")
-        self.search_tree.tag_configure("articulo", background="#1a3a2f", foreground="#34d399")
-        self.search_tree.tag_configure("investigacion", background="#2d1f4a", foreground="#a78bfa")
-        self.search_tree.tag_configure("lista", background="#3d3020", foreground="#fbbf24")
-        self.search_tree.tag_configure("legal", background="#3d1a1a", foreground="#f87171")
-        self.search_tree.tag_configure("formulas", background="#1a3d3d", foreground="#22d3ee")
-        
-        # Tags para filas alternadas (zebra striping)
-        self.search_tree.tag_configure("oddrow", background="#1e293b")
-        self.search_tree.tag_configure("evenrow", background="#0f172a")
-        
-        # Binding: doble click para ver detalles
-        self.search_tree.bind('<Double-1>', lambda e: self._on_search_result_double_click(e))
-        self.log("[SEARCH DEBUG] PASO 9: Tags configurados")
+        try:    
+            # =================================================================
+            # PASO 9: CONFIGURAR TAGS DE COLOR (POR TIPO DOCUMENTAL)
+            # =================================================================
+            # Tags con background para legibilidad en tema oscuro
+            self.search_tree.tag_configure("tutorial", background="#1e3a5f", foreground="#60a5fa")
+            self.search_tree.tag_configure("articulo", background="#1a3a2f", foreground="#34d399")
+            self.search_tree.tag_configure("investigacion", background="#2d1f4a", foreground="#a78bfa")
+            self.search_tree.tag_configure("lista", background="#3d3020", foreground="#fbbf24")
+            self.search_tree.tag_configure("legal", background="#3d1a1a", foreground="#f87171")
+            self.search_tree.tag_configure("formulas", background="#1a3d3d", foreground="#22d3ee")
+            
+            # Tags para filas alternadas (zebra striping)
+            self.search_tree.tag_configure("oddrow", background="#1e293b")
+            self.search_tree.tag_configure("evenrow", background="#0f172a")
+            
+            # Binding: doble click para ver detalles
+            self.search_tree.bind('<Double-1>', lambda e: self._on_search_result_double_click(e))
+            self.log("[SEARCH DEBUG] PASO 9: Tags configurados")
+            
+        except Exception as e:
+            self.log(f"[SEARCH ERROR CRÍTICO] Falló al crear layout: {e}", "error")
+            import traceback
+            self.log(traceback.format_exc(), "error")
+            messagebox.showerror("Error UI", f"No se pudo cargar el panel de búsqueda:\n{e}")
+            return
         
         # =================================================================
         # PASO 10: PANEL DE PAGINACIÓN
@@ -4002,25 +3827,10 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self.log("[SEARCH DEBUG] PASO 12: Empty state creado")
         
         # =================================================================
-        # PASO 13: BINDINGS GLOBALES (Módulo 30: Atajos de Teclado)
+        # PASO 13: BINDINGS GLOBALES
         # =================================================================
         # Escape para limpiar búsqueda
         self.tab_search.bind('<Escape>', lambda e: self._clear_search_filters())
-        
-        # Ctrl+F: Enfocar búsqueda
-        self.tab_search.bind('<Control-f>', lambda e: self._focus_search_entry())
-        
-        # Ctrl+E: Exportar CSV
-        self.tab_search.bind('<Control-e>', lambda e: self._export_kb_search())
-        
-        # Ctrl+S: Guardar snapshot
-        self.tab_search.bind('<Control-s>', lambda e: self._save_search_snapshot())
-        
-        # Flechas: Navegar resultados
-        if hasattr(self, 'search_tree'):
-            self.search_tree.bind('<Up>', lambda e: self._navigate_results('up'))
-            self.search_tree.bind('<Down>', lambda e: self._navigate_results('down'))
-        
         self.log("[SEARCH DEBUG] PASO 13: Bindings creados")
         
         # =================================================================
@@ -4091,39 +3901,13 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
             order_by = order_map.get(self.search_order_var.get(), "timestamp DESC")
             
             if query:
-                # MÓDULO 17: Detectar si es consulta con operadores booleanos
-                parsed = self._parse_boolean_query(query)
-                
-                if parsed['type'] in ('exact', 'proximity') or parsed['excluded']:
-                    # Usar búsqueda con operadores
-                    search_results = self._execute_search_with_operators(parsed)
-                    result = {
-                        'entries': search_results,
-                        'total': len(search_results),
-                        'pages': 1,
-                        'elapsed_ms': (time.time() - start_time) * 1000
-                    }
-                elif parsed['required']:
-                    # Búsqueda normal con términos expandidos
-                    expanded_query = ' '.join(parsed['required'])
-                    result = self.knowledge_db.search_entries(
-                        query=expanded_query,
-                        filters=filters,
-                        page=1,
-                        page_size=1000,
-                        order_by=order_by
-                    )
-                else:
-                    result = self.knowledge_db.search_entries(
-                        query=query,
-                        filters=filters,
-                        page=1,
-                        page_size=1000,
-                        order_by=order_by
-                    )
-                
-                # MÓDULO 24: Agregar al historial
-                self._add_to_search_history(query)
+                result = self.knowledge_db.search_entries(
+                    query=query,
+                    filters=filters,
+                    page=1,
+                    page_size=1000,
+                    order_by=order_by
+                )
             else:
                 result = self.knowledge_db.get_entries_filtered(
                     filters=filters,
@@ -4446,242 +4230,6 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         
         self.log("[SEARCH] Filtros limpiados")
     
-    # ========================================================================
-    # FASE 2: MOTOR DE BÚSQUEDA CLÁSICO (Módulos 17-35)
-    # ========================================================================
-    
-    def _load_search_favorites_list(self):
-        """
-        MÓDULO 25: Búsquedas Favoritas
-        Carga la lista de búsquedas guardadas desde archivo JSON.
-        """
-        import os
-        try:
-            favorites_file = os.path.join(os.path.dirname(self.db_path), "search_favorites.json")
-            if os.path.exists(favorites_file):
-                with open(favorites_file, 'r', encoding='utf-8') as f:
-                    favorites = json.load(f)
-                if favorites:
-                    self.search_favorites_combo['values'] = list(favorites.keys())
-                    self.search_favorites_dict = favorites
-                else:
-                    self.search_favorites_dict = {}
-            else:
-                self.search_favorites_dict = {}
-        except Exception as e:
-            self.log(f"[SEARCH ERROR] Error cargando favoritos: {e}", "error")
-            self.search_favorites_dict = {}
-    
-    def _save_search_favorite(self):
-        """
-        MÓDULO 25: Guardar búsqueda actual como favorita.
-        """
-        import os
-        query = self.search_filter_var.get().strip()
-        if not query:
-            messagebox.showwarning("Guardar Búsqueda", "No hay términos de búsqueda para guardar.")
-            return
-        
-        nombre = simpledialog.askstring("Guardar Búsqueda", "Nombre para esta búsqueda:")
-        if not nombre:
-            return
-        
-        try:
-            favorites_file = os.path.join(os.path.dirname(self.db_path), "search_favorites.json")
-            
-            if not hasattr(self, 'search_favorites_dict'):
-                self.search_favorites_dict = {}
-            
-            self.search_favorites_dict[nombre] = {
-                'query': query,
-                'type': self.search_type_var.get(),
-                'category': self.search_category_var.get(),
-                'order': self.search_order_var.get(),
-                'date_from': self.search_date_from_var.get(),
-                'date_to': self.search_date_to_var.get()
-            }
-            
-            with open(favorites_file, 'w', encoding='utf-8') as f:
-                json.dump(self.search_favorites_dict, f, ensure_ascii=False, indent=2)
-            
-            self._load_search_favorites_list()
-            messagebox.showinfo("Éxito", f"Búsqueda guardada como: {nombre}")
-            self.log(f"[SEARCH] Favorito guardado: {nombre}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo guardar: {e}")
-            self.log(f"[SEARCH ERROR] Error guardando favorito: {e}", "error")
-    
-    def _load_search_favorite(self):
-        """
-        MÓDULO 25: Cargar una búsqueda guardada.
-        """
-        nombre = self.search_favorites_var.get()
-        if not nombre or not hasattr(self, 'search_favorites_dict'):
-            return
-        
-        if nombre in self.search_favorites_dict:
-            fav = self.search_favorites_dict[nombre]
-            self.search_filter_var.set(fav.get('query', ''))
-            self.search_type_var.set(fav.get('type', 'Todos'))
-            self.search_category_var.set(fav.get('category', 'Todos'))
-            self.search_order_var.set(fav.get('order', 'Nuevos primero'))
-            self.search_date_from_var.set(fav.get('date_from', ''))
-            self.search_date_to_var.set(fav.get('date_to', ''))
-            
-            self.log(f"[SEARCH] Favorito cargado: {nombre}")
-    
-    def _delete_search_favorite(self):
-        """
-        MÓDULO 25: Eliminar una búsqueda guardada.
-        """
-        import os
-        nombre = self.search_favorites_var.get()
-        if not nombre:
-            return
-        
-        if messagebox.askyesno("Confirmar", f"¿Eliminar '{nombre}' de búsquedas guardadas?"):
-            try:
-                favorites_file = os.path.join(os.path.dirname(self.db_path), "search_favorites.json")
-                
-                if hasattr(self, 'search_favorites_dict') and nombre in self.search_favorites_dict:
-                    del self.search_favorites_dict[nombre]
-                    
-                    with open(favorites_file, 'w', encoding='utf-8') as f:
-                        json.dump(self.search_favorites_dict, f, ensure_ascii=False, indent=2)
-                    
-                    self._load_search_favorites_list()
-                    messagebox.showinfo("Éxito", f"Búsqueda '{nombre}' eliminada.")
-                    self.log(f"[SEARCH] Favorito eliminado: {nombre}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo eliminar: {e}")
-    
-    def _parse_boolean_query(self, query: str) -> dict:
-        """
-        MÓDULO 17: Operadores Booleanos
-        Parsing de consultas AND, OR, NOT y frases exactas.
-        """
-        import re
-        
-        result = {
-            'type': 'simple',
-            'terms': [],
-            'required': [],
-            'excluded': [],
-            'exact_phrase': None,
-            'proximity': None
-        }
-        
-        if not query:
-            return result
-        
-        exact_match = re.search(r'"([^"]+)"', query)
-        if exact_match:
-            result['type'] = 'exact'
-            result['exact_phrase'] = exact_match.group(1)
-            query = query.replace(f'"{exact_match.group(1)}"', '')
-        
-        near_match = re.search(r'NEAR/(\d+)', query, re.IGNORECASE)
-        if near_match:
-            result['type'] = 'proximity'
-            result['proximity'] = int(near_match.group(1))
-            query = re.sub(r'NEAR/\d+', '', query, flags=re.IGNORECASE)
-        
-        parts = query.split()
-        for part in parts:
-            part = part.strip()
-            if not part:
-                continue
-            
-            if part.upper() in ('AND', 'OR', 'NOT'):
-                continue
-            
-            if part.startswith('-'):
-                result['excluded'].append(part[1:])
-            elif part.upper() == 'OR' and result.get('last_operator') == 'OR':
-                result['terms'][-1] = result['terms'][-1] + ' ' + part
-            else:
-                result['terms'].append(part)
-                result['last_operator'] = 'AND'
-        
-        result['required'] = result['terms']
-        return result
-    
-    def _execute_search_with_operators(self, parsed_query: dict) -> List[Dict]:
-        """
-        MÓDULO 17: Ejecutar búsqueda con operadores booleanos.
-        """
-        if parsed_query['type'] == 'exact' and parsed_query['exact_phrase']:
-            return self.knowledge_db.search_advanced(
-                query=parsed_query['exact_phrase'],
-                page_size=1000
-            ).get('results', [])
-        
-        if parsed_query['type'] == 'proximity':
-            return self.knowledge_db.search_with_proximity(
-                ' '.join(parsed_query['required']),
-                distance=parsed_query.get('proximity', 10),
-                limit=1000
-            ).get('results', [])
-        
-        base_query = ' '.join(parsed_query['required'])
-        
-        if not self.knowledge_db:
-            return []
-        
-        result = self.knowledge_db.search_advanced(
-            query=base_query if base_query else None,
-            page_size=1000
-        )
-        
-        results = result.get('results', [])
-        
-        if parsed_query['excluded']:
-            excluded_lower = [t.lower() for t in parsed_query['excluded']]
-            results = [r for r in results if not any(
-                exc in (r.get('content', '') or '').lower() for exc in excluded_lower
-            )]
-        
-        return results
-    
-    def _get_search_history(self) -> List[str]:
-        """
-        MÓDULO 24: Historial de Búsqueda Persistente
-        Retorna las últimas búsquedas realizadas.
-        """
-        import os
-        try:
-            history_file = os.path.join(os.path.dirname(self.db_path), "search_history.json")
-            if os.path.exists(history_file):
-                with open(history_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
-            return []
-        except:
-            return []
-    
-    def _add_to_search_history(self, query: str):
-        """
-        MÓDULO 24: Agregar búsqueda al historial.
-        """
-        import os
-        if not query.strip():
-            return
-        
-        history = self._get_search_history()
-        
-        if query in history:
-            history.remove(query)
-        
-        history.insert(0, query)
-        
-        history = history[:50]
-        
-        try:
-            history_file = os.path.join(os.path.dirname(self.db_path), "search_history.json")
-            with open(history_file, 'w', encoding='utf-8') as f:
-                json.dump(history, f, ensure_ascii=False)
-        except Exception as e:
-            self.log(f"[SEARCH ERROR] No se pudo guardar historial: {e}", "error")
-    
     def _on_search_result_double_click(self, event):
         """
         ================================================================
@@ -4803,408 +4351,6 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
             from tkinter import messagebox
             messagebox.showerror("Error", f"No se pudo exportar:\n{str(e)}")
             self.log(f"[SEARCH ERROR] Export fallido: {e}", "error")
-    
-    # ========================================================================
-    # FASE 2 CONTINUACIÓN: Módulos 26-35
-    # ========================================================================
-    
-    def _export_selected_to_csv(self):
-        """
-        MÓDULO 26: Exportación Selectiva a CSV
-        Exporta solo los resultados seleccionados en el Treeview.
-        """
-        from tkinter import filedialog, messagebox
-        from datetime import datetime
-        
-        selected = self.search_tree.selection()
-        if not selected:
-            messagebox.showwarning("Sin selección", "Selecciona resultados para exportar")
-            return
-        
-        filepath = filedialog.asksaveasfilename(
-            defaultextension=".csv",
-            filetypes=[("CSV Files", "*.csv")],
-            initialfile=f"kb_export_{datetime.now().strftime('%Y%m%d')}.csv"
-        )
-        
-        if not filepath:
-            return
-        
-        try:
-            import csv
-            with open(filepath, 'w', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f)
-                writer.writerow(["ID", "Título", "Categoría", "Tipo", "Fecha", "Contenido"])
-                
-                for item_id in selected:
-                    values = self.search_tree.item(item_id, 'values')
-                    if values and len(values) >= 6:
-                        content = next((r['content'] for r in self.search_results_cache 
-                                      if str(r['id']) == str(values[6])), '')
-                        writer.writerow([values[6], values[1], values[2], values[3], values[4], content[:500]])
-            
-            messagebox.showinfo("Éxito", f"{len(selected)} resultados seleccionados exportados")
-            self.log(f"[SEARCH] Exportados {len(selected)} resultados seleccionados")
-        except Exception as e:
-            messagebox.showerror("Error", f"Export fallido: {e}")
-    
-    def _export_to_json(self):
-        """
-        MÓDULO 60: Exportación a JSON para BI
-        Exporta resultados en formato JSON para analítica externa.
-        """
-        from tkinter import filedialog, messagebox
-        from datetime import datetime
-        
-        if not self.search_results_cache:
-            messagebox.showwarning("Sin resultados", "No hay resultados para exportar")
-            return
-        
-        filepath = filedialog.asksaveasfilename(
-            defaultextension=".json",
-            filetypes=[("JSON Files", "*.json")],
-            initialfile=f"kb_export_{datetime.now().strftime('%Y%m%d')}.json"
-        )
-        
-        if not filepath:
-            return
-        
-        try:
-            export_data = {
-                "export_date": datetime.now().isoformat(),
-                "total_results": len(self.search_results_cache),
-                "query": self.search_current_query if hasattr(self, 'search_current_query') else "",
-                "results": self.search_results_cache
-            }
-            
-            with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(export_data, f, ensure_ascii=False, indent=2)
-            
-            messagebox.showinfo("Éxito", f"Exportado a JSON:\n{filepath}")
-            self.log(f"[SEARCH] Export JSON: {len(self.search_results_cache)} resultados")
-        except Exception as e:
-            messagebox.showerror("Error", f"Export fallido: {e}")
-    
-    def _generate_citation_apa(self, result: Dict) -> str:
-        """
-        MÓDULO 34: Generador de Citas APA
-        Genera una cita en formato APA para el resultado.
-        """
-        author = result.get('source', 'Autor Desconocido')
-        title = result.get('title', 'Sin título')
-        date = result.get('date', 's.f.')
-        category = result.get('category', '')
-        
-        if date and date != 'N/A':
-            year = date[:4] if len(date) >= 4 else 's.f.'
-        else:
-            year = 's.f.'
-        
-        return f"{author} ({year}). {title}. {category}."
-    
-    def _generate_citation_iso(self, result: Dict) -> str:
-        """
-        MÓDULO 34: Generador de Citas ISO
-        Genera una cita en formato ISO 690.
-        """
-        author = result.get('source', 'Autor Desconocido')
-        title = result.get('title', 'Sin título')
-        date = result.get('date', '')
-        category = result.get('category', '')
-        
-        citation = f"{author}. {title}. "
-        if date and date != 'N/A':
-            citation += f"[{date[:4] if len(date) >= 4 else ''}]. "
-        citation += f"{category}."
-        
-        return citation
-    
-    def _copy_as_markdown(self, result: Dict):
-        """
-        MÓDULO 29: Copiado Rápido en Formato Markdown
-        Copia el resultado al portapapeles en formato Markdown con cita.
-        """
-        from tkinter import messagebox
-        
-        md_content = f"""## {result['title']}
-
-**Categoría:** {result['category']}
-**Tipo:** {result['type']}
-**Fecha:** {result['date']}
-**Palabras:** {result['words']}
-
----
-
-{result['content'][:500]}...
-
----
-
-*Fuente: {result.get('source', 'N/A')}*"""
-        
-        self.root.clipboard_clear()
-        self.root.clipboard_append(md_content)
-        
-        messagebox.showinfo("Copiado", "Contenido copiado al portapapeles en formato Markdown")
-        self.log(f"[SEARCH] Copiado como Markdown: {result['title']}")
-    
-    def _copy_citation(self, result: Dict, format_type: str = "APA"):
-        """
-        MÓDULO 34: Copiar cita формата APA/ISO
-        Copia la cita формат al portapapeles.
-        """
-        from tkinter import messagebox
-        
-        if format_type == "APA":
-            citation = self._generate_citation_apa(result)
-        else:
-            citation = self._generate_citation_iso(result)
-        
-        self.root.clipboard_clear()
-        self.root.clipboard_append(citation)
-        
-        messagebox.showinfo("Copiado", f"Copia {format_type} copiada al portapapeles")
-    
-    def _save_search_snapshot(self):
-        """
-        MÓDULO 35: Snapshot de Resultados
-        Guarda el estado actual de la búsqueda para recuperarla después.
-        """
-        import os
-        from tkinter import simpledialog, messagebox
-        from datetime import datetime
-        
-        if not self.search_results_cache:
-            messagebox.showwarning("Sin resultados", "No hay resultados para guardar")
-            return
-        
-        name = simpledialog.askstring("Guardar Snapshot", "Nombre para este snapshot:")
-        if not name:
-            return
-        
-        try:
-            snapshots_dir = os.path.join(os.path.dirname(self.db_path), "snapshots")
-            os.makedirs(snapshots_dir, exist_ok=True)
-            
-            snapshot = {
-                "name": name,
-                "timestamp": datetime.now().isoformat(),
-                "query": self.search_filter_var.get(),
-                "filters": {
-                    "type": self.search_type_var.get(),
-                    "category": self.search_category_var.get(),
-                    "order": self.search_order_var.get(),
-                    "date_from": self.search_date_from_var.get(),
-                    "date_to": self.search_date_to_var.get()
-                },
-                "results": self.search_results_cache
-            }
-            
-            filepath = os.path.join(snapshots_dir, f"snapshot_{name.replace(' ', '_')}.json")
-            with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(snapshot, f, ensure_ascii=False, indent=2)
-            
-            messagebox.showinfo("Éxito", f"Snapshot guardado:\n{filepath}")
-            self.log(f"[SEARCH] Snapshot guardado: {name}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo guardar: {e}")
-    
-    def _load_search_snapshot(self):
-        """
-        MÓDULO 35: Cargar un Snapshot guardado
-        Recupera un snapshot previamente guardado.
-        """
-        import os
-        from tkinter import messagebox
-        
-        try:
-            snapshots_dir = os.path.join(os.path.dirname(self.db_path), "snapshots")
-            if not os.path.exists(snapshots_dir):
-                messagebox.showinfo("Sin snapshots", "No hay snapshots guardados")
-                return
-            
-            snapshots = [f.replace('.json', '') for f in os.listdir(snapshots_dir) if f.endswith('.json')]
-            if not snapshots:
-                messagebox.showinfo("Sin snapshots", "No hay snapshots guardados")
-                return
-            
-            # Selector simple (por ahora solo carga el más reciente)
-            latest = sorted(snapshots, key=lambda x: os.path.getmtime(
-                os.path.join(snapshots_dir, f"{x}.json")), reverse=True)[0]
-            
-            with open(os.path.join(snapshots_dir, f"{latest}.json"), 'r', encoding='utf-8') as f:
-                snapshot = json.load(f)
-            
-            # Restaurar estado
-            self.search_filter_var.set(snapshot.get('query', ''))
-            if 'filters' in snapshot:
-                f = snapshot['filters']
-                self.search_type_var.set(f.get('type', 'Todos'))
-                self.search_category_var.set(f.get('category', 'Todos'))
-                self.search_order_var.set(f.get('order', 'Nuevos primero'))
-                self.search_date_from_var.set(f.get('date_from', ''))
-                self.search_date_to_var.set(f.get('date_to', ''))
-            
-            self.search_results_cache = snapshot.get('results', [])
-            self.search_total_results = len(self.search_results_cache)
-            self.search_results_label_var.set(f"{self.search_total_results} entradas")
-            
-            self._render_search_results()
-            
-            messagebox.showinfo("Cargado", f"Snapshot '{snapshot.get('name')}' cargado")
-            self.log(f"[SEARCH] Snapshot cargado: {latest}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo cargar: {e}")
-    
-    def _run_regex_search(self):
-        """
-        MÓDULO 33: Búsqueda Regex Avanzada
-        Ejecuta búsqueda usando expresiones regulares.
-        """
-        from tkinter import simpledialog, messagebox
-        
-        pattern = simpledialog.askstring("Búsqueda Regex", "Ingresa patrón regex:")
-        if not pattern:
-            return
-        
-        try:
-            import re
-            
-            matching_results = []
-            for result in self.search_results_cache:
-                content = result.get('content', '')
-                if re.search(pattern, content, re.IGNORECASE):
-                    matching_results.append(result)
-            
-            if not matching_results:
-                messagebox.showinfo("Sin resultados", "No hay coincidencias para el patrón")
-                return
-            
-            # Mostrar solo resultados que coinciden
-            original_cache = self.search_results_cache
-            self.search_results_cache = matching_results
-            self.search_total_results = len(matching_results)
-            self.search_results_label_var.set(f"{self.search_total_results} entradas (regex)")
-            
-            self._render_search_results()
-            
-            self.log(f"[SEARCH] Regex '{pattern}': {len(matching_results)} resultados")
-            
-        except re.error as e:
-            messagebox.showerror("Error Regex", f"Patrón inválido: {e}")
-        except Exception as e:
-            messagebox.showerror("Error", f"Búsqueda fallida: {e}")
-    
-    def _filter_results_inplace(self):
-        """
-        MÓDULO 28: Buscador Secundario (Filter within Results)
-        Filtra los resultados ya mostrados sin nueva consulta a la DB.
-        """
-        from tkinter import simpledialog, messagebox
-        
-        filter_term = simpledialog.askstring("Filtrar Resultados", "Término a buscar en resultados actuales:")
-        if not filter_term:
-            return
-        
-        if not self.search_results_cache:
-            messagebox.showwarning("Sin resultados", "No hay resultados para filtrar")
-            return
-        
-        filtered = [r for r in self.search_results_cache 
-                   if filter_term.lower() in r.get('title', '').lower() 
-                   or filter_term.lower() in r.get('content', '').lower()]
-        
-        if not filtered:
-            messagebox.showwarning("Sin resultados", f"No hay coincidencias para '{filter_term}'")
-            return
-        
-        self.search_results_cache = filtered
-        self.search_total_results = len(filtered)
-        self.search_results_label_var.set(f"{self.search_total_results} entradas (filtrado)")
-        
-        self._render_search_results()
-        self.log(f"[SEARCH] Filtrado '{filter_term}': {len(filtered)} resultados")
-    
-    # ========================================================================
-    # FASE 3-4: FILTROS AVANZADOS + UI/UX (Módulos 36-60)
-    # ========================================================================
-    
-    def _apply_category_filter(self):
-        """MÓDULO 36: Filtro por Árbol de Categorías"""
-        if not hasattr(self, 'search_categories_check'):
-            return self.search_results_cache
-        selected = [cat for cat, var in self.search_categories_check.items() if var.get()]
-        return [r for r in self.search_results_cache if r.get('category') in selected] if selected else self.search_results_cache
-    
-    def _collapse_similar_results(self):
-        """MÓDULO 39: Colapso de Resultados Similares (>95%)"""
-        from tkinter import messagebox
-        if not self.search_results_cache or not hasattr(self.knowledge_db, 'collapse_similar_results'):
-            return
-        original = len(self.search_results_cache)
-        self.search_results_cache = self.knowledge_db.collapse_similar_results(self.search_results_cache, 0.95)
-        new_count = len(self.search_results_cache)
-        self.search_total_results = new_count
-        self.search_results_label_var.set(f"{new_count} entradas")
-        self._render_search_results()
-        if original > new_count:
-            messagebox.showinfo("Colapsados", f"Ocultados {original - new_count} duplicados")
-    
-    def _verify_source_exists(self):
-        """MÓDULO 41: Verificación de Origen"""
-        from tkinter import messagebox
-        if not self.search_results_cache:
-            return
-        missing = []
-        for r in self.search_results_cache[:10]:
-            if hasattr(self.knowledge_db, 'verify_source_file'):
-                if not self.knowledge_db.verify_source_file(r.get('source', '')).get('exists'):
-                    missing.append(r.get('source'))
-        messagebox.showwarning("No encontrados", f"{missing[:3]}") if missing else messagebox.showinfo("OK", "Todos verificados")
-    
-    def _extract_links_from_results(self):
-        """MÓDULO 44: Detección de Enlaces"""
-        from tkinter import messagebox
-        all_links = []
-        for r in self.search_results_cache:
-            if hasattr(self.knowledge_db, 'detect_links_in_content'):
-                all_links.extend(self.knowledge_db.detect_links_in_content(r.get('content', '')))
-        unique = list(set(all_links))
-        if unique:
-            messagebox.showinfo(f"Enlaces ({len(unique)})", "\n".join(unique[:15]))
-        else:
-            messagebox.showinfo("Sin enlaces", "No se encontraron")
-    
-    def _generate_pdf_report(self):
-        """MÓDULO 47: Generador de Reporte"""
-        from tkinter import filedialog, messagebox
-        from datetime import datetime
-        if not self.search_results_cache:
-            messagebox.showwarning("Sin resultados", "No hay resultados")
-            return
-        filepath = filedialog.asksaveasfilename(defaultextension=".txt",
-            filetypes=[("Text", "*.txt")], initialfile=f"reporte_{datetime.now().strftime('%Y%m%d')}.txt")
-        if not filepath:
-            return
-        try:
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write("="*50+"\nREPORTE KDP MASTER\n"+"="*50+"\n")
-                f.write(f"Fecha: {datetime.now()}\nBúsqueda: {self.search_filter_var.get()}\n")
-                f.write(f"Resultados: {len(self.search_results_cache)}\n\n")
-                for i, r in enumerate(self.search_results_cache, 1):
-                    f.write(f"[{i}] {r.get('title')}\nCategoría: {r.get('category')}\n")
-            messagebox.showinfo("Éxito", f"Guardado en:\n{filepath}")
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-    
-    def _compress_search_index(self):
-        """MÓDULO 59: Compresión de Índice"""
-        from tkinter import messagebox
-        if hasattr(self.knowledge_db, 'compress_index'):
-            result = self.knowledge_db.compress_index()
-            size_mb = result.get('new_size_bytes', 0) / (1024 * 1024)
-            messagebox.showinfo("Compresión", f"Tamaño: {size_mb:.2f} MB")
-        else:
-            messagebox.showinfo("No disponible", "Compresión no soportada")
 
     def setup_pending_videos_tab(self):
         """Centro de Curación Masiva de Conocimiento."""

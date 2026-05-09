@@ -221,7 +221,7 @@ class KnowledgeDBManager:
         except Exception as e:
             logger.warning("Auto-export failed: %s", e)
 
-def search_entries(self, query: str, search_keywords: bool = True) -> List[Dict]:
+    def search_entries(self, query: str, search_keywords: bool = True) -> List[Dict]:
         """
         Busca entradas que coincidan con la consulta.
 
@@ -256,40 +256,7 @@ def search_entries(self, query: str, search_keywords: bool = True) -> List[Dict]
             return []
         finally:
             conn.close()
-    
-    def search_by_keywords(self, keywords: str, limit: int = 50) -> List[Dict]:
-        """
-        Busca entradas por keywords específicas.
 
-        Args:
-            keywords: Keywords separadas por comas
-            limit: Límite de resultados
-
-        Returns:
-            Lista de entradas que coinciden con las keywords
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        try:
-            keyword_list = [k.strip() for k in keywords.split(',')]
-            conditions = ' OR '.join(['keywords LIKE ?' for _ in keyword_list])
-            params = [f'%{k}%' for k in keyword_list]
-            
-            cursor.execute(f"""
-                SELECT id, category, source, content, keywords, timestamp
-                FROM knowledge_entries
-                WHERE {conditions}
-                ORDER BY timestamp DESC
-                LIMIT ?
-            """, params + [limit])
-            rows = cursor.fetchall()
-            return [dict(row) for row in rows]
-        except Exception as e:
-            logger.error("Error searching by keywords: %s", e)
-            return []
-        finally:
-            conn.close()
-    
     def search_advanced(self, query: str = None, tipo: str = None, status: str = None,
                         date_from: str = None, date_to: str = None, order: str = "newest",
                         page: int = 1, page_size: int = 50) -> Dict:
