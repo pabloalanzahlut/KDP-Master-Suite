@@ -33,7 +33,10 @@ DEFAULT_DB = "data/channel_monitor.db"
 CACHE_CONTROL = "no-store, no-cache, must-revalidate, max-age=0"
 PRAGMA = "no-cache"
 
-SSE_INTERVAL = 10
+SSE_INTERVAL = 5
+# Nota: Se usa SSE (Server-Sent Events) en lugar de WebSocket para actualizaciones
+# en tiempo real. SSE es más ligero, no requiere dependencias adicionales, y funciona
+# bien para actualizaciones unidireccionales (servidor -> cliente).
 MAX_PORT_ATTEMPTS = 5
 
 _dashboard_token = None
@@ -214,6 +217,12 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             if auth_error is False:
                 return
             self._send_json_response(self.get_videos())
+        elif self.path.startswith('/api/channel/'):
+            auth_error = require_token(self)
+            if auth_error is False:
+                return
+            channel_id = self.path.split('/api/channel/')[1].split('/')[0]
+            self._send_json_response(self.get_channel_detail(channel_id))
         elif self.path == '/stream':
             auth_error = require_token(self)
             if auth_error is False:
@@ -421,6 +430,65 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             print(f"[ERROR get_videos] {e}")
         
         return videos
+    
+    def get_channel_detail(self, channel_id: str):
+        """Obtiene los detalles de un canal específico."""
+        result = {"channel": None, "videos": [], "stats": {}}
+        
+        if not DB_PATH.exists():
+            return result
+        
+        try:
+            conn = sqlite3.connect(str(DB_PATH))
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            
+            # Get channel info
+            cur.execute("SELECT * FROM channels WHERE id = ?", (int(channel_id),))
+            channel = cur.fetchone()
+            
+            if not channel:
+                conn.close()
+                return {"error": "Canal no encontrado"}
+            
+            result["channel"] = dict(channel)
+            
+            # Get videos for this channel
+            cur.execute("""
+                SELECT v.*, ph.status, ph.processed_at
+                FROM videos v
+                LEFT JOIN processing_history ph ON v.id = ph.video_id
+                WHERE v.channel_id = ?
+                ORDER BY v.discovered_at DESC
+                LIMIT 50
+            """, (int(channel_id),))
+            
+            result["videos"] = [
+                {
+                    "id": row['id'],
+                    "video_id": row['video_id'],
+                    "title": row['title'],
+                    "url": row['url'],
+                    "status": row['status'] if row['status'] else 'pending',
+                    "discovered_at": row['discovered_at'] or '',
+                    "published_at": row['published_at'] or ''
+                }
+                for row in cur.fetchall()
+            ]
+            
+            # Get stats
+            cur.execute("SELECT COUNT(*) as count FROM videos WHERE channel_id = ?", (int(channel_id),))
+            result["stats"]["total_videos"] = cur.fetchone()['count']
+            
+            cur.execute("SELECT COUNT(*) as count FROM videos WHERE channel_id = ? AND is_repost = 1", (int(channel_id),))
+            result["stats"]["total_duplicates"] = cur.fetchone()['count']
+            
+            conn.close()
+        except Exception as e:
+            result["error"] = str(e)
+            print(f"[ERROR get_channel_detail] {e}")
+        
+        return result
     
     def handle_sse(self):
         config = load_dashboard_config()
