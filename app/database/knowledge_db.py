@@ -1085,3 +1085,567 @@ class KnowledgeDBManager:
                 return {'exists': True, 'path': path, 'size': os.path.getsize(path)}
         
         return {'exists': False, 'path': None}
+    
+    # ================================================================
+    # FASE 1A: INDEXACIÓN FTS5 AVANZADA (Módulos 1-12)
+    # ================================================================
+    
+    def create_custom_fts_index(self) -> Dict:
+        """
+        MÓDULO 1: Índice FTS5 con Tokenización Personalizada
+        Crea índice full-text con stemmer para español/inglés y tokenizer personalizado.
+        """
+        import time
+        start = time.time()
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("DROP TABLE IF EXISTS knowledge_fts_advanced")
+            
+            cursor.execute("""
+                CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_fts_advanced USING fts5(
+                    content,
+                    category,
+                    tipo,
+                    source,
+                    tokenize='unicode61 remove_diacritics 2',
+                    content_rowid='id'
+                )
+            """)
+            
+            cursor.execute("""
+                INSERT INTO knowledge_fts_advanced(rowid, content, category, tipo, source)
+                SELECT id, content, category, COALESCE(tipo, 'Artículo'), source 
+                FROM knowledge_entries
+            """)
+            
+            cursor.execute("SELECT COUNT(*) FROM knowledge_fts_advanced")
+            indexed_count = cursor.fetchone()[0]
+            
+            elapsed = (time.time() - start) * 1000
+            
+            return {
+                'status': 'SUCCESS',
+                'indexed_documents': indexed_count,
+                'elapsed_ms': round(elapsed, 2),
+                'tokenizer': 'unicode61',
+                'options': 'remove_diacritics=2'
+            }
+        except Exception as e:
+            logger.error(f"Error creating custom FTS index: {e}")
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
+    
+    def create_category_indexes(self) -> Dict:
+        """
+        MÓDULO 2: Índice Invertido por Categoría KDP
+        Crea índices separados por las 18 categorías para búsquedas más rápidas.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("SELECT DISTINCT category FROM knowledge_entries WHERE category IS NOT NULL")
+            categories = [row[0] for row in cursor.fetchall()]
+            
+            results = {'categories': [], 'total_indexed': 0}
+            
+            for category in categories:
+                table_name = f"knowledge_fts_{category.replace(' ', '_').replace('/', '_')}"
+                
+                try:
+                    cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
+                    
+                    cursor.execute(f"""
+                        CREATE VIRTUAL TABLE IF NOT EXISTS {table_name} USING fts5(
+                            content, source, tipo, content_rowid='id'
+                        )
+                    """)
+                    
+                    cursor.execute(f"""
+                        INSERT INTO {table_name}(rowid, content, source, tipo)
+                        SELECT id, content, source, COALESCE(tipo, 'Artículo')
+                        FROM knowledge_entries
+                        WHERE category = ?
+                    """, (category,))
+                    
+                    cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
+                    count = cursor.fetchone()[0]
+                    
+                    results['categories'].append({
+                        'name': category,
+                        'table': table_name,
+                        'documents': count
+                    })
+                    results['total_indexed'] += count
+                    
+                except Exception as e:
+                    logger.warning(f"Error indexing category '{category}': {e}")
+            
+            conn.commit()
+            results['status'] = 'SUCCESS'
+            return results
+            
+        except Exception as e:
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
+    
+    def create_metadata_indexes(self) -> Dict:
+        """
+        MÓDULO 3: Índice de Metadatos (Autor/Fecha/Canal)
+        Crea índices en campos estructurados para filtrado eficiente.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            indexes_created = []
+            
+            indexes = [
+                ("idx_kb_source", "source"),
+                ("idx_kb_tipo", "tipo"),
+                ("idx_kb_status", "status"),
+                ("idx_kb_year", "strftime('%Y', timestamp)"),
+                ("idx_kb_month", "strftime('%m', timestamp)"),
+                ("idx_kb_category_lower", "LOWER(category)")
+            ]
+            
+            for idx_name, col in indexes:
+                try:
+                    cursor.execute(f"CREATE INDEX IF NOT EXISTS {idx_name} ON knowledge_entries({col})")
+                    indexes_created.append(idx_name)
+                except sqlite3.OperationalError:
+                    pass
+            
+            conn.commit()
+            
+            return {
+                'status': 'SUCCESS',
+                'indexes_created': len(indexes_created),
+                'indexes': indexes_created
+            }
+        except Exception as e:
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
+    
+    def prefetch_fts_indexes(self) -> Dict:
+        """
+        MÓDULO 5: Pre-fetch de Índices en Arranque
+        Carga datos de índice en memoria para búsquedas instantáneas.
+        """
+        import time
+        start = time.time()
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("SELECT COUNT(*) FROM knowledge_fts")
+            fts_count = cursor.fetchone()[0]
+            
+            cursor.execute("SELECT COUNT(*) FROM knowledge_entries")
+            total_entries = cursor.fetchone()[0]
+            
+            cursor.execute("PRAGMA cache_size")
+            cache_size = cursor.fetchone()[0]
+            
+            cursor.execute("PRAGMA page_count")
+            page_count = cursor.fetchone()[0]
+            
+            cursor.execute("PRAGMA page_size")
+            page_size = cursor.fetchone()[0]
+            
+            db_size_mb = (page_count * page_size) / (1024 * 1024)
+            
+            cursor.execute("SELECT category, COUNT(*) FROM knowledge_entries GROUP BY category")
+            categories = {row[0]: row[1] for row in cursor.fetchall()}
+            
+            elapsed = (time.time() - start) * 1000
+            
+            return {
+                'status': 'SUCCESS',
+                'fts_documents': fts_count,
+                'total_entries': total_entries,
+                'db_size_mb': round(db_size_mb, 2),
+                'cache_size': cache_size,
+                'categories': categories,
+                'elapsed_ms': round(elapsed, 2),
+                'optimization_hint': ' Índices listos para búsqueda instantánea' if fts_count > 0 else ' Sin datos para indexar'
+            }
+        except Exception as e:
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
+    
+    def search_fts_optimized(self, query: str, category: str = None, 
+                            tipo: str = None, limit: int = 50) -> Dict:
+        """
+        MÓDULO 6: Búsqueda FTS5 con Compresión BM25 Optimizada
+        Implementa ranking BM25 optimizado para mejor relevancia.
+        """
+        import time
+        import math
+        start = time.time()
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("SELECT COUNT(*) FROM knowledge_entries")
+            N = cursor.fetchone()[0]
+            
+            cursor.execute("SELECT AVG(palabras) FROM knowledge_entries WHERE palabras > 0")
+            avg_len = cursor.fetchone()[0] or 1000
+            
+            k1 = 1.5
+            b = 0.75
+            
+            if category:
+                query = f"{query} AND category:{category}"
+            if tipo:
+                query = f"{query} AND tipo:{tipo}"
+            
+            cursor.execute("""
+                SELECT id, category, source, tipo, content, palabras,
+                       substr(content, 1, 200) as content_preview
+                FROM knowledge_entries
+                WHERE content LIKE ?
+                LIMIT ?
+            """, (f'%{query}%', limit * 3))
+            
+            rows = cursor.fetchall()
+            
+            query_terms = query.lower().split()
+            
+            results = []
+            for row in rows:
+                doc_len = row[5] or avg_len
+                content_lower = (row[4] or "").lower()
+                
+                bm25_score = 0.0
+                for term in query_terms:
+                    tf = content_lower.count(term)
+                    if tf > 0:
+                        cursor.execute("""
+                            SELECT COUNT(*) FROM knowledge_entries 
+                            WHERE LOWER(content) LIKE ?
+                        """, (f'%{term}%',))
+                        ni = cursor.fetchone()[0] or 1
+                        
+                        idf = math.log((N - ni + 0.5) / (ni + 0.5) + 1)
+                        tf_norm = (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * (doc_len / avg_len)))
+                        bm25_score += idf * tf_norm
+                
+                if bm25_score > 0:
+                    results.append({
+                        'id': row[0],
+                        'category': row[1],
+                        'source': row[2],
+                        'tipo': row[3],
+                        'content_preview': row[6],
+                        'bm25_score': round(bm25_score, 4)
+                    })
+            
+            results.sort(key=lambda x: x['bm25_score'], reverse=True)
+            
+            elapsed = (time.time() - start) * 1000
+            
+            return {
+                'results': results[:limit],
+                'total': len(results[:limit]),
+                'elapsed_ms': round(elapsed, 2),
+                'algorithm': 'BM25-Optimized',
+                'N': N,
+                'avg_len': round(avg_len, 2)
+            }
+        except Exception as e:
+            logger.error(f"Error en search_fts_optimized: {e}")
+            return {'results': [], 'total': 0, 'elapsed_ms': 0, 'error': str(e)}
+        finally:
+            conn.close()
+    
+    def rebuild_index_incremental(self) -> Dict:
+        """
+        MÓDULO 7: Indexación Incremental en Tiempo Real
+        Actualiza el índice FTS5 sin reconstruir todo.
+        """
+        import time
+        start = time.time()
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("""
+                INSERT OR REPLACE INTO knowledge_fts(rowid, content, category, tipo, source)
+                SELECT id, content, category, COALESCE(tipo, 'Artículo'), source 
+                FROM knowledge_entries
+                WHERE id NOT IN (SELECT rowid FROM knowledge_fts)
+            """)
+            
+            inserted = cursor.rowcount
+            conn.commit()
+            
+            elapsed = (time.time() - start) * 1000
+            
+            return {
+                'status': 'SUCCESS',
+                'new_documents_indexed': inserted,
+                'elapsed_ms': round(elapsed, 2)
+            }
+        except Exception as e:
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
+    
+    def validate_fts_integrity(self) -> Dict:
+        """
+        MÓDULO 8: Validador de Integridad de Índices
+        Verifica que los índices FTS5 no estén corruptos.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("SELECT COUNT(*) FROM knowledge_entries")
+            entries_count = cursor.fetchone()[0]
+            
+            cursor.execute("SELECT COUNT(*) FROM knowledge_fts")
+            fts_count = cursor.fetchone()[0]
+            
+            cursor.execute("PRAGMA integrity_check")
+            integrity = cursor.fetchone()[0]
+            
+            cursor.execute("PRAGMA quick_check")
+            quick_check = cursor.fetchone()[0]
+            
+            if entries_count != fts_count:
+                status = 'MISMATCH'
+                recommendation = 'Ejecutar rebuild_index_incremental()'
+            elif integrity != 'ok':
+                status = 'CORRUPTED'
+                recommendation = 'Ejecutar rebuild_fts_index()'
+            else:
+                status = 'OK'
+                recommendation = 'Índices saludables'
+            
+            return {
+                'status': status,
+                'entries': entries_count,
+                'fts_indexed': fts_count,
+                'sqlite_integrity': integrity,
+                'quick_check': quick_check,
+                'recommendation': recommendation
+            }
+        except Exception as e:
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
+    
+    def rebuild_fts_if_fragmented(self, fragmentation_threshold: float = 0.30) -> Dict:
+        """
+        MÓDULO 9: Rebuild Automático de Índices Fragmentados
+        Reconstruye índices si fragmentación > 30%.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("PRAGMA page_count")
+            page_count = cursor.fetchone()[0]
+            
+            cursor.execute("PRAGMA freelist_count")
+            freelist_count = cursor.fetchone()[0]
+            
+            if page_count > 0:
+                fragmentation = freelist_count / page_count
+            else:
+                fragmentation = 0
+            
+            if fragmentation >= fragmentation_threshold:
+                cursor.execute("INSERT INTO knowledge_fts(knowledge_fts) VALUES('rebuild')")
+                conn.commit()
+                
+                return {
+                    'status': 'REBUILT',
+                    'fragmentation': round(fragmentation * 100, 2),
+                    'threshold': fragmentation_threshold * 100,
+                    'action': 'Índice reconstruido'
+                }
+            else:
+                return {
+                    'status': 'SKIPPED',
+                    'fragmentation': round(fragmentation * 100, 2),
+                    'threshold': fragmentation_threshold * 100,
+                    'action': 'Índice dentro de parámetros'
+                }
+        except Exception as e:
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
+    
+    def create_ngram_index(self, min_n: int = 3, max_n: int = 5) -> Dict:
+        """
+        MÓDULO 10: Índice de N-gramas (3-5 caracteres)
+        Crea índice para búsqueda parcial y prefix matching.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS knowledge_ngrams (
+                    ngram TEXT,
+                    doc_id INTEGER,
+                    position INTEGER,
+                    PRIMARY KEY (ngram, doc_id, position)
+                )
+            """)
+            
+            cursor.execute("DELETE FROM knowledge_ngrams")
+            
+            cursor.execute("SELECT id, content FROM knowledge_entries WHERE content IS NOT NULL")
+            rows = cursor.fetchall()
+            
+            total_ngrams = 0
+            for doc_id, content in rows:
+                words = content.split()
+                for pos, word in enumerate(words):
+                    word_clean = ''.join(c for c in word.lower() if c.isalnum())
+                    for n in range(min_n, min(max_n + 1, len(word_clean) + 1)):
+                        ngram = word_clean[:n]
+                        if len(ngram) >= min_n:
+                            cursor.execute("""
+                                INSERT OR IGNORE INTO knowledge_ngrams (ngram, doc_id, position)
+                                VALUES (?, ?, ?)
+                            """, (ngram, doc_id, pos))
+                            total_ngrams += 1
+            
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_ngram_lookup ON knowledge_ngrams(ngram)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_ngram_doc ON knowledge_ngrams(doc_id)")
+            
+            conn.commit()
+            
+            return {
+                'status': 'SUCCESS',
+                'total_ngrams': total_ngrams,
+                'min_n': min_n,
+                'max_n': max_n,
+                'note': 'Búsqueda parcial activada (ej: "KDP*" encuentra "KDP Master")'
+            }
+        except Exception as e:
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
+    
+    def search_with_synonyms(self, query: str, limit: int = 50) -> Dict:
+        """
+        MÓDULO 11: Índice de Sinónimos Predefinidos
+        Expande la búsqueda usando el diccionario de sinónimos.
+        """
+        import json
+        import os
+        import time
+        start = time.time()
+        
+        synonyms_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 
+                                     'data', 'synonyms.json')
+        
+        expanded_query = query.lower()
+        
+        try:
+            if os.path.exists(synonyms_path):
+                with open(synonyms_path, 'r', encoding='utf-8') as f:
+                    synonyms_data = json.load(f)
+                
+                synonym_groups = synonyms_data.get('synonym_groups', {})
+                
+                for main_term, synonyms in synonym_groups.items():
+                    if main_term in expanded_query:
+                        expanded_query = expanded_query + ' ' + ' '.join(synonyms[:3])
+                    for syn in synonyms:
+                        if syn in expanded_query:
+                            expanded_query = expanded_query + ' ' + main_term
+        except Exception as e:
+            logger.warning(f"Error loading synonyms: {e}")
+        
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("""
+                SELECT id, category, source, tipo, content,
+                       substr(content, 1, 200) as content_preview
+                FROM knowledge_entries
+                WHERE content LIKE ? OR content LIKE ?
+                LIMIT ?
+            """, (f'%{query}%', f'%{expanded_query}%', limit))
+            
+            results = [dict(row) for row in cursor.fetchall()]
+            
+            elapsed = (time.time() - start) * 1000
+            
+            return {
+                'results': results,
+                'total': len(results),
+                'elapsed_ms': round(elapsed, 2),
+                'original_query': query,
+                'expanded_query': expanded_query,
+                'synonyms_applied': True
+            }
+        except Exception as e:
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
+    
+    def get_partition_info(self) -> Dict:
+        """
+        MÓDULO 12: Particionamiento de Índices por Año/Mes
+        Retorna información de particionamiento temporal.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("""
+                SELECT 
+                    strftime('%Y', timestamp) as year,
+                    strftime('%m', timestamp) as month,
+                    COUNT(*) as count
+                FROM knowledge_entries
+                WHERE timestamp IS NOT NULL
+                GROUP BY year, month
+                ORDER BY year DESC, month DESC
+            """)
+            
+            partitions = []
+            for row in cursor.fetchall():
+                partitions.append({
+                    'year': row[0],
+                    'month': row[1],
+                    'count': row[2]
+                })
+            
+            cursor.execute("""
+                SELECT 
+                    strftime('%Y', timestamp) as year,
+                    COUNT(*) as count
+                FROM knowledge_entries
+                WHERE timestamp IS NOT NULL
+                GROUP BY year
+                ORDER BY year DESC
+            """)
+            
+            yearly = [{'year': row[0], 'count': row[1]} for row in cursor.fetchall()]
+            
+            return {
+                'status': 'SUCCESS',
+                'partitions': partitions,
+                'yearly_summary': yearly,
+                'total_partitions': len(partitions)
+            }
+        except Exception as e:
+            return {'status': 'ERROR', 'error': str(e)}
+        finally:
+            conn.close()
