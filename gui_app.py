@@ -117,10 +117,12 @@ except ImportError:
 try:
     from app.modules.task_queue import AsyncWorkerPool
     from app.core.ollama_pool import OllamaPool
+    from app.core.telemetry_service import TelemetryService
+    from app.core.ai_predictor_service import AIPredictorService
     from app.modules.monitoring.analytics_engine import AnalyticsEngine
     from app.api import kb_router
 except ImportError:
-    AsyncWorkerPool, OllamaPool, AnalyticsEngine, kb_router = None, None, None, None
+    AsyncWorkerPool, OllamaPool, TelemetryService, AIPredictorService, AnalyticsEngine, kb_router = None, None, None, None, None, None
 
 # Intentar importar el conversor PDF (requiere WeasyPrint/GTK)
 try:
@@ -783,6 +785,16 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self.channel_name_var    = tk.StringVar()
         self.monitor_var         = tk.BooleanVar(value=False)
         self.monitor_interval_var= tk.IntVar(value=60)
+        # --- Variables de Telemetría (Panel de Control Contextual) ---
+        self.telemetry_var       = tk.StringVar(value="📊 Telemetry: Initializing...")
+        self.cpu_var             = tk.StringVar(value="CPU: --")
+        self.ram_var             = tk.StringVar(value="RAM: --")
+        self.ollama_var          = tk.StringVar(value="🤖 Ollama: --")
+        self.kb_var              = tk.StringVar(value="🧠 KB: --")
+        self.queue_var           = tk.StringVar(value="📋 Cola: 0")
+        self.errors_var          = tk.StringVar(value="⚠️ Errores: 0")
+        self.telemetry_service  = None
+        self.ai_predictor_service = None
         # --- INICIO FUNCIONALIDAD US-010-UI: FILTROS DE BÚSQUEDA AVANZADA ---
         self.search_keywords_var = tk.StringVar()
         self.search_duration_min_var = tk.IntVar(value=0)
@@ -2238,6 +2250,94 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self.save_config()
         _uq(self)
 
+    def _start_telemetry_update(self):
+        """Inicia la actualización periódica de telemetría (Ciclos 1 y 2)."""
+        def _update_telemetry():
+            if self.telemetry_service:
+                try:
+                    metrics = self.telemetry_service.get_all_metrics()
+
+                    cpu_val = metrics.get('cpu_percent', 0)
+                    self.cpu_var.set(f"CPU:{cpu_val:.0f}%")
+
+                    ram_val = metrics.get('ram_percent', 0)
+                    self.ram_var.set(f"RAM:{ram_val:.0f}%")
+
+                    ollama_conn = metrics.get('ollama_connected', False)
+                    ollama_model = metrics.get('ollama_model', 'N/A')
+                    if ollama_conn:
+                        self.ollama_var.set(f"🤖 {ollama_model[:12]}")
+                    else:
+                        self.ollama_var.set("🤖 Offline")
+
+                    kb_healthy = metrics.get('kb_healthy', False)
+                    if kb_healthy:
+                        kb_count = metrics.get('indexed_today', 0)
+                        self.kb_var.set(f"🧠 KB:{kb_count}")
+                    else:
+                        self.kb_var.set("🧠 KB:Error")
+
+                    queue_val = metrics.get('queue_count', 0)
+                    self.queue_var.set(f"📋Cola:{queue_val}")
+
+                    errors_val = metrics.get('errors_count', 0)
+                    self.errors_var.set(f"⚠️{errors_val}")
+
+                    # Ciclo 2: ETA y Estado del Pipeline
+                    eta_val = metrics.get('eta_minutes', 0)
+                    state_val = metrics.get('pipeline_state', 'Idle')
+                    health_val = metrics.get('pipeline_health', 'green')
+
+                    health_icons = {'green': '🟢', 'yellow': '🟡', 'red': '🔴'}
+                    health_icon = health_icons.get(health_val, '⚪')
+
+                    # Ciclos 3 y 4: Análisis de IA completo
+                    ai_status = "IA:Off"
+                    ai_detail = ""
+                    if self.ai_predictor_service and self.ai_predictor_service.is_available():
+                        try:
+                            ai_predictions = self.ai_predictor_service.get_all_predictions(metrics)
+
+                            if ai_predictions.get('anomaly_detected'):
+                                ai_status = "IA:⚠️"
+                                ai_detail = f" | {ai_predictions.get('anomaly_type', 'Error')[:25]}"
+                            elif ai_predictions.get('eta_prediction', 0) > 0:
+                                ai_status = f"IA:ETA{ai_predictions.get('eta_prediction', 0)}m"
+                                ai_detail = f" | Conf:{int(ai_predictions.get('eta_confidence', 0)*100)}%"
+                            else:
+                                ai_status = "IA:On"
+
+                            # Mostrar recomendación si hay anomalía
+                            if ai_predictions.get('recommendation'):
+                                rec = ai_predictions.get('recommendation', '')
+                                if '⚠️' in rec:
+                                    ai_detail += f" | {rec[:30]}"
+                        except Exception as ai_err:
+                            ai_status = "IA:Err"
+                            logger.debug(f"AI update: {ai_err}")
+                    else:
+                        ai_status = "IA:Off"
+
+                    # Mostrar modo de contexto (Ciclo 3)
+                    context_mode = ""
+                    if self.ai_predictor_service and self.ai_predictor_service.is_available():
+                        try:
+                            ai_preds = self.ai_predictor_service.get_all_predictions(metrics)
+                            context_mode = f" | {ai_preds.get('context_mode', '')}"
+                        except:
+                            pass
+
+                    self.telemetry_var.set(f"📊 {health_icon} {state_val} | ETA:{eta_val}m | {ai_status}{ai_detail}{context_mode}")
+
+                except Exception as e:
+                    self.telemetry_var.set(f"📊 Telemetry: Error")
+                    logger.warning(f"Error actualizando telemetría: {e}")
+
+            self.root.after(2000, _update_telemetry)
+
+        self.root.after(1000, _update_telemetry)
+        logger.info("Actualización de telemetría iniciada (Ciclos 1-5: 80 módulos)")
+
     def clear_session_state(self):
         """Limpia el estado de sesión al finalizar correctamente."""
         session_file = os.path.join(self.base_dir, "session_state.json")
@@ -3469,7 +3569,55 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         # Barra de progreso global sutil (Permanente)
         self.progress_bar = ttk.Progressbar(status_bar, orient=tk.HORIZONTAL, length=200, mode='determinate', variable=self.progress_var)
         self.progress_bar.pack(side=tk.RIGHT, padx=15)
-        
+
+        # --- Panel de Telemetría (Ciclo 1: 20 módulos sin IA) ---
+        # Indicadores adicionales de telemetría reutilizando servicios existentes
+        self.telemetry_frame = ttk.Frame(status_bar)
+        self.telemetry_frame.pack(side=tk.LEFT, padx=(20, 0))
+
+        self.cpu_label = ttk.Label(self.telemetry_frame, textvariable=self.cpu_var,
+                                    font=("Inter", 8), foreground="#64748b")
+        self.cpu_label.pack(side=tk.LEFT, padx=5)
+
+        self.ram_label = ttk.Label(self.telemetry_frame, textvariable=self.ram_var,
+                                    font=("Inter", 8), foreground="#64748b")
+        self.ram_label.pack(side=tk.LEFT, padx=5)
+
+        self.ollama_label = ttk.Label(self.telemetry_frame, textvariable=self.ollama_var,
+                                       font=("Inter", 8), foreground="#64748b")
+        self.ollama_label.pack(side=tk.LEFT, padx=5)
+
+        self.kb_label = ttk.Label(self.telemetry_frame, textvariable=self.kb_var,
+                                   font=("Inter", 8), foreground="#64748b")
+        self.kb_label.pack(side=tk.LEFT, padx=5)
+
+        self.queue_label = ttk.Label(self.telemetry_frame, textvariable=self.queue_var,
+                                      font=("Inter", 8), foreground="#f59e0b")
+        self.queue_label.pack(side=tk.LEFT, padx=5)
+
+        self.errors_label = ttk.Label(self.telemetry_frame, textvariable=self.errors_var,
+                                       font=("Inter", 8), foreground="#ef4444")
+        self.errors_label.pack(side=tk.LEFT, padx=5)
+
+        # Inicializar TelemetryService
+        try:
+            if TelemetryService:
+                self.telemetry_service = TelemetryService()
+                logger.info("TelemetryService inicializado correctamente")
+        except Exception as e:
+            logger.warning(f"TelemetryService no disponible: {e}")
+
+        # Inicializar AIPredictorService (Ciclo 3 - IA)
+        try:
+            if AIPredictorService:
+                self.ai_predictor_service = AIPredictorService()
+                logger.info("AIPredictorService inicializado correctamente")
+        except Exception as e:
+            logger.warning(f"AIPredictorService no disponible: {e}")
+
+        # Iniciar actualización periódica de telemetría
+        self._start_telemetry_update()
+
         # Inicializar UI de cola
         self.download_queue = []
         self.update_queue_ui()
@@ -9930,11 +10078,16 @@ Descripción: {video.get('description', '')[:800]}
         tabs = [
             ("Descargas", "📥"), ("Procesamiento", "⚙️"), ("Inteligencia", "🧠"),
             ("Búsqueda", "🔍"), ("Monitor", "📺"), ("Dashboard", "📊"),
-            ("Pendientes", "🎥"), ("Revisión", "👁️"), ("Programación", "📅"),
-            ("Configuración", "⚙️")
+            ("Metadatos", "✨"), ("Pendientes", "🎥"), ("Revisión", "👁️"),
+            ("Programación", "📅"), ("Configuración", "⚙️")
         ]
         
-        for i, (name, icon) in enumerate(tabs):
+        # Filter tabs conditionally - skip Metadatos if not available
+        filtered_tabs = tabs.copy()
+        if not MetadataDashboard:
+            filtered_tabs = [t for t in filtered_tabs if t[0] != "Metadatos"]
+        
+        for i, (name, icon) in enumerate(filtered_tabs):
             btn = ttk.Button(
                 self.side_nav,
                 text=f"{icon}  {name}",
