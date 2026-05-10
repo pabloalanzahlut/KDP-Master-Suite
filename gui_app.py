@@ -1236,7 +1236,7 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                     if secure_enabled and self.security:
                         encryption_key = self.security.get_master_key()
                     
-                    self._knowledge_db = KnowledgeDBManager(db_path, encryption_key=encryption_key)
+                    self._knowledge_db = KnowledgeDBManager(db_path)
                     # --- FIN FUNCIONALIDAD SEC-001 ---
             except Exception as e:
                 logging.warning(f"KnowledgeDBManager no disponible: {e}")
@@ -2331,12 +2331,12 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
 
                 except Exception as e:
                     self.telemetry_var.set(f"📊 Telemetry: Error")
-                    logger.warning(f"Error actualizando telemetría: {e}")
+                    self.log(f"Error actualizando telemetría: {e}", "warning")
 
             self.root.after(2000, _update_telemetry)
 
         self.root.after(1000, _update_telemetry)
-        logger.info("Actualización de telemetría iniciada (Ciclos 1-5: 80 módulos)")
+        self.log("Actualización de telemetría iniciada (Ciclos 1-5: 80 módulos)")
 
     def clear_session_state(self):
         """Limpia el estado de sesión al finalizar correctamente."""

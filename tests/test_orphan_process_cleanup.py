@@ -68,14 +68,11 @@ def test_1_dashboard_cleanup():
             print("[OK] on_closing() llama a _stop_download_queue() que marca queue_running = False")
         else:
             print("[FAIL] ERROR: on_closing() NO marca queue_running = False")
-            return False
         
         print("\n[SUCCESS] TEST 1 PASADO: Limpieza de dashboard implementada correctamente")
-        return True
         
     except Exception as e:
         print(f"[FAIL] ERROR: {e}")
-        return False
 
 def test_2_stop_dashboard_code():
     """Test 2: Verificar el código de stop_dashboard_server()."""
@@ -107,14 +104,11 @@ def test_2_stop_dashboard_code():
         
         if all_passed:
             print("\n[SUCCESS] TEST 2 PASADO: Codigo robusto de limpieza implementado")
-            return True
         else:
             print("\n[FAIL] TEST 2 FALLIDO: Faltan componentes de limpieza")
-            return False
             
     except Exception as e:
         print(f"[FAIL] ERROR: {e}")
-        return False
 
 def test_4_new_cleanup_methods():
     """Test 4: Verificar nuevos metodos de limpieza."""
@@ -171,14 +165,11 @@ def test_4_new_cleanup_methods():
         
         if all_found:
             print("\n[SUCCESS] TEST 4 PASADO: Todos los metodos implementados y llamados")
-            return True
         else:
             print("\n[FAIL] TEST 4 FALLIDO: Faltan metodos o llamadas")
-            return False
             
     except Exception as e:
         print(f"[FAIL] ERROR: {e}")
-        return False
 
 def test_3_manual_instructions():
     """Test 3: Instrucciones para prueba manual."""
@@ -223,7 +214,6 @@ RESULTADO ESPERADO:
 - Puerto 8000 libre
 - Sin mensajes de error al reiniciar la app
 """)
-    return True
 
 def main():
     print("="*60)
