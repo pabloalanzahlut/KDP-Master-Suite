@@ -1,450 +1,503 @@
 """
 KDP MASTER - AI Assistant Module
-==================================
+=================================
 Módulos 37-48: Asistencia Inteligente y Automatización
-Chat RAG, reporte, sugerencias, FAQs, best practices.
 """
 
 import os
 import json
-import logging
 from typing import Dict, List, Optional
 from datetime import datetime
-from dataclasses import dataclass, field
+import logging
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class ChatMessage:
-    role: str
-    content: str
-    timestamp: str
-    sources: List[Dict] = field(default_factory=list)
-
-
-class RAGAssistant:
+class ChatRAG:
     """
     MÓDULO 37: Chat sobre Resultados (RAG)
-    Permite hacer preguntas sobre los resultados encontrados.
+    Permite hacer preguntas sobre resultados encontrados.
     """
     
-    def __init__(self, model: str = "llama3.1:8b"):
-        self.model = model
-        self.conversation_history: List[ChatMessage] = []
-        self.current_context: List[Dict] = []
-        logger.info("RAGAssistant inicializado")
-    
-    def set_context(self, results: List[Dict]):
-        """
-        Establece el contexto de resultados para el chat.
+    def __init__(self, ollama_client=None):
+        self.client = ollama_client
         
-        Args:
-            results: Lista de resultados de búsqueda
-        """
-        self.current_context = results[:10]
-    
-    def ask(self, question: str) -> Dict:
-        """
-        Responde una pregunta sobre el contexto actual.
+    def chat_about_results(self, question: str, results: List[Dict]) -> str:
+        """Responde preguntas sobre los resultados de búsqueda."""
+        if not self.client:
+            return "Chat RAG no disponible (Ollama no conectado)"
         
-        Args:
-            question: Pregunta del usuario
-            
-        Returns:
-            Diccionario con respuesta y fuentes
-        """
-        if not self.current_context:
-            return {
-                'answer': 'No hay resultados disponibles para analizar. Realiza una búsqueda primero.',
-                'sources': [],
-                'error': 'no_context'
-            }
+        context = ""
+        for i, r in enumerate(results[:5], 1):
+            title = r.get('title', r.get('source', f'Result {i}'))
+            content = r.get('content', '')[:500]
+            context += f"\n--- Resultado {i}: {title} ---\n{content}\n"
         
-        context = self._build_context()
-        
-        history_text = ""
-        if len(self.conversation_history) > 0:
-            last_msgs = self.conversation_history[-3:]
-            history_text = "\n".join([f"{m.role}: {m.content}" for m in last_msgs])
-        
-        try:
-            prompt = f"""Eres un asistente de conocimiento experto en KDP/Amazon Publishing.
-Responde preguntas basándote ÚNICAMENTE en el contexto proporcionado.
+        prompt = f"""Basándote en los siguientes resultados de búsqueda, responde la pregunta.
+Si la respuesta no está en los resultados, indica que no tienes esa información.
 
-Contexto de documentos:
+RESULTADOS:
 {context}
 
-Historial de conversación:
-{history_text}
+PREGUNTA: {question}
 
-Pregunta actual: {question}
-
-Responde de forma clara y concisa. Si no tienes información suficiente, dilo honestamente.
-CITA las fuentes cuando menciones información de los documentos."""
-
-            import subprocess
-            result = subprocess.run(
-                ["ollama", "run", self.model, prompt],
-                capture_output=True,
-                text=True,
-                timeout=90
-            )
-            
-            if result.returncode == 0:
-                answer = result.stdout.strip()
-                
-                self.conversation_history.append(ChatMessage(
-                    role="user",
-                    content=question,
-                    timestamp=datetime.now().isoformat()
-                ))
-                
-                self.conversation_history.append(ChatMessage(
-                    role="assistant",
-                    content=answer,
-                    timestamp=datetime.now().isoformat(),
-                    sources=self.current_context[:3]
-                ))
-                
-                return {
-                    'answer': answer,
-                    'sources': self.current_context[:3],
-                    'question': question
-                }
+RESPUESTA:"""
         
-        except Exception as e:
-            logger.error(f"RAG chat falló: {e}")
-        
-        return self._simple_answer(question)
-    
-    def _build_context(self) -> str:
-        """Construye contexto desde resultados."""
-        context_parts = []
-        
-        for i, r in enumerate(self.current_context, 1):
-            title = r.get('source', r.get('title', f'Doc {i}'))
-            category = r.get('category', '')
-            tipo = r.get('type', r.get('tipo', ''))
-            content = r.get('content', r.get('content_preview', ''))[:500]
-            
-            context_parts.append(f"[{i}] {title} ({category} - {tipo}):\n{content}...\n")
-        
-        return "\n---\n".join(context_parts)
-    
-    def _simple_answer(self, question: str) -> Dict:
-        """Respuesta simple sin LLM."""
-        question_lower = question.lower()
-        
-        for r in self.current_context:
-            content = r.get('content', r.get('content_preview', ''))
-            
-            if any(kw in content.lower() for kw in question_lower.split()[:2]):
-                return {
-                    'answer': f"Según el documento: {content[:300]}...",
-                    'sources': [r],
-                    'question': question
-                }
-        
-        return {
-            'answer': 'No encontré información específica en los resultados. ¿Puedes ser más específico?',
-            'sources': [],
-            'question': question
-        }
-    
-    def clear_history(self):
-        """Limpia el historial de conversación."""
-        self.conversation_history.clear()
-    
-    def get_history(self) -> List[ChatMessage]:
-        """Retorna historial de conversación."""
-        return self.conversation_history.copy()
+        return self.client.generate_completion(prompt, max_tokens=400) or \
+               "No puedo responder basada en los resultados actuales."
 
 
 class SearchReportGenerator:
     """
     MÓDULO 38: Generación de Reporte de Búsqueda
-    Crea documento sintetizando resultados.
+    IA crea documento sintetizando resultados.
     """
     
-    def __init__(self):
-        self.output_dir = os.path.expanduser("~/Documents/KDP_Master/search_reports")
-        os.makedirs(self.output_dir, exist_ok=True)
-        logger.info("SearchReportGenerator inicializado")
+    def generate_report(self, query: str, results: List[Dict], format: str = "md") -> str:
+        """Genera reporte de búsqueda."""
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        if format == "md":
+            return self._generate_markdown_report(query, results, timestamp)
+        elif format == "txt":
+            return self._generate_text_report(query, results, timestamp)
+        else:
+            return self._generate_markdown_report(query, results, timestamp)
     
-    def generate_report(self, query: str, results: List[Dict], 
-                        analysis: Dict = None) -> str:
-        """
-        Genera reporte de búsqueda en Markdown.
+    def _generate_markdown_report(self, query: str, results: List[Dict], timestamp: str) -> str:
+        """Genera reporte en formato Markdown."""
+        report = f"""# Reporte de Búsqueda - KDP Master
+
+**Fecha:** {timestamp}
+**Query:** {query}
+**Total de resultados:** {len(results)}
+
+---
+
+## Resumen
+
+"""
         
-        Args:
-            query: Query original
-            results: Resultados de búsqueda
-            analysis: Análisis opcional (de ResultAnalyzer)
-            
-        Returns:
-            Ruta del archivo generado
-        """
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"reporte_busqueda_{timestamp}.md"
-        filepath = os.path.join(self.output_dir, filename)
+        categories = {}
+        for r in results:
+            cat = r.get('category', 'Unknown')
+            categories[cat] = categories.get(cat, 0) + 1
         
-        try:
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(f"# Reporte de Búsqueda - KDP Master\n\n")
-                f.write(f"**Fecha:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-                f.write(f"**Query:** {query}\n")
-                f.write(f"**Total de resultados:** {len(results)}\n\n")
-                f.write("---\n\n")
-                
-                if analysis and analysis.get('summary'):
-                    f.write(f"## Resumen\n\n{analysis['summary']}\n\n")
-                
-                if analysis and analysis.get('key_points'):
-                    f.write("## Puntos Clave\n\n")
-                    for i, point in enumerate(analysis['key_points'][:5], 1):
-                        f.write(f"{i}. {point}\n")
-                    f.write("\n")
-                
-                f.write("## Resultados\n\n")
-                for i, r in enumerate(results[:20], 1):
-                    title = r.get('source', r.get('title', f'Resultado {i}'))
-                    category = r.get('category', 'Sin categoría')
-                    tipo = r.get('type', r.get('tipo', 'Artículo'))
-                    content = r.get('content_preview', r.get('content', ''))[:300]
-                    
-                    f.write(f"### {i}. {title}\n\n")
-                    f.write(f"- **Categoría:** {category}\n")
-                    f.write(f"- **Tipo:** {tipo}\n")
-                    f.write(f"\n{content}...\n\n")
-                    f.write("---\n\n")
-                
-                if analysis and analysis.get('tools_mentioned'):
-                    f.write("## Herramientas Mentionadas\n\n")
-                    for tool in analysis['tools_mentioned']:
-                        f.write(f"- {tool}\n")
-                    f.write("\n")
-                
-                if analysis and analysis.get('metrics'):
-                    f.write("## Métricas Encontradas\n\n")
-                    for metric in analysis['metrics']:
-                        f.write(f"- {metric}\n")
-                    f.write("\n")
-                
-                f.write(f"\n*Reporte generado automáticamente por KDP Master Search*\n")
+        report += "### Distribución por Categoría\n\n"
+        for cat, count in sorted(categories.items(), key=lambda x: x[1], reverse=True):
+            report += f"- **{cat}**: {count} resultados\n"
+        
+        report += "\n## Resultados\n\n"
+        
+        for i, r in enumerate(results[:15], 1):
+            title = r.get('title', r.get('source', f'Result {i}'))
+            cat = r.get('category', 'Sin categoría')
+            tipo = r.get('type', 'Artículo')
+            date = r.get('date', 'N/A')
+            content = r.get('content', '')[:300]
             
-            logger.info(f"Reporte generado: {filepath}")
-            return filepath
-            
-        except Exception as e:
-            logger.error(f"Error generando reporte: {e}")
-            return None
+            report += f"""### {i}. {title}
+
+- **Categoría:** {cat}
+- **Tipo:** {tipo}
+- **Fecha:** {date}
+
+{content}...
+
+---
+"""
+        
+        return report
+    
+    def _generate_text_report(self, query: str, results: List[Dict], timestamp: str) -> str:
+        """Genera reporte en formato texto."""
+        report = f"""{'='*60}
+REPORTE DE BÚSQUEDA - KDP MASTER
+{'='*60}
+Fecha: {timestamp}
+Query: {query}
+Total de resultados: {len(results)}
+{'='*60}
+
+RESUMEN
+-------
+"""
+        
+        categories = {}
+        for r in results:
+            cat = r.get('category', 'Unknown')
+            categories[cat] = categories.get(cat, 0) + 1
+        
+        for cat, count in sorted(categories.items(), key=lambda x: x[1], reverse=True):
+            report += f"  {cat}: {count}\n"
+        
+        report += "\nRESULTADOS\n----------\n"
+        
+        for i, r in enumerate(results[:10], 1):
+            title = r.get('title', r.get('source', f'Result {i}'))
+            content = r.get('content', '')[:200]
+            report += f"\n{i}. {title}\n{content}...\n"
+        
+        return report
+    
+    def save_report(self, query: str, results: List[Dict], filename: str = None) -> str:
+        """Guarda reporte a archivo."""
+        if not filename:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            safe_query = query.replace(' ', '_')[:20]
+            filename = f"reporte_busqueda_{safe_query}_{timestamp}.md"
+        
+        report = self.generate_report(query, results)
+        
+        base_path = os.path.expanduser("~/Documents/KDP_Master/reports")
+        os.makedirs(base_path, exist_ok=True)
+        
+        filepath = os.path.join(base_path, filename)
+        
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(report)
+        
+        logger.info(f"Reporte guardado: {filepath}")
+        return filepath
 
 
-class SearchSuggester:
+class RelatedSearchSuggester:
     """
     MÓDULO 39: Sugerencia de Búsquedas Relacionadas
-    Sugiere queries alternativas basadas en resultados.
+    IA sugiere queries alternativas.
     """
     
-    def __init__(self):
-        self.suggestions_cache = {}
-    
-    def suggest(self, query: str, results: List[Dict]) -> List[str]:
-        """
-        Sugiere búsquedas relacionadas.
+    def suggest_related(self, query: str, results: List[Dict]) -> List[str]:
+        """Sugiere búsquedas relacionadas."""
+        suggestions = []
         
-        Returns:
-            Lista de queries sugeridas
-        """
-        if not results:
-            return []
+        categories = set()
+        for r in results:
+            cat = r.get('category', '')
+            if cat:
+                categories.add(cat)
         
-        suggestions = set()
+        query_lower = query.lower()
         
-        categories = [r.get('category', '') for r in results]
-        category_counter = Counter(categories)
+        if 'ads' in query_lower or 'publicidad' in query_lower:
+            suggestions.extend(['Amazon Ads estrategia', 'Amazon Ads presupuesto', 'ACoS optimización'])
         
-        if category_counter:
-            top_cat = category_counter.most_common(1)[0][0]
-            suggestions.add(f"{query} {top_cat}")
+        if 'kdp' in query_lower or 'amazon' in query_lower:
+            suggestions.extend(['KDP pricing', 'Kindle Unlimited', 'Amazon SEO keywords'])
         
-        keywords = self._extract_keywords(results)
-        for kw in keywords[:3]:
-            suggestions.add(f"{query} {kw}")
+        if 'marketing' in query_lower:
+            suggestions.extend(['marketing digital libros', 'promoción KDP', 'estrategia lanzamiento'])
         
-        tipo = results[0].get('type', results[0].get('tipo', ''))
-        if tipo:
-            suggestions.add(f"{tipo.lower()} {query}")
+        if 'legal' in query_lower or 'compliance' in query_lower:
+            suggestions.extend(['términos Amazon', 'derechos autor', 'ISBN requisito'])
         
-        return list(suggestions)[:5]
-    
-    def _extract_keywords(self, results: List[Dict]) -> List[str]:
-        """Extrae keywords de resultados."""
-        all_words = []
-        
-        for r in results[:5]:
-            content = r.get('content', r.get('content_preview', ''))
-            words = content.split()
-            
-            for w in words:
-                if 4 <= len(w) <= 20 and w.isalpha():
-                    all_words.append(w.lower())
-        
-        word_counts = Counter(all_words)
-        
-        stopwords = {'que', 'del', 'para', 'con', 'los', 'las', 'una', 'este', 'esta', 
-                     'por', 'como', 'más', 'pero', 'sus', 'ya', 'o', 'se', 'lo', 'más'}
-        
-        keywords = [w for w, c in word_counts.most_common(20) if w not in stopwords and c > 2]
-        
-        return keywords[:10]
+        return suggestions[:6]
 
 
 class KnowledgeGapDetector:
     """
     MÓDULO 40: Alerta de Conocimiento Faltante
-    Detecta lagunas en los resultados.
+    IA detecta lagunas en resultados.
     """
     
-    def __init__(self):
-        self.known_gaps = []
+    EXPECTED_CATEGORIES = [
+        'Amazon Ads', 'Amazon KDP', 'Amazon SEO', 'Legalidad y Compliance',
+        'Marketing Digital', 'Kindle Unlimited', 'Pricing'
+    ]
     
-    def detect_gaps(self, query: str, results: List[Dict]) -> List[str]:
-        """
-        Detecta qué información falta en los resultados.
+    def detect_gaps(self, results: List[Dict]) -> Dict:
+        """Detecta categorías faltantes en resultados."""
+        found_categories = set()
+        for r in results:
+            cat = r.get('category', '')
+            if cat:
+                found_categories.add(cat)
         
-        Returns:
-            Lista de temas que no tienen cobertura
-        """
-        gaps = []
+        missing = []
+        for expected in self.EXPECTED_CATEGORIES:
+            if expected not in found_categories:
+                missing.append(expected)
         
-        expected_topics = {
-            'ads': ['estrategia', 'presupuesto', 'bid', 'campaña'],
-            'marketing': ['promoción', 'publicidad', 'canal'],
-            'seo': ['palabras clave', 'ranking', 'optimización'],
-            'pricing': ['precio', 'royalty', 'estrategia']
+        return {
+            'has_gaps': len(missing) > 0,
+            'missing_categories': missing,
+            'message': f"Resultados no cubren: {', '.join(missing)}" if missing else "Resultados completos"
         }
-        
-        query_lower = query.lower()
-        
-        for topic, keywords in expected_topics.items():
-            if topic in query_lower:
-                for kw in keywords:
-                    found = False
-                    for r in results:
-                        if kw in r.get('content', '').lower():
-                            found = True
-                            break
-                    if not found:
-                        gaps.append(f"{topic}_{kw}")
-        
-        return gaps
+
+
+class ReadingPrioritizer:
+    """
+    MÓDULO 41: Priorización de Lectura
+    IA recomienda orden de lectura de resultados.
+    """
     
-    def suggest_creation(self, gaps: List[str]) -> List[str]:
-        """Sugiere crear contenido para llenar gaps."""
-        suggestions = []
+    def prioritize(self, results: List[Dict]) -> List[Dict]:
+        """Ordena resultados por prioridad de lectura."""
+        prioritized = []
         
-        gap_keywords = {
-            'ads_estrategia': 'Crear nota sobre estrategias de Amazon Ads',
-            'ads_presupuesto': 'Crear guía de presupuestos para campañas',
-            'marketing_promoción': 'Crear manual de promociones para libros',
-            'seo_palabras': 'Crear guía de selección de palabras clave',
+        for r in results:
+            score = 0.0
+            
+            tipo = r.get('type', '').lower()
+            if 'tutorial' in tipo:
+                score += 0.3
+            
+            cat = r.get('category', '').lower()
+            if 'ads' in cat or 'legal' in cat:
+                score += 0.2
+            
+            words = r.get('words', 0)
+            if 500 < words < 3000:
+                score += 0.1
+            
+            date = r.get('date', '')
+            if date:
+                try:
+                    if '2024' in date or '2025' in date:
+                        score += 0.2
+                except:
+                    pass
+            
+            r['reading_priority_score'] = score
+            prioritized.append(r)
+        
+        prioritized.sort(key=lambda x: x.get('reading_priority_score', 0), reverse=True)
+        return prioritized
+
+
+class CitationExtractor:
+    """
+    MÓDULO 42: Extracción de Citas para Referencia
+    IA extrae fragmentos citables con fuente.
+    """
+    
+    def extract_citations(self, results: List[Dict]) -> List[Dict]:
+        """Extrae citas de los resultados."""
+        citations = []
+        
+        for r in results:
+            content = r.get('content', '')
+            title = r.get('title', r.get('source', ''))
+            category = r.get('category', '')
+            
+            sentences = content.split('.')
+            for sentence in sentences[:3]:
+                if 30 < len(sentence.strip()) < 150:
+                    citations.append({
+                        'text': sentence.strip(),
+                        'source': title,
+                        'category': category
+                    })
+        
+        return citations[:20]
+
+
+class VersionComparator:
+    """
+    MÓDULO 43: Comparación Automática de Versiones
+    IA compara resultados de misma fuente diferente fecha.
+    """
+    
+    def compare_versions(self, source: str, results: List[Dict]) -> Dict:
+        """Compara versiones de contenido de la misma fuente."""
+        source_results = [r for r in results if source.lower() in r.get('source', '').lower()]
+        
+        if len(source_results) < 2:
+            return {'comparable': False, 'message': 'No hay suficientes versiones'}
+        
+        dates = []
+        for r in source_results:
+            date = r.get('date', '')
+            if date:
+                dates.append(date)
+        
+        dates.sort()
+        
+        if len(dates) >= 2:
+            return {
+                'comparable': True,
+                'earliest': dates[0],
+                'latest': dates[-1],
+                'versions_found': len(dates),
+                'note': f"Contenido actualizado desde {dates[0]} hasta {dates[-1]}"
+            }
+        
+        return {'comparable': False, 'message': 'No se encontraron fechas'}
+
+
+class TrendDetector:
+    """
+    MÓDULO 44: Detección de Tendencias en Resultados
+    IA identifica patrones temporales.
+    """
+    
+    def detect_trends(self, results: List[Dict]) -> Dict:
+        """Detecta tendencias en los resultados."""
+        years = {}
+        
+        for r in results:
+            date = str(r.get('date', ''))
+            year = date[:4] if len(date) >= 4 else 'Unknown'
+            
+            if year.isdigit():
+                years[year] = years.get(year, 0) + 1
+        
+        if not years:
+            return {'trend': 'unknown', 'message': 'Sin datos temporales'}
+        
+        sorted_years = sorted(years.items(), key=lambda x: x[0])
+        
+        if len(sorted_years) >= 2:
+            recent = sorted_years[-1][0]
+            older = sorted_years[0][0]
+            
+            if int(recent) - int(older) >= 2:
+                return {
+                    'trend': 'evolving',
+                    'pattern': f"Evolución: {older} (teórico) → {recent} (práctico)",
+                    'distribution': years
+                }
+        
+        return {
+            'trend': 'stable',
+            'message': f"Distribución estable: {years}",
+            'distribution': years
         }
-        
-        for gap in gaps:
-            if gap in gap_keywords:
-                suggestions.append(gap_keywords[gap])
-        
-        return suggestions
 
 
 class FAQGenerator:
     """
     MÓDULO 45: Generación de FAQs desde Resultados
-    Crea preguntas frecuentes basadas en resultados.
+    IA crea preguntas frecuentes basadas en resultados.
     """
     
     def generate_faqs(self, results: List[Dict]) -> List[Dict]:
-        """
-        Genera FAQs desde resultados de búsqueda.
-        
-        Returns:
-            Lista de preguntas y respuestas
-        """
+        """Genera FAQs desde resultados."""
         faqs = []
         
-        questions_patterns = [
-            (r'qué es\s+([^\?]+)', r'¿Qué es \1?'),
-            (r'cómo\s+([^\?]+)', r'¿Cómo \1?'),
-            (r'cuál es\s+([^\?]+)', r'¿Cuál es \1?'),
-        ]
+        seen_questions = set()
         
-        for r in results[:10]:
+        for r in results:
             content = r.get('content', '')
+            title = r.get('title', '')
             
-            for pattern, question_template in questions_patterns:
-                match = re.search(pattern, content, re.IGNORECASE)
-                if match:
-                    subject = match.group(1).strip()[:50]
-                    question = question_template.replace(r'\1', subject)
-                    
-                    answer_start = match.end()
-                    answer = content[answer_start:answer_start + 200].strip()
-                    
-                    if answer:
-                        faqs.append({
-                            'question': question,
-                            'answer': answer + '...',
-                            'source': r.get('source', r.get('id', ''))
-                        })
+            questions = self._extract_potential_questions(content, title)
             
-            if len(faqs) >= 10:
-                break
+            for q in questions:
+                if q not in seen_questions:
+                    faqs.append({
+                        'question': q,
+                        'answer': r.get('content', '')[:200] + '...',
+                        'source': title
+                    })
+                    seen_questions.add(q)
         
         return faqs[:10]
+    
+    def _extract_potential_questions(self, content: str, title: str) -> List[str]:
+        """Extrae preguntas potenciales del contenido."""
+        questions = []
+        
+        if 'cómo' in content.lower() or 'como' in content.lower():
+            questions.append(f"¿Cómo {title.lower().replace('?', '')}?")
+        
+        if 'qué' in content.lower() or 'que es' in content.lower():
+            questions.append(f"¿Qué es {title.lower().replace('?', '')}?")
+        
+        return questions
 
 
-class BestPracticeExtractor:
+class BestPracticesExtractor:
     """
     MÓDULO 46: Extracción de Best Practices
-    Sintetiza mejores prácticas de resultados.
+    IA sintetiza mejores prácticas de resultados.
     """
     
-    def extract(self, results: List[Dict]) -> List[str]:
-        """
-        Extrae mejores prácticas de los resultados.
+    def extract_best_practices(self, results: List[Dict]) -> List[str]:
+        """Extrae mejores prácticas de resultados."""
+        practices = []
         
-        Returns:
-            Lista de mejores prácticas
-        """
-        best_practices = []
+        keywords = ['mejor práctica', 'best practice', 'recomendación', 'sugieren', 'importante']
         
-        bp_keywords = [
-            'recomiendo', 'mejor práctica', 'importante', 'clave', 'fundamental',
-            'estrategia', 'optimizar', 'mejorar', 'incrementar', 'aumentar'
-        ]
-        
-        for r in results[:10]:
+        for r in results:
             content = r.get('content', '')
-            sentences = content.split('.')
             
+            sentences = content.split('.')
             for sentence in sentences:
-                sentence = sentence.strip()
-                if any(kw in sentence.lower() for kw in bp_keywords):
-                    if 30 < len(sentence) < 150:
-                        best_practices.append(sentence)
+                if any(kw in sentence.lower() for kw in keywords):
+                    if 30 < len(sentence.strip()) < 120:
+                        practices.append(sentence.strip())
         
-        return best_practices[:10]
+        return list(set(practices))[:10]
 
 
-def get_ai_assistant(model: str = "llama3.1:8b") -> Dict:
-    """Factory para obtener todos los asistentes."""
-    return {
-        'rag': RAGAssistant(model),
-        'reporter': SearchReportGenerator(),
-        'suggester': SearchSuggester(),
-        'gap_detector': KnowledgeGapDetector(),
-        'faq_generator': FAQGenerator(),
-        'best_practice': BestPracticeExtractor()
-    }
+class InformationGapAnalyzer:
+    """
+    MÓDULO 47: Identificación de Gaps de Información
+    IA detecta qué falta en resultados.
+    """
+    
+    def analyze_gaps(self, query: str, results: List[Dict]) -> Dict:
+        """Analiza gaps de información."""
+        gaps = []
+        
+        content_lengths = [len(r.get('content', '')) for r in results]
+        avg_length = sum(content_lengths) / len(content_lengths) if content_lengths else 0
+        
+        if avg_length < 500:
+            gaps.append("Contenido general sin profundidad")
+        
+        categories = set(r.get('category', '') for r in results)
+        if len(categories) < 3:
+            gaps.append("Poca diversidad de categorías")
+        
+        types = set(r.get('type', '') for r in results)
+        if 'Tutorial' not in types and 'Caso' not in types:
+            gaps.append("Faltan ejemplos prácticos")
+        
+        return {
+            'has_gaps': len(gaps) > 0,
+            'gaps': gaps,
+            'summary': ' / '.join(gaps) if gaps else "Información completa"
+        }
+
+
+class PostSearchRecommender:
+    """
+    MÓDULO 48: Recomendación de Acciones Post-Búsqueda
+    IA sugiere qué hacer con resultados.
+    """
+    
+    def recommend_actions(self, results: List[Dict], query: str) -> List[Dict]:
+        """Recomienda acciones después de la búsqueda."""
+        actions = []
+        
+        if results:
+            actions.append({
+                'action': 'export',
+                'label': 'Exportar a PDF',
+                'description': 'Generar reporte profesional para compartir'
+            })
+            
+            actions.append({
+                'action': 'merge',
+                'label': 'Fusionar en Manual',
+                'description': 'Crear documento consolidado de conocimiento'
+            })
+        
+        if len(results) > 5:
+            actions.append({
+                'action': 'deeper',
+                'label': 'Profundizar en Tema',
+                'description': f'Buscar más sobre: "{query} avanzado"'
+            })
+        
+        categories = set(r.get('category', '') for r in results)
+        if len(categories) > 1:
+            actions.append({
+                'action': 'explore',
+                'label': 'Explorar Categorías',
+                'description': f"Ver resultados en otras categorías: {', '.join(list(categories)[:2])}"
+            })
+        
+        return actions

@@ -1,496 +1,495 @@
 """
 KDP MASTER - Predictive Engine Module
-=====================================
+======================================
 Módulos 49-60: Optimización Predictiva y Aprendizaje
-Predicciones, cache inteligente, detección de anomalías, insights.
 """
 
 import time
-import logging
-from typing import Dict, List, Optional, Tuple
+import os
+from typing import Dict, List, Optional
+from collections import defaultdict, Counter
 from datetime import datetime, timedelta
-from collections import Counter, defaultdict
-from dataclasses import dataclass, field
+import logging
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class SearchPrediction:
-    query: str
-    predicted_results: int
-    confidence: float
-    estimated_time_ms: int
-    suggested_alternatives: List[str]
-
-
-class SearchPredictor:
+class SearchTimePredictor:
     """
     MÓDULO 49: Predicción de Tiempo de Búsqueda
-    Estima duración antes de ejecutar.
+    IA estima duración antes de ejecutar.
     """
     
     def __init__(self):
-        self._history: List[Dict] = []
-        self._query_patterns = defaultdict(list)
+        self._historical_times = []
+        self._avg_time_by_complexity = {
+            'simple': 50,
+            'medium': 150,
+            'complex': 400,
+            'very_complex': 800
+        }
     
-    def predict(self, query: str, filters: Dict = None) -> SearchPrediction:
-        """
-        Predice tiempo de búsqueda y resultados.
+    def predict_time(self, query: str, filters: Dict = None) -> Dict:
+        """Predice tiempo de búsqueda."""
+        complexity = self._estimate_complexity(query, filters)
         
-        Returns:
-            SearchPrediction con estimaciones
-        """
-        query_lower = query.lower()
+        predicted_ms = self._avg_time_by_complexity.get(complexity, 200)
         
-        matching_queries = []
-        for past in self._history[-50:]:
-            past_query = past.get('query', '').lower()
-            
-            common_terms = set(query_lower.split()) & set(past_query.split())
-            if common_terms:
-                matching_queries.append(past)
+        return {
+            'predicted_ms': predicted_ms,
+            'complexity': complexity,
+            'suggestion': self._get_suggestion(complexity),
+            'continue': predicted_ms < 5000
+        }
+    
+    def _estimate_complexity(self, query: str, filters: Dict = None) -> str:
+        """Estima complejidad de la búsqueda."""
+        score = 0
         
-        if matching_queries:
-            avg_results = sum(q.get('results', 0) for q in matching_queries) / len(matching_queries)
-            avg_time = sum(q.get('time_ms', 100) for q in matching_queries) / len(matching_queries)
-            
-            confidence = min(len(matching_queries) / 10.0, 0.9)
-        else:
-            avg_results = 50
-            avg_time = 200
-            confidence = 0.3
+        if len(query.split()) > 5:
+            score += 2
+        if len(query) > 30:
+            score += 1
+        if ' AND ' in query.upper() or ' OR ' in query.upper():
+            score += 3
         
-        if len(query) > 50:
-            avg_time *= 1.5
         if filters:
-            avg_time *= 1.2
+            score += len(filters)
         
-        return SearchPrediction(
-            query=query,
-            predicted_results=int(avg_results),
-            confidence=round(confidence, 2),
-            estimated_time_ms=int(avg_time),
-            suggested_alternatives=[]
-        )
+        if score <= 1:
+            return 'simple'
+        elif score <= 3:
+            return 'medium'
+        elif score <= 5:
+            return 'complex'
+        else:
+            return 'very_complex'
     
-    def record_search(self, query: str, results: int, time_ms: int):
-        """Registra búsqueda para aprendizaje."""
-        self._history.append({
-            'query': query,
-            'results': results,
-            'time_ms': time_ms,
-            'timestamp': datetime.now().isoformat()
-        })
-        
-        query_lower = query.lower()
-        if len(query.split()) <= 3:
-            self._query_patterns[query_lower.split()[0]].append({
-                'results': results,
-                'time_ms': time_ms
-            })
+    def _get_suggestion(self, complexity: str) -> str:
+        """Sugiere acción según complejidad."""
+        suggestions = {
+            'simple': 'Búsqueda rápida',
+            'medium': 'Tiempo normal',
+            'complex': 'Considerea simplificar la query',
+            'very_complex': 'Tiempo estimado >5s. ¿Desea continuar?'
+        }
+        return suggestions.get(complexity, '')
+    
+    def record_actual_time(self, query: str, elapsed_ms: float):
+        """Registra tiempo real para aprendizaje."""
+        self._historical_times.append(elapsed_ms)
+        if len(self._historical_times) > 100:
+            self._historical_times = self._historical_times[-100:]
 
 
 class QueryOptimizer:
     """
     MÓDULO 50: Optimización de Query Automática
-    Reescribe query para mejor rendimiento.
+    IA reescribe query para mejor rendimiento.
     """
     
     def optimize(self, query: str) -> str:
-        """
-        Optimiza query para búsqueda más eficiente.
+        """Optimiza query para mejor rendimiento."""
+        optimized = query.strip()
         
-        Returns:
-            Query optimizada
-        """
-        query = query.strip()
+        if len(query.split()) > 10:
+            words = query.split()
+            optimized = ' '.join(words[:10])
         
-        if len(query) > 200:
-            query = query[:200]
+        optimized = optimized.replace('  ', ' ')
         
-        query = ' '.join(query.split())
-        
-        stopwords = ['el', 'la', 'los', 'las', 'de', 'que', 'es', 'en', 'con', 'para']
-        words = query.split()
-        optimized = ' '.join(w for w in words if w.lower() not in stopwords or w.isupper())
-        
-        return optimized if optimized else query
+        return optimized
     
-    def suggest_improvements(self, query: str) -> List[str]:
+    def suggest_improvements(self, query: str, results_count: int) -> List[str]:
         """Sugiere mejoras para la query."""
         suggestions = []
         
-        if ' ' not in query and len(query) > 3:
-            suggestions.append(f"Considera usar múltiples términos: '{query} Amazon Ads'")
+        if results_count == 0:
+            if len(query.split()) < 3:
+                suggestions.append("Añade más palabras clave específicas")
+            
+            suggestions.append("Prueba con sinónimos")
+            suggestions.append("Reduce los filtros activos")
         
-        if any(c in query for c in ['?', '¿', '!']):
-            suggestions.append("Las preguntas pueden dar mejores resultados con palabras clave")
-        
-        if len(query) < 4:
-            suggestions.append("Query muy corta, considera añadir más contexto")
+        if results_count > 100:
+            suggestions.append("La query es muy amplia, considera ser más específico")
         
         return suggestions
 
 
-class IntelligentCache:
+class SmartCache:
     """
     MÓDULO 51: Cache Inteligente de Embeddings
-    Decide qué embeddings pre-calcular.
+    IA decide qué embeddings cachear.
     """
     
     def __init__(self, max_size: int = 1000):
-        self._cache: Dict[str, Dict] = {}
+        self._cache = {}
+        self._access_count = defaultdict(int)
         self._max_size = max_size
-        self._access_count = Counter()
-        self._last_access = {}
     
     def should_cache(self, query: str) -> bool:
-        """Decide si una query merece ser cacheada."""
-        query_lower = query.lower()
-        
-        if query_lower in self._access_count:
-            return self._access_count[query_lower] >= 2
-        
-        return len(query.split()) >= 2
+        """Decide si la query merece cache."""
+        return query.lower() not in ['test', 'prueba', 'xxx']
     
-    def get(self, key: str) -> Optional[Dict]:
-        """Obtiene del cache."""
+    def get_cached_embedding(self, query: str) -> Optional[List[float]]:
+        """Obtiene embedding cacheado."""
+        key = query.lower().strip()
+        
         if key in self._cache:
             self._access_count[key] += 1
-            self._last_access[key] = time.time()
             return self._cache[key]
+        
         return None
     
-    def set(self, key: str, value: Dict):
-        """Almacena en cache."""
-        if len(self._cache) >= self._max_size:
-            self._evict_lru()
-        
-        self._cache[key] = value
-        self._access_count[key] = 1
-        self._last_access[key] = time.time()
-    
-    def _evict_lru(self):
-        """Elimina entrada menos usada."""
-        if not self._last_access:
+    def cache_embedding(self, query: str, embedding: List[float]):
+        """Cachea embedding."""
+        if not self.should_cache(query):
             return
         
-        lru_key = min(self._last_access, key=self._last_access.get)
-        del self._cache[lru_key]
-        del self._access_count[lru_key]
-        del self._last_access[lru_key]
+        key = query.lower().strip()
+        
+        if len(self._cache) >= self._max_size:
+            self._evict_least_used()
+        
+        self._cache[key] = embedding
+        self._access_count[key] = 1
     
-    def get_stats(self) -> Dict:
-        """Estadísticas del cache."""
-        return {
-            'size': len(self._cache),
-            'max_size': self._max_size,
-            'top_queries': self._access_count.most_common(10)
-        }
+    def _evict_least_used(self):
+        """Elimina el menos usado."""
+        if not self._access_count:
+            return
+        
+        least_used = min(self._access_count.items(), key=lambda x: x[1])
+        del self._cache[least_used[0]]
+        del self._access_count[least_used[0]]
 
 
 class DomainAdapter:
     """
     MÓDULO 52: Adaptación de Modelo por Dominio
-    Ajusta comportamiento al contexto KDP.
+    IA ajusta modelo Ollama al contexto KDP.
     """
     
-    def __init__(self):
-        self.kdp_terms = {
-            'bsr': 'Best Seller Rank',
-            'kdp': 'Kindle Direct Publishing',
-            'ads': 'Amazon Advertising',
-            'ku': 'Kindle Unlimited',
-            'royalties': 'regalías',
-            'acos': 'Advertising Cost of Sales',
-            'impressions': 'impresiones',
-            'clicks': 'clics',
-            'conversions': 'conversiones'
-        }
+    DOMAIN_TERMS = {
+        'kdp': ['Kindle Direct Publishing', 'publicación', 'autoedición'],
+        'ads': ['Amazon Ads', 'publicidad', 'campaña'],
+        'bsr': ['Best Seller Rank', 'ranking', 'ventas'],
+        'seo': ['posicionamiento', 'keywords', 'búsqueda'],
+        'royalty': ['regalías', 'ingresos', 'pagos'],
+        'pricing': ['precio', 'tarifa', 'estrategia']
+    }
     
-    def adapt_query(self, query: str) -> str:
-        """Adapta query al dominio KDP."""
+    def adapt_prompt(self, base_prompt: str, context: str = 'kdp') -> str:
+        """Adapta prompt al dominio KDP."""
+        domain_terms = self.DOMAIN_TERMS.get(context, [])
+        
+        if domain_terms:
+            terms_str = ', '.join(domain_terms[:3])
+            adapted = f"{base_prompt}\n\nContexto del dominio KDP: {terms_str}"
+            return adapted
+        
+        return base_prompt
+    
+    def detect_domain(self, query: str) -> str:
+        """Detecta dominio de la query."""
         query_lower = query.lower()
         
-        for abbr, full in self.kdp_terms.items():
-            if abbr in query_lower and full not in query_lower:
-                query = query + f" {full}"
+        for domain, terms in self.DOMAIN_TERMS.items():
+            if any(term.lower() in query_lower for term in terms):
+                return domain
         
-        return query
-    
-    def get_domain_context(self) -> Dict:
-        """Retorna contexto del dominio."""
-        return {
-            'terms': self.kdp_terms,
-            'categories': [
-                'Amazon Ads', 'Amazon KDP', 'Amazon SEO', 'Legalidad',
-                'Marketing', 'Pricing', 'Kindle Unlimited', 'Herramientas'
-            ]
-        }
+        return 'general'
 
 
-class QueryProblemDetector:
+class ProblematicQueryDetector:
     """
     MÓDULO 53: Detección de Consultas Problemáticas
-    Identifica queries que suelen fallar.
+    IA identifica queries que suelen fallar.
     """
     
     def __init__(self):
-        self._problem_queries: Dict[str, int] = {}
-        self._zero_results_queries: set = set()
+        self._failed_queries = Counter()
+        self._zero_result_queries = Counter()
     
-    def check_query(self, query: str) -> Dict:
-        """
-        Verifica si la query es problemática.
+    def record_failure(self, query: str, has_results: bool):
+        """Registra resultado de búsqueda."""
+        key = query.lower().strip()
         
-        Returns:
-            Diccionario con diagnóstico
-        """
-        query_lower = query.lower().strip()
+        if not has_results:
+            self._zero_result_queries[key] += 1
+            self._failed_queries[key] += 1
+    
+    def is_problematic(self, query: str) -> Dict:
+        """Detecta si la query es problemática."""
+        key = query.lower().strip()
         
-        if query_lower in self._zero_results_queries:
+        zero_count = self._zero_result_queries.get(key, 0)
+        
+        if zero_count >= 3:
             return {
                 'is_problematic': True,
-                'issue': 'zero_results_history',
-                'suggestion': 'Esta query no dio resultados anteriormente. ¿Quieres reformularla?',
-                'reformulation': self._suggest_reformulation(query)
+                'reason': '多次 sin resultados',
+                'suggestion': 'Reformula la query o intenta sin filtros'
             }
         
-        if len(query) < 2:
+        if len(key) < 3:
             return {
                 'is_problematic': True,
-                'issue': 'too_short',
-                'suggestion': 'Query muy corta. Añade más contexto.'
-            }
-        
-        if query.isdigit():
-            return {
-                'is_problematic': True,
-                'issue': 'numeric_only',
-                'suggestion': 'Solo números. Añade contexto como "BSR 100000"'
+                'reason': 'Query muy corta',
+                'suggestion': 'Añade más términos de búsqueda'
             }
         
         return {'is_problematic': False}
-    
-    def record_zero_results(self, query: str):
-        """Registra query sin resultados."""
-        self._zero_results_queries.add(query.lower().strip())
-    
-    def _suggest_reformulation(self, query: str) -> str:
-        """Sugiere reformulación."""
-        words = query.split()
-        
-        if len(words) == 1:
-            return f"{query} Amazon KDP"
-        
-        return f"{query} tutorial guía"
 
 
-class SearchPreferenceLearner:
+class ViewPreferenceLearner:
     """
     MÓDULO 54: Aprendizaje de Preferencias de Visualización
-    Aprende preferencias del usuario.
+    IA aprende vista favorita del usuario.
     """
     
-    def __init__(self):
-        self._view_preferences: Dict[str, str] = {}
-        self._order_preferences: Dict[str, str] = {}
+    VIEW_PREFERENCES = {
+        'list': {'icon': '📋', 'name': 'Lista'},
+        'cards': {'icon': '🃏', 'name': 'Tarjetas'},
+        'tree': {'icon': '🌳', 'name': 'Árbol'}
+    }
     
-    def record_view_choice(self, view_type: str):
-        """Registra elección de vista."""
-        self._view_preferences[view_type] = self._view_preferences.get(view_type, 0) + 1
+    def __init__(self):
+        self._view_history = []
+        self._default_view = 'list'
+    
+    def record_view_selection(self, view: str, duration_seconds: int):
+        """Registra selección de vista."""
+        if duration_seconds > 5:
+            self._view_history.append(view)
+            if len(self._view_history) > 50:
+                self._view_history = self._view_history[-50:]
     
     def get_preferred_view(self) -> str:
-        """Retorna vista preferida."""
-        if not self._view_preferences:
-            return 'list'
-        return max(self._view_preferences, key=self._view_preferences.get)
+        """Obtiene vista preferida."""
+        if not self._view_history:
+            return self._default_view
+        
+        counter = Counter(self._view_history)
+        return counter.most_common(1)[0][0]
     
-    def record_order_choice(self, order: str):
-        """Registra preferencia de ordenamiento."""
-        self._order_preferences[order] = self._order_preferences.get(order, 0) + 1
-    
-    def get_preferred_order(self) -> str:
-        """Retorna orden preferido."""
-        if not self._order_preferences:
-            return 'Nuevos primero'
-        return max(self._order_preferences, key=self._order_preferences.get)
+    def get_view_options(self) -> List[Dict]:
+        """Obtiene opciones de vista."""
+        preferred = self.get_preferred_view()
+        
+        return [
+            {'id': 'list', 'icon': '📋', 'name': 'Lista', 'preferred': 'list' == preferred},
+            {'id': 'cards', 'icon': '🃏', 'name': 'Tarjetas', 'preferred': 'cards' == preferred},
+            {'id': 'tree', 'icon': '🌳', 'name': 'Árbol', 'preferred': 'tree' == preferred}
+        ]
 
 
 class RelevancePredictor:
     """
     MÓDULO 55: Predicción de Relevancia Futura
-    Predice qué resultados serán útiles.
+    IA predice qué resultados serán útiles.
     """
     
-    def __init__(self):
-        self._feedback_history: List[Dict] = []
-    
-    def predict_relevance(self, results: List[Dict]) -> List[Dict]:
-        """
-        Predice relevancia de resultados.
-        
-        Returns:
-            Resultados con scores de predicción
-        """
-        if not results:
-            return []
+    def predict_relevance(self, query: str, results: List[Dict]) -> List[Dict]:
+        """Predice relevancia de resultados."""
+        scored_results = []
         
         for r in results:
             score = 0.5
             
-            if r.get('semantic_score', 0) > 0.7:
+            if r.get('click_score', 0) > 0:
                 score += 0.2
             
-            content_len = len(r.get('content', ''))
-            if 500 < content_len < 3000:
-                score += 0.1
+            date = r.get('date', '')
+            if date and ('2024' in date or '2025' in date):
+                score += 0.15
             
-            if r.get('category'):
-                score += 0.1
+            if r.get('personalization_score', 0) > 0.7:
+                score += 0.15
             
-            r['predicted_relevance'] = min(score, 1.0)
+            probability = min(score * 100, 99)
+            r['relevance_probability'] = probability
+            scored_results.append(r)
         
-        return sorted(results, key=lambda x: x.get('predicted_relevance', 0), reverse=True)
+        scored_results.sort(key=lambda x: x.get('relevance_probability', 0), reverse=True)
+        return scored_results
+
+
+class IndexOptimizer:
+    """
+    MÓDULO 56: Optimización de Índices con IA
+    IA decide cuándo reconstruir índices.
+    """
     
-    def record_feedback(self, result_id: int, useful: bool):
-        """Registra feedback del usuario."""
-        self._feedback_history.append({
-            'result_id': result_id,
-            'useful': useful,
-            'timestamp': datetime.now().isoformat()
-        })
+    def should_rebuild(self, fragmentation: float, record_count: int) -> Dict:
+        """Decide si reconstruir índices."""
+        should_rebuild = False
+        reason = ""
+        
+        if fragmentation > 0.30:
+            should_rebuild = True
+            reason = f"Fragmentación {fragmentation*100:.0f}% > 30%"
+        
+        if record_count > 10000 and fragmentation > 0.15:
+            should_rebuild = True
+            reason = f"Índices fragmentados en dataset grande ({record_count} registros)"
+        
+        return {
+            'should_rebuild': should_rebuild,
+            'reason': reason,
+            'expected_improvement': '20-40% velocidad' if should_rebuild else None
+        }
 
 
 class AnomalyDetector:
     """
     MÓDULO 57: Detección de Anomalías en Búsquedas
-    Detecta patrones inusuales.
+    IA detecta patrones inusuales.
     """
     
     def __init__(self):
-        self._searches_per_minute = []
-        self._last_check = time.time()
-        self._search_count = 0
+        self._search_count_history = []
+        self._max_normal_searches = 20
     
-    def record_search(self):
-        """Registra búsqueda."""
-        self._search_count += 1
-        now = time.time()
+    def detect_anomaly(self, searches_last_5min: int) -> Dict:
+        """Detecta anomalías en patrón de búsquedas."""
+        self._search_count_history.append(searches_last_5min)
         
-        if now - self._last_check > 60:
-            self._searches_per_minute.append(self._search_count)
-            self._search_count = 0
-            self._last_check = now
-            
-            if len(self._searches_per_minute) > 10:
-                self._searches_per_minute.pop(0)
-    
-    def check_anomaly(self) -> Optional[Dict]:
-        """Detecta anomalías."""
-        if len(self._searches_per_minute) < 5:
-            return None
+        if len(self._search_count_history) > 10:
+            self._search_count_history = self._search_count_history[-10:]
         
-        avg = sum(self._searches_per_minute) / len(self._searches_per_minute)
+        avg = sum(self._search_count_history[:-1]) / max(len(self._search_count_history) - 1, 1)
         
-        if self._search_count > avg * 3:
+        if searches_last_5min > avg * 3 and avg > 5:
             return {
-                'type': 'high_search_volume',
-                'message': f'Estas haciendo {self._search_count} búsquedas/min vs tu promedio de {avg:.1f}',
-                'severity': 'warning'
+                'is_anomaly': True,
+                'type': 'high_activity',
+                'message': f'Actividad inusualmente alta: {searches_last_5min} búsquedas en 5 min (promedio: {avg:.1f})',
+                'action': 'Monitorear uso'
             }
         
-        return None
+        return {'is_anomaly': False}
 
 
-class SearchInsightGenerator:
+class KeywordRecommender:
     """
-    MÓDULO 60: Generación de Insights de Búsqueda
-    Crea reporte estratégico de patrones.
+    MÓDULO 58: Recomendación de Palabras Clave
+    IA sugiere keywords para añadir a KB.
+    """
+    
+    def recommend_keywords(self, zero_result_queries: List[str]) -> List[Dict]:
+        """Recomienda keywords basadas en búsquedas sin resultados."""
+        recommendations = []
+        
+        keywords = Counter()
+        for query in zero_result_queries:
+            words = query.lower().split()
+            keywords.update([w for w in words if len(w) > 3])
+        
+        for word, count in keywords.most_common(10):
+            recommendations.append({
+                'keyword': word,
+                'times_searched': count,
+                'suggestion': f'Considera añadir contenido sobre "{word}" a la KB'
+            })
+        
+        return recommendations
+
+
+class InterestEvolutionAnalyzer:
+    """
+    MÓDULO 59: Análisis de Evolución de Intereses
+    IA rastrea cómo cambian búsquedas del usuario.
     """
     
     def __init__(self):
-        self._search_history: List[Dict] = []
+        self._search_history = []
     
-    def add_search(self, query: str, results: int, filters: Dict):
+    def record_search(self, query: str, category: str = None):
         """Registra búsqueda."""
         self._search_history.append({
             'query': query,
-            'results': results,
-            'filters': filters,
+            'category': category,
             'timestamp': datetime.now().isoformat()
         })
+        
+        if len(self._search_history) > 200:
+            self._search_history = self._search_history[-200:]
     
-    def generate_insights(self, days: int = 7) -> Dict:
-        """
-        Genera insights de patrones de búsqueda.
+    def analyze_evolution(self) -> Dict:
+        """Analiza evolución de intereses."""
+        if len(self._search_history) < 10:
+            return {'message': 'Historial insuficiente para análisis'}
         
-        Returns:
-            Diccionario con insights
-        """
-        if len(self._search_history) < 5:
-            return {'status': 'insufficient_data'}
+        recent = self._search_history[-20:]
+        older = self._search_history[-50:-20] if len(self._search_history) >= 50 else []
         
-        query_counter = Counter()
-        category_counter = Counter()
-        zero_result_count = 0
+        recent_cats = Counter([s.get('category') for s in recent if s.get('category')])
+        older_cats = Counter([s.get('category') for s in older if s.get('category')])
         
-        cutoff = datetime.now() - timedelta(days=days)
+        if not recent_cats or not older_cats:
+            return {'message': 'Sin datos de categoría suficientes'}
         
-        for s in self._search_history:
-            try:
-                ts = datetime.fromisoformat(s['timestamp'])
-                if ts < cutoff:
-                    continue
-            except:
-                continue
-            
-            query_counter[s['query']] += 1
-            
-            if s.get('filters', {}).get('category'):
-                category_counter[s['filters']['category']] += 1
-            
-            if s['results'] == 0:
-                zero_result_count += 1
+        recent_top = recent_cats.most_common(1)[0][0] if recent_cats else None
+        older_top = older_cats.most_common(1)[0][0] if older_cats else None
+        
+        if recent_top != older_top:
+            return {
+                'trend': 'shifted',
+                'previous_interest': older_top,
+                'current_interest': recent_top,
+                'message': f'Tu interés cambió de "{older_top}" a "{recent_top}"'
+            }
         
         return {
-            'period_days': days,
-            'total_searches': len(self._search_history),
-            'top_queries': query_counter.most_common(5),
-            'top_categories': category_counter.most_common(5),
-            'zero_results_rate': round(zero_result_count / len(self._search_history) * 100, 1),
-            'insights': self._generate_insight_text(query_counter, category_counter, zero_result_count)
+            'trend': 'stable',
+            'main_interest': recent_top,
+            'message': f'Interés consistente en "{recent_top}"'
         }
+
+
+class SearchInsightsGenerator:
+    """
+    MÓDULO 60: Generación de Insights de Búsqueda
+    IA crea reporte estratégico de patrones.
+    """
     
-    def _generate_insight_text(self, queries: Counter, categories: Counter, zero_count: int) -> List[str]:
-        """Genera texto de insights."""
+    def generate_insights(self, search_history: List[Dict], 
+                         results_by_query: Dict[str, int]) -> Dict:
+        """Genera insights de patrones de búsqueda."""
         insights = []
         
-        if queries:
-            top_query = queries.most_common(1)[0]
-            insights.append(f"Tu búsqueda más frecuente es '{top_query[0]}' ({top_query[1]} veces)")
+        if not search_history:
+            return {'insights': [], 'message': 'Sin historial'}
         
-        if categories:
-            top_cat = categories.most_common(1)[0]
-            insights.append(f"Categoría más consultada: {top_cat[0]} ({top_cat[1]} búsquedas)")
+        query_types = Counter()
+        for s in search_history:
+            q = s.get('query', '').lower()
+            if 'ads' in q or 'marketing' in q:
+                query_types['marketing'] += 1
+            elif 'legal' in q or 'compliance' in q:
+                query_types['legal'] += 1
+            elif 'seo' in q or 'amazon' in q:
+                query_types['amazon'] += 1
         
-        if zero_count > len(self._search_history) * 0.3:
-            insights.append("Alto porcentaje de búsquedas sin resultados. Considera revisar tu base de conocimiento.")
+        total = sum(query_types.values())
+        if total > 0:
+            for cat, count in query_types.most_common(3):
+                percentage = count / total * 100
+                insights.append({
+                    'type': 'distribution',
+                    'message': f'{percentage:.0f}% de búsquedas son sobre "{cat}"'
+                })
         
-        return insights
-
-
-def get_predictive_engine() -> Dict:
-    """Factory para obtener el motor predictivo."""
-    return {
-        'predictor': SearchPredictor(),
-        'query_optimizer': QueryOptimizer(),
-        'intelligent_cache': IntelligentCache(),
-        'domain_adapter': DomainAdapter(),
-        'problem_detector': QueryProblemDetector(),
-        'preference_learner': SearchPreferenceLearner(),
-        'relevance_predictor': RelevancePredictor(),
-        'anomaly_detector': AnomalyDetector(),
-        'insight_generator': SearchInsightGenerator()
-    }
+        zero_results = sum(1 for r in results_by_query.values() if r == 0)
+        if zero_results > 0:
+            insights.append({
+                'type': 'gap',
+                'message': f'{zero_results} búsquedas no encontraron resultados - considera expandir KB'
+            })
+        
+        return {
+            'insights': insights,
+            'summary': ' / '.join([i['message'] for i in insights[:3]])
+        }
