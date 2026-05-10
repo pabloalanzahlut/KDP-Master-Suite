@@ -1,4 +1,4 @@
-import tkinter as tk
+﻿import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from typing import Dict, Optional, List, Tuple, Any
@@ -53,6 +53,14 @@ except ImportError:
 # ==================== FIN MÓDULO: LOCK MANAGER ====================
 
 # --- Importación de Servicios de Lógica de Negocio ---
+# [FIX-IMPORT] Movidos aquí para asegurar disponibilidad global
+try:
+    from app.database.db_manager import DatabaseManager
+    from app.database.knowledge_db import KnowledgeDBManager
+except ImportError:
+    DatabaseManager = None
+    KnowledgeDBManager = None
+
 try:
     from app.services.monitor_service import ChannelMonitorService
     from app.services.processed_videos_tracker import ProcessedVideosTracker
@@ -63,8 +71,8 @@ try:
 except ImportError as e:
     print(f"Error importando servicios pro: {e}")
     try:
-        from db_manager import DatabaseManager
-        from knowledge_db import KnowledgeDBManager
+        if not DatabaseManager: from db_manager import DatabaseManager
+        if not KnowledgeDBManager: from knowledge_db import KnowledgeDBManager
         from monitor_service import ChannelMonitorService
         from processed_videos_tracker import ProcessedVideosTracker
         from manual_content_merger import ManualContentMerger
@@ -109,10 +117,12 @@ except ImportError:
 try:
     from app.modules.task_queue import AsyncWorkerPool
     from app.core.ollama_pool import OllamaPool
+    from app.core.telemetry_service import TelemetryService
+    from app.core.ai_predictor_service import AIPredictorService
     from app.modules.monitoring.analytics_engine import AnalyticsEngine
     from app.api import kb_router
 except ImportError:
-    AsyncWorkerPool, OllamaPool, AnalyticsEngine, kb_router = None, None, None, None
+    AsyncWorkerPool, OllamaPool, TelemetryService, AIPredictorService, AnalyticsEngine, kb_router = None, None, None, None, None, None
 
 # Intentar importar el conversor PDF (requiere WeasyPrint/GTK)
 try:
@@ -252,7 +262,8 @@ try:
 except ImportError:
     settings_tab = None
 try:
-    from app.ui.tabs import review_tab
+    from app.ui.tabs import review_queue
+    review_tab = review_queue
 except ImportError:
     review_tab = None
 try:
@@ -322,7 +333,22 @@ atexit.register(_emergency_save)
 from app.ui.components.logging import TextHandler
 from app.ui.components.tooltips import ToolTip
 from app.ui.components.notifications import ToastNotification
+try:
+    from app.ui.components.metadata_panel import MetadataDashboard
+except ImportError:
+    MetadataDashboard = None
 from app.ui.mixins import DownloadMixin, ProcessingMixin, MonitorMixin, SearchMixin, ConfigMixin, DashboardMixin
+
+try:
+    from app.search.search_cache import get_search_cache_manager, SearchCacheManager
+    from app.search.search_engine import SearchEngine, SearchFacade, SearchQueryParser, SearchHighlighter
+    from app.search.search_facets import SearchFacets, SearchFilters, SearchPreferences, SearchHistory
+    from app.search.search_exporter import SearchExporter
+    from app.search.search_analytics import SearchAnalytics, SearchPermissions, SearchQuota, SearchHealthCheck
+    SEARCH_MODULES_AVAILABLE = True
+except ImportError as e:
+    SEARCH_MODULES_AVAILABLE = False
+    print(f"[SEARCH MODULES] Modulos avanzados no disponibles: {e}")
 
 
 class SplashScreen:
@@ -440,6 +466,14 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self.root.state('normal')
         
         self.current_theme = "cosmo" # Bootstrap theme por defecto
+        self.analyze_tab_loaded = False
+        self.search_tab_loaded = False
+        self.channel_monitor_tab_loaded = False
+        self.dashboard_tab_loaded = False
+        self.pending_tab_loaded = False
+        self.review_tab_loaded = False
+        self.settings_tab_loaded = False
+        self.schedule_tab_loaded = False
 
         self.style = ttk.Style() 
         self.configure_styles()
@@ -573,6 +607,8 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
 
         # Variables de opciones
         self.secure_mode_var = tk.BooleanVar(value=False)
+        self._secure_mode_cache = False
+        self.secure_mode_var.trace_add("write", lambda *a: setattr(self, '_secure_mode_cache', self.secure_mode_var.get()))
 
         # Variables de estado
         # Cargar configuración persistente o usar defaults
@@ -649,6 +685,38 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
             "Finanzas y Contabilidad KDP", "Atención al Cliente KDP", "Otros"
         ] # Módulo 51
         self.soe_roles = ["Analista", "Especialista SEO", "Diseñador", "Escritor", "Marketing", "Legal", "General"] # Módulo 53
+
+        # ==================== INICIO MÓDULO: BÚSQUEDA AVANZADA KB ====================
+        # Tipos documentales para la base de conocimiento KDP (reemplazan Video/Audio/Transcripción)
+        # Usado en: Pestaña "🔍 Búsqueda" - Diseño moderno con Treeview y paginación
+        self.DOC_TYPE_ICONS = {
+            "Tutorial": "📘",
+            "Artículo": "📝",
+            "Investigación": "🔬",
+            "Lista": "📋",
+            "Legal": "⚖️",
+            "Fórmulas": "🔢"
+        }
+        self.DOC_TYPE_COLORS = {
+            "Tutorial": "#3b82f6",      # Azul
+            "Artículo": "#10b981",       # Verde
+            "Investigación": "#8b5cf6", # Púrpura
+            "Lista": "#f59e0b",          # Ámbar
+            "Legal": "#ef4444",          # Rojo
+            "Fórmulas": "#06b6d4"       # Cian
+        }
+        self.DOC_TYPES = list(self.DOC_TYPE_ICONS.keys())  # ["Tutorial", "Artículo", ...]
+        self.DOC_TYPES_WITH_ALL = ["Todos"] + self.DOC_TYPES
+        
+        # Variables de paginación para búsqueda avanzada
+        self.search_current_page = 1
+        self.search_page_size = 10  # Resultados por página
+        self.search_total_results = 0
+        self.search_total_pages = 1
+        self.search_results_cache = []  # Cache de resultados actuales
+        self.search_current_query = ""  # Query activa para filtros
+        # ==================== FIN MÓDULO: BÚSQUEDA AVANZADA KB ====================
+
         self.pending_kdp_category_filter_var = tk.StringVar(value="Todos") # Módulo 51
         self.pending_soe_role_filter_var = tk.StringVar(value="Todos") # Módulo 53
         self.pending_exclude_competitors_var = tk.BooleanVar(value=False) # Módulo 54
@@ -717,6 +785,16 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self.channel_name_var    = tk.StringVar()
         self.monitor_var         = tk.BooleanVar(value=False)
         self.monitor_interval_var= tk.IntVar(value=60)
+        # --- Variables de Telemetría (Panel de Control Contextual) ---
+        self.telemetry_var       = tk.StringVar(value="📊 Telemetry: Initializing...")
+        self.cpu_var             = tk.StringVar(value="CPU: --")
+        self.ram_var             = tk.StringVar(value="RAM: --")
+        self.ollama_var          = tk.StringVar(value="🤖 Ollama: --")
+        self.kb_var              = tk.StringVar(value="🧠 KB: --")
+        self.queue_var           = tk.StringVar(value="📋 Cola: 0")
+        self.errors_var          = tk.StringVar(value="⚠️ Errores: 0")
+        self.telemetry_service  = None
+        self.ai_predictor_service = None
         # --- INICIO FUNCIONALIDAD US-010-UI: FILTROS DE BÚSQUEDA AVANZADA ---
         self.search_keywords_var = tk.StringVar()
         self.search_duration_min_var = tk.IntVar(value=0)
@@ -818,7 +896,8 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                 logging.error(f"ChannelMonitorService no disponible: {e}")
                 self._monitor_service = False
                 self._monitor_service_failed = True
-        self._monitor_service.session_id = self._generate_session_id() # Módulo 46: Asignar ID de sesión
+        if self._monitor_service is not False and self._monitor_service:
+            self._monitor_service.session_id = self._generate_session_id() # Módulo 46: Asignar ID de sesión
         return self._monitor_service if self._monitor_service is not False else None
 
     # ==================== FIN MÓDULO: MONITOR SERVICE PROPERTY ====================
@@ -829,7 +908,10 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         if self.db_manager and self.backup_service:
             # 1. Verificar integridad de la base de datos principal al abrir
             integrity_ok, msg = self.backup_service.verify_file_integrity()
-            if not integrity_ok or not self.db_manager.check_integrity():
+            
+            # [FIX-015] Verificación segura de integridad de DB (evita AttributeError)
+            db_integrity_ok = self.db_manager.check_integrity() if hasattr(self.db_manager, 'check_integrity') else True
+            if not integrity_ok or not db_integrity_ok:
                 self.log(f"🚨 ALERTA: Corrupción detectada en DB principal. {msg}", 'error')
                 if messagebox.askyesno("Recuperación de Datos", f"Se detectaron errores de integridad: {msg}\n\n¿Desea restaurar el último backup estable?"):
                     res, res_msg = self.backup_service.restore_latest_backup()
@@ -902,6 +984,10 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         # === FASE 3: INICIAR SERVICIOS EN BACKGROUND ===
         self._start_background_services()
         # === FIN FASE 3 ===
+
+        # === INICIO: CHECK AUTOMATICO DE ACTUALIZACIONES ===
+        self.root.after(2000, self._auto_check_updates_on_startup)
+        # === FIN: CHECK AUTOMATICO DE ACTUALIZACIONES ===
 
     # --- INICIO FUNCIONALIDAD US-OPT-001: LÓGICA DE ARRANQUE ASÍNCRONO ---
     def _run_optimized_asynchronous_startup(self):
@@ -1140,8 +1226,14 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                     os.makedirs(os.path.dirname(db_path), exist_ok=True)
                     
                     # --- INICIO FUNCIONALIDAD SEC-001: CIFRADO ENTERPRISE ---
+                    # [FIX-016] Acceso thread-safe: usa cache si no estamos en el Main Thread
                     encryption_key = None
-                    if self.secure_mode_var.get() and self.security:
+                    try:
+                        secure_enabled = self.secure_mode_var.get()
+                    except (RuntimeError, tk.TclError):
+                        secure_enabled = getattr(self, '_secure_mode_cache', False)
+
+                    if secure_enabled and self.security:
                         encryption_key = self.security.get_master_key()
                     
                     self._knowledge_db = KnowledgeDBManager(db_path, encryption_key=encryption_key)
@@ -1151,6 +1243,17 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                 self._knowledge_db = False
         return self._knowledge_db if self._knowledge_db is not False else None
 
+    @property
+    def search_db(self):
+        """Lazy loading de módulos de búsqueda avanzada."""
+        if not hasattr(self, '_search_db_initialized'):
+            try:
+                self._init_search_modules()
+            except Exception as e:
+                logging.warning(f"Error inicializando módulos de búsqueda: {e}")
+            self._search_db_initialized = True
+        return self.knowledge_db
+    
     @property
     def download_service(self):
         """Lazy loading de DownloadService"""
@@ -2147,6 +2250,94 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self.save_config()
         _uq(self)
 
+    def _start_telemetry_update(self):
+        """Inicia la actualización periódica de telemetría (Ciclos 1 y 2)."""
+        def _update_telemetry():
+            if self.telemetry_service:
+                try:
+                    metrics = self.telemetry_service.get_all_metrics()
+
+                    cpu_val = metrics.get('cpu_percent', 0)
+                    self.cpu_var.set(f"CPU:{cpu_val:.0f}%")
+
+                    ram_val = metrics.get('ram_percent', 0)
+                    self.ram_var.set(f"RAM:{ram_val:.0f}%")
+
+                    ollama_conn = metrics.get('ollama_connected', False)
+                    ollama_model = metrics.get('ollama_model', 'N/A')
+                    if ollama_conn:
+                        self.ollama_var.set(f"🤖 {ollama_model[:12]}")
+                    else:
+                        self.ollama_var.set("🤖 Offline")
+
+                    kb_healthy = metrics.get('kb_healthy', False)
+                    if kb_healthy:
+                        kb_count = metrics.get('indexed_today', 0)
+                        self.kb_var.set(f"🧠 KB:{kb_count}")
+                    else:
+                        self.kb_var.set("🧠 KB:Error")
+
+                    queue_val = metrics.get('queue_count', 0)
+                    self.queue_var.set(f"📋Cola:{queue_val}")
+
+                    errors_val = metrics.get('errors_count', 0)
+                    self.errors_var.set(f"⚠️{errors_val}")
+
+                    # Ciclo 2: ETA y Estado del Pipeline
+                    eta_val = metrics.get('eta_minutes', 0)
+                    state_val = metrics.get('pipeline_state', 'Idle')
+                    health_val = metrics.get('pipeline_health', 'green')
+
+                    health_icons = {'green': '🟢', 'yellow': '🟡', 'red': '🔴'}
+                    health_icon = health_icons.get(health_val, '⚪')
+
+                    # Ciclos 3 y 4: Análisis de IA completo
+                    ai_status = "IA:Off"
+                    ai_detail = ""
+                    if self.ai_predictor_service and self.ai_predictor_service.is_available():
+                        try:
+                            ai_predictions = self.ai_predictor_service.get_all_predictions(metrics)
+
+                            if ai_predictions.get('anomaly_detected'):
+                                ai_status = "IA:⚠️"
+                                ai_detail = f" | {ai_predictions.get('anomaly_type', 'Error')[:25]}"
+                            elif ai_predictions.get('eta_prediction', 0) > 0:
+                                ai_status = f"IA:ETA{ai_predictions.get('eta_prediction', 0)}m"
+                                ai_detail = f" | Conf:{int(ai_predictions.get('eta_confidence', 0)*100)}%"
+                            else:
+                                ai_status = "IA:On"
+
+                            # Mostrar recomendación si hay anomalía
+                            if ai_predictions.get('recommendation'):
+                                rec = ai_predictions.get('recommendation', '')
+                                if '⚠️' in rec:
+                                    ai_detail += f" | {rec[:30]}"
+                        except Exception as ai_err:
+                            ai_status = "IA:Err"
+                            logger.debug(f"AI update: {ai_err}")
+                    else:
+                        ai_status = "IA:Off"
+
+                    # Mostrar modo de contexto (Ciclo 3)
+                    context_mode = ""
+                    if self.ai_predictor_service and self.ai_predictor_service.is_available():
+                        try:
+                            ai_preds = self.ai_predictor_service.get_all_predictions(metrics)
+                            context_mode = f" | {ai_preds.get('context_mode', '')}"
+                        except:
+                            pass
+
+                    self.telemetry_var.set(f"📊 {health_icon} {state_val} | ETA:{eta_val}m | {ai_status}{ai_detail}{context_mode}")
+
+                except Exception as e:
+                    self.telemetry_var.set(f"📊 Telemetry: Error")
+                    logger.warning(f"Error actualizando telemetría: {e}")
+
+            self.root.after(2000, _update_telemetry)
+
+        self.root.after(1000, _update_telemetry)
+        logger.info("Actualización de telemetría iniciada (Ciclos 1-5: 80 módulos)")
+
     def clear_session_state(self):
         """Limpia el estado de sesión al finalizar correctamente."""
         session_file = os.path.join(self.base_dir, "session_state.json")
@@ -2172,25 +2363,149 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                 messagebox.showerror("Error", "Modulo de actualizaciones no encontrado.")
                 return
         
-        has_update, latest_v, changelog, download_url = check_for_updates()
+        result = check_for_updates()
+        
+        if len(result) >= 5:
+            has_update, latest_v, changelog, download_url, release_info = result[:5]
+        else:
+            has_update, latest_v, changelog, download_url = result[:4]
+            release_info = None
         
         if has_update:
-            #Dialogo detallado con changelog
             msg = f"Nueva version disponible: v{latest_v}\n\n"
             if changelog:
-                # Limitar changelog a 500 caracteres
                 msg += f"Cambios:\n{changelog[:500]}"
                 if len(changelog) > 500:
                     msg += "\n\n[Ver cambios completos en GitHub]"
             
             if messagebox.askyesno("Actualizacion Disponible", msg):
-                if download_url:
+                if release_info and release_info.get('exe_url'):
+                    self._download_and_install_update(release_info)
+                elif download_url:
                     webbrowser.open(download_url)
                 else:
                     webbrowser.open("https://github.com/pabloalanzahlut/KDP-Master-Suite/releases")
                 self.log("[+] Navegando a descargas...")
         else:
             messagebox.showinfo("Actualizaciones", f"Tienes la version mas reciente: v{latest_v}")
+    # === FIN MODULO ===
+
+    # === INICIO MODULO: AUTO CHECK ON STARTUP ===
+    def _auto_check_updates_on_startup(self):
+        """Verifica actualizaciones automaticamente al iniciar la app."""
+        try:
+            from app.core.version import get_update_settings
+            settings = get_update_settings()
+            
+            if not settings.get('auto_check_updates', True):
+                self.log("[*] Check automatico de actualizaciones deshabilitado.")
+                return
+            
+            def background_check():
+                import threading
+                import time
+                time.sleep(3)
+                try:
+                    from check_updates import check_for_updates
+                    result = check_for_updates()
+                    
+                    if len(result) >= 5:
+                        has_update, latest_v, changelog, download_url, release_info = result[:5]
+                    else:
+                        has_update, latest_v, changelog, download_url = result[:4]
+                        release_info = None
+                    
+                    if has_update:
+                        self.root.after(0, lambda: self._show_update_notification(latest_v, release_info))
+                except Exception as e:
+                    self.log(f"[-] Error en check automatico: {e}")
+            
+            threading.Thread(target=background_check, daemon=True).start()
+            
+        except Exception as e:
+            self.log(f"[-] Error configurando check automatico: {e}")
+    
+    def _show_update_notification(self, latest_v, release_info):
+        """Muestra notificacion de actualizacion disponible al iniciar."""
+        msg = f"Nueva version disponible: v{latest_v}\n\n¿Deseas descargar la actualización ahora?"
+        
+        if messagebox.askyesno("Actualizacion Disponible", msg):
+            if release_info and release_info.get('exe_url'):
+                self._download_and_install_update(release_info)
+            else:
+                webbrowser.open("https://github.com/pabloalanzahlut/KDP-Master-Suite/releases")
+    # === FIN MODULO ===
+
+    # === INICIO MODULO: DOWNLOAD WITH PROGRESSBAR ===
+    def _download_and_install_update(self, release_info):
+        """Descarga el exe directamente con progressbar."""
+        import requests
+        import threading
+        import os
+        import shutil
+        
+        exe_url = release_info.get('exe_url')
+        if not exe_url:
+            messagebox.showerror("Error", "URL de descarga no disponible.")
+            return
+        
+        version = release_info.get('version', 'unknown')
+        download_dir = os.path.join(self.base_dir, 'updates')
+        os.makedirs(download_dir, exist_ok=True)
+        exe_path = os.path.join(download_dir, f'KDP-Master-Suite-v{version}.exe')
+        
+        progress_win = tk.Toplevel(self.root)
+        progress_win.title(f"Descargando v{version}")
+        progress_win.geometry("500x150")
+        progress_win.transient(self.root)
+        progress_win.grab_set()
+        
+        tk.Label(progress_win, text=f"Descargando KDP-Master-Suite v{version}...").pack(pady=10)
+        
+        progress_var = tk.DoubleVar()
+        progress_bar = ttk.Progressbar(progress_win, variable=progress_var, maximum=100, length=450)
+        progress_bar.pack(pady=10)
+        
+        status_label = tk.Label(progress_win, text="Iniciando descarga...")
+        status_label.pack(pady=5)
+        
+        result = {'success': False, 'error': None, 'path': None}
+        
+        def download_task():
+            try:
+                response = requests.get(exe_url, stream=True, timeout=60)
+                total_size = int(response.headers.get('content-length', 0))
+                downloaded = 0
+                
+                with open(exe_path, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+                            downloaded += len(chunk)
+                            if total_size > 0:
+                                percent = (downloaded / total_size) * 100
+                                progress_var.set(percent)
+                                status_label.config(text=f"{(downloaded/1024/1024):.1f} MB / {(total_size/1024/1024):.1f} MB")
+                
+                result['success'] = True
+                result['path'] = exe_path
+                progress_win.after(0, lambda: progress_win.destroy())
+                progress_win.after(0, lambda: self._show_download_complete(exe_path, version))
+                
+            except Exception as e:
+                result['error'] = str(e)
+                progress_win.after(0, lambda: progress_win.destroy())
+                progress_win.after(0, lambda: messagebox.showerror("Error de descarga", f"Error al descargar: {e}"))
+        
+        threading.Thread(target=download_task, daemon=True).start()
+    
+    def _show_download_complete(self, exe_path, version):
+        """Muestra mensaje cuando la descarga completa."""
+        msg = f"Descarga completada: {exe_path}\n\n¿Deseas cerrar la app e instalar la nueva versión?"
+        
+        if messagebox.askyesno("Descarga Completada", msg):
+            self.log("[*] Instalando actualización... Reinicia la app manualmente.")
+            sys.exit(0)
     # === FIN MODULO ===
 
     def show_about(self):
@@ -2947,12 +3262,31 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                     self.integrator = None
             
             self.log("🔄 Servicios en background completados")
+            
+            self.root.after(100, lambda: setattr(self, 'analyze_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'search_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'channel_monitor_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'dashboard_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'pending_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'review_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'settings_tab_loaded', True))
+            self.root.after(100, lambda: setattr(self, 'schedule_tab_loaded', True))
+            self.root.after(300, self.setup_analyze_tab)
+            self.root.after(350, self.setup_search_tab)
+            self.root.after(400, self.setup_channel_monitor_tab)
+            self.root.after(450, self.setup_dashboard_tab)
+            self.root.after(500, self.setup_pending_videos_tab)
+            self.root.after(550, self.setup_review_tab)
+            self.root.after(600, self.setup_settings_tab)
+            self.root.after(650, self.setup_schedule_tab)
         except Exception as e:
             self.log(f"❌ Error en servicios background: {e}", "error")
     
     def _start_background_services(self):
         """Inicia la inicialización de servicios en un hilo separado."""
         self.log("🚀 Iniciando servicios en background...")
+        # [FIX] Sincronizar cache de variables Tkinter antes de lanzar hilo
+        self._secure_mode_cache = self.secure_mode_var.get()
         thread = threading.Thread(target=self._init_services_background, daemon=True)
         thread.start()
         return thread
@@ -3142,6 +3476,12 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self.tab_dashboard = ttk.Frame(self.notebook, padding=15)
         self.notebook.add(self.tab_dashboard, text=" 📊 Dashboard ")
         
+        # Pestaña 7: Metadatos - Dashboard de enriquecimiento
+        if MetadataDashboard:
+            self.tab_metadata = ttk.Frame(self.notebook, padding=15)
+            self.notebook.add(self.tab_metadata, text=" ✨ Metadatos ")
+            self.setup_metadata_tab()
+        
         # Pestaña 11: Videos Pendientes - LAZY LOADING
         self.tab_pending_mass = ttk.Frame(self.notebook, padding=15)
         self.notebook.add(self.tab_pending_mass, text=" 🎥 Videos Pendientes ")
@@ -3229,7 +3569,55 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         # Barra de progreso global sutil (Permanente)
         self.progress_bar = ttk.Progressbar(status_bar, orient=tk.HORIZONTAL, length=200, mode='determinate', variable=self.progress_var)
         self.progress_bar.pack(side=tk.RIGHT, padx=15)
-        
+
+        # --- Panel de Telemetría (Ciclo 1: 20 módulos sin IA) ---
+        # Indicadores adicionales de telemetría reutilizando servicios existentes
+        self.telemetry_frame = ttk.Frame(status_bar)
+        self.telemetry_frame.pack(side=tk.LEFT, padx=(20, 0))
+
+        self.cpu_label = ttk.Label(self.telemetry_frame, textvariable=self.cpu_var,
+                                    font=("Inter", 8), foreground="#64748b")
+        self.cpu_label.pack(side=tk.LEFT, padx=5)
+
+        self.ram_label = ttk.Label(self.telemetry_frame, textvariable=self.ram_var,
+                                    font=("Inter", 8), foreground="#64748b")
+        self.ram_label.pack(side=tk.LEFT, padx=5)
+
+        self.ollama_label = ttk.Label(self.telemetry_frame, textvariable=self.ollama_var,
+                                       font=("Inter", 8), foreground="#64748b")
+        self.ollama_label.pack(side=tk.LEFT, padx=5)
+
+        self.kb_label = ttk.Label(self.telemetry_frame, textvariable=self.kb_var,
+                                   font=("Inter", 8), foreground="#64748b")
+        self.kb_label.pack(side=tk.LEFT, padx=5)
+
+        self.queue_label = ttk.Label(self.telemetry_frame, textvariable=self.queue_var,
+                                      font=("Inter", 8), foreground="#f59e0b")
+        self.queue_label.pack(side=tk.LEFT, padx=5)
+
+        self.errors_label = ttk.Label(self.telemetry_frame, textvariable=self.errors_var,
+                                       font=("Inter", 8), foreground="#ef4444")
+        self.errors_label.pack(side=tk.LEFT, padx=5)
+
+        # Inicializar TelemetryService
+        try:
+            if TelemetryService:
+                self.telemetry_service = TelemetryService()
+                logger.info("TelemetryService inicializado correctamente")
+        except Exception as e:
+            logger.warning(f"TelemetryService no disponible: {e}")
+
+        # Inicializar AIPredictorService (Ciclo 3 - IA)
+        try:
+            if AIPredictorService:
+                self.ai_predictor_service = AIPredictorService()
+                logger.info("AIPredictorService inicializado correctamente")
+        except Exception as e:
+            logger.warning(f"AIPredictorService no disponible: {e}")
+
+        # Iniciar actualización periódica de telemetría
+        self._start_telemetry_update()
+
         # Inicializar UI de cola
         self.download_queue = []
         self.update_queue_ui()
@@ -3369,11 +3757,24 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         process_tab.setup_process_tab(self)
 
     def setup_analyze_tab(self):
+        if not hasattr(self, 'analyze_tab_loaded') or not self.analyze_tab_loaded:
+            for widget in self.tab_analyze.winfo_children():
+                widget.destroy()
+
+            ttk.Label(self.tab_analyze, text="⏳ Cargando módulos de Inteligencia IA...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_analyze_tab)
+            return
+        
         if not self.integrator:
-            ttk.Label(self.tab_analyze, text="❌ Módulo 'integrate_knowledge' no encontrado.", foreground="#ef4444", font=("Inter", 12, "bold")).pack(pady=40)
+            ttk.Label(self.tab_analyze, text="⚠️ Módulo Integrador no disponible.\nVerificando nuevamente...", 
+                     foreground="#f59e0b", font=("Inter", 11)).pack(pady=40)
+            self.root.after(1000, self.setup_analyze_tab)
             return
 
-        # Encabezado de Pestaña
+        for widget in self.tab_analyze.winfo_children():
+            widget.destroy()
+            
         header = ttk.Frame(self.tab_analyze)
         header.pack(fill=tk.X, pady=10)
         ttk.Label(header, text="🧠 Centro de Inteligencia SynthLearn", style="Header.TLabel").pack(side=tk.LEFT)
@@ -3382,11 +3783,11 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         btn_frame = ttk.Frame(self.tab_analyze)
         btn_frame.pack(fill=tk.X, pady=10)
         
-        intel_btn = ttk.Button(btn_frame, text="🧠 Integrar Todo el Conocimiento", command=self.run_analysis, bootstyle="primary")
-        intel_btn.pack(side=tk.LEFT, padx=5)
+        intel_btn = ttk.Button(btn_frame, text="🧠 Integrar Conocimiento", command=self.run_analysis, bootstyle="primary")
+        intel_btn.pack(side=tk.LEFT, padx=5, pady=5)
         
         if KBExporter:
-            html_btn = ttk.Button(btn_frame, text="🌐 Exportar Índice Web Navegable", command=self.generate_html, bootstyle="success")
+            html_btn = ttk.Button(btn_frame, text="🌐 Exportar Índice Web", command=self.generate_html, bootstyle="success")
             html_btn.pack(side=tk.LEFT, padx=5, ipady=5)
             ToolTip(html_btn, "Genera una interfaz HTML para navegar por la base de conocimiento")
 
@@ -3399,38 +3800,1480 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                                                        fg="#34d399" if self.current_theme == "dark" else "#1e293b")
         self.analysis_text.pack(fill=tk.BOTH, expand=True)
 
-    def setup_search_tab(self):
-        # Header y Herramientas de Búsqueda
-        search_main = ttk.Frame(self.tab_search, )
-        search_main.pack(fill=tk.BOTH, expand=True)
+    def setup_metadata_tab(self):
+        """Configura la pestaña de Metadatos y Enriquecimiento."""
+        if not MetadataDashboard:
+            ttk.Label(self.tab_metadata, text="Componente no disponible", 
+                     font=("Segoe UI", 11)).pack(pady=20)
+            return
+        
+        for widget in self.tab_metadata.winfo_children():
+            widget.destroy()
+        
+        # Dashboard de metadatos
+        self.metadata_dashboard = MetadataDashboard(self.tab_metadata, db_manager=self._db_manager)
+        self.metadata_dashboard.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        # Botón actualizar
+        btn_frame = ttk.Frame(self.tab_metadata)
+        btn_frame.pack(fill=tk.X, padx=10, pady=(0, 10))
+        
+        ttk.Button(btn_frame, text="🔄 Actualizar Stats", 
+                  command=self.metadata_dashboard.refresh_stats).pack(side=tk.LEFT, padx=5)
 
-        control_frame = ttk.Frame(search_main)
-        control_frame.pack(fill=tk.X, pady=(0, 15))
+    def setup_search_tab(self):
+        """
+        ================================================================
+        MODULO: BÚSQUEDA AVANZADA KB - DISEÑO MODERNO
+        ================================================================
+        Reemplaza la búsqueda simple con un Treeview paginado.
         
-        ttk.Label(control_frame, text="🔍 Búsqueda Semántica Global:", font=("Inter", 11, "bold")).pack(side=tk.LEFT, padx=(0, 15))
+        Características:
+        - Barra de búsqueda sticky en header
+        - Filtros activos como pills (removibles)
+        - Sidebar con filtros organizados por categoría
+        - Treeview con resultados y tags de color por tipo documental
+        - Paginación numérica con navegación
+        - Exportación CSV
+        - Empty state cuando no hay resultados
         
-        entry = ttk.Entry(control_frame, textvariable=self.search_var, width=60, font=("Inter", 11))
+        Tipos documentales: Tutorial, Artículo, Investigación, Lista, Legal, Fórmulas
+        Categorías KDP: 18 categorías del sistema
+        
+        Autor: KDP Master Suite
+        Versión: 3.2.4+
+        """
+        # Verificar que el tab está cargado (lazy loading)
+        self.log("[SEARCH DEBUG] setup_search_tab llamado, search_tab_loaded=" + str(getattr(self, 'search_tab_loaded', False)))
+        
+        if not hasattr(self, 'search_tab_loaded') or not self.search_tab_loaded:
+            for widget in self.tab_search.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_search, text="⏳ Cargando módulo de búsqueda...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_search_tab)
+            return
+        
+        # Verificar si ya está construido (evitar reconstrucciones innecesarias)
+        if hasattr(self, 'search_tree') and self.search_tree.winfo_exists():
+            self.log("[SEARCH DEBUG] search_tree ya existe, omitiendo reconstrucción")
+            return
+        
+        # Limpiar TODOS los widgets existentes para recarga limpia
+        for widget in self.tab_search.winfo_children():
+            widget.destroy()
+        self.log("[SEARCH DEBUG] Widgets limpiados, reconstruyendo...")
+        
+        # =================================================================
+        # PASO 1: INICIALIZAR VARIABLES DE ESTADO
+        # =================================================================
+        # Variables de filtros (inicializadas si no existen)
+        if not hasattr(self, 'search_filter_var'):
+            self.search_filter_var = tk.StringVar(value="")
+        if not hasattr(self, 'search_type_var'):
+            self.search_type_var = tk.StringVar(value="Todos")
+        if not hasattr(self, 'search_category_var'):
+            self.search_category_var = tk.StringVar(value="Todos")
+        if not hasattr(self, 'search_order_var'):
+            self.search_order_var = tk.StringVar(value="Nuevos primero")
+        if not hasattr(self, 'search_date_from_var'):
+            self.search_date_from_var = tk.StringVar(value="")
+        if not hasattr(self, 'search_date_to_var'):
+            self.search_date_to_var = tk.StringVar(value="")
+        if not hasattr(self, 'search_stats_var'):
+            self.search_stats_var = tk.StringVar(value="Sin búsqueda")
+        if not hasattr(self, 'search_results_label_var'):
+            self.search_results_label_var = tk.StringVar(value="0 entradas")
+        if not hasattr(self, 'search_fts_time_var'):
+            self.search_fts_time_var = tk.StringVar(value="0ms")
+        
+        # Resetear paginación para nueva búsqueda
+        self.search_current_page = 1
+        self.search_total_results = 0
+        self.search_results_cache = []
+        
+        # =================================================================
+        # PASO 2: CONTENEDOR PRINCIPAL
+        # =================================================================
+        search_main = ttk.Frame(self.tab_search)
+        search_main.pack(fill=tk.BOTH, expand=True, padx=12, pady=12)
+        self.log("[SEARCH DEBUG] PASO 2: search_main creado")
+        
+        # =================================================================
+        # PASO 3: HEADER STICKY - BARRA DE BÚSQUEDA
+        # =================================================================
+        header_frame = ttk.Frame(search_main)
+        header_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        # Título de sección
+        ttk.Label(header_frame, text="🔍 Búsqueda en Base de Conocimiento KDP", 
+                 font=("Inter", 12, "bold")).pack(side=tk.LEFT, padx=(0, 15))
+        
+        # Entrada de búsqueda con ancho expandible
+        entry = ttk.Entry(header_frame, textvariable=self.search_filter_var, width=50, font=("Inter", 11))
         entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-        entry.bind('<Return>', lambda e: self.run_search())
+        entry.bind('<Return>', lambda e: self._execute_kb_search())
+        entry.focus_set()
         
-        search_btn = ttk.Button(control_frame, text="🔍 EJECUTAR BÚSQUEDA", command=self.run_search, bootstyle="primary")
-        search_btn.pack(side=tk.LEFT, padx=10)
+        # Botón BUSCAR
+        search_btn = ttk.Button(header_frame, text="BUSCAR", command=self._execute_kb_search, bootstyle="primary")
+        search_btn.pack(side=tk.LEFT, padx=5)
+        ToolTip(search_btn, "Ejecutar búsqueda (Enter)")
         
-        # Resultados con mejor presentación
-        results_frame = ttk.LabelFrame(search_main, text=" 📄 Fragmentos de Conocimiento Encontrados ", )
-        results_frame.pack(fill=tk.BOTH, expand=True)
+        # Botón LIMPIAR
+        clear_btn = ttk.Button(header_frame, text="LIMPIAR", command=self._clear_search_filters, bootstyle="secondary-outline")
+        clear_btn.pack(side=tk.LEFT, padx=5)
+        ToolTip(clear_btn, "Limpiar todos los filtros")
         
-        self.search_results = scrolledtext.ScrolledText(results_frame, height=15, font=('Inter', 10),
-                                                        bg="#1e293b" if self.current_theme == "dark" else "white",
-                                                        fg="#f1f5f9" if self.current_theme == "dark" else "#1e293b",
-                                                        spacing1=5)
-        self.search_results.pack(fill=tk.BOTH, expand=True)
+        # Botón EXPORTAR
+        export_btn = ttk.Button(header_frame, text="EXPORTAR CSV", command=self._export_kb_search, bootstyle="success-outline")
+        export_btn.pack(side=tk.LEFT, padx=5)
+        ToolTip(export_btn, "Exportar resultados a CSV")
         
-        # Pie de página de búsqueda
+        # Menú de exportación avanzada
+        export_menu_btn = ttk.Menubutton(header_frame, text="📤", bootstyle="secondary-outline")
+        export_menu_btn.pack(side=tk.LEFT, padx=2)
+        export_menu = tk.Menu(export_menu_btn, tearoff=0)
+        export_menu.add_command(label="Exportar CSV", command=lambda: self._export_search_results("csv"))
+        export_menu.add_command(label="Exportar TXT", command=lambda: self._export_search_results("txt"))
+        export_menu.add_command(label="Exportar MD", command=lambda: self._export_search_results("md"))
+        export_menu.add_command(label="Exportar PDF", command=lambda: self._export_search_results("pdf"))
+        export_menu_btn["menu"] = export_menu
+        
+        # Botón FACETAS
+        facets_btn = ttk.Button(header_frame, text="📊", command=self._show_search_facets_dialog, bootstyle="secondary-outline")
+        facets_btn.pack(side=tk.LEFT, padx=2)
+        ToolTip(facets_btn, "Facetas dinámicas")
+        
+        # Botón HISTORIAL
+        history_btn = ttk.Button(header_frame, text="📜", command=self._show_search_history, bootstyle="secondary-outline")
+        history_btn.pack(side=tk.LEFT, padx=2)
+        ToolTip(history_btn, "Historial de búsquedas")
+        
+        # Botón ESTADÍSTICAS
+        stats_btn = ttk.Button(header_frame, text="📈", command=self._show_search_stats, bootstyle="secondary-outline")
+        stats_btn.pack(side=tk.LEFT, padx=2)
+        ToolTip(stats_btn, "Estadísticas de búsqueda")
+        
+        # Botón SALUD
+        health_btn = ttk.Button(header_frame, text="🔍", command=self._show_search_health_check, bootstyle="secondary-outline")
+        health_btn.pack(side=tk.LEFT, padx=2)
+        ToolTip(health_btn, "Diagnóstico del sistema")
+        
+        # Menú de algoritmos
+        algo_menu_btn = ttk.Menubutton(header_frame, text="⚡", bootstyle="secondary-outline")
+        algo_menu_btn.pack(side=tk.LEFT, padx=2)
+        algo_menu = tk.Menu(algo_menu_btn, tearoff=0)
+        algo_menu.add_command(label="FTS5 (Estándar)", command=lambda: self._execute_advanced_search("fts5"))
+        algo_menu.add_command(label="BM25 (Relevancia)", command=lambda: self._execute_advanced_search("bm25"))
+        algo_menu.add_command(label="Sinónimos", command=lambda: self._execute_advanced_search("synonyms"))
+        algo_menu.add_command(label="Proximidad", command=lambda: self._execute_advanced_search("proximity"))
+        algo_menu.add_command(label="N-gramas", command=lambda: self._execute_advanced_search("ngram"))
+        algo_menu_btn["menu"] = algo_menu
+        
+        # Menú de vistas
+        view_menu_btn = ttk.Menubutton(header_frame, text="👁️", bootstyle="secondary-outline")
+        view_menu_btn.pack(side=tk.LEFT, padx=2)
+        view_menu = tk.Menu(view_menu_btn, tearoff=0)
+        view_menu.add_command(label="Vista de Lista", command=lambda: self._change_search_view("list"))
+        view_menu.add_command(label="Vista de Tarjetas", command=lambda: self._change_search_view("cards"))
+        view_menu.add_command(label="Vista de Árbol", command=lambda: self._change_search_view("tree"))
+        view_menu_btn["menu"] = view_menu
+        
+        # Botón FAVORITOS
+        fav_btn = ttk.Button(header_frame, text="⭐", command=self._save_search_preference, bootstyle="secondary-outline")
+        fav_btn.pack(side=tk.LEFT, padx=2)
+        ToolTip(fav_btn, "Guardar filtros como favorito")
+        
+        # Botón CARGAR FAVORITO
+        load_fav_btn = ttk.Button(header_frame, text="📂", command=self._load_search_preference, bootstyle="secondary-outline")
+        load_fav_btn.pack(side=tk.LEFT, padx=2)
+        ToolTip(load_fav_btn, "Cargar filtro guardado")
+        
+        # Label de estadísticas
+        stats_lbl = ttk.Label(header_frame, textvariable=self.search_stats_var, font=("Inter", 9), foreground="#64748b")
+        stats_lbl.pack(side=tk.RIGHT, padx=10)
+        self.log("[SEARCH DEBUG] PASO 3: Header completado")
+        
+        # =================================================================
+        # PASO 4: PANEL DE PILLS (FILTROS ACTIVOS)
+        # =================================================================
+        pills_frame = ttk.Frame(search_main)
+        pills_frame.pack(fill=tk.X, pady=(0, 10))
+        
+        self.search_pills_label = ttk.Label(pills_frame, text="Filtros activos: Ninguno", 
+                                          font=("Inter", 9), foreground="#94a3b8")
+        self.search_pills_label.pack(side=tk.LEFT)
+        self.log("[SEARCH DEBUG] PASO 4: Pills completado")
+        
+        # =================================================================
+        # PASOS 5-7: CONTENEDORES PRINCIPALES
+        # =================================================================
+        main_container = ttk.Frame(search_main)
+        main_container.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        self.log("[SEARCH DEBUG] PASO 5: main_container creado")
+
+        # =================================================================
+        # PASO 6: SIDEBAR IZQUIERDO (FILTROS - 30%)
+        # =================================================================
+        sidebar_frame = ttk.Frame(main_container, width=320)
+        sidebar_frame.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 15))
+        sidebar_frame.pack_propagate(False)
+        self.log("[SEARCH DEBUG] PASO 6: sidebar_frame creado")
+
+        # --- Filtro: Tipo Documental ---
+        type_frame = ttk.LabelFrame(sidebar_frame, text=" 📋 TIPO DOCUMENTAL ")
+        type_frame.pack(fill=tk.X, pady=(0, 10), padx=5)
+
+        type_combo = ttk.Combobox(type_frame, textvariable=self.search_type_var,
+                                  values=self.DOC_TYPES_WITH_ALL, state="readonly", width=28)
+        type_combo.pack(fill=tk.X)
+        type_combo.bind('<<ComboboxSelected>>', lambda e: self._execute_kb_search())
+        ToolTip(type_combo, "Filtrar por tipo de documento")
+        self.log("[SEARCH DEBUG] PASO 6a: type_frame completado")
+
+        # --- Filtro: Categoría KDP ---
+        category_frame = ttk.LabelFrame(sidebar_frame, text=" 📁 CATEGORÍA KDP ")
+        category_frame.pack(fill=tk.X, pady=(0, 10), padx=5)
+
+        # Verificar que kdp_categories existe y tiene valores
+        kdp_cats = getattr(self, 'kdp_categories', [])
+        if not kdp_cats:
+            self.log("[SEARCH WARNING] kdp_categories vacío, usando valores por defecto", "warning")
+            kdp_cats = ["Negocios", "Escritura", "Marketing", "Finanzas", "Productividad"]
+        category_values = ["Todos"] + kdp_cats
+        category_combo = ttk.Combobox(category_frame, textvariable=self.search_category_var,
+                                      values=category_values, state="readonly", width=28)
+        category_combo.pack(fill=tk.X)
+        category_combo.bind('<<ComboboxSelected>>', lambda e: self._execute_kb_search())
+        ToolTip(category_combo, "Filtrar por categoría KDP")
+        self.log("[SEARCH DEBUG] PASO 6b: category_frame completado")
+
+        # --- Filtro: Rango de Fechas ---
+        date_frame = ttk.LabelFrame(sidebar_frame, text=" 📅 RANGO DE FECHAS ")
+        date_frame.pack(fill=tk.X, pady=(0, 10), padx=5)
+
+        ttk.Label(date_frame, text="Desde (YYYY-MM)", font=("Inter", 8), foreground="#64748b").pack(anchor=tk.W)
+        date_from_entry = ttk.Entry(date_frame, textvariable=self.search_date_from_var, width=15)
+        date_from_entry.pack(fill=tk.X, pady=(2, 5))
+        date_from_entry.bind('<Return>', lambda e: self._execute_kb_search())
+
+        ttk.Label(date_frame, text="Hasta (YYYY-MM)", font=("Inter", 8), foreground="#64748b").pack(anchor=tk.W)
+        date_to_entry = ttk.Entry(date_frame, textvariable=self.search_date_to_var, width=15)
+        date_to_entry.pack(fill=tk.X, pady=(2, 5))
+        date_to_entry.bind('<Return>', lambda e: self._execute_kb_search())
+        self.log("[SEARCH DEBUG] PASO 6c: date_frame completado")
+
+        # --- Filtro: Orden ---
+        order_frame = ttk.LabelFrame(sidebar_frame, text=" ↕ ORDENAR POR ")
+        order_frame.pack(fill=tk.X, pady=(0, 10), padx=5)
+
+        order_combo = ttk.Combobox(order_frame, textvariable=self.search_order_var,
+                                 values=["Nuevos primero", "Antiguos primero", "Por categoría"], 
+                                 state="readonly", width=28)
+        order_combo.pack(fill=tk.X)
+        order_combo.bind('<<ComboboxSelected>>', lambda e: self._execute_kb_search())
+        ToolTip(order_combo, "Orden de resultados")
+        self.log("[SEARCH DEBUG] PASO 6d: order_frame completado")
+
+        # --- Botones de Acción ---
+        action_frame = ttk.Frame(sidebar_frame)
+        action_frame.pack(fill=tk.X, pady=(10, 0))
+
+        ttk.Button(action_frame, text="✅ APLICAR FILTROS", command=self._execute_kb_search,
+                  bootstyle="success", width=25).pack(pady=3)
+        ttk.Button(action_frame, text="🔄 LIMPIAR TODO", command=self._clear_search_filters,
+                  bootstyle="warning-outline", width=25).pack(pady=3)
+        self.log("[SEARCH DEBUG] PASO 6e: action_frame completado")
+
+        # =================================================================
+        # PASO 7: PANEL DE RESULTADOS (70%)
+        # =================================================================
+        results_panel = ttk.Frame(main_container)
+        results_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.log("[SEARCH DEBUG] PASO 7: results_panel creado")
+            
+            # Header de resultados
+        results_header = ttk.Frame(results_panel)
+        results_header.pack(fill=tk.X, pady=(0, 5))
+            
+        ttk.Label(results_header, text="📄 Resultados:", font=("Inter", 10, "bold")).pack(side=tk.LEFT)
+        ttk.Label(results_header, textvariable=self.search_results_label_var, font=("Inter", 10, "bold"), 
+                     foreground="#3b82f6").pack(side=tk.LEFT, padx=(5, 0))
+            
+        ttk.Label(results_header, textvariable=self.search_fts_time_var, font=("Consolas", 8), 
+                     foreground="#64748b").pack(side=tk.LEFT, padx=(20, 0))
+        self.log("[SEARCH DEBUG] PASO 7a: results_header completado")
+            
+            # =================================================================
+            # PASO 8: TREEVIEW DE RESULTADOS
+            # =================================================================
+        tree_frame = ttk.Frame(results_panel)
+        tree_frame.pack(fill=tk.BOTH, expand=True)
+        self.log("[SEARCH DEBUG] PASO 8: tree_frame creado")
+            
+         # Definir columnas del Treeview
+        columns = ("img", "title", "category", "type", "date", "words", "id")
+        self.search_tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=12)
+            
+            # Configurar columnas
+        self.search_tree.heading("img", text="📋")
+        self.search_tree.column("img", width=50, anchor=tk.CENTER)
+            
+        self.search_tree.heading("title", text="TÍTULO")
+        self.search_tree.column("title", width=350)
+            
+        self.search_tree.heading("category", text="CATEGORÍA")
+        self.search_tree.column("category", width=150)
+            
+        self.search_tree.heading("type", text="TIPO")
+        self.search_tree.column("type", width=100, anchor=tk.CENTER)
+            
+        self.search_tree.heading("date", text="FECHA")
+        self.search_tree.column("date", width=100, anchor=tk.CENTER)
+            
+        self.search_tree.heading("words", text="PALABRAS")
+        self.search_tree.column("words", width=80, anchor=tk.CENTER)
+            
+        self.search_tree.column("id", width=0, stretch=False)  # Columna oculta para ID
+            
+        self.search_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            
+        # Scrollbar vertical
+        scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.search_tree.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.search_tree.configure(yscrollcommand=scrollbar.set)
+        self.log("[SEARCH DEBUG] PASO 8: Treeview creado y configurado")
+        try:    
+            # =================================================================
+            # PASO 9: CONFIGURAR TAGS DE COLOR (POR TIPO DOCUMENTAL)
+            # =================================================================
+            # Tags con background para legibilidad en tema oscuro
+            self.search_tree.tag_configure("tutorial", background="#1e3a5f", foreground="#60a5fa")
+            self.search_tree.tag_configure("articulo", background="#1a3a2f", foreground="#34d399")
+            self.search_tree.tag_configure("investigacion", background="#2d1f4a", foreground="#a78bfa")
+            self.search_tree.tag_configure("lista", background="#3d3020", foreground="#fbbf24")
+            self.search_tree.tag_configure("legal", background="#3d1a1a", foreground="#f87171")
+            self.search_tree.tag_configure("formulas", background="#1a3d3d", foreground="#22d3ee")
+            
+            # Tags para filas alternadas (zebra striping)
+            self.search_tree.tag_configure("oddrow", background="#1e293b")
+            self.search_tree.tag_configure("evenrow", background="#0f172a")
+            
+            # Binding: doble click para ver detalles
+            self.search_tree.bind('<Double-1>', lambda e: self._on_search_result_double_click(e))
+            self.log("[SEARCH DEBUG] PASO 9: Tags configurados")
+            
+        except Exception as e:
+            self.log(f"[SEARCH ERROR CRÍTICO] Falló al crear layout: {e}", "error")
+            import traceback
+            self.log(traceback.format_exc(), "error")
+            messagebox.showerror("Error UI", f"No se pudo cargar el panel de búsqueda:\n{e}")
+            return
+        
+        # =================================================================
+        # PASO 10: PANEL DE PAGINACIÓN
+        # =================================================================
+        pagination_frame = ttk.Frame(results_panel)
+        pagination_frame.pack(fill=tk.X, pady=(10, 5))
+        
+        # Label de información de página
+        self.search_page_info = ttk.Label(pagination_frame, text="Página 1 de 1", 
+                                         font=("Inter", 9), foreground="#64748b")
+        self.search_page_info.pack(side=tk.LEFT, padx=5)
+        
+        # Contenedor de botones de paginación
+        self.search_page_buttons = ttk.Frame(pagination_frame)
+        self.search_page_buttons.pack(side=tk.LEFT, padx=10)
+        
+        # Inicializar botones de paginación
+        self._update_search_pagination_buttons()
+        self.log("[SEARCH DEBUG] PASO 10: Paginación creada")
+        
+        # =================================================================
+        # PASO 11: FOOTER CON ESTADÍSTICAS
+        # =================================================================
+        footer_frame = ttk.Frame(results_panel)
+        footer_frame.pack(fill=tk.X, pady=(5, 0))
+        
+        ttk.Label(footer_frame, text="💡 Tip: Presiona Enter para buscar. Doble clic en resultado para ver detalles.", 
+                 font=("Inter", 8), foreground="#64748b").pack(side=tk.LEFT)
+        self.log("[SEARCH DEBUG] PASO 11: Footer creado")
+        
+        # =================================================================
+        # PASO 12: EMPTY STATE (MENSAJE CUANDO NO HAY RESULTADOS)
+        # =================================================================
+        # Este Label se muestra/oculta según necesidad
+        self.search_empty_label = ttk.Label(results_panel, text="",
+                                           font=("Inter", 11), foreground="#64748b")
+        self.search_empty_label.pack(pady=20)
+        self.log("[SEARCH DEBUG] PASO 12: Empty state creado")
+        
+        # =================================================================
+        # PASO 13: BINDINGS GLOBALES
+        # =================================================================
+        # Escape para limpiar búsqueda
+        self.tab_search.bind('<Escape>', lambda e: self._clear_search_filters())
+        self.log("[SEARCH DEBUG] PASO 13: Bindings creados")
+        
+        # =================================================================
+        # PASO 14: MOSTRAR MENSAJE INICIAL
+        # =================================================================
+        self._show_search_empty_state("Ingresa un término de búsqueda y presiona Enter o haz clic en BUSCAR")
+        
+        self.log("[SEARCH] Módulo de búsqueda avanzada KB cargado")
+    
+    # ========================================================================
+    # MÉTODOS AUXILIARES DE BÚSQUEDA AVANZADA KB
+    # ========================================================================
+    
+    def _execute_kb_search(self):
+        """
+        ================================================================
+        MÉTODO: _execute_kb_search (ENHANCED v3.4.7)
+        ================================================================
+        Ejecuta búsqueda en la base de conocimiento con filtros avanzados.
+        """
+        import calendar
+        import time
+        
+        query = self.search_filter_var.get().strip()
+        self.search_current_query = query
+        
+        if not self.knowledge_db:
+            messagebox.showwarning("Base de Conocimiento", 
+                                  "La base de conocimiento no está disponible.")
+            return
+        
+        if not query and self.search_type_var.get() == "Todos" and self.search_category_var.get() == "Todos":
+            if not self.search_date_from_var.get().strip() and not self.search_date_to_var.get().strip():
+                self._show_search_empty_state("Ingresa un término de búsqueda o selecciona un filtro")
+                return
+        
+        start_time = time.time()
+        
+        try:
+            filters = {}
+            
+            tipo = self.search_type_var.get()
+            if tipo and tipo != "Todos":
+                filters['type'] = tipo
+            
+            category = self.search_category_var.get()
+            if category and category != "Todos":
+                filters['category'] = category
+            
+            date_from = self.search_date_from_var.get().strip()
+            date_to = self.search_date_to_var.get().strip()
+            
+            if date_from:
+                filters['date_from'] = f"{date_from}-01"
+            if date_to:
+                try:
+                    year, month = map(int, date_to.split('-'))
+                    last_day = calendar.monthrange(year, month)[1]
+                    filters['date_to'] = f"{date_to}-{last_day}"
+                except:
+                    filters['date_to'] = f"{date_to}-31"
+            
+            order_map = {
+                "Nuevos primero": "timestamp DESC",
+                "Antiguos primero": "timestamp ASC",
+                "Por categoría": "category ASC, timestamp DESC"
+            }
+            order_by = order_map.get(self.search_order_var.get(), "timestamp DESC")
+            
+            if query:
+                result = self.knowledge_db.search_entries(
+                    query=query,
+                    filters=filters,
+                    page=1,
+                    page_size=1000,
+                    order_by=order_by
+                )
+            else:
+                result = self.knowledge_db.get_entries_filtered(
+                    filters=filters,
+                    order_by=order_by,
+                    limit=1000
+                )
+                result['pages'] = 1
+                result['elapsed_ms'] = (time.time() - start_time) * 1000
+            
+            self.search_results_cache = []
+            entries = result.get('entries', result.get('results', []))
+            
+            for row in entries:
+                content = row.get('content', '') or row.get('content_preview', '') or ''
+                tipo_doc = row.get('type') or row.get('tipo') or self._detect_doc_type(content, row.get('category', ''))
+                icon = self.DOC_TYPE_ICONS.get(tipo_doc, "📄")
+                word_count = len(content.split()) if content else (row.get('palabras', 0) or 0)
+                
+                self.search_results_cache.append({
+                    'id': row.get('id'),
+                    'icon': icon,
+                    'title': row.get('source') or f"Entrada {row.get('id')}",
+                    'category': row.get('category', 'Sin categoría'),
+                    'type': tipo_doc,
+                    'status': row.get('status', 'Procesado'),
+                    'date': str(row.get('timestamp', ''))[:10] if row.get('timestamp') else 'N/A',
+                    'words': word_count,
+                    'conf': row.get('confidence_score', 0) or 0,
+                    'content': content
+                })
+            
+            self.search_total_results = len(self.search_results_cache)
+            self.search_total_pages = result.get('pages', 1) or 1
+            self.search_current_page = 1
+            
+            elapsed_ms = result.get('elapsed_ms', (time.time() - start_time) * 1000)
+            
+            self.search_results_label_var.set(f"{self.search_total_results} entradas")
+            self.search_fts_time_var.set(f"FTS5 — {elapsed_ms:.0f}ms")
+            self.search_stats_var.set(f"{self.search_total_results} resultados · FTS {elapsed_ms:.0f}ms")
+            
+            self._update_search_pills()
+            self._render_search_results()
+            self._update_search_pagination_buttons()
+            
+            self.log(f"[SEARCH] Búsqueda: '{query}' → {self.search_total_results} resultados en {elapsed_ms:.0f}ms")
+            
+        except Exception as e:
+            self.log(f"[SEARCH ERROR] {e}", "error")
+            self.search_results_label_var.set("Error")
+            self.search_fts_time_var.set("—")
+            self._show_search_empty_state(f"Error en búsqueda: {str(e)}")
+    
+    def _detect_doc_type(self, content: str, category: str) -> str:
+        """
+        ================================================================
+        MÉTODO: _detect_doc_type
+        ================================================================
+        Detecta el tipo documental basándose en el contenido.
+        
+        Algoritmo:
+        - Keywords en título/fuente
+        - Longitud del contenido
+        - Categoría asociada
+        
+        Args:
+            content: Texto del contenido
+            category: Categoría KDP
+            
+        Returns:
+            Tipo documental: Tutorial, Artículo, Investigación, Lista, Legal, Fórmulas
+        """
+        content_lower = content.lower()
+        category_lower = category.lower()
+        
+        # Detectar por keywords
+        tutorial_kw = ["cómo", "como", "tutorial", "guía paso", "paso a paso", "instrucciones", "aprende", "manual"]
+        article_kw = ["opinión", "análisis", "review", "reseña", "perspectiva", "punto de vista"]
+        research_kw = ["investigación", "estudio", "caso de estudio", "datos", "estadística", "evidencia"]
+        list_kw = ["lista", "checklist", "top", "mejores", "peores", "consejos", "tips", "pros", "contras"]
+        legal_kw = ["legal", "derecho", "contrato", "términos", "condiciones", "compliance", "política"]
+        formula_kw = ["fórmula", "ecuación", "cálculo", "métrica", "kpi", "porcentaje", "ratio"]
+        
+        # Verificar cada categoría
+        for kw in tutorial_kw:
+            if kw in content_lower or kw in category_lower:
+                return "Tutorial"
+        for kw in article_kw:
+            if kw in content_lower or kw in category_lower:
+                return "Artículo"
+        for kw in research_kw:
+            if kw in content_lower or kw in category_lower:
+                return "Investigación"
+        for kw in list_kw:
+            if kw in content_lower or kw in category_lower:
+                return "Lista"
+        for kw in legal_kw:
+            if kw in content_lower or kw in category_lower:
+                return "Legal"
+        for kw in formula_kw:
+            if kw in content_lower or kw in category_lower:
+                return "Fórmulas"
+        
+        # Default basado en longitud
+        word_count = len(content.split())
+        if word_count < 500:
+            return "Lista"
+        elif word_count < 2000:
+            return "Artículo"
+        else:
+            return "Tutorial"
+    
+    def _render_search_results(self):
+        """
+        ================================================================
+        MÉTODO: _render_search_results
+        ================================================================
+        Renderiza los resultados de búsqueda en el Treeview.
+        
+        Proceso:
+        1. Limpia Treeview existente
+        2. Obtiene slice de resultados según página actual
+        3. Inserta filas con tags de color
+        4. Muestra empty state si no hay resultados
+        """
+        # Limpiar Treeview
+        for item in self.search_tree.get_children():
+            self.search_tree.delete(item)
+        
+        # Verificar si hay resultados
+        if not self.search_results_cache:
+            self._show_search_empty_state("Sin resultados. Prueba con otros términos o filtros.")
+            return
+        
+        # Calcular rango de resultados para página actual
+        start = (self.search_current_page - 1) * self.search_page_size
+        end = start + self.search_page_size
+        page_results = self.search_results_cache[start:end]
+        
+        # Insertar resultados
+        for i, result in enumerate(page_results):
+            doc_type = result['type']
+            icon = self.DOC_TYPE_ICONS.get(doc_type, "📄")
+            
+            # Tag basado en tipo (para colores)
+            tag = doc_type.lower()
+            
+            # Zebra striping
+            row_tag = "oddrow" if i % 2 == 0 else "evenrow"
+            combined_tags = (tag, row_tag)
+            
+            self.search_tree.insert("", tk.END, values=(
+                icon,
+                result['title'][:60] + "..." if len(result['title']) > 60 else result['title'],
+                result['category'][:20],
+                doc_type,
+                result['date'],
+                result['words'],
+                result['id']
+            ), tags=combined_tags)
+        
+        # Actualizar label de página
+        self.search_page_info.config(text=f"Página {self.search_current_page} de {self.search_total_pages} ({self.search_total_results} resultados)")
+        
+        self.log(f"[SEARCH] Renderizados {len(page_results)} resultados (página {self.search_current_page})")
+    
+    def _update_search_pagination_buttons(self):
+        """
+        ================================================================
+        MÉTODO: _update_search_pagination_buttons
+        ================================================================
+        Actualiza los botones de paginación.
+        
+        Características:
+        - Botones Anterior/Siguiente
+        - Números de página (máx 5 visibles)
+        - Botón página actual resaltado
+        """
+        # Limpiar botones existentes
+        for widget in self.search_page_buttons.winfo_children():
+            widget.destroy()
+        
+        total = self.search_total_pages
+        current = self.search_current_page
+        
+        # Botón Anterior
+        prev_state = "normal" if current > 1 else "disabled"
+        ttk.Button(self.search_page_buttons, text="◀", width=3,
+                  command=lambda: self._goto_search_page(current - 1),
+                  bootstyle="secondary-outline", state=prev_state).pack(side=tk.LEFT, padx=2)
+        
+        # Números de página
+        if total <= 7:
+            # Mostrar todos
+            pages = range(1, total + 1)
+        else:
+            # Mostrar ventana de 5 páginas centradas
+            start = max(1, min(current - 2, total - 4))
+            end = min(total, start + 4)
+            pages = range(start, end + 1)
+        
+        for p in pages:
+            style = "primary" if p == current else "secondary-outline"
+            ttk.Button(self.search_page_buttons, text=str(p), width=3,
+                      command=lambda page=p: self._goto_search_page(page),
+                      bootstyle=style).pack(side=tk.LEFT, padx=2)
+        
+        # Ellipsis si hay más páginas
+        if total > 7 and current < total - 2:
+            ttk.Label(self.search_page_buttons, text="...", padx=3).pack(side=tk.LEFT)
+        
+        # Botón Siguiente
+        next_state = "normal" if current < total else "disabled"
+        ttk.Button(self.search_page_buttons, text="▶", width=3,
+                  command=lambda: self._goto_search_page(current + 1),
+                  bootstyle="secondary-outline", state=next_state).pack(side=tk.LEFT, padx=2)
+    
+    def _goto_search_page(self, page: int):
+        """
+        ================================================================
+        MÉTODO: _goto_search_page
+        ================================================================
+        Navega a una página específica de resultados.
+        
+        Args:
+            page: Número de página (1-indexed)
+        """
+        if page < 1 or page > self.search_total_pages:
+            return
+        
+        self.search_current_page = page
+        self._render_search_results()
+        self._update_search_pagination_buttons()
+        
+        self.log(f"[SEARCH] Navegando a página {page}")
+    
+    def _show_search_empty_state(self, message: str):
+        """
+        ================================================================
+        MÉTODO: _show_search_empty_state
+        ================================================================
+        Muestra mensaje de estado vacío en el área de resultados.
+        
+        Args:
+            message: Mensaje a mostrar
+        """
+        # Limpiar Treeview
+        for item in self.search_tree.get_children():
+            self.search_tree.delete(item)
+        
+        # Mostrar mensaje
+        self.search_empty_label.config(text=message)
+        self.search_empty_label.pack(pady=40)
+        
+        # Resetear paginación
+        self.search_page_info.config(text="Sin resultados")
+        for widget in self.search_page_buttons.winfo_children():
+            widget.destroy()
+    
+    def _update_search_pills(self):
+        """
+        ================================================================
+        MÉTODO: _update_search_pills
+        ================================================================
+        Actualiza el label de filtros activos (pills).
+        """
+        filters = []
+        
+        if self.search_filter_var.get().strip():
+            filters.append(f"🔍 '{self.search_filter_var.get().strip()[:20]}'")
+        if self.search_type_var.get() != "Todos":
+            filters.append(f"📋 {self.search_type_var.get()}")
+        if self.search_category_var.get() != "Todos":
+            filters.append(f"📁 {self.search_category_var.get()[:15]}")
+        if self.search_date_from_var.get():
+            filters.append(f"📅Desde {self.search_date_from_var.get()}")
+        if self.search_date_to_var.get():
+            filters.append(f"📅Hasta {self.search_date_to_var.get()}")
+        
+        if filters:
+            self.search_pills_label.config(text=f"Filtros activos: {' | '.join(filters)}")
+        else:
+            self.search_pills_label.config(text="Sin filtros activos")
+    
+    def _clear_search_filters(self):
+        """
+        ================================================================
+        MÉTODO: _clear_search_filters
+        ================================================================
+        Limpia todos los filtros de búsqueda y reinicia la pestaña.
+        """
+        # Resetear variables
+        self.search_filter_var.set("")
+        self.search_type_var.set("Todos")
+        self.search_category_var.set("Todos")
+        self.search_order_var.set("Nuevos primero")
+        self.search_date_from_var.set("")
+        self.search_date_to_var.set("")
+        
+        # Resetear cache
+        self.search_results_cache = []
+        self.search_current_page = 1
+        self.search_total_results = 0
+        self.search_total_pages = 1
+        
+        # Actualizar UI
+        self.search_stats_var.set("Sin búsqueda")
+        self._update_search_pills()
+        self._show_search_empty_state("Ingresa un término de búsqueda y presiona Enter o haz clic en BUSCAR")
+        self._update_search_pagination_buttons()
+        
+        # Focus en entrada
+        for widget in self.tab_search.winfo_children():
+            if isinstance(widget, ttk.Frame):
+                for child in widget.winfo_children():
+                    if isinstance(child, ttk.Entry):
+                        child.focus_set()
+                        break
+                break
+        
+        self.log("[SEARCH] Filtros limpiados")
+    
+    def _on_search_result_double_click(self, event):
+        """
+        ================================================================
+        MÉTODO: _on_search_result_double_click
+        ================================================================
+        Maneja el evento de doble clic en un resultado.
+        
+        Muestra una ventana con el contenido completo del resultado.
+        """
+        # Obtener item seleccionado
+        selection = self.search_tree.selection()
+        if not selection:
+            return
+        
+        item = selection[0]
+        values = self.search_tree.item(item, 'values')
+        
+        if len(values) < 7:
+            return
+        
+        result_id = values[6]  # Columna oculta de ID
+        title = values[1]
+        
+        # Buscar contenido completo en cache
+        content = ""
+        for result in self.search_results_cache:
+            if str(result['id']) == str(result_id):
+                content = result.get('content', '')
+                break
+        
+        # Crear ventana de detalles
+        detail_win = tk.Toplevel(self.root)
+        detail_win.title(f"📄 Detalle: {title[:50]}")
+        detail_win.geometry("700x500")
+        detail_win.transient(self.root)
+        detail_win.grab_set()
+        
+        # Centrar ventana
+        detail_win.update_idletasks()
+        x = (self.root.winfo_screenwidth() // 2) - (700 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (500 // 2)
+        detail_win.geometry(f"700x500+{x}+{y}")
+        
+        # Contenido con scroll
+        text_area = scrolledtext.ScrolledText(detail_win, font=("Inter", 10), padx=15, pady=15)
+        text_area.pack(fill=tk.BOTH, expand=True)
+        text_area.insert("1.0", content or "Contenido no disponible")
+        text_area.config(state="disabled")
+        
+        # Botón cerrar
+        btn_frame = ttk.Frame(detail_win)
+        btn_frame.pack(fill=tk.X, padx=10, pady=10)
+        ttk.Button(btn_frame, text="CERRAR", command=detail_win.destroy,
+                  bootstyle="secondary").pack(side=tk.RIGHT)
+    
+    # ========================================================================
+    # SUB-FASE 1B: MOTOR DE CONSULTAS Y RENDIMIENTO (Módulos 13-24)
+    # ========================================================================
+    
+    def _execute_advanced_search(self, algorithm: str = "auto"):
+        """
+        MÓDULO 13-18: Búsqueda Avanzada con Múltiples Algoritmos
+        Soporta: FTS5, BM25, Sinónimos, Proximidad, N-gramas
+        """
+        if not SEARCH_MODULES_AVAILABLE:
+            self._execute_kb_search()
+            return
+        
+        query = self.search_filter_var.get().strip()
+        
+        if not query and not self._has_active_filters():
+            self._show_search_empty_state("Ingresa un término de búsqueda o selecciona un filtro")
+            return
+        
+        if not self.knowledge_db:
+            messagebox.showwarning("Base de Conocimiento", "La base de conocimiento no está disponible.")
+            return
+        
+        filters = self._get_search_filters()
+        
+        import time
+        start_time = time.time()
+        
+        try:
+            if algorithm == "bm25":
+                result = self.knowledge_db.search_bm25(query=query, limit=100, filters=filters)
+                algo_name = "BM25"
+            elif algorithm == "synonyms":
+                result = self.knowledge_db.search_with_synonyms(query=query, limit=100)
+                algo_name = "FTS5+Sinonyms"
+            elif algorithm == "proximity":
+                result = self.knowledge_db.search_with_proximity(query=query, limit=100)
+                algo_name = "Proximity"
+            elif algorithm == "ngram":
+                result = self.knowledge_db.search_ngrams(query=query, limit=100)
+                algo_name = "N-gram"
+            else:
+                result = self.knowledge_db.search_entries(query=query, filters=filters, page=1, page_size=100)
+                algo_name = "FTS5"
+            
+            entries = result.get('entries', result.get('results', []))
+            self.search_results_cache = self._process_search_results(entries)
+            self.search_total_results = result.get('total', len(entries))
+            self.search_total_pages = result.get('pages', 1) or 1
+            
+            elapsed_ms = result.get('elapsed_ms', (time.time() - start_time) * 1000)
+            
+            self.search_results_label_var.set(f"{self.search_total_results} entradas")
+            self.search_fts_time_var.set(f"{algo_name} — {elapsed_ms:.0f}ms")
+            self.search_stats_var.set(f"{self.search_total_results} resultados · {algo_name} {elapsed_ms:.0f}ms")
+            
+            self._update_search_pills()
+            self._render_search_results()
+            self._update_search_pagination_buttons()
+            
+            self.log(f"[SEARCH {algo_name}] Búsqueda: '{query}' → {self.search_total_results} resultados en {elapsed_ms:.0f}ms")
+            
+        except Exception as e:
+            self.log(f"[SEARCH ERROR] {e}", "error")
+            self._show_search_empty_state(f"Error en búsqueda: {str(e)}")
+    
+    def _get_search_filters(self) -> dict:
+        """MÓDULO 25-30: Obtiene filtros activos."""
+        filters = {}
+        tipo = self.search_type_var.get()
+        if tipo and tipo != "Todos":
+            filters['type'] = tipo
+        category = self.search_category_var.get()
+        if category and category != "Todos":
+            filters['category'] = category
+        date_from = self.search_date_from_var.get().strip()
+        date_to = self.search_date_to_var.get().strip()
+        if date_from:
+            filters['date_from'] = f"{date_from}-01"
+        if date_to:
+            filters['date_to'] = f"{date_to}-31"
+        return filters
+    
+    def _has_active_filters(self) -> bool:
+        """Verifica si hay filtros activos."""
+        return (
+            self.search_type_var.get() != "Todos" or
+            self.search_category_var.get() != "Todos" or
+            self.search_date_from_var.get().strip() or
+            self.search_date_to_var.get().strip()
+        )
+    
+    def _process_search_results(self, entries: List[dict]) -> List[dict]:
+        """MÓDULO 19-20: Procesa resultados con highlighting y snippets."""
+        processed = []
+        query = self.search_filter_var.get().strip()
+        
+        for row in entries:
+            content = row.get('content', '') or row.get('content_preview', '') or ''
+            tipo_doc = row.get('type') or row.get('tipo') or self._detect_doc_type(content, row.get('category', ''))
+            icon = self.DOC_TYPE_ICONS.get(tipo_doc, "📄")
+            word_count = len(content.split()) if content else (row.get('palabras', 0) or 0)
+            
+            processed_result = {
+                'id': row.get('id'),
+                'icon': icon,
+                'title': row.get('source') or f"Entrada {row.get('id')}",
+                'category': row.get('category', 'Sin categoría'),
+                'type': tipo_doc,
+                'status': row.get('status', 'Procesado'),
+                'date': str(row.get('timestamp', ''))[:10] if row.get('timestamp') else 'N/A',
+                'words': word_count,
+                'conf': row.get('confidence_score', 0) or 0,
+                'content': content
+            }
+            
+            if query:
+                processed_result['content_highlighted'] = self._highlight_terms(content, query)
+                processed_result['snippet'] = self._generate_snippet(content, query)
+            
+            processed.append(processed_result)
+        
+        return processed
+    
+    def _highlight_terms(self, content: str, query: str) -> str:
+        """MÓDULO 19: Highlighting de términos buscados."""
+        if not content or not query:
+            return content[:200] + "..." if len(content) > 200 else content
+        
+        import re
+        query_terms = query.lower().split()
+        result = content
+        
+        for term in query_terms:
+            pattern = re.compile(re.escape(term), re.IGNORECASE)
+            result = pattern.sub(f"**{term.upper()}**", result)
+        
+        return result[:300] + "..." if len(result) > 300 else result
+    
+    def _generate_snippet(self, content: str, query: str, context_words: int = 30) -> str:
+        """MÓDULO 20: Snippet generation con contexto."""
+        if not content or not query:
+            return content[:150] + "..." if len(content) > 150 else content
+        
+        content_lower = content.lower()
+        query_terms = query.lower().split()
+        
+        best_pos = 0
+        best_score = 0
+        for i, word in enumerate(content.split()):
+            word_lower = word.lower()
+            score = sum(1 for t in query_terms if t in word_lower)
+            if score > best_score:
+                best_score = score
+                best_pos = i
+        
+        words = content.split()
+        start = max(0, best_pos - context_words)
+        end = min(len(words), best_pos + context_words)
+        
+        snippet = " ".join(words[start:end])
+        if start > 0:
+            snippet = "..." + snippet
+        if end < len(words):
+            snippet = snippet + "..."
+        
+        return snippet
+    
+    # ========================================================================
+    # SUB-FASE 1C: SISTEMA DE FILTRADO Y FACETAS (Módulos 25-36)
+    # ========================================================================
+    
+    def _show_search_facets_dialog(self):
+        """MÓDULOS 31-33: Muestra panel de facetas dinámicas."""
+        if not SEARCH_MODULES_AVAILABLE:
+            messagebox.showinfo("Facetas", "Módulo de facetas no disponible")
+            return
+        
+        if not hasattr(self, 'search_facets'):
+            try:
+                from app.search.search_facets import SearchFacets
+                self.search_facets = SearchFacets(self.knowledge_db)
+            except:
+                messagebox.showwarning("Facetas", "No se pudo cargar el módulo de facetas")
+                return
+        
+        query = self.search_filter_var.get().strip()
+        filters = self._get_search_filters()
+        
+        facets = self.search_facets.get_all_facets(query, filters)
+        
+        facet_win = tk.Toplevel(self.root)
+        facet_win.title("📊 Facetas de Búsqueda")
+        facet_win.geometry("500x600")
+        facet_win.transient(self.root)
+        
+        ttk.Label(facet_win, text="Filtros por Faceta", font=("Inter", 12, "bold")).pack(pady=10)
+        
+        canvas = Canvas(facet_win)
+        scrollbar = ttk.Scrollbar(facet_win, orient="vertical", command=canvas.yview)
+        scroll_frame = ttk.Frame(canvas)
+        
+        scroll_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        for facet_type, facet_list in facets.items():
+            if not facet_list:
+                continue
+                
+            frame = ttk.LabelFrame(scroll_frame, text=f" {facet_type.upper()} ", padding=10)
+            frame.pack(fill=tk.X, padx=10, pady=5)
+            
+            for facet in facet_list[:10]:
+                text = f"{facet.value} ({facet.count})"
+                var = tk.IntVar()
+                cb = ttk.Checkbutton(frame, text=text, variable=var)
+                cb.pack(anchor=tk.W)
+        
+        ttk.Button(facet_win, text="CERRAR", command=facet_win.destroy).pack(pady=10)
+    
+    def _save_search_preference(self):
+        """MÓDULO 35: Guarda filtros favoritos."""
+        if not hasattr(self, 'search_preferences'):
+            try:
+                from app.search.search_facets import SearchPreferences
+                self.search_preferences = SearchPreferences()
+            except:
+                messagebox.showwarning("Error", "No se pudo cargar el módulo de preferencias")
+                return
+        
+        name = simpledialog.askstring("Guardar Filtro", "Nombre del filtro:")
+        if not name:
+            return
+        
+        filters = self._get_search_filters()
+        order = self.search_order_var.get()
+        
+        self.search_preferences.save_preference(name, filters, order)
+        messagebox.showinfo("Éxito", f"Filtro '{name}' guardado")
+        self.log(f"[SEARCH] Filtro guardado: {name}")
+    
+    def _load_search_preference(self):
+        """MÓDULO 35: Carga filtros favoritos."""
+        if not hasattr(self, 'search_preferences'):
+            try:
+                from app.search.search_facets import SearchPreferences
+                self.search_preferences = SearchPreferences()
+            except:
+                return
+        
+        prefs = self.search_preferences.list_preferences()
+        if not prefs:
+            messagebox.showinfo("Filtros Guardados", "No hay filtros guardados")
+            return
+        
+        names = [p['name'] for p in prefs]
+        
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Cargar Filtro")
+        dialog.geometry("300x400")
+        
+        ttk.Label(dialog, text="Selecciona un filtro:", font=("Inter", 10)).pack(pady=10)
+        
+        listbox = tk.Listbox(dialog)
+        listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        
+        for name in names:
+            listbox.insert(tk.END, name)
+        
+        def load_selected():
+            selection = listbox.curselection()
+            if selection:
+                pref = self.search_preferences.get_preference(names[selection[0]])
+                if pref:
+                    filters = pref.get('filters', {})
+                    if 'category' in filters:
+                        self.search_category_var.set(filters['category'])
+                    if 'type' in filters:
+                        self.search_type_var.set(filters['type'])
+                    self.search_order_var.set(pref.get('order_by', 'Nuevos primero'))
+                    dialog.destroy()
+                    self._execute_kb_search()
+        
+        ttk.Button(dialog, text="CARGAR", command=load_selected).pack(pady=5)
+        ttk.Button(dialog, text="CANCELAR", command=dialog.destroy).pack(pady=5)
+    
+    def _show_search_history(self):
+        """MÓDULO 36: Muestra historial de búsquedas."""
+        if not hasattr(self, 'search_history'):
+            try:
+                from app.search.search_facets import SearchHistory
+                self.search_history = SearchHistory()
+            except:
+                messagebox.showinfo("Historial", "Módulo de historial no disponible")
+                return
+        
+        history = self.search_history.get_history(20)
+        
+        hist_win = tk.Toplevel(self.root)
+        hist_win.title("📜 Historial de Búsquedas")
+        hist_win.geometry("600x400")
+        
+        ttk.Label(hist_win, text="Búsquedas Recientes", font=("Inter", 12, "bold")).pack(pady=10)
+        
+        text = scrolledtext.ScrolledText(hist_win, font=("Consolas", 9))
+        text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        for i, entry in enumerate(history, 1):
+            text.insert(tk.END, f"{i}. {entry.get('query', 'Sin query')} | ")
+            text.insert(tk.END, f"Resultados: {entry.get('result_count', 0)} | ")
+            text.insert(tk.END, f"Tiempo: {entry.get('elapsed_ms', 0)}ms\n")
+        
+        text.config(state="disabled")
+        
+        ttk.Button(hist_win, text="CERRAR", command=hist_win.destroy).pack(pady=10)
+    
+    # ========================================================================
+    # SUB-FASE 1D: VISUALIZACIÓN Y UX (Módulos 37-48)
+    # ========================================================================
+    
+    def _change_search_view(self, view_type: str):
+        """MÓDULOS 37-39: Cambia entre Vista de Lista/Tarjetas/Árbol."""
+        self.search_view_type = view_type
+        
+        if view_type == "cards":
+            self._render_search_as_cards()
+        elif view_type == "tree":
+            self._render_search_as_tree()
+        else:
+            self._render_search_results()
+        
+        self.log(f"[SEARCH] Vista cambiada a: {view_type}")
+    
+    def _render_search_as_cards(self):
+        """MÓDULO 38: Vista de tarjetas con metadata."""
+        for item in self.search_tree.get_children():
+            self.search_tree.delete(item)
+        
+        if not self.search_results_cache:
+            self._show_search_empty_state("Sin resultados")
+            return
+        
+        container = getattr(self, 'search_cards_container', None)
+        if container:
+            for widget in container.winfo_children():
+                widget.destroy()
+        else:
+            return
+        
+        for i, result in enumerate(self.search_results_cache[:20]):
+            color_tag = result['type'].lower() if result.get('type') else 'articulo'
+            self.search_tree.insert('', i, values=(
+                result['icon'],
+                result['title'][:40],
+                result['category'][:15],
+                result['type'][:10],
+                result['date'],
+                result['words'],
+                result['id']
+            ), tags=(color_tag,))
+    
+    def _render_search_as_tree(self):
+        """MÓDULO 39: Vista de árbol jerárquica por categoría."""
+        for item in self.search_tree.get_children():
+            self.search_tree.delete(item)
+        
+        if not self.search_results_cache:
+            self._show_search_empty_state("Sin resultados")
+            return
+        
+        categories = {}
+        for result in self.search_results_cache:
+            cat = result.get('category', 'Sin categoría')
+            if cat not in categories:
+                categories[cat] = []
+            categories[cat].append(result)
+        
+        for cat, results in categories.items():
+            cat_node = self.search_tree.insert('', 0, text=f"📁 {cat} ({len(results)})", open=True)
+            
+            for result in results[:10]:
+                self.search_tree.insert(cat_node, 'end', values=(
+                    result['icon'],
+                    result['title'][:40],
+                    result['type'][:10],
+                    result['date'],
+                    result['words'],
+                    result['id']
+                ))
+    
+    # ========================================================================
+    # SUB-FASE 1E: AUDITORÍA Y GOBERNANZA (Módulos 49-60)
+    # ========================================================================
+    
+    def _show_search_stats(self):
+        """MÓDULOS 49-55: Muestra estadísticas de búsqueda."""
+        if not SEARCH_MODULES_AVAILABLE:
+            messagebox.showinfo("Estadísticas", "Módulo de analytics no disponible")
+            return
+        
+        if not hasattr(self, 'search_analytics'):
+            try:
+                from app.search.search_analytics import SearchAnalytics
+                self.search_analytics = SearchAnalytics()
+            except:
+                messagebox.showwarning("Error", "No se pudo cargar analytics")
+                return
+        
+        stats = self.search_analytics.get_stats()
+        log = self.search_analytics.get_search_log(10)
+        zero_results = self.search_analytics.get_zero_result_queries(5)
+        
+        stats_win = tk.Toplevel(self.root)
+        stats_win.title("📈 Estadísticas de Búsqueda")
+        stats_win.geometry("600x500")
+        
+        ttk.Label(stats_win, text="Estadísticas de Búsqueda", font=("Inter", 14, "bold")).pack(pady=10)
+        
+        text = scrolledtext.ScrolledText(stats_win, font=("Consolas", 9))
+        text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        text.insert(tk.END, f"Búsquedas totales: {stats.total_searches}\n")
+        text.insert(tk.END, f"Resultados totales: {stats.total_results}\n")
+        text.insert(tk.END, f"Tiempo promedio: {stats.avg_time_ms:.2f}ms\n")
+        text.insert(tk.END, f"Hit rate de cache: {stats.cache_hit_rate:.1f}%\n")
+        text.insert(tk.END, f"Búsquedas sin resultados: {stats.zero_result_searches}\n\n")
+        
+        text.insert(tk.END, "--- TOP QUERIES ---\n")
+        for q in stats.top_queries[:5]:
+            text.insert(tk.END, f"  {q['query']}: {q['count']} veces\n")
+        
+        text.insert(tk.END, "\n--- QUERIES SIN RESULTADOS ---\n")
+        for q in zero_results:
+            text.insert(tk.END, f"  {q['query']}: {q['attempts']} intentos\n")
+        
+        text.config(state="disabled")
+        
+        ttk.Button(stats_win, text="CERRAR", command=stats_win.destroy).pack(pady=10)
+    
+    def _show_search_health_check(self):
+        """MÓDULO 60: Reporte de salud del sistema de búsqueda."""
+        if not self.knowledge_db:
+            messagebox.showwarning("Error", "Base de conocimiento no disponible")
+            return
+        
+        try:
+            health = self.knowledge_db.get_health_report() if hasattr(self.knowledge_db, 'get_health_report') else {'status': 'UNKNOWN'}
+            
+            health_win = tk.Toplevel(self.root)
+            health_win.title("🔍 Diagnóstico de Búsqueda")
+            health_win.geometry("500x400")
+            
+            ttk.Label(health_win, text="Estado del Sistema de Búsqueda", font=("Inter", 12, "bold")).pack(pady=10)
+            
+            text = scrolledtext.ScrolledText(health_win, font=("Consolas", 9))
+            text.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+            
+            text.insert(tk.END, f"Estado general: {health.get('status', 'UNKNOWN')}\n\n")
+            
+            for check in health.get('checks', []):
+                text.insert(tk.END, f"[{check.get('status', '?')}] {check.get('name', 'Unknown')}\n")
+                for k, v in check.items():
+                    if k not in ['name', 'status']:
+                        text.insert(tk.END, f"    {k}: {v}\n")
+                text.insert(tk.END, "\n")
+            
+            text.config(state="disabled")
+            
+            ttk.Button(health_win, text="CERRAR", command=health_win.destroy).pack(pady=10)
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo obtener el diagnóstico: {e}")
+    
+    def _export_search_results(self, format: str = "csv"):
+        """MÓDULOS 42-45: Exporta resultados a múltiples formatos."""
+        if not self.search_results_cache:
+            messagebox.showwarning("Exportar", "No hay resultados para exportar")
+            return
+        
+        try:
+            from app.search.search_exporter import SearchExporter
+            exporter = SearchExporter()
+            
+            if format == "csv":
+                path = exporter.export_to_csv(self.search_results_cache, include_content=True)
+            elif format == "txt":
+                path = exporter.export_to_txt(self.search_results_cache)
+            elif format == "md":
+                path = exporter.export_to_markdown(self.search_results_cache, query=self.search_current_query)
+            elif format == "pdf":
+                path = exporter.export_to_pdf(self.search_results_cache, query=self.search_current_query)
+            else:
+                messagebox.showwarning("Exportar", f"Formato no soportado: {format}")
+                return
+            
+            messagebox.showinfo("Éxito", f"Resultados exportados a:\n{path}")
+            self.log(f"[SEARCH] Exportado a {format}: {path}")
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al exportar: {e}")
+            self.log(f"[SEARCH ERROR] Export failed: {e}", "error")
+
+    def _init_search_modules(self):
+        """Inicializa los módulos de búsqueda avanzada."""
+        if not SEARCH_MODULES_AVAILABLE:
+            self.log("[SEARCH] Usando modo básico (módulos avanzados no disponibles)")
+            return
+        
+        try:
+            self.search_cache_manager = get_search_cache_manager()
+            
+            if self.knowledge_db:
+                self.search_facets = SearchFacets(self.knowledge_db)
+                self.search_history = SearchHistory()
+                self.search_analytics = SearchAnalytics()
+                self.search_exporter = SearchExporter()
+            
+            self.log("[SEARCH] Módulos avanzados inicializados")
+        except Exception as e:
+            self.log(f"[SEARCH] Error inicializando módulos: {e}")
+        
+        # Binding escape para cerrar
+        detail_win.bind('<Escape>', lambda e: detail_win.destroy())
+        
+        self.log(f"[SEARCH] Abriendo detalle de resultado ID: {result_id}")
+    
+    def _export_kb_search(self):
+        """
+        ================================================================
+        MÉTODO: _export_kb_search
+        ================================================================
+        Exporta los resultados de búsqueda a un archivo CSV.
+        
+        Proceso:
+        1. Verificar que hay resultados
+        2. Abrir dialogo de guardado
+        3. Escribir CSV con headers
+        4. Mostrar confirmación
+        """
+        from tkinter import filedialog
+        from datetime import datetime
+        
+        # Verificar resultados
+        if not self.search_results_cache:
+            from tkinter import messagebox
+            messagebox.showwarning("Sin resultados", "No hay resultados para exportar")
+            return
+        
+        # Dialogo de guardado
+        filename = f"kb_busqueda_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        filepath = filedialog.asksaveasfilename(
+            defaultextension=".csv",
+            filetypes=[("CSV Files", "*.csv")],
+            initialfile=filename
+        )
+        
+        if not filepath:
+            return
+        
+        try:
+            import csv
+            with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                
+                # Headers
+                writer.writerow(["ID", "Título", "Categoría KDP", "Tipo Documental", "Fecha", "Palabras", "Preview"])
+                
+                # Datos
+                for result in self.search_results_cache:
+                    writer.writerow([
+                        result['id'],
+                        result['title'],
+                        result['category'],
+                        result['type'],
+                        result['date'],
+                        result['words'],
+                        result['content'][:100] + "..." if len(result['content']) > 100 else result['content']
+                    ])
+            
+            from tkinter import messagebox
+            messagebox.showinfo("Éxito", f"Exportados {len(self.search_results_cache)} resultados a:\n{filepath}")
+            self.log(f"[SEARCH EXPORT] {len(self.search_results_cache)} resultados exportados a {filepath}")
+            
+        except Exception as e:
+            from tkinter import messagebox
+            messagebox.showerror("Error", f"No se pudo exportar:\n{str(e)}")
+            self.log(f"[SEARCH ERROR] Export fallido: {e}", "error")
 
     def setup_pending_videos_tab(self):
-        """[Módulos 1-10] Centro de Curación Masiva de Conocimiento."""
-        main = ttk.Frame(self.tab_pending_mass, )
+        """Centro de Curación Masiva de Conocimiento."""
+        if not hasattr(self, 'pending_tab_loaded') or not self.pending_tab_loaded:
+            for widget in self.tab_pending_mass.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_pending_mass, text="⏳ Cargando Videos Pendientes...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_pending_videos_tab)
+            return
+        
+        if len(self.tab_pending_mass.winfo_children()) > 0:
+            return
+        
+        main = ttk.Frame(self.tab_pending_mass)
         main.pack(fill=tk.BOTH, expand=True)
 
         # --- PANEL SUPERIOR: FILTROS Y BUSQUEDA (Módulos 7, 9) ---
@@ -3543,12 +5386,12 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         ttk.Button(header_btn_container, text="🔄 Sincronizar DB", command=self.load_pending_videos, bootstyle="warning").pack(pady=2)
 
         # --- CUERPO: TREEVIEW VIRTUALIZADO + PREVIEW (Módulos 1, 3, 4, 8) ---
-        body_paned = ttk.PanedWindow(main, orient=tk.HORIZONTAL)
+        body_paned = tk.PanedWindow(main, orient=tk.HORIZONTAL)
         body_paned.pack(fill=tk.BOTH, expand=True)
 
         # Panel Izquierdo: Lista de Videos
         list_container = ttk.Frame(body_paned)
-        body_paned.add(list_container, weight=4)
+        body_paned.add(list_container)
 
         cols = ("id", "title", "channel", "duration", "date", "status")
         self.pending_tree = ttk.Treeview(list_container, columns=cols, show="headings", height=18)
@@ -3585,7 +5428,7 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
 
         # Panel Derecho: Vista Previa (Módulo 4: Cache de Miniaturas)
         self.pending_preview_frame = ttk.LabelFrame(body_paned, text=" 👁️ Vista Previa (Módulo 4) ", )
-        body_paned.add(self.pending_preview_frame, weight=1)
+        body_paned.add(self.pending_preview_frame)
 
         self.pending_thumb_lbl = ttk.Label(self.pending_preview_frame, text="Selecciona un video\npara ver miniatura", 
                                          anchor="center", justify=tk.CENTER)
@@ -3619,13 +5462,44 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         footer = ttk.Frame(main, padding=(0, 10))
         footer.pack(fill=tk.X)
 
+        # Paginación (Módulo 2)
+        pag_frame = ttk.Frame(footer)
+        pag_frame.pack(side=tk.LEFT)
+        ttk.Button(pag_frame, text="◀", width=4, command=lambda: self.change_pending_page(-1), bootstyle="secondary").pack(side=tk.LEFT)
+        self.pending_page_lbl = ttk.Label(pag_frame, text="Pág. 1", font=("Segoe UI", 9, "bold"), padding=(10, 0))
+        self.pending_page_lbl.pack(side=tk.LEFT)
+        ttk.Button(pag_frame, text="▶", width=4, command=lambda: self.change_pending_page(1), bootstyle="secondary").pack(side=tk.LEFT)
+        
+        ttk.Button(footer, text="➕ Aumentar Buffer de Carga", command=self.load_more_pending_size, bootstyle="info").pack(side=tk.LEFT, padx=30)
+
+        # Estado y Progreso (Módulo 5)
+        self.pending_progress = ttk.Progressbar(footer, mode='determinate', length=200)
+        self.pending_progress.pack(side=tk.RIGHT, padx=5)
+        self.pending_stat_lbl = ttk.Label(footer, text="Consultando base de datos...", foreground="#94a3b8")
+        self.pending_stat_lbl.pack(side=tk.RIGHT, padx=15)
+
+        # Inicializar Cache de Miniaturas (Módulo 4)
+        self.thumb_cache_dir = Path(self.base_dir) / "data" / "thumbnails"
+        self.thumb_cache_dir.mkdir(parents=True, exist_ok=True)
+
     def setup_review_tab(self):
         """Configura la pestaña de Cola de Revisión Humana."""
-        if not review_tab:
-            ttk.Label(self.tab_review, text="❌ Módulo 'review_tab' no encontrado.", foreground="#ef4444", font=("Inter", 12, "bold")).pack(pady=40)
+        if not hasattr(self, 'review_tab_loaded') or not self.review_tab_loaded:
+            for widget in self.tab_review.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_review, text="⏳ Cargando Cola de Revisión...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_review_tab)
             return
         
-        # Assuming review_tab has a setup_review_tab method similar to other tabs
+        if len(self.tab_review.winfo_children()) > 0:
+            return
+        
+        if not review_tab:
+            ttk.Label(self.tab_review, text="⚠️ Módulo de revisión no disponible.", 
+                     foreground="#f59e0b", font=("Inter", 11)).pack(pady=40)
+            return
+        
         review_tab.setup_review_tab(self)
 
     def on_pending_video_select(self, event):
@@ -3708,24 +5582,6 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                 print(f"[CACHE] Fallo al procesar miniatura {video_id}: {e}")
 
         threading.Thread(target=task, daemon=True).start()
-        # Paginación (Módulo 2)
-        pag_frame = ttk.Frame(footer)
-        pag_frame.pack(side=tk.LEFT)
-        ttk.Button(pag_frame, text="◀", width=4, command=lambda: self.change_pending_page(-1), bootstyle="secondary").pack(side=tk.LEFT)
-        
-        ttk.Button(pag_frame, text="▶", width=4, command=lambda: self.change_pending_page(1), bootstyle="secondary").pack(side=tk.LEFT)
-        
-        ttk.Button(footer, text="➕ Aumentar Buffer de Carga", command=self.load_more_pending_size, bootstyle="info").pack(side=tk.LEFT, padx=30)
-
-        # Estado y Progreso (Módulo 5)
-        self.pending_progress = ttk.Progressbar(footer, mode='determinate', length=200)
-        self.pending_progress.pack(side=tk.RIGHT, padx=5)
-        self.pending_stat_lbl = ttk.Label(footer, text="Consultando base de datos...", foreground="#94a3b8")
-        self.pending_stat_lbl.pack(side=tk.RIGHT, padx=15)
-
-        # Inicializar Cache de Miniaturas (Módulo 4)
-        self.thumb_cache_dir = Path(self.base_dir) / "data" / "thumbnails"
-        self.thumb_cache_dir.mkdir(parents=True, exist_ok=True)
 
     def load_pending_videos(self):
         """[Módulo 5] Ingesta de metadatos con indicador de progreso."""
@@ -4774,12 +6630,20 @@ Descripción: {video.get('description', '')[:800]}
     # ===== MÉTODOS DEL MONITOR DE CANALES =====
     
     def setup_channel_monitor_tab(self):
-        """
-        Configura la pestaña de Monitor de Canales con principios UI/UX de Canva/Figma
-        """
-        # Contenedor principal
+        """Configura la pestaña de Monitor de Canales."""
+        if not hasattr(self, 'channel_monitor_tab_loaded') or not self.channel_monitor_tab_loaded:
+            for widget in self.tab_channel_monitor.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_channel_monitor, text="⏳ Cargando Monitor de Canales...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_channel_monitor_tab)
+            return
+        
+        if len(self.tab_channel_monitor.winfo_children()) > 0:
+            return
+        
         main_container = ttk.Frame(self.tab_channel_monitor)
-        main_container.pack(fill=tk.BOTH, expand=True, )
+        main_container.pack(fill=tk.BOTH, expand=True)
         
         # ===== HEADER CON ESTADÍSTICAS =====
         stats_frame = ttk.Frame(main_container)
@@ -4875,12 +6739,12 @@ Descripción: {video.get('description', '')[:800]}
                   bootstyle="success").pack(side=tk.LEFT, padx=(10, 0))
         
         # ===== PANEL DIVIDIDO: LISTA + CONTROLES =====
-        paned = ttk.PanedWindow(main_container, orient=tk.HORIZONTAL)
+        paned = tk.PanedWindow(main_container, orient=tk.HORIZONTAL)
         paned.pack(fill=tk.BOTH, expand=True)
         
         # Panel izquierdo: Lista de canales
         left_panel = ttk.Frame(paned)
-        paned.add(left_panel, weight=3)
+        paned.add(left_panel)
         
         list_frame = ttk.LabelFrame(left_panel, text=" 📋 Canales Monitoreados ", )
         list_frame.pack(fill=tk.BOTH, expand=True)
@@ -4926,7 +6790,7 @@ Descripción: {video.get('description', '')[:800]}
         
         # Panel derecho: Controles y logs
         right_panel = ttk.Frame(paned, padding=(10, 0, 0, 0))
-        paned.add(right_panel, weight=1)
+        paned.add(right_panel)
         
         # Controles de monitoreo
         control_frame = ttk.LabelFrame(right_panel, text=" ⚙️ Control de Monitoreo ", )
@@ -5553,12 +7417,33 @@ Descripción: {video.get('description', '')[:800]}
     # ==================== FIN MÓDULO: SHOW_MONITOR_STATS (FIX-009) ====================
 
     def setup_schedule_tab(self):
+        """Configura la pestaña de Programación Horaria."""
+        if not hasattr(self, 'schedule_tab_loaded') or not self.schedule_tab_loaded:
+            for widget in self.tab_schedule.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_schedule, text="⏳ Cargando Programación...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_schedule_tab)
+            return
+        
+        if len(self.tab_schedule.winfo_children()) > 0:
+            return
+        
         schedule_tab.setup_schedule_tab(self)
     
     def setup_settings_tab(self):
-        """
-        MÓDULO REFACTORIZADO: Configuración Robusta, Sin Typos, Validación de Keys y Layout Responsive.
-        """
+        """Configuración Robusta con Validación de Keys y Layout Responsive."""
+        if not hasattr(self, 'settings_tab_loaded') or not self.settings_tab_loaded:
+            for widget in self.tab_settings.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_settings, text="⏳ Cargando Configuración...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_settings_tab)
+            return
+        
+        if len(self.tab_settings.winfo_children()) > 0:
+            return
+        
         is_dark = self.current_theme in ["darkly", "cyborg", "dark"]
         card_bg = "#1e293b" if is_dark else "#ffffff"
         border_color = "#334155" if is_dark else "#e2e8f0"
@@ -5632,7 +7517,7 @@ Descripción: {video.get('description', '')[:800]}
         google_entry = ttk.Entry(api_card, textvariable=self.google_api_var, show="•", width=30)
         google_entry.grid(row=0, column=1, sticky=tk.W, padx=10)
         google_entry.insert(0, self.settings.get("google_video_ai_key", ""))
-        google_entry.config(validate="focusout", validatecommand=(self.register(self._validate_api_key), "%P"))
+        google_entry.config(validate="focusout", validatecommand=(self.root.register(self._validate_api_key), "%P"))
         ttk.Label(api_card, text="Ej: AIzaSy...", font=("Segoe UI", 8), foreground=muted_fg).grid(row=1, column=1, sticky=tk.W, padx=10)
         
         ttk.Label(api_card, text="AWS Rekognition Key", font=("Segoe UI", 9, "bold")).grid(row=2, column=0, sticky=tk.W, pady=10)
@@ -5640,7 +7525,7 @@ Descripción: {video.get('description', '')[:800]}
         aws_entry = ttk.Entry(api_card, textvariable=self.aws_api_var, show="•", width=30)
         aws_entry.grid(row=2, column=1, sticky=tk.W, padx=10)
         aws_entry.insert(0, self.settings.get("aws_rekognition_key", ""))
-        aws_entry.config(validate="focusout", validatecommand=(self.register(self._validate_api_key), "%P"))
+        aws_entry.config(validate="focusout", validatecommand=(self.root.register(self._validate_api_key), "%P"))
         ttk.Label(api_card, text="Ej: AKIA...", font=("Segoe UI", 8), foreground=muted_fg).grid(row=3, column=1, sticky=tk.W, padx=10)
 
         # === TARJETA 4: MONITOREO AVANZADO ===
@@ -8167,7 +10052,6 @@ Descripción: {video.get('description', '')[:800]}
     
     def apply_specific_theme(self, theme_name):
         """Aplica un tema Bootstrap específico con soporte multi-theme."""
-        # Si es el tema custom Teal, usamos 'darkly' como base y aplicamos overrides
         is_custom_teal = theme_name == "teal_dark"
         base_theme = "darkly" if is_custom_teal else theme_name
 
@@ -8178,26 +10062,32 @@ Descripción: {video.get('description', '')[:800]}
         
         try:
             self.current_theme = theme_name
-            self.root.theme_use(base_theme)
-            self.configure_styles() # Re-aplicar overrides personalizados (Teal y Nav)
+            self.root.style.theme_use(base_theme)
+            self.configure_styles()
             self.save_theme_preference(theme_name)
             self.log(f"🎨 Tema aplicado: {theme_name}")
         except Exception as e:
             self.logger.error(f"Error aplicando tema {theme_name}: {e}")
-            # Fallback a darkly
-            self.current_theme = "darkly"
-            self.root.theme_use("darkly")
+            try:
+                self.root.style.theme_use("darkly")
+            except:
+                pass
 
     def _create_nav_buttons(self):
         """Crea los botones de la barra lateral mapeados a las pestañas."""
         tabs = [
             ("Descargas", "📥"), ("Procesamiento", "⚙️"), ("Inteligencia", "🧠"),
             ("Búsqueda", "🔍"), ("Monitor", "📺"), ("Dashboard", "📊"),
-            ("Pendientes", "🎥"), ("Revisión", "👁️"), ("Programación", "📅"),
-            ("Configuración", "⚙️")
+            ("Metadatos", "✨"), ("Pendientes", "🎥"), ("Revisión", "👁️"),
+            ("Programación", "📅"), ("Configuración", "⚙️")
         ]
         
-        for i, (name, icon) in enumerate(tabs):
+        # Filter tabs conditionally - skip Metadatos if not available
+        filtered_tabs = tabs.copy()
+        if not MetadataDashboard:
+            filtered_tabs = [t for t in filtered_tabs if t[0] != "Metadatos"]
+        
+        for i, (name, icon) in enumerate(filtered_tabs):
             btn = ttk.Button(
                 self.side_nav,
                 text=f"{icon}  {name}",
@@ -8516,7 +10406,18 @@ Descripción: {video.get('description', '')[:800]}
     
     def setup_dashboard_tab(self):
         """Configura la pestaña de Dashboard Web."""
-        frame = ttk.Frame(self.tab_dashboard, )
+        if not hasattr(self, 'dashboard_tab_loaded') or not self.dashboard_tab_loaded:
+            for widget in self.tab_dashboard.winfo_children():
+                widget.destroy()
+            ttk.Label(self.tab_dashboard, text="⏳ Cargando Dashboard...", 
+                     font=("Inter", 11), foreground="#f59e0b").pack(pady=40)
+            self.root.after(500, self.setup_dashboard_tab)
+            return
+        
+        if len(self.tab_dashboard.winfo_children()) > 0:
+            return
+        
+        frame = ttk.Frame(self.tab_dashboard)
         frame.pack(fill=tk.BOTH, expand=True)
         
         # Header

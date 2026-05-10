@@ -1301,25 +1301,74 @@ class DatabaseManager:
         finally:
             conn.close()
 
-    def search_knowledge(self, query: str, limit: int = 50) -> list:
-        """Busca entradas de conocimiento por texto."""
+    def search_knowledge(self, query: str, limit: int = 50, search_keywords: bool = False) -> list:
+        """Busca entradas de conocimiento por texto.
+        
+        Args:
+            query: Texto a buscar
+            limit: Número máximo de resultados
+            search_keywords: Si True, busca también en el campo keywords
+        """
         conn = self.get_connection()
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         try:
-            cursor.execute("""
-                SELECT id, category, secondary_categories, source, source_url,
-                       content, extract, tags, confidence_score, value_score,
-                       is_banal, is_analyzed, rol_gem, metricas, processed_by, created_at
-                FROM knowledge_entries
-                WHERE content LIKE ?
-                ORDER BY created_at DESC
-                LIMIT ?
-            """, (f'%{query}%', limit))
+            if search_keywords:
+                cursor.execute("""
+                    SELECT id, category, secondary_categories, source, source_url,
+                           content, extract, tags, keywords, confidence_score, value_score,
+                           is_banal, is_analyzed, rol_gem, metricas, processed_by, created_at
+                    FROM knowledge_entries
+                    WHERE content LIKE ? OR keywords LIKE ?
+                    ORDER BY created_at DESC
+                    LIMIT ?
+                """, (f'%{query}%', f'%{query}%', limit))
+            else:
+                cursor.execute("""
+                    SELECT id, category, secondary_categories, source, source_url,
+                           content, extract, tags, keywords, confidence_score, value_score,
+                           is_banal, is_analyzed, rol_gem, metricas, processed_by, created_at
+                    FROM knowledge_entries
+                    WHERE content LIKE ?
+                    ORDER BY created_at DESC
+                    LIMIT ?
+                """, (f'%{query}%', limit))
             rows = cursor.fetchall()
             return [dict(r) for r in rows]
         except Exception as e:
             logger.error(f"Error buscando conocimiento: {e}")
+            return []
+        finally:
+            conn.close()
+    
+    def search_by_keywords(self, keywords: str, limit: int = 50) -> list:
+        """Busca entradas por keywords específicas.
+        
+        Args:
+            keywords: Keywords separadas por comas a buscar
+            limit: Número máximo de resultados
+        """
+        conn = self.get_connection()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        try:
+            keyword_list = [k.strip() for k in keywords.split(',')]
+            conditions = ' OR '.join(['keywords LIKE ?' for _ in keyword_list])
+            params = [f'%{k}%' for k in keyword_list] + [limit]
+            
+            cursor.execute(f"""
+                SELECT id, category, secondary_categories, source, source_url,
+                       content, extract, tags, keywords, confidence_score, value_score,
+                       is_banal, is_analyzed, rol_gem, metricas, processed_by, created_at
+                FROM knowledge_entries
+                WHERE {conditions}
+                ORDER BY created_at DESC
+                LIMIT ?
+            """, params)
+            rows = cursor.fetchall()
+            return [dict(r) for r in rows]
+        except Exception as e:
+            logger.error(f"Error buscando por keywords: {e}")
             return []
         finally:
             conn.close()
@@ -1610,6 +1659,58 @@ class DatabaseManager:
         except Exception as e:
             logger.error(f"Error obteniendo stats de duplicados: {e}")
             return {'total_reposts_detected': 0, 'videos_with_content_hash': 0, 'duplicates_by_hash': 0, 'duplicate_rate': 0}
+        finally:
+            conn.close()
+    
+    def get_duplicate_relations(self, limit: int = 100) -> List[Dict]:
+        """
+        Obtiene las relaciones de duplicados registradas.
+        
+        Args:
+            limit: Número máximo de registros a retornar
+            
+        Returns:
+            Lista de diccionarios con información de relaciones
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            query = """
+                SELECT 
+                    vr.id,
+                    vr.video1_id,
+                    vr.video2_id,
+                    vr.relation_type,
+                    vr.confidence,
+                    vr.created_at,
+                    v1.title as video1_title,
+                    v2.title as video2_title
+                FROM video_relations vr
+                LEFT JOIN videos v1 ON vr.video1_id = v1.video_id
+                LEFT JOIN videos v2 ON vr.video2_id = v2.video_id
+                ORDER BY vr.created_at DESC
+                LIMIT ?
+            """
+            cursor.execute(query, (limit,))
+            rows = cursor.fetchall()
+            
+            results = []
+            for row in rows:
+                results.append({
+                    'id': row['id'],
+                    'video1_id': row['video1_id'],
+                    'video2_id': row['video2_id'],
+                    'relation_type': row['relation_type'],
+                    'confidence': row['confidence'],
+                    'created_at': row['created_at'],
+                    'video1_title': row.get('video1_title', 'Unknown'),
+                    'video2_title': row.get('video2_title', 'Unknown')
+                })
+            return results
+        except Exception as e:
+            logger.error(f"Error obteniendo relaciones de duplicados: {e}")
+            return []
         finally:
             conn.close()
 

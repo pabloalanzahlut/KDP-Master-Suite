@@ -6,6 +6,13 @@ import time
 import concurrent.futures
 from pathlib import Path
 
+try:
+    from app.services.metadata_enricher import MetadataEnricher
+    from app.services.metadata_parser import MetadataParser
+    METADATA_ENRICHMENT_AVAILABLE = True
+except ImportError:
+    METADATA_ENRICHMENT_AVAILABLE = False
+
 class ProcessingService:
     """
     Encapsula la lógica de limpieza y procesamiento de archivos de transcripción.
@@ -15,6 +22,12 @@ class ProcessingService:
     def __init__(self):
         self._hash_lock = threading.Lock()
         self._processed_hashes = set()
+        if METADATA_ENRICHMENT_AVAILABLE:
+            self.metadata_enricher = MetadataEnricher()
+            self.metadata_parser = MetadataParser()
+        else:
+            self.metadata_enricher = None
+            self.metadata_parser = None
     
     def get_content_hash(self, text):
         """Calcula el hash MD5 del contenido para deduplicación."""
@@ -170,3 +183,39 @@ class ProcessingService:
             callback(value)
         except Exception:
             pass
+    
+    def enrich_file_metadata(self, vtt_file_path: str, kb_entry_id: int = None) -> dict:
+        """
+        Enriquece los metadatos de un archivo VTT procesado.
+        
+        Args:
+            vtt_file_path: Ruta al archivo VTT o .info.json relacionado
+            kb_entry_id: ID de la entrada en la KB (opcional)
+            
+        Returns:
+            Diccionario con metadatos enriquecidos
+        """
+        if not METADATA_ENRICHMENT_AVAILABLE:
+            return {"error": "Metadata enrichment no disponible"}
+        
+        try:
+            vtt_path = Path(vtt_file_path)
+            
+            # Buscar archivo de metadatos (.info.json)
+            json_path = self.metadata_parser.find_json_for_vtt(vtt_path)
+            
+            if not json_path:
+                return {"error": "No se encontró archivo de metadatos"}
+            
+            # Parsear metadatos
+            metadata = self.metadata_parser.get_video_metadata(json_path)
+            
+            if not metadata:
+                return {"error": "No se pudieron parsear metadatos"}
+            
+            # Enriquecer con API si está disponible
+            enriched = self.metadata_enricher.enrich_metadata(metadata)
+            
+            return enriched
+        except Exception as e:
+            return {"error": str(e)}

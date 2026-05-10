@@ -246,6 +246,43 @@ def setup_monitor_tab(self):
     stats_grid.columnconfigure(0, weight=1)
     stats_grid.columnconfigure(1, weight=1)
     
+    # Filtros de Duplicados
+    filter_frame = ttk.LabelFrame(right_frame, text=" 🔍 Filtros de Duplicados ", padding=8)
+    filter_frame.pack(fill=tk.X, pady=(0, 10))
+    
+    self.duplicate_filters = {
+        'exact': tk.BooleanVar(value=True),
+        'repost': tk.BooleanVar(value=True),
+        'duration': tk.BooleanVar(value=True),
+        'tags': tk.BooleanVar(value=True),
+        'semantic': tk.BooleanVar(value=True)
+    }
+    
+    filter_grid = ttk.Frame(filter_frame)
+    filter_grid.pack(fill=tk.X)
+    
+    ttk.Checkbutton(filter_grid, text="Exactos", variable=self.duplicate_filters['exact'],
+                    command=self._apply_duplicate_filters).pack(side=tk.LEFT, padx=5)
+    ttk.Checkbutton(filter_grid, text="Reposts", variable=self.duplicate_filters['repost'],
+                    command=self._apply_duplicate_filters).pack(side=tk.LEFT, padx=5)
+    ttk.Checkbutton(filter_grid, text="Duración", variable=self.duplicate_filters['duration'],
+                    command=self._apply_duplicate_filters).pack(side=tk.LEFT, padx=5)
+    ttk.Checkbutton(filter_grid, text="Tags", variable=self.duplicate_filters['tags'],
+                    command=self._apply_duplicate_filters).pack(side=tk.LEFT, padx=5)
+    ttk.Checkbutton(filter_grid, text="Semántico", variable=self.duplicate_filters['semantic'],
+                    command=self._apply_duplicate_filters).pack(side=tk.LEFT, padx=5)
+    
+    self.duplicate_list = tk.Listbox(filter_frame, height=4, font=("Segoe UI", 9))
+    self.duplicate_list.pack(fill=tk.X, pady=(5, 0))
+    self.duplicate_list.bind('<<ListboxSelect>>', self._on_duplicate_select)
+    
+    dup_btn_frame = ttk.Frame(filter_frame)
+    dup_btn_frame.pack(fill=tk.X, pady=(5, 0))
+    ttk.Button(dup_btn_frame, text="📊 Ver Relaciones", 
+               command=self._show_duplicate_relations).pack(side=tk.LEFT, padx=2)
+    ttk.Button(dup_btn_frame, text="🔄 Actualizar", 
+               command=self._apply_duplicate_filters).pack(side=tk.LEFT, padx=2)
+    
     # Botones de Exportación
     export_frame = ttk.Frame(right_frame)
     export_frame.pack(fill=tk.X, pady=(0, 10))
@@ -356,7 +393,91 @@ def on_monitor_duplicate_detected(self, duplicate_info):
         )
     except Exception as e:
         self.logger.error(f"Error mostrando notificación de duplicado: {e}")
+    
+    # Agregar a la lista de duplicados filtrados
+    if hasattr(self, 'duplicate_list'):
+        dup_type_key = dup_type.lower().replace('_', '').replace('exactcontent', 'exact').replace('similarduration', 'duration').replace('similartags', 'tags').replace('semanticsimilar', 'semantic')
+        if dup_type_key in self.duplicate_filters and self.duplicate_filters[dup_type_key].get():
+            self.duplicate_list.insert(tk.END, f"[{dup_type}] {video_title[:60]}")
 
+
+def _apply_duplicate_filters(self):
+    """Aplica los filtros de duplicados y actualiza la lista."""
+    if not hasattr(self, 'duplicate_list'):
+        return
+    
+    self.duplicate_list.delete(0, tk.END)
+    
+    try:
+        if hasattr(self, 'db_manager'):
+            duplicates = self.db_manager.get_duplicate_relations()
+            type_map = {
+                'EXACT_CONTENT': 'exact', 'exact_content': 'exact',
+                'REPOST': 'repost', 'repost': 'repost',
+                'SIMILAR_DURATION': 'duration', 'similar_duration': 'duration',
+                'SIMILAR_TAGS': 'tags', 'similar_tags': 'tags',
+                'SEMANTIC_SIMILAR': 'semantic', 'semantic_similar': 'semantic'
+            }
+            
+            for dup in duplicates:
+                dup_type = dup.get('relation_type', 'unknown')
+                type_key = type_map.get(dup_type, dup_type)
+                if type_key in self.duplicate_filters and self.duplicate_filters[type_key].get():
+                    title = dup.get('video1_title', 'Unknown')[:60]
+                    self.duplicate_list.insert(tk.END, f"[{dup_type}] {title}")
+    except Exception as e:
+        self.logger.error(f"Error aplicando filtros de duplicados: {e}")
+
+
+def _on_duplicate_select(self, event):
+    """Maneja la selección de un duplicado en la lista."""
+    selection = self.duplicate_list.curselection()
+    if not selection:
+        return
+    
+    item = self.duplicate_list.get(selection[0])
+    self.log_monitor(f"Duplicado seleccionado: {item}", level="info")
+
+def _show_duplicate_relations(self):
+    """Muestra un panel con las relaciones de duplicados."""
+    if not hasattr(self, 'db_manager'):
+        self.log_monitor("DB no disponible", level="error")
+        return
+    
+    relations = self.db_manager.get_duplicate_relations(limit=50)
+    
+    if not relations:
+        self.log_monitor("No hay relaciones de duplicados registradas", level="info")
+        return
+    
+    top = tk.Toplevel(self.root)
+    top.title("🔗 Relaciones de Duplicados")
+    top.geometry("700x400")
+    
+    frame = ttk.Frame(top, padding=10)
+    frame.pack(fill=tk.BOTH, expand=True)
+    
+    columns = ("ID", "Video 1", "Tipo", "Confianza", "Fecha")
+    tree = ttk.Treeview(frame, columns=columns, show="headings")
+    
+    for col in columns:
+        tree.heading(col, text=col)
+        tree.column(col, width=120)
+    
+    tree.column("Video 1", width=180)
+    
+    for rel in relations:
+        tree.insert("", tk.END, values=(
+            rel.get('id', ''),
+            rel.get('video1_title', 'Unknown')[:30],
+            rel.get('relation_type', ''),
+            f"{rel.get('confidence', 0)*100:.0f}%",
+            str(rel.get('created_at', ''))[:19]
+        ))
+    
+    tree.pack(fill=tk.BOTH, expand=True)
+    
+    ttk.Button(frame, text="Cerrar", command=top.destroy).pack(pady=10)
 
 
 def export_monitor_data(self, format_type='csv'):

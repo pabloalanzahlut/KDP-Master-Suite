@@ -82,6 +82,19 @@ KDP_MASTER/
 
 ---
 
+## Dependencias Opcionales
+
+### GTK3 Runtime (para exportar PDF)
+Para generar archivos PDF desde la Base de Conocimiento, se requiere GTK3 Runtime:
+
+1. Descargar el instalador desde: https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases
+2. Ejecutar el instalador (gtk3-runtime-xxx-x64-setup.exe)
+3. Reiniciar la aplicación KDP Master
+
+Una vez instalado, la exportación a PDF funcionará automáticamente.
+
+---
+
 ## Tech Stack
 
 - **GUI:** tkinter (Python standard library)

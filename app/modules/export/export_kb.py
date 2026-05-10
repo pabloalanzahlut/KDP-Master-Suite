@@ -12,10 +12,43 @@ from app.modules.export.convert_to_pdf import ExportConfig, convert_md_to_html, 
 import markdown2
 import sqlite3
 
+try:
+    from app.core.notification_hub import NotificationHub
+    _notification_hub = NotificationHub()
+except ImportError:
+    _notification_hub = None
+
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
 MAX_CONTENT_SIZE = 5000000
+
+EXPORT_TEMPLATES = {
+    "minimal": {
+        "name": "Minimal",
+        "description": "Solo contenido sin estilos adicionales",
+        "include_toc": False,
+        "include_header": False,
+        "include_search": False,
+        "include_sqlite": False
+    },
+    "complete": {
+        "name": "Completo",
+        "description": "Con índice, búsqueda, estilos completos y datos SQLite",
+        "include_toc": True,
+        "include_header": True,
+        "include_search": True,
+        "include_sqlite": True
+    },
+    "index_only": {
+        "name": "Solo Índice",
+        "description": "Solo índice navegable sin contenido completo",
+        "include_toc": True,
+        "include_header": True,
+        "include_search": True,
+        "include_sqlite": False
+    }
+}
 
 # --- INICIO FUNCIONALIDAD US-PDF-AUTO: DETECCIÓN DINÁMICA DE GTK3 v3.4.7 ---
 def check_pdf_capability():
@@ -357,15 +390,53 @@ class KBExporter:
             ''')
 
         # --- INICIO FUNCIONALIDAD: INCLUIR DATOS SQLITE EN CONSOLIDADO ---
-        sql_md = self._get_sqlite_entries()
-        if sql_md:
-            sql_html = markdown2.markdown(sql_md, extras=["tables", "fenced-code-blocks"])
-            sections.append(f'''
-            <section id="database_entries">
-                {sql_html}
-            </section>
-            ''')
+        template = EXPORT_TEMPLATES.get(self.export_settings.get("template", "complete"), EXPORT_TEMPLATES["complete"])
+        
+        if template.get("include_sqlite", True):
+            sql_md = self._get_sqlite_entries()
+            if sql_md:
+                sql_html = markdown2.markdown(sql_md, extras=["tables", "fenced-code-blocks"])
+                sections.append(f'''
+                <section id="database_entries">
+                    {sql_html}
+                </section>
+                ''')
         # --- FIN FUNCIONALIDAD ---
+        
+        toc_items = ''.join(f'<li><a href="#{Path(exp["file"]).stem}">{self.get_title_from_content(self.manuals_dir / exp["file"])}</a></li>' for exp in exports if (self.manuals_dir / exp["file"]).exists())
+        
+        search_script = '''
+        <script>
+        function searchContent() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const sections = document.querySelectorAll("section");
+            sections.forEach(sec => {
+                const text = sec.textContent.toLowerCase();
+                sec.style.display = text.includes(query) ? "block" : "none";
+            });
+        }
+        </script>
+        ''' if template.get("include_search", True) else ''
+        
+        header_html = f'''
+        <h1>📖 Base de Conocimiento Consolidada</h1>
+        <p><em>Exportado: {datetime.now().strftime('%Y-%m-%d %H:%M')} | {len(exports)} manuales</em></p>
+        ''' if template.get("include_header", True) else ''
+        
+        if template.get("include_toc", True):
+            sidebar = f'''
+    <nav class="sidebar">
+        <h2>📚 Índice</h2>
+        <ul>
+            <li><a href="#">↑ Volver al Índice</a></li>
+            {toc_items}
+        </ul>
+    </nav>
+            '''
+            main_style = "margin-left: 280px;"
+        else:
+            sidebar = ""
+            main_style = "margin-left: 0;"
         
         consolidated = f'''<!DOCTYPE html>
 <html lang="es">
@@ -382,7 +453,7 @@ class KBExporter:
         .sidebar li {{ margin: 8px 0; }}
         .sidebar a {{ color: #ecf0f1; text-decoration: none; display: block; padding: 8px 12px; border-radius: 4px; transition: background 0.2s; }}
         .sidebar a:hover {{ background: #34495e; }}
-        .main {{ margin-left: 280px; padding: 30px; max-width: 900px; }}
+        .main {{ {main_style} padding: 30px; max-width: 900px; }}
         section {{ background: white; padding: 30px; margin-bottom: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
         h1 {{ color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px; }}
         h2 {{ color: #34495e; margin-top: 30px; }}
@@ -393,22 +464,16 @@ class KBExporter:
         code {{ background: #f8f9fa; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; }}
         pre {{ background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }}
         blockquote {{ border-left: 4px solid #3498db; padding-left: 15px; color: #666; margin: 1em 0; }}
+        #searchInput {{ width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; }}
         @media (max-width: 900px) {{ .sidebar {{ position: relative; width: 100%; height: auto; }} .main {{ margin-left: 0; }} }}
     </style>
+    {search_script}
 </head>
 <body>
-    <nav class="sidebar">
-        <h2>📚 Índice</h2>
-        <ul>
-            <li><a href="#">↑ Volver al Índice</a></li>
-            {''.join(f'<li><a href="#{Path(exp["file"]).stem}">{self.get_title_from_content(self.manuals_dir / exp["file"])}</a></li>' for exp in exports if (self.manuals_dir / exp["file"]).exists())}
-        </ul>
-    </nav>
+    {sidebar}
     
     <main class="main">
-        <h1>📖 Base de Conocimiento Consolidada</h1>
-        <p><em>Exportado: {datetime.now().strftime('%Y-%m-%d %H:%M')} | {len(exports)} manuales</em></p>
-        
+        {header_html}
         {''.join(sections)}
     </main>
 </body>
@@ -586,6 +651,20 @@ class KBExporter:
         logger.info(f"EXPORTACION COMPLETADA: {success_count}/{len(exports)} manuales")
         logger.info(f"Salida: {self.output_dir}")
         logger.info("=" * 50)
+        
+        if _notification_hub:
+            if success_count > 0:
+                _notification_hub.notify(
+                    title="Exportación KB Completada",
+                    message=f"{success_count}/{len(md_files)} manuales exportados exitosamente",
+                    level="success"
+                )
+            else:
+                _notification_hub.notify(
+                    title="Exportación KB Fallida",
+                    message="No se pudieron exportar los manuales",
+                    level="error"
+                )
         
         return {
             "success": success_count > 0,

@@ -4,61 +4,98 @@
 # Testing: python check_updates.py
 
 import requests
+from datetime import datetime
 
-CURRENT_VERSION = "2.4.3"
+try:
+    from app.core.version import get_version, save_update_check, get_update_settings
+    CURRENT_VERSION = get_version()
+except ImportError:
+    CURRENT_VERSION = "2.4.4"
+
 REPO_OWNER = "pabloalanzahlut"
 REPO_NAME = "KDP-Master-Suite"
 API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest"
 
-def check_for_updates():
+def check_for_updates(channel: str = "stable"):
     """
     Verifica actualizaciones desde GitHub API.
-    Retorna: (has_update, latest_version, changelog, download_url)
+    Args:
+        channel: "stable" o "beta" para elegir tipo de release
+    Retorna: (has_update, latest_version, changelog, download_url, release_info)
     """
-    print(f"[*] Verificando actualizaciones... (Local: v{CURRENT_VERSION})")
+    settings = get_update_settings()
+    print(f"[*] Verificando actualizaciones... (Local: v{CURRENT_VERSION}, Canal: {channel})")
     
     try:
         headers = {
             'Accept': 'application/vnd.github.v3+json',
             'User-Agent': 'KDP-Master-Suite-Updater'
         }
-        response = requests.get(API_URL, headers=headers, timeout=10)
+        
+        if channel == "beta":
+            api_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases"
+        else:
+            api_url = API_URL
+        
+        response = requests.get(api_url, headers=headers, timeout=15)
         
         if response.status_code == 200:
             data = response.json()
+            
+            if channel == "beta" and isinstance(data, list) and len(data) > 0:
+                data = data[0]
+            
             latest_version = data.get('tag_name', '').lstrip('v')
             
-            # Comparar versiones semanticas
             current_parts = [int(x) for x in CURRENT_VERSION.split('.')]
             latest_parts = [int(x) for x in latest_version.split('.')]
+            
+            save_update_check(datetime.now().isoformat(), latest_version)
             
             if latest_parts > current_parts:
                 print(f"[!] Actualizacion disponible: v{latest_version}")
                 
-                changelog = data.get('body', 'Sin notas de lanzamiento disponibles')
-                download_url = data.get('html_url', f'https://github.com/{REPO_OWNER}/{REPO_NAME}/releases')
+                assets = data.get('assets', [])
+                exe_download_url = None
+                for asset in assets:
+                    if asset.get('name', '').endswith('.exe'):
+                        exe_download_url = asset.get('browser_download_url')
+                        break
                 
-                return True, latest_version, changelog, download_url
+                release_info = {
+                    'version': latest_version,
+                    'name': data.get('name', ''),
+                    'body': data.get('body', ''),
+                    'html_url': data.get('html_url', ''),
+                    'exe_url': exe_download_url,
+                    'published': data.get('published_at', ''),
+                    'tag': data.get('tag_name', '')
+                }
+                
+                changelog = data.get('body', 'Sin notas de lanzamiento disponibles')
+                download_url = exe_download_url or data.get('html_url', f'https://github.com/{REPO_OWNER}/{REPO_NAME}/releases')
+                
+                return True, latest_version, changelog, download_url, release_info
             else:
                 print("[+] Tienes la version mas reciente.")
-                return False, CURRENT_VERSION, None, None
+                return False, CURRENT_VERSION, None, None, None
                 
         elif response.status_code == 404:
             print("[-] Repo no encontrado o sin releases")
-            return False, CURRENT_VERSION, "Repo sin releases", None
+            return False, CURRENT_VERSION, "Repo sin releases", None, None
         else:
             print(f"[-] Error API: {response.status_code}")
-            return False, CURRENT_VERSION, f"Error: {response.status_code}", None
+            return False, CURRENT_VERSION, f"Error: {response.status_code}", None, None
             
     except requests.exceptions.Timeout:
         print("[-] Error: Timeout de conexion")
-        return False, CURRENT_VERSION, "Timeout", None
+        return False, CURRENT_VERSION, "Timeout", None, None
     except requests.exceptions.ConnectionError:
         print("[-] Error: Sin conexion a internet")
-        return False, CURRENT_VERSION, "Sin conexion", None
+        return False, CURRENT_VERSION, "Sin conexion", None, None
     except Exception as e:
         print(f"[-] Error inesperado: {e}")
-        return False, CURRENT_VERSION, str(e), None
+        return False, CURRENT_VERSION, str(e), None, None
 
 
 def get_release_info(version=None):
