@@ -973,6 +973,10 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         self._start_background_services()
         # === FIN FASE 3 ===
 
+        # === INICIO: CHECK AUTOMATICO DE ACTUALIZACIONES ===
+        self.root.after(2000, self._auto_check_updates_on_startup)
+        # === FIN: CHECK AUTOMATICO DE ACTUALIZACIONES ===
+
     # --- INICIO FUNCIONALIDAD US-OPT-001: LÓGICA DE ARRANQUE ASÍNCRONO ---
     def _run_optimized_asynchronous_startup(self):
         """
@@ -2259,25 +2263,149 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                 messagebox.showerror("Error", "Modulo de actualizaciones no encontrado.")
                 return
         
-        has_update, latest_v, changelog, download_url = check_for_updates()
+        result = check_for_updates()
+        
+        if len(result) >= 5:
+            has_update, latest_v, changelog, download_url, release_info = result[:5]
+        else:
+            has_update, latest_v, changelog, download_url = result[:4]
+            release_info = None
         
         if has_update:
-            #Dialogo detallado con changelog
             msg = f"Nueva version disponible: v{latest_v}\n\n"
             if changelog:
-                # Limitar changelog a 500 caracteres
                 msg += f"Cambios:\n{changelog[:500]}"
                 if len(changelog) > 500:
                     msg += "\n\n[Ver cambios completos en GitHub]"
             
             if messagebox.askyesno("Actualizacion Disponible", msg):
-                if download_url:
+                if release_info and release_info.get('exe_url'):
+                    self._download_and_install_update(release_info)
+                elif download_url:
                     webbrowser.open(download_url)
                 else:
                     webbrowser.open("https://github.com/pabloalanzahlut/KDP-Master-Suite/releases")
                 self.log("[+] Navegando a descargas...")
         else:
             messagebox.showinfo("Actualizaciones", f"Tienes la version mas reciente: v{latest_v}")
+    # === FIN MODULO ===
+
+    # === INICIO MODULO: AUTO CHECK ON STARTUP ===
+    def _auto_check_updates_on_startup(self):
+        """Verifica actualizaciones automaticamente al iniciar la app."""
+        try:
+            from app.core.version import get_update_settings
+            settings = get_update_settings()
+            
+            if not settings.get('auto_check_updates', True):
+                self.log("[*] Check automatico de actualizaciones deshabilitado.")
+                return
+            
+            def background_check():
+                import threading
+                import time
+                time.sleep(3)
+                try:
+                    from check_updates import check_for_updates
+                    result = check_for_updates()
+                    
+                    if len(result) >= 5:
+                        has_update, latest_v, changelog, download_url, release_info = result[:5]
+                    else:
+                        has_update, latest_v, changelog, download_url = result[:4]
+                        release_info = None
+                    
+                    if has_update:
+                        self.root.after(0, lambda: self._show_update_notification(latest_v, release_info))
+                except Exception as e:
+                    self.log(f"[-] Error en check automatico: {e}")
+            
+            threading.Thread(target=background_check, daemon=True).start()
+            
+        except Exception as e:
+            self.log(f"[-] Error configurando check automatico: {e}")
+    
+    def _show_update_notification(self, latest_v, release_info):
+        """Muestra notificacion de actualizacion disponible al iniciar."""
+        msg = f"Nueva version disponible: v{latest_v}\n\n¿Deseas descargar la actualización ahora?"
+        
+        if messagebox.askyesno("Actualizacion Disponible", msg):
+            if release_info and release_info.get('exe_url'):
+                self._download_and_install_update(release_info)
+            else:
+                webbrowser.open("https://github.com/pabloalanzahlut/KDP-Master-Suite/releases")
+    # === FIN MODULO ===
+
+    # === INICIO MODULO: DOWNLOAD WITH PROGRESSBAR ===
+    def _download_and_install_update(self, release_info):
+        """Descarga el exe directamente con progressbar."""
+        import requests
+        import threading
+        import os
+        import shutil
+        
+        exe_url = release_info.get('exe_url')
+        if not exe_url:
+            messagebox.showerror("Error", "URL de descarga no disponible.")
+            return
+        
+        version = release_info.get('version', 'unknown')
+        download_dir = os.path.join(self.base_dir, 'updates')
+        os.makedirs(download_dir, exist_ok=True)
+        exe_path = os.path.join(download_dir, f'KDP-Master-Suite-v{version}.exe')
+        
+        progress_win = tk.Toplevel(self.root)
+        progress_win.title(f"Descargando v{version}")
+        progress_win.geometry("500x150")
+        progress_win.transient(self.root)
+        progress_win.grab_set()
+        
+        tk.Label(progress_win, text=f"Descargando KDP-Master-Suite v{version}...").pack(pady=10)
+        
+        progress_var = tk.DoubleVar()
+        progress_bar = ttk.Progressbar(progress_win, variable=progress_var, maximum=100, length=450)
+        progress_bar.pack(pady=10)
+        
+        status_label = tk.Label(progress_win, text="Iniciando descarga...")
+        status_label.pack(pady=5)
+        
+        result = {'success': False, 'error': None, 'path': None}
+        
+        def download_task():
+            try:
+                response = requests.get(exe_url, stream=True, timeout=60)
+                total_size = int(response.headers.get('content-length', 0))
+                downloaded = 0
+                
+                with open(exe_path, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+                            downloaded += len(chunk)
+                            if total_size > 0:
+                                percent = (downloaded / total_size) * 100
+                                progress_var.set(percent)
+                                status_label.config(text=f"{(downloaded/1024/1024):.1f} MB / {(total_size/1024/1024):.1f} MB")
+                
+                result['success'] = True
+                result['path'] = exe_path
+                progress_win.after(0, lambda: progress_win.destroy())
+                progress_win.after(0, lambda: self._show_download_complete(exe_path, version))
+                
+            except Exception as e:
+                result['error'] = str(e)
+                progress_win.after(0, lambda: progress_win.destroy())
+                progress_win.after(0, lambda: messagebox.showerror("Error de descarga", f"Error al descargar: {e}"))
+        
+        threading.Thread(target=download_task, daemon=True).start()
+    
+    def _show_download_complete(self, exe_path, version):
+        """Muestra mensaje cuando la descarga completa."""
+        msg = f"Descarga completada: {exe_path}\n\n¿Deseas cerrar la app e instalar la nueva versión?"
+        
+        if messagebox.askyesno("Descarga Completada", msg):
+            self.log("[*] Instalando actualización... Reinicia la app manualmente.")
+            sys.exit(0)
     # === FIN MODULO ===
 
     def show_about(self):
