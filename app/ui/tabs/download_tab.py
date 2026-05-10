@@ -252,6 +252,7 @@ def update_channel_combo(self):
 
 
 def add_to_queue(self):
+    """Añade URL a la cola con validación inteligente del Pre-Ing Gateway."""
     url = self.url_var.get().strip()
     if not url or url == "Sin canales guardados" or url.startswith(" ✨"):
         return
@@ -260,14 +261,41 @@ def add_to_queue(self):
     norm_url = normalize_youtube_url(url)
     queue_normalized = [normalize_youtube_url(q) for q in self.download_queue]
     
-    if norm_url not in queue_normalized:
-        self.download_queue.append(url)
-        self.update_queue_ui()
-        self.save_config()
-        self.url_var.set("")
-        self.log(f"[+] Añadido a la cola: {url}")
-    else:
+    if norm_url in queue_normalized:
         messagebox.showwarning("Advertencia", "URL ya existente en la cola.")
+        return
+    
+    gateway_result = None
+    use_smart_gateway = getattr(self, 'enable_smart_gateway', False)
+    
+    if use_smart_gateway:
+        try:
+            from app.pre_ingesta.gateway import get_gateway, IngestaResult
+            gateway = get_gateway()
+            gateway_result = gateway.process(url, source="gui", use_ai=True)
+            
+            if not gateway_result.success:
+                if gateway_result.item and gateway_result.item.state.value == "duplicado":
+                    messagebox.showwarning("Duplicado", gateway_result.message)
+                    return
+                elif gateway_result.item and gateway_result.item.state.value == "bloqueado":
+                    messagebox.showwarning("Bloqueado", f"Contenido no aprobado: {gateway_result.message}")
+                    return
+                else:
+                    messagebox.showwarning("Validación", gateway_result.message)
+        except Exception as e:
+            self.log(f"[WARN] Gateway no disponible: {e}", "warning")
+    
+    self.download_queue.append(url)
+    self.update_queue_ui()
+    self.save_config()
+    self.url_var.set("")
+    self.log(f"[+] Añadido a la cola: {url}")
+    
+    if gateway_result and gateway_result.item:
+        score_info = f" | Relevancia: {gateway_result.item.relevance_score:.1f}/10"
+        category_info = f" | Categoría: {gateway_result.item.category or 'N/A'}"
+        self.log(f"[AI] Score: {score_info}{category_info}")
 
 
 def remove_from_queue(self):
