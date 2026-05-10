@@ -49,16 +49,13 @@ def test_1_system_tray_code():
         
         if all_passed:
             print("\n[SUCCESS] Cierre de System Tray implementado")
-            return True
         else:
             print("\n[FAIL] Faltan componentes en el cierre")
-            return False
             
     except Exception as e:
         print(f"[FAIL] ERROR: {e}")
         import traceback
         traceback.print_exc()
-        return False
 
 def test_2_dashboard_database():
     """Test 2: Verificar que la DB del dashboard tiene datos."""
@@ -117,16 +114,13 @@ def test_2_dashboard_database():
         
         if channels > 0 and videos > 0:
             print("\n[SUCCESS] Base de datos tiene datos")
-            return True
         else:
             print("\n[WARN] Base de datos vacia o sin canales")
-            return False
             
     except Exception as e:
         print(f"[FAIL] ERROR: {e}")
         import traceback
         traceback.print_exc()
-        return False
 
 def test_3_dashboard_server():
     """Test 3: Verificar que el dashboard server responde."""
@@ -152,13 +146,11 @@ def test_3_dashboard_server():
                 print(f"  - Canales: {data.get('channels', 'N/A')}")
                 print(f"  - Videos: {data.get('videos', 'N/A')}")
                 print(f"  - Videos recientes: {len(data.get('recent', []))}")
-                return True
             except Exception as e:
                 print(f"[WARN] Puerto abierto pero no responde: {e}")
     
     print("[INFO] Dashboard no esta corriendo actualmente")
     print("       Para probarlo: python main.py > Dashboard > Iniciar Servidor Web")
-    return True  # No es un fallo, solo no esta corriendo
 
 def test_4_process_cleanup_methods():
     """Test 4: Verificar metodos de limpieza de procesos."""
@@ -208,16 +200,13 @@ def test_4_process_cleanup_methods():
         
         if all_found:
             print("\n[SUCCESS] Todos los metodos implementados y llamados")
-            return True
         else:
             print("\n[FAIL] Faltan componentes")
-            return False
             
     except Exception as e:
         print(f"[FAIL] ERROR: {e}")
         import traceback
         traceback.print_exc()
-        return False
 
 def main():
     print("="*60)

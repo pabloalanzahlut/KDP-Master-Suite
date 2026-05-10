@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-05-08T12:25:39.259006",
-  "python_version": "3.11.9",
+  "timestamp": "2026-05-10T16:53:31.593214",
+  "python_version": "3.14.5rc1",
   "steps": [
     {
       "step": "pyinstaller",
@@ -11,9 +11,16 @@
     {
       "type": "exe",
       "path": "dist\\KDP_Master_Suite_v3.4.7\\KDP_Master_Suite_v3.4.7.exe",
-      "size_bytes": 38397208,
-      "size_mb": 36.62,
-      "sha256": "4223f703bbe67b4c05c3abdcb2e23d0afb39bf13c693634318bb185a27da8586"
+      "size_bytes": 27897171,
+      "size_mb": 26.6,
+      "sha256": "f44a3122d697b1b19fde02bb9196197de7d3a7c1f643d0c1f840497d10bbadb7"
+    },
+    {
+      "type": "exe",
+      "path": "dist\\KDP_Master_Suite_v3.4.7_Elite\\KDP_Master_Suite_v3.4.7_Elite.exe",
+      "size_bytes": 38420670,
+      "size_mb": 36.64,
+      "sha256": "c6b877f3e21c3a0c4591d13df41bd7a1c48834fb0b76cab7f99946013f6d06ed"
     },
     {
       "type": "exe",

@@ -1,0 +1,44 @@
+Entendido. Soy **solo lectura** ahora - solo analizo y planifico.
+
+---
+
+## 🎯 PRÓXIMOS PASOS - SISTEMA DE ACTUALIZACIONES
+
+### Nivel 1: Esencial (para funcionalidad básica completa)
+
+| # | Mejora | Descripción | Prioridad |
+|---|-------|-------------|-----------|
+| 1 | **Release automático con Git tag** | Al hacer `git tag v2.4.4 && git push --tags`, el release se crea automáticamente | 🔴 Alta |
+| 2 | **Auto-detección de versión local** | Leer versión desde `__version__` o `settings.json` en lugar de hardcoded | 🔴 Alta |
+| 3 | **Dialogo de descarga directa** | En lugar de abrir navegador, mostrar progressbar de descarga del .exe | 🟡 Media |
+
+---
+
+### Nivel 2: Corporate Elite (UX profesional)
+
+| # | Mejora | Descripción | Prioridad |
+|---|-------|-------------|-----------|
+| 4 | **Check automático al iniciar** | Verificar actualizaciones al abrir app (con opción de deshabilitar) | 🔴 Alta |
+| 5 | **Notificación toast nativa** | Notificación Windows en lugar de messagebox | 🟡 Media |
+| 6 | **Historial de versiones** | Guardar en `settings.json` última versión detectada y fecha | 🟡 Media |
+| 7 | **Changelog visual** | Mostrar changelog en panel HTML integrado (no solo texto) | 🟢 Baja |
+
+---
+
+### Nivel 3: Enterprise Advanced
+
+| # | Mejora | Descripción | Prioridad |
+|---|-------|-------------|-----------|
+| 8 | **Canal beta/stable** | Poder elegir rama de actualizaciones (beta vs stable) | 🟢 Baja |
+| 9 | **Descarga e instalación directa** | Descargar .exe y reemplazar automáticamente (con backup) | 🟢 Baja |
+| 10 | **Update rollback** | Si actualización falla, revertir a versión anterior | 🟢 Baja |
+| 11 | **Analytics de actualizaciones** | Registrar estadísticas de quién actualiza, cuándo, éxito/fallo | 🟢 Baja |
+
+---
+
+### ¿Cuál te interesa implementar primero?
+
+**Preguntarte:**
+1. ¿Quieres que el check sea **automático al iniciar** la app o **manual** (Menú → Help)?
+2. ¿Prefieres **descargar del release** o solo **mostrar enlace** para descarga manual?
+3. ¿Necesitas el sistema para **solo ti** o también para **distribución** a terceros?

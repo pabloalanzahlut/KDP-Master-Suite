@@ -5,7 +5,7 @@
   "channels": [],
   "ai_provider": "none",
   "ai_api_key": "",
-  "ai_system_prompt": "Clasifica el siguiente texto en una de estas categor\u00edas: 'Legalidad y Compliance', 'Matriz de Roles (GEM)', 'Matriz de Roles y Fases SOE', 'F\u00f3rmulas y M\u00e9tricas', 'Investigaci\u00f3n de Nichos', 'Amazon Ads y Marketing', 'Conocimiento General KDP'. Responde SOLO con el nombre de la categor\u00eda.",
+  "ai_system_prompt": "Clasifica el siguiente texto en una de estas categorías: 'Legalidad y Compliance', 'Matriz de Roles (GEM)', 'Matriz de Roles y Fases SOE', 'Fórmulas y Métricas', 'Investigación de Nichos', 'Amazon Ads y Marketing', 'Conocimiento General KDP'. Responde SOLO con el nombre de la categoría.",
   "download_queue": [],
   "notifications": {
     "enable_native": false,
@@ -17,7 +17,5 @@
     "port": 8000,
     "host": "127.0.0.1",
     "db_path": "data/channel_monitor.db"
-  },
-  "last_update_check": "2026-05-10T13:59:37.309309",
-  "last_checked_version": "2.4.4"
+  }
 }

@@ -1,0 +1,81 @@
+🎯 **PRÓXIMOS PASOS (Opcionales)**
+
+✅ **¿TIENE SENTIDO ASÍ?** Sí. Transformar el botón "Ejecutar Búsqueda" de una consulta SQL básica a un **Motor de Búsqueda Semántica y Full-Text Elite** garantiza recuperación instantánea de conocimiento, ranking inteligente de relevancia, filtros cognitivos y exportación profesional de resultados. La separación determinista (índices FTS5, caching, paginación) y cognitiva (embeddings, re-ranking semántico, expansión de consultas) cumple estándares de búsqueda empresarial y opera 100% bajo tu flujo TEXT-FIRST.
+
+🔍 **VERIFICACIÓN CONTRA `gui_app.py`:** El método `run_search()` actual solo hace consultas `LIKE` básicas y escaneo de archivos. Tu arquitectura transforma esto en un **Sistema de Recuperación de Información (IR) Enterprise** con FTS5 optimizado, búsqueda vectorial, facets, highlighting y análisis de relevancia.
+
+---
+
+### 📦 LISTA 1: 60 MÓDULOS SIN IA (Infraestructura Determinista & Búsqueda Full-Text)
+
+#### 🔹 Pilar 1: Indexación FTS5 y Optimización de Consultas (1-12)
+1. **Índice FTS5 con Tokenización Personalizada** — Crea índice full-text con stemmer para español/inglés. *Uso real:* Buscar "marketing" y encontrar "mercado", "mercadotecnia" automáticamente.
+2. **Índice Invertido por Categoría KDP** — Indexa términos separados por las 18 categorías maestras. *Uso real:* Filtrar búsqueda solo en "Legalidad" o "Amazon Ads".
+3. **Índice de Metadatos (Autor/Fecha/Canal)** — Indexa campos estructurados junto con contenido. *Uso real:* "Buscar por canal 'Pablo Alanzahlut' + palabra 'SEO'".
+4. **Cache de Consultas Frecuentes (LRU)** — Almacena resultados de búsquedas repetidas en RAM. *Uso real:* Segunda búsqueda idéntica responde en <10ms.
+5. **Pre-fetch de Índices en Arranque** — Carga índices FTS5 en memoria al iniciar app. *Uso real:* Primera búsqueda ya es instantánea.
+6. **Compresión de Índices (BM25 Optimized)** — Aplica algoritmo BM25 para ranking eficiente. *Uso real:* Mejor relevancia sin saturar RAM.
+7. **Indexación Incremental en Tiempo Real** — Actualiza índices al añadir nueva transcripción. *Uso real:* Búsqueda incluye archivo recién procesado sin reiniciar.
+8. **Validador de Integridad de Índices** — Verifica que índices FTS5 no estén corruptos. *Uso real:* Prevenir errores "database disk image is malformed".
+9. **Rebuild Automático de Índices Fragmentados** — Reconstruye índices si fragmentación >30%. *Uso real:* Mantener velocidad de búsqueda constante.
+10. **Índice de N-gramas (3-5 caracteres)** — Indexa substrings para búsqueda parcial. *Uso real:* Buscar "KDP" encuentra "KDP Master", "KDP Ads".
+11. **Índice de Sinónimos Predefinidos** — Mapea términos equivalentes (SEO=posicionamiento). *Uso real:* Búsqueda expansiva sin IA.
+12. **Particionamiento de Índices por Año/Mes** — Divide índices grandes por período temporal. *Uso real:* Búsquedas históricas más rápidas.
+
+#### 🔹 Pilar 2: Ejecución de Consultas y Rendimiento (13-24)
+13. **Query Parser con Soporte Booleano** — Permite "AND", "OR", "NOT", paréntesis. *Uso real:* "Amazon AND (Ads OR Marketing) NOT gratis".
+14. **Query Parser con Wildcards** — Soporta `*` y `?` para búsqueda flexible. *Uso real:* "market*" encuentra "marketing", "mercado", "marketplace".
+15. **Query Parser con Proximidad** — Busca términos cercanos: `"Amazon Ads"~5`. *Uso real:* Encontrar frases con palabras en orden cercano.
+16. **Timeout de Consultas (Configurable)** — Aborta búsquedas >10s para no congelar UI. *Uso real:* Prevenir bloqueos en queries complejas.
+17. **Ejecución Asíncrona en Thread Pool** — Ejecuta búsquedas en background sin bloquear. *Uso real:* UI responsive durante búsquedas largas.
+18. **Paginación de Resultados (Lazy Loading)** — Carga resultados de 50 en 50. *Uso real:* 10,000 resultados no saturan memoria.
+19. **Highlighting de Términos Buscados** — Resalta palabras clave en resultados. *Uso real:* Ver rápidamente por qué coincidió el resultado.
+20. **Snippet Generation (Contexto ±50 palabras)** — Extrae fragmento con contexto alrededor del match. *Uso real:* Ver contenido sin abrir archivo completo.
+21. **Contador de Resultados en Tiempo Real** — Muestra "X resultados encontrados" progresivo. *Uso real:* Feedback inmediato mientras busca.
+22. **Búsqueda en Múltiples Fuentes Paralela** — Busca simultáneamente en DB, archivos procesados y raw. *Uso real:* Resultados unificados de todas las fuentes.
+23. **Deduplicación de Resultados por Hash** — Elimina duplicados exactos entre fuentes. *Uso real:* No mostrar mismo contenido 2 veces.
+24. **Merge de Resultados con Ranking Unificado** — Combina resultados de múltiples fuentes ordenados por relevancia. *Uso real:* Vista coherente sin importar origen.
+
+#### 🔹 Pilar 3: Filtrado, Facetas y Refinamiento (25-36)
+25. **Filtro por Categoría KDP (Checkbox)** — Filtra resultados por las 18 categorías. *Uso real:* Ver solo resultados de "Legalidad y Compliance".
+26. **Filtro por Rango de Fechas** — Filtra por fecha de creación/procesamiento. *Uso real:* "Mostrar solo transcripciones de 2024".
+27. **Filtro por Canal/Fuente** — Filtra por canal de YouTube de origen. *Uso real:* "Solo contenido de canal X".
+28. **Filtro por Tipo de Archivo** — Filtra por .txt, .vtt, .srt, .md. *Uso real:* Ver solo transcripciones limpias (.txt).
+29. **Filtro por Longitud de Texto** — Filtra por número de palabras. *Uso real:* "Solo transcripciones >1000 palabras".
+30. **Filtro por Idioma Detectado** — Filtra por idioma del contenido. *Uso real:* "Solo contenido en español".
+31. **Facetas Dinámicas (Count por Categoría)** — Muestra contador de resultados por categoría. *Uso real:* Ver distribución: "Legalidad (45), Ads (23)...".
+32. **Facetas por Autor/Canal** — Muestra contador por fuente. *Uso real:* Ver qué canales tienen más resultados.
+33. **Facetas Temporales (Por Mes/Año)** — Muestra distribución temporal. *Uso real:* Ver evolución de contenido por período.
+34. **Refinamiento Progresivo (Drill-down)** — Permite añadir filtros sucesivos. *Uso real:* "Legalidad → 2024 → Canal X".
+35. **Guardado de Filtros Favoritos** — Permite guardar combinaciones de filtros. *Uso real:* "Mi búsqueda habitual: Legalidad + 2024".
+36. **Historial de Búsquedas Recientes** — Guarda últimas 50 búsquedas. *Uso real:* Reutilizar búsqueda anterior con un clic.
+
+#### 🔹 Pilar 4: Visualización, Exportación y UX (37-48)
+37. **Vista de Lista con Preview Inline** — Muestra resultados con fragmento visible. *Uso real:* Ver contenido sin abrir archivo.
+38. **Vista de Tarjetas (Card View)** — Muestra resultados como tarjetas con metadata. *Uso real:* Visualización más rica con iconos.
+39. **Vista de Árbol Jerárquico** — Agrupa resultados por categoría/canal. *Uso real:* Navegación estructurada.
+40. **Ordenamiento Multi-Criterio** — Ordena por relevancia, fecha, longitud, fuente. *Uso real:* "Más recientes primero" o "Más largas primero".
+41. **Selección Múltiple de Resultados** — Permite seleccionar varios resultados. *Uso real:* Exportar o procesar lote de resultados.
+42. **Exportación de Resultados a CSV** — Exporta lista de resultados con metadata. *Uso real:* "resultados_busqueda_2024.csv".
+43. **Exportación de Contenido a TXT/MD** — Exporta contenido completo de resultados seleccionados. *Uso real:* Crear documento consolidado.
+44. **Exportación a PDF con Formato** — Genera PDF formateado de resultados. *Uso real:* Reporte profesional para compartir.
+45. **Copiar Resultado al Portapapeles** — Copia contenido o metadata con un clic. *Uso real:* Pegar rápidamente en otro documento.
+46. **Abrir Archivo Fuente** — Abre archivo original en editor/ubicación. *Uso real:* Ir directamente al archivo.
+47. **Vista Previa de Archivo Completo** — Muestra archivo completo en panel lateral. *Uso real:* Leer sin salir de búsqueda.
+48. **Comparador de Resultados Lado a Lado** — Compara 2 resultados simultáneamente. *Uso real:* Ver diferencias entre versiones.
+
+#### 🔹 Pilar 5: Estadísticas, Auditoría y Gobernanza (49-60)
+49. **Estadísticas de Búsqueda (Total, Por Categoría)** — Muestra métricas de resultados. *Uso real:* "123 resultados: 45 Legalidad, 30 Ads...".
+50. **Tiempo de Respuesta de Búsqueda** — Muestra cuánto tardó la búsqueda. *Uso real:* "Búsqueda completada en 234ms".
+51. **Log de Búsquedas Realizadas** — Registra quién buscó qué y cuándo. *Uso real:* Auditoría de uso del conocimiento.
+52. **Términos Más Buscados (Top 50)** — Muestra palabras clave más frecuentes. *Uso real:* Identificar temas de interés del equipo.
+53. **Resultados Sin Coincidencias (Zero Results)** — Registra búsquedas sin resultados. *Uso real:* Identificar lagunas de conocimiento.
+54. **Distribución de Resultados por Fuente** — Muestra % por DB, archivos procesados, raw. *Uso real:* Ver qué fuente aporta más.
+55. **Score de Relevancia Promedio** — Calcula relevancia media de resultados. *Uso real:* Medir calidad de búsqueda.
+56. **Validador de Permisos de Búsqueda** — Verifica que usuario pueda ver resultados. *Uso real:* Restringir contenido sensible.
+57. **Enmascaramiento de Resultados Sensibles** — Oculta contenido confidencial en resultados. *Uso real:* Cumplir GDPR en búsquedas.
+58. **Cuota de Búsquedas por Usuario/Sesión** — Limita número de búsquedas para evitar abuso. *Uso real:* Prevenir sobrecarga del sistema.
+59. **Backup de Índices de Búsqueda** — Respalda índices FTS5 periódicamente. *Uso real:* Recuperación ante corrupción.
+60. **Reporte de Salud de Búsqueda** — Genera diagnóstico de rendimiento de búsqueda. *Uso real:* "Índices OK, 98% velocidad óptima".
+
+---

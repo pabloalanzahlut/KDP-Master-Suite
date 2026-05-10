@@ -1,0 +1,64 @@
+🎯 PRÓXIMOS PASOS (Opcionales) - Plan de Optimización de Búsqueda Elite Corporate
+📂 BLOQUE 1: MOTOR DE BÚSQUEDA Y GESTIÓN DE RESULTADOS (60 Módulos SIN IA)
+Enfocado en algoritmos deterministas, indexación avanzada, rendimiento y exportación profesional.
+
+Ranking BM25 en FTS5: Implementar el algoritmo de relevancia estándar de la industria para ordenar resultados.
+Búsqueda por Operadores Booleanos: Soporte nativo para AND, OR, NOT y paréntesis en la barra de búsqueda.
+Búsqueda de Frases Exactas: Uso de comillas para encontrar secuencias de palabras específicas.
+Búsqueda por Proximidad (NEAR): Encontrar palabras que estén a una distancia "X" una de otra.
+Indexación de Prefijos y Sufijos: Permitir búsquedas parciales (ej: "publi*" para buscar "publicación", "publicidad").
+Normalización Unicode (Fold Accents): Ignorar tildes y caracteres especiales (búsqueda de "fórmulas" encuentra "formulas").
+Snippets Dinámicos Configurables: Ajustar la cantidad de texto (contexto) mostrado antes y después del "match".
+Resaltado de Sintaxis Multi-Color: Diferentes colores para distintos términos de búsqueda en el mismo fragmento.
+Historial de Búsqueda Persistente: Guardar las últimas 50 consultas realizadas localmente.
+Búsquedas Favoritas: Sistema para anclar (bookmark) consultas complejas recurrentes.
+Filtro por Árbol de Categorías: Sidebar lateral para filtrar resultados por la taxonomía de los manuales.
+Filtro por Rango de Fechas de Fuente: Buscar conocimiento generado en un periodo específico.
+Filtro por Duración de Transcripción: Encontrar consejos rápidos vs. explicaciones extensas.
+Colapso de Resultados Similares: Ocultar fragmentos que sean un 95% iguales para evitar redundancia visual.
+Ordenamiento por Fuente (Canal): Agrupar resultados por el origen del conocimiento.
+Verificación de Origen en Tiempo Real: Link directo que valida si el archivo .md fuente existe antes de abrirlo.
+Exportación Selectiva a CSV: Exportar solo los fragmentos seleccionados por el usuario.
+Generador de Reporte de Hallazgos (PDF): Crear un documento formal con los resultados de la búsqueda actual.
+Buscador Secundario (Filter within Results): Filtrar sobre la lista de fragmentos ya encontrados.
+Atajos de Teclado de Navegación: Flechas para saltar entre resultados sin usar el ratón.
+Copiado Rápido en Formato Markdown: Botón para copiar fragmento con su cita (Fuente + Fecha) lista para usar.
+Contador de Frecuencia de Términos: Mostrar cuántas veces aparece la palabra en toda la base de datos.
+Análisis de Cobertura de Índice: Informe de qué archivos .md no están indexados o tienen errores.
+Carga Diferida (Lazy Loading): Cargar 20 resultados primero y el resto al hacer scroll para fluidez total.
+UUID de Fragmento Permanente: Asignar un ID único a cada bloque de texto para trazabilidad absoluta.
+Etiquetado Manual de Resultados: Agregar tags temporales a los fragmentos encontrados para su organización.
+Filtro de "Solo Manuales Maestros": Excluir transcripciones RAW y buscar solo en conocimiento consolidado.
+Detección de Idioma de Resultado: Etiqueta visual si el fragmento está en ES o EN.
+Monitor de Latencia de Query: Mostrar en la UI los milisegundos que tardó el motor en responder.
+Búsqueda por Hash de Archivo: Encontrar todos los fragmentos que provengan de una versión específica de fuente.
+Visor de Contexto Ampliado: Botón para expandir un fragmento y ver el párrafo anterior y posterior.
+Exclusión de Palabras Comunes (Stop-words): Configurar diccionario para ignorar artículos y conectores.
+Sincronización de Índice Automática: Gatillo que re-indexa al detectar cambios en la carpeta manuals.
+Validador de Formato Markdown en Fragmentos: Asegurar que los resultados no tengan código roto.
+Búsqueda por Metadatos JSON: Filtrar por KPIs específicos (ej: fragmentos de videos con >10k vistas).
+Modo de Vista Compacta: Lista de títulos y fuentes sin cuerpo de texto para escaneo rápido.
+Indicador de Relevancia (Score Bar): Barra visual que muestra qué tan bien coincide el fragmento con la query.
+Búsqueda Regex Avanzada: Permitir el uso de expresiones regulares para patrones técnicos.
+Generador de Citas APA/ISO: Formatear el fragmento como referencia bibliográfica automática.
+Limpieza de Caché de Búsqueda: Botón para purgar resultados temporales y refrescar DB.
+Filtro por Tamaño de Fragmento: Buscar solo bloques con más de 100 palabras o menos de 50.
+Detección de Enlaces en Fragmentos: Extraer y listar todas las URLs mencionadas en los resultados.
+Soporte para Pantalla Táctil: Gestos de swipe para descartar resultados no deseados.
+Búsqueda en Múltiples Bases de Datos: Capacidad de conectar una KB externa (secundaria).
+Clasificación por "Vigencia": Priorizar fragmentos cuyas fechas sean más recientes.
+Integración con Portapapeles del Sistema: Opción de "Buscar lo que tengo copiado" al abrir la pestaña.
+Visor de Diferencias (Diff) entre Fragmentos: Comparar dos resultados similares para ver qué cambió.
+Etiquetado de "Contenido Sensible": Marcar fragmentos que mencionan advertencias legales o riesgos.
+Buscador de Fragmentos Huérfanos: Hallar texto que no tiene categoría asignada.
+Estadísticas de Uso de Búsqueda: Dashboard interno de qué términos buscas más (Personal Analytics).
+Exportación a JSON para BI: Formato para analítica externa de tu propio conocimiento.
+Snapshot de Resultados: Guardar el estado actual de una búsqueda para retomarla mañana.
+Búsqueda por Roles GEM: Filtrar fragmentos que mencionen tareas de un rol específico (ej: "Analista").
+Validación de Integridad SQL: Comprobación de que el índice FTS5 no esté corrupto tras crasheos.
+Compresión de Índice: Optimizar el tamaño en disco de la base de datos de búsqueda.
+Pre-visualización de Imágenes (si hay links): Si el texto cita una imagen local, mostrar miniatura.
+Filtro de "Solo Procedimientos": Buscar fragmentos que contengan listas numeradas o pasos.
+Soporte para Caracteres Comodín ( y ?):* Búsqueda avanzada de patrones de palabras.
+Exportación Directa a Nota de Trabajo: Enviar fragmentos seleccionados a un archivo temporal de ideas.
+Botón de Recalibración de Pesos: Ajustar qué manual tiene más importancia en los resultados.
