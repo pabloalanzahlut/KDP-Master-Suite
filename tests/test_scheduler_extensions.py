@@ -242,5 +242,154 @@ class TestDaysOfWeekConstants:
         assert DAYS_OF_WEEK_DISPLAY['sun'] == 'Domingo'
 
 
+class TestSchedulerMutex:
+    """Tests for task mutex/concurrency control"""
+
+    def test_task_locks_initialized(self):
+        """Test that task locks are initialized"""
+        from app.core.scheduler import ScheduleManager, TaskType
+        manager = ScheduleManager()
+        assert hasattr(manager, '_task_lock')
+        assert hasattr(manager, '_running_tasks')
+        assert hasattr(manager, '_task_type_locks')
+        assert len(manager._task_type_locks) == 4
+
+    def test_can_execute_task_first_time(self):
+        """Test that first task can execute"""
+        from app.core.scheduler import ScheduleManager, ScheduleTask
+        manager = ScheduleManager()
+        task = ScheduleTask(name="Test Task", task_type="download")
+        can_execute, reason = manager._can_execute_task(task)
+        assert can_execute is True
+        assert reason == ""
+
+    def test_can_execute_task_blocks_second(self):
+        """Test that second task of same type is blocked"""
+        from app.core.scheduler import ScheduleManager, ScheduleTask
+        manager = ScheduleManager()
+
+        task1 = ScheduleTask(name="Task 1", task_type="download")
+        task2 = ScheduleTask(name="Task 2", task_type="download")
+
+        can1, _ = manager._can_execute_task(task1)
+        assert can1 is True
+
+        can2, reason = manager._can_execute_task(task2)
+        assert can2 is False
+        assert "otra tarea" in reason.lower() or "en ejecución" in reason.lower()
+
+    def test_different_task_types_can_run(self):
+        """Test that different task types can run simultaneously"""
+        from app.core.scheduler import ScheduleManager, ScheduleTask
+        manager = ScheduleManager()
+
+        download_task = ScheduleTask(name="Download", task_type="download")
+        monitor_task = ScheduleTask(name="Monitor", task_type="monitor")
+
+        can_download, _ = manager._can_execute_task(download_task)
+        can_monitor, _ = manager._can_execute_task(monitor_task)
+
+        assert can_download is True
+        assert can_monitor is True
+
+    def test_release_task_lock(self):
+        """Test releasing task lock"""
+        from app.core.scheduler import ScheduleManager, ScheduleTask
+        manager = ScheduleManager()
+
+        task = ScheduleTask(name="Test", task_type="download")
+        manager._can_execute_task(task)
+        assert task.task_id in manager._running_tasks
+
+        manager._release_task_lock(task)
+        assert task.task_id not in manager._running_tasks
+
+    def test_get_running_tasks_info(self):
+        """Test get_running_tasks_info method"""
+        from app.core.scheduler import ScheduleManager, ScheduleTask
+        manager = ScheduleManager()
+
+        task = ScheduleTask(name="Test", task_type="download")
+        manager._can_execute_task(task)
+
+        info = manager.get_running_tasks_info()
+        assert info['count'] == 1
+        assert task.task_id in info['tasks']
+
+
+class TestSchedulerConfig:
+    """Tests for scheduler configuration"""
+
+    def test_scheduler_config_defaults(self):
+        """Test SchedulerConfig default values"""
+        from app.core.scheduler import SchedulerConfig
+        config = SchedulerConfig()
+        assert config.default_interval_minutes == 60
+        assert config.default_daily_time == "03:00"
+        assert config.default_enabled is True
+        assert config.notifications_enabled is True
+        assert config.auto_start_on_launch is False
+        assert config.check_interval_seconds == 60
+        assert config.max_concurrent_per_type == 1
+
+    def test_scheduler_config_to_dict(self):
+        """Test SchedulerConfig to_dict"""
+        from app.core.scheduler import SchedulerConfig
+        config = SchedulerConfig(default_interval_minutes=30)
+        config_dict = config.to_dict()
+        assert config_dict['default_interval_minutes'] == 30
+
+    def test_scheduler_config_from_dict(self):
+        """Test SchedulerConfig from_dict"""
+        from app.core.scheduler import SchedulerConfig
+        data = {'default_interval_minutes': 45, 'notifications_enabled': False}
+        config = SchedulerConfig.from_dict(data)
+        assert config.default_interval_minutes == 45
+        assert config.notifications_enabled is False
+
+    def test_scheduler_config_from_none(self):
+        """Test SchedulerConfig from None returns defaults"""
+        from app.core.scheduler import SchedulerConfig
+        config = SchedulerConfig.from_dict(None)
+        assert config.default_interval_minutes == 60
+
+    def test_manager_has_config(self):
+        """Test that ScheduleManager has config object"""
+        from app.core.scheduler import ScheduleManager
+        manager = ScheduleManager()
+        assert hasattr(manager, 'config_obj')
+        assert isinstance(manager.config_obj, type(manager.get_config()))
+
+    def test_update_config(self):
+        """Test updating scheduler config"""
+        from app.core.scheduler import ScheduleManager
+        manager = ScheduleManager()
+
+        result = manager.update_config(default_interval_minutes=120)
+        assert result is True
+
+        config = manager.get_config()
+        assert config.default_interval_minutes == 120
+
+    def test_config_persistence(self):
+        """Test config is persisted"""
+        from app.core.scheduler import ScheduleManager
+        manager = ScheduleManager()
+        manager.update_config(default_interval_minutes=90)
+
+        manager2 = ScheduleManager()
+        config2 = manager2.get_config()
+        assert config2.default_interval_minutes == 90
+
+    def test_max_concurrent_updates(self):
+        """Test max_concurrent_per_type is updated"""
+        from app.core.scheduler import ScheduleManager
+        manager = ScheduleManager()
+        assert manager.max_concurrent_per_type == 1
+
+        manager.update_config(max_concurrent_per_type=2)
+        assert manager.max_concurrent_per_type == 2
+
+
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])

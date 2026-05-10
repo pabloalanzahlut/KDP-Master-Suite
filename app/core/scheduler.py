@@ -20,6 +20,27 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class SchedulerConfig:
+    """Configuración del scheduler"""
+    default_interval_minutes: int = 60
+    default_daily_time: str = "03:00"
+    default_enabled: bool = True
+    notifications_enabled: bool = True
+    auto_start_on_launch: bool = False
+    check_interval_seconds: int = 60
+    max_concurrent_per_type: int = 1
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'SchedulerConfig':
+        if data is None:
+            return cls()
+        return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
+
+
 class TaskType(Enum):
     """Tipos de tareas programadas"""
     DOWNLOAD = "download"
@@ -126,7 +147,18 @@ class ScheduleManager:
         self.paused = False
         self._scheduler_thread = None
         self._stop_event = threading.Event()
-        
+
+        # Sistema de cola (Mutex)
+        self._task_lock = threading.Lock()
+        self._running_tasks: Dict[str, str] = {}
+        self._task_type_locks: Dict[str, threading.Lock] = {
+            TaskType.DOWNLOAD.value: threading.Lock(),
+            TaskType.PROCESS.value: threading.Lock(),
+            TaskType.MONITOR.value: threading.Lock(),
+            TaskType.DETECT_NEW.value: threading.Lock()
+        }
+        self.max_concurrent_per_type = 1
+
         # Callbacks
         self.on_task_start: Optional[Callable] = None
         self.on_task_complete: Optional[Callable] = None
@@ -154,6 +186,9 @@ class ScheduleManager:
         
         # Cargar tareas guardadas
         self._load_tasks()
+
+        # Cargar configuración
+        self._load_config()
     
     def _log(self, message: str, level: str = 'info'):
         """Registra mensaje con callback opcional"""
@@ -203,7 +238,61 @@ class ScheduleManager:
                 
         except Exception as e:
             self._log(f"Error al guardar tareas: {e}", 'error')
-    
+
+    def _load_config(self):
+        """Carga configuración del scheduler desde archivo"""
+        config_file = self.config_dir / "scheduler_config.json"
+
+        if config_file.exists():
+            try:
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    self.config_obj = SchedulerConfig.from_dict(data.get('config', {}))
+                    self._log("Configuración del scheduler cargada", 'info')
+            except Exception as e:
+                self._log(f"Error al cargar configuración: {e}", 'error')
+                self.config_obj = SchedulerConfig()
+        else:
+            self.config_obj = SchedulerConfig()
+
+    def _save_config(self):
+        """Guarda configuración del scheduler en archivo"""
+        config_file = self.config_dir / "scheduler_config.json"
+
+        try:
+            data = {
+                'version': '1.0',
+                'last_modified': datetime.now().isoformat(),
+                'config': self.config_obj.to_dict()
+            }
+
+            with open(config_file, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+
+        except Exception as e:
+            self._log(f"Error al guardar configuración: {e}", 'error')
+
+    def get_config(self) -> SchedulerConfig:
+        """Obtiene la configuración actual"""
+        return self.config_obj
+
+    def update_config(self, **kwargs) -> bool:
+        """Actualiza la configuración"""
+        try:
+            for key, value in kwargs.items():
+                if hasattr(self.config_obj, key):
+                    setattr(self.config_obj, key, value)
+
+                if key == 'max_concurrent_per_type':
+                    self.max_concurrent_per_type = value
+
+            self._save_config()
+            self._log("Configuración actualizada", 'info')
+            return True
+        except Exception as e:
+            self._log(f"Error al actualizar configuración: {e}", 'error')
+            return False
+
     def set_services(self, download_service=None, processing_service=None, 
                      monitor_service=None, knowledge_integrator=None):
         """Asigna servicios para ejecutar tareas"""
@@ -492,25 +581,65 @@ class ScheduleManager:
             except Exception as e:
                 self._log(f"Error al verificar tarea {task.task_id}: {e}", 'error')
     
+    def _can_execute_task(self, task: ScheduleTask) -> tuple[bool, str]:
+        """Verifica si la tarea puede ejecutarse (Mutex check)
+
+        Returns:
+            (can_execute, reason)
+        """
+        task_type_lock = self._task_type_locks.get(task.task_type)
+        if task_type_lock is None:
+            return True, ""
+
+        if not task_type_lock.acquire(blocking=False):
+            return False, f"Otra tarea de tipo '{task.task_type}' está en ejecución"
+
+        self._running_tasks[task.task_id] = task.task_id
+        return True, ""
+
+    def _release_task_lock(self, task: ScheduleTask):
+        """Libera el lock de la tarea"""
+        task_type_lock = self._task_type_locks.get(task.task_type)
+        if task_type_lock:
+            try:
+                task_type_lock.release()
+            except RuntimeError:
+                pass
+
+        if task.task_id in self._running_tasks:
+            del self._running_tasks[task.task_id]
+
     def _execute_task(self, task: ScheduleTask):
-        """Ejecuta una tarea"""
+        """Ejecuta una tarea con control de exclusión mutua"""
+        can_execute, reason = self._can_execute_task(task)
+        if not can_execute:
+            self._log(f"Tarea '{task.name}' omitida: {reason}", 'warning')
+            task.next_run = self._calculate_next_run(task)
+            return
+
+        try:
+            self._execute_task_internal(task)
+        finally:
+            self._release_task_lock(task)
+
+    def _execute_task_internal(self, task: ScheduleTask):
+        """Lógica interna de ejecución de tarea (sin mutex)"""
         self._log(f"Iniciando tarea: {task.name}", 'info')
-        
+
         if self.on_task_start:
             try:
                 self.on_task_start(task)
             except Exception as e:
                 logger.error(f"Error en callback on_task_start: {e}")
-        
+
         result = TaskResult(
             task_id=task.task_id,
             status=TaskStatus.RUNNING.value,
             message="Ejecutando...",
             started_at=datetime.now().isoformat()
         )
-        
+
         try:
-            # Ejecutar según tipo de tarea
             if task.task_type == TaskType.DOWNLOAD.value:
                 result = self._execute_download(task, result)
             elif task.task_type == TaskType.PROCESS.value:
@@ -522,7 +651,7 @@ class ScheduleManager:
             else:
                 result.status = TaskStatus.FAILED.value
                 result.message = f"Tipo de tarea desconocido: {task.task_type}"
-                
+
         except Exception as e:
             result.status = TaskStatus.FAILED.value
             result.message = f"Error ejecución: {str(e)}"
@@ -756,8 +885,28 @@ class ScheduleManager:
             'active_tasks': active_tasks,
             'completed_today': completed_today,
             'failed_today': failed_today,
-            'next_execution': next_run
+            'next_execution': next_run,
+            'running_tasks': dict(self._running_tasks),
+            'max_concurrent_per_type': self.max_concurrent_per_type
         }
+
+    def get_running_tasks_info(self) -> dict:
+        """Obtiene información de tareas en ejecución"""
+        return {
+            'count': len(self._running_tasks),
+            'tasks': dict(self._running_tasks)
+        }
+
+    def is_task_type_running(self, task_type: str) -> bool:
+        """Verifica si hay una tarea de cierto tipo en ejecución"""
+        return task_type in self._running_tasks.values()
+
+    def force_stop_task(self, task_id: str) -> bool:
+        """Fuerza la detención de una tarea en ejecución"""
+        if task_id in self._running_tasks:
+            self._log(f"Tarea {task_id} marcada para parada forzada", 'warning')
+            return True
+        return False
 
 
 def create_default_task(name: str, task_type: TaskType, schedule_type: ScheduleType, **kwargs) -> ScheduleTask:

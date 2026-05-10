@@ -82,6 +82,10 @@ def _build_schedule_ui(self):
     right_panel.add(log_frame)
     _build_log_panel(self, log_frame)
 
+    config_frame = ttk.LabelFrame(right_panel, text="⚙️ Configuración", padding=10)
+    right_panel.add(config_frame)
+    _build_config_panel(self, config_frame)
+
 
 def _build_task_list(self, parent):
     """Construye la lista de tareas"""
@@ -165,8 +169,81 @@ def _build_log_panel(self, parent):
     
     btn_frame = ttk.Frame(parent)
     btn_frame.pack(fill=tk.X, pady=5)
-    ttk.Button(btn_frame, text="🗑️ Limpiar Log", 
+    ttk.Button(btn_frame, text="🗑️ Limpiar Log",
                command=self.clear_schedule_log).pack(side=tk.LEFT)
+
+
+def _build_config_panel(self, parent):
+    """Construye el panel de configuración del scheduler"""
+    from app.core.scheduler import SchedulerConfig
+
+    config_container = ttk.Frame(parent)
+    config_container.pack(fill=tk.BOTH, expand=True)
+
+    if not hasattr(self, 'schedule_manager') or not self.schedule_manager:
+        ttk.Label(config_container, text="Scheduler no disponible").pack()
+        return
+
+    config = self.schedule_manager.get_config()
+
+    self.sched_config_interval = tk.IntVar(value=config.default_interval_minutes)
+    self.sched_config_daily_time = tk.StringVar(value=config.default_daily_time)
+    self.sched_config_notifications = tk.BooleanVar(value=config.notifications_enabled)
+    self.sched_config_auto_start = tk.BooleanVar(value=config.auto_start_on_launch)
+    self.sched_config_concurrent = tk.IntVar(value=config.max_concurrent_per_type)
+
+    ttk.Label(config_container, text="Intervalo por defecto (min):").pack(anchor=tk.W, pady=2)
+    ttk.Entry(config_container, textvariable=self.sched_config_interval, width=10).pack(anchor=tk.W, pady=(0, 5))
+
+    ttk.Label(config_container, text="Hora diaria por defecto:").pack(anchor=tk.W, pady=2)
+    ttk.Entry(config_container, textvariable=self.sched_config_daily_time, width=10).pack(anchor=tk.W, pady=(0, 5))
+
+    ttk.Label(config_container, text="Tareas simultáneas por tipo:").pack(anchor=tk.W, pady=2)
+    ttk.Entry(config_container, textvariable=self.sched_config_concurrent, width=10).pack(anchor=tk.W, pady=(0, 5))
+
+    ttk.Checkbutton(config_container, text="Habilitar notificaciones",
+                    variable=self.sched_config_notifications).pack(anchor=tk.W, pady=2)
+
+    ttk.Checkbutton(config_container, text="Auto-iniciar scheduler",
+                    variable=self.sched_config_auto_start).pack(anchor=tk.W, pady=2)
+
+    btn_frame = ttk.Frame(config_container)
+    btn_frame.pack(fill=tk.X, pady=10)
+
+    ttk.Button(btn_frame, text="💾 Guardar Config", style="Primary.TButton",
+               command=self.save_scheduler_config).pack(side=tk.LEFT, padx=2)
+
+
+def save_scheduler_config(self):
+    """Guarda la configuración del scheduler"""
+    if not hasattr(self, 'schedule_manager') or not self.schedule_manager:
+        messagebox.showerror("Error", "Scheduler no disponible")
+        return
+
+    try:
+        interval = self.sched_config_interval.get()
+        if interval < 1 or interval > 1440:
+            messagebox.showwarning("Advertencia", "Intervalo debe estar entre 1 y 1440 minutos")
+            return
+
+        concurrent = self.sched_config_concurrent.get()
+        if concurrent < 1 or concurrent > 5:
+            messagebox.showwarning("Advertencia", "Tareas simultáneas debe estar entre 1 y 5")
+            return
+
+        self.schedule_manager.update_config(
+            default_interval_minutes=interval,
+            default_daily_time=self.sched_config_daily_time.get(),
+            notifications_enabled=self.sched_config_notifications.get(),
+            auto_start_on_launch=self.sched_config_auto_start.get(),
+            max_concurrent_per_type=concurrent
+        )
+
+        self.schedule_manager.max_concurrent_per_type = concurrent
+
+        messagebox.showinfo("Éxito", "Configuración guardada correctamente")
+    except Exception as e:
+        messagebox.showerror("Error", f"No se pudo guardar la configuración: {e}")
 
 
 def refresh_schedule_tree(self):
