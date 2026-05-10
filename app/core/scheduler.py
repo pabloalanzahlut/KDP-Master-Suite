@@ -45,6 +45,13 @@ class TaskStatus(Enum):
     PAUSED = "paused"
 
 
+DAYS_OF_WEEK = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+DAYS_OF_WEEK_DISPLAY = {
+    'mon': 'Lunes', 'tue': 'Martes', 'wed': 'Miércoles',
+    'thu': 'Jueves', 'fri': 'Viernes', 'sat': 'Sábado', 'sun': 'Domingo'
+}
+
+
 @dataclass
 class ScheduleTask:
     """Modelo de tarea programada"""
@@ -55,6 +62,7 @@ class ScheduleTask:
     interval_minutes: int = 60
     daily_time: str = "03:00"
     multiple_times: List[str] = field(default_factory=list)
+    allowed_days: Optional[List[str]] = None
     enabled: bool = True
     last_run: Optional[str] = None
     next_run: Optional[str] = None
@@ -63,11 +71,15 @@ class ScheduleTask:
     retry_count: int = 0
     auto_integrate_kb: bool = True
     max_active_tasks: int = 10
-    
+
+    def __post_init__(self):
+        if self.allowed_days is None or not self.allowed_days:
+            self.allowed_days = DAYS_OF_WEEK.copy()
+
     def to_dict(self) -> dict:
         """Convierte a diccionario"""
         return asdict(self)
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> 'ScheduleTask':
         """Crea desde diccionario"""
@@ -297,62 +309,93 @@ class ScheduleManager:
     
     # ==================== CÁLCULO DE PRÓXIMA EJECUCIÓN ====================
     
+    def _is_day_allowed(self, task: ScheduleTask, target_date: datetime) -> bool:
+        """Verifica si el día de la semana está permitido para la tarea"""
+        if not task.allowed_days:
+            return True
+
+        day_map = {0: 'mon', 1: 'tue', 2: 'wed', 3: 'thu', 4: 'fri', 5: 'sat', 6: 'sun'}
+        current_day = day_map[target_date.weekday()]
+        return current_day in task.allowed_days
+
+    def _find_next_allowed_day(self, task: ScheduleTask, start_date: datetime) -> datetime:
+        """Encuentra el próximo día permitido para la tarea"""
+        check_date = start_date
+        for _ in range(8):
+            if self._is_day_allowed(task, check_date):
+                return check_date
+            check_date += timedelta(days=1)
+        return start_date + timedelta(days=1)
+
     def _calculate_next_run(self, task: ScheduleTask) -> Optional[str]:
         """Calcula la próxima fecha/hora de ejecución"""
         now = datetime.now()
-        
         schedule_type = ScheduleType(task.schedule_type)
-        
+
+        base_calc = None
+
         if schedule_type == ScheduleType.INTERVAL:
             interval = timedelta(minutes=task.interval_minutes)
-            next_time = now + interval
-            
+            base_calc = now + interval
+
         elif schedule_type == ScheduleType.DAILY:
             try:
                 hour, minute = map(int, task.daily_time.split(':'))
                 target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-                
+
                 if target <= now:
                     target += timedelta(days=1)
-                
-                next_time = target
+
+                base_calc = target
             except:
-                next_time = now + timedelta(days=1)
-                
+                base_calc = now + timedelta(days=1)
+
         elif schedule_type == ScheduleType.MULTIPLE:
             if not task.multiple_times:
                 return None
-            
+
             times = sorted(task.multiple_times)
             next_time = None
-            
+
             for time_str in times:
                 try:
                     hour, minute = map(int, time_str.split(':'))
                     target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-                    
+
                     if target > now:
                         next_time = target
                         break
                 except:
                     continue
-            
+
             if not next_time:
-                # Primer horario del día siguiente
                 try:
                     hour, minute = map(int, times[0].split(':'))
-                    next_time = (now + timedelta(days=1)).replace(hour=hour, minute=minute, second=0, microsecond=0)
+                    base_calc = (now + timedelta(days=1)).replace(hour=hour, minute=minute, second=0, microsecond=0)
                 except:
-                    next_time = now + timedelta(days=1)
-                    
+                    base_calc = now + timedelta(days=1)
+            else:
+                base_calc = next_time
+
         elif schedule_type == ScheduleType.EVENT:
-            # Para eventos, retornamos inmediatamente (se ejecuta en el ciclo de polling)
             return now.isoformat()
-        
+
         else:
-            next_time = now + timedelta(hours=1)
-        
-        return next_time.isoformat() if next_time else None
+            base_calc = now + timedelta(hours=1)
+
+        if base_calc and not self._is_day_allowed(task, base_calc):
+            base_calc = self._find_next_allowed_day(task, base_calc)
+            if schedule_type in [ScheduleType.DAILY, ScheduleType.MULTIPLE]:
+                try:
+                    if schedule_type == ScheduleType.DAILY:
+                        hour, minute = map(int, task.daily_time.split(':'))
+                    else:
+                        hour, minute = map(int, times[0].split(':'))
+                    base_calc = base_calc.replace(hour=hour, minute=minute, second=0, microsecond=0)
+                except:
+                    pass
+
+        return base_calc.isoformat() if base_calc else None
     
     def get_next_execution_time(self, task_id: str) -> Optional[datetime]:
         """Obtiene la próxima fecha de ejecución de una tarea"""
@@ -725,3 +768,118 @@ def create_default_task(name: str, task_type: TaskType, schedule_type: ScheduleT
         schedule_type=schedule_type.value,
         **kwargs
     )
+
+
+TASK_TEMPLATES = {
+    'daily_download_3am': {
+        'name': 'Descarga Diaria 3AM',
+        'task_type': TaskType.DOWNLOAD,
+        'schedule_type': ScheduleType.DAILY,
+        'daily_time': '03:00',
+        'allowed_days': DAYS_OF_WEEK.copy(),
+        'description': 'Descarga videos de canales monitoreados a las 3 AM'
+    },
+    'daily_download_6am': {
+        'name': 'Descarga Diaria 6AM',
+        'task_type': TaskType.DOWNLOAD,
+        'schedule_type': ScheduleType.DAILY,
+        'daily_time': '06:00',
+        'allowed_days': DAYS_OF_WEEK.copy(),
+        'description': 'Descarga videos de canales monitoreados a las 6 AM'
+    },
+    'hourly_monitor': {
+        'name': 'Monitor Cada Hora',
+        'task_type': TaskType.MONITOR,
+        'schedule_type': ScheduleType.INTERVAL,
+        'interval_minutes': 60,
+        'allowed_days': DAYS_OF_WEEK.copy(),
+        'description': 'Verifica canales cada hora para nuevos videos'
+    },
+    'half_hourly_monitor': {
+        'name': 'Monitor Cada 30 Minutos',
+        'task_type': TaskType.MONITOR,
+        'schedule_type': ScheduleType.INTERVAL,
+        'interval_minutes': 30,
+        'allowed_days': DAYS_OF_WEEK.copy(),
+        'description': 'Verifica canales cada 30 minutos para nuevos videos'
+    },
+    'daily_process_2am': {
+        'name': 'Procesamiento Nocturno',
+        'task_type': TaskType.PROCESS,
+        'schedule_type': ScheduleType.DAILY,
+        'daily_time': '02:00',
+        'allowed_days': DAYS_OF_WEEK.copy(),
+        'description': 'Procesa archivos de transcripción a las 2 AM'
+    },
+    'weekday_monitor': {
+        'name': 'Monitor Días Hábiles',
+        'task_type': TaskType.MONITOR,
+        'schedule_type': ScheduleType.INTERVAL,
+        'interval_minutes': 120,
+        'allowed_days': ['mon', 'tue', 'wed', 'thu', 'fri'],
+        'description': 'Verifica canales cada 2 horas en días laborales'
+    },
+    'weekend_download': {
+        'name': 'Descarga Fines de Semana',
+        'task_type': TaskType.DOWNLOAD,
+        'schedule_type': ScheduleType.DAILY,
+        'daily_time': '08:00',
+        'allowed_days': ['sat', 'sun'],
+        'description': 'Descarga videos solo los fines de semana a las 8 AM'
+    },
+    'detect_new_videos': {
+        'name': 'Detectar Videos Nuevos',
+        'task_type': TaskType.DETECT_NEW,
+        'schedule_type': ScheduleType.INTERVAL,
+        'interval_minutes': 15,
+        'allowed_days': DAYS_OF_WEEK.copy(),
+        'description': 'Verifica videos sin transcribir cada 15 minutos'
+    }
+}
+
+
+def create_task_from_template(template_id: str, **overrides) -> Optional[ScheduleTask]:
+    """Crea una tarea desde una plantilla pre-configurada
+
+    Args:
+        template_id: Identificador de la plantilla (key en TASK_TEMPLATES)
+        **overrides: Valores que sobrescriben los de la plantilla
+
+    Returns:
+        ScheduleTask instanciada o None si la plantilla no existe
+    """
+    if template_id not in TASK_TEMPLATES:
+        logger.warning(f"Plantilla '{template_id}' no encontrada")
+        return None
+
+    template = TASK_TEMPLATES[template_id]
+
+    task = ScheduleTask(
+        name=template['name'],
+        task_type=template['task_type'].value,
+        schedule_type=template['schedule_type'].value,
+        interval_minutes=template.get('interval_minutes', 60),
+        daily_time=template.get('daily_time', '03:00'),
+        allowed_days=template.get('allowed_days', DAYS_OF_WEEK.copy()),
+        auto_integrate_kb=True,
+        enabled=True
+    )
+
+    for key, value in overrides.items():
+        if hasattr(task, key):
+            setattr(task, key, value)
+
+    return task
+
+
+def get_available_templates() -> dict:
+    """Retorna el diccionario de plantillas disponibles"""
+    return {
+        tid: {
+            'name': tpl['name'],
+            'description': tpl['description'],
+            'task_type': tpl['task_type'].value,
+            'schedule_type': tpl['schedule_type'].value
+        }
+        for tid, tpl in TASK_TEMPLATES.items()
+    }

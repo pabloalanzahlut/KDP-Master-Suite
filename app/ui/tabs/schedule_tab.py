@@ -85,50 +85,54 @@ def _build_schedule_ui(self):
 
 def _build_task_list(self, parent):
     """Construye la lista de tareas"""
+    from app.core.scheduler import DAYS_OF_WEEK_DISPLAY
+
     btn_frame = ttk.Frame(parent)
     btn_frame.pack(fill=tk.X, pady=(0, 10))
-    
+
     ttk.Button(btn_frame, text="➕ Nueva Tarea", style="Primary.TButton",
                command=self.create_new_schedule_task).pack(side=tk.LEFT, padx=2)
     ttk.Button(btn_frame, text="🗑️ Eliminar", style="Danger.TButton",
                command=self.delete_selected_task).pack(side=tk.LEFT, padx=2)
-    ttk.Button(btn_frame, text="▶️ Ejecutar Ahora", 
+    ttk.Button(btn_frame, text="▶️ Ejecutar Ahora",
                command=self.run_task_now).pack(side=tk.LEFT, padx=2)
-    
+
     tree_container = ttk.Frame(parent)
     tree_container.pack(fill=tk.BOTH, expand=True)
-    
+
     scroll_y = ttk.Scrollbar(tree_container, orient=tk.VERTICAL)
     scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
-    
+
     scroll_x = ttk.Scrollbar(tree_container, orient=tk.HORIZONTAL)
     scroll_x.pack(side=tk.BOTTOM, fill=tk.X)
-    
-    columns = ("nombre", "tipo", "programacion", "proxima", "estado")
+
+    columns = ("nombre", "tipo", "programacion", "dias", "proxima", "estado")
     self.schedule_tree = ttk.Treeview(tree_container, columns=columns, show="headings",
                                        yscrollcommand=scroll_y.set,
                                        xscrollcommand=scroll_x.set,
                                        height=8)
-    
+
     scroll_y.config(command=self.schedule_tree.yview)
     scroll_x.config(command=self.schedule_tree.xview)
-    
+
     self.schedule_tree.heading("nombre", text="Nombre")
     self.schedule_tree.heading("tipo", text="Tipo")
     self.schedule_tree.heading("programacion", text="Programación")
+    self.schedule_tree.heading("dias", text="Días")
     self.schedule_tree.heading("proxima", text="Próxima Ejecución")
     self.schedule_tree.heading("estado", text="Estado")
-    
-    self.schedule_tree.column("nombre", width=150)
-    self.schedule_tree.column("tipo", width=100)
-    self.schedule_tree.column("programacion", width=120)
-    self.schedule_tree.column("proxima", width=150)
-    self.schedule_tree.column("estado", width=80)
-    
+
+    self.schedule_tree.column("nombre", width=120)
+    self.schedule_tree.column("tipo", width=90)
+    self.schedule_tree.column("programacion", width=100)
+    self.schedule_tree.column("dias", width=100)
+    self.schedule_tree.column("proxima", width=130)
+    self.schedule_tree.column("estado", width=70)
+
     self.schedule_tree.pack(fill=tk.BOTH, expand=True)
-    
+
     self.schedule_tree.bind("<Double-1>", self.on_schedule_task_double_click)
-    
+
     self.refresh_schedule_tree()
 
 
@@ -167,12 +171,16 @@ def _build_log_panel(self, parent):
 
 def refresh_schedule_tree(self):
     """Actualiza la lista de tareas"""
+    from app.core.scheduler import DAYS_OF_WEEK_DISPLAY, DAYS_OF_WEEK
+
     for item in self.schedule_tree.get_children():
         self.schedule_tree.delete(item)
-    
+
     if not hasattr(self, 'schedule_manager') or not self.schedule_manager:
         return
-    
+
+    all_days = set(DAYS_OF_WEEK)
+
     for task in self.schedule_manager.get_all_tasks():
         tipo_display = {
             'download': '📥 Descarga',
@@ -180,7 +188,7 @@ def refresh_schedule_tree(self):
             'monitor': '📺 Monitor',
             'detect_new': '🔔 Detectar Nuevos'
         }.get(task.task_type, task.task_type)
-        
+
         schedule_display = ""
         if task.schedule_type == 'interval':
             schedule_display = f"Cada {task.interval_minutes} min"
@@ -190,13 +198,24 @@ def refresh_schedule_tree(self):
             schedule_display = f"Múltiple: {', '.join(task.multiple_times[:2])}"
         elif task.schedule_type == 'event':
             schedule_display = f"Evento: {task.event_trigger or 'N/A'}"
-        
+
+        task_days = set(task.allowed_days) if task.allowed_days else all_days
+        if task_days == all_days:
+            days_display = "Todos"
+        elif task_days == set(['mon', 'tue', 'wed', 'thu', 'fri']):
+            days_display = "Laborales"
+        elif task_days == set(['sat', 'sun']):
+            days_display = "Fines"
+        else:
+            days_abbrev = [DAYS_OF_WEEK_DISPLAY.get(d, d)[:3] for d in sorted(task_days)]
+            days_display = "".join(days_abbrev)
+
         next_run = task.next_run[:16] if task.next_run else "N/A"
-        
+
         estado = "✅ Activa" if task.enabled else "⏸️ Pausada"
-        
+
         self.schedule_tree.insert('', tk.END, values=(
-            task.name, tipo_display, schedule_display, next_run, estado
+            task.name, tipo_display, schedule_display, days_display, next_run, estado
         ), tags=(task.task_id,))
 
 
@@ -249,12 +268,14 @@ def toggle_scheduler(self):
 
 def create_new_schedule_task(self):
     """Abre diálogo para crear nueva tarea"""
+    from app.core.scheduler import get_available_templates, DAYS_OF_WEEK, DAYS_OF_WEEK_DISPLAY
+
     dialog = tk.Toplevel(self.root)
     dialog.title("✨ Nueva Tarea Programada")
-    dialog.geometry("450x500")
+    dialog.geometry("500x650")
     dialog.transient(self.root)
     dialog.grab_set()
-    
+
     task_name_var = tk.StringVar()
     task_type_var = tk.StringVar(value="download")
     schedule_type_var = tk.StringVar(value="interval")
@@ -262,56 +283,137 @@ def create_new_schedule_task(self):
     daily_time_var = tk.StringVar(value="03:00")
     enabled_var = tk.BooleanVar(value=True)
     auto_kb_var = tk.BooleanVar(value=True)
-    
+
+    day_vars = {day: tk.BooleanVar(value=True) for day in DAYS_OF_WEEK}
+
+    templates = get_available_templates()
+    template_ids = ['(Ninguna)'] + list(templates.keys())
+    template_var = tk.StringVar(value='(Ninguna)')
+
+    def on_template_change(*args):
+        selected = template_var.get()
+        if selected != '(Ninguna)' and selected in templates:
+            template = templates[selected]
+            task_name_var.set(template['name'])
+            task_type_var.set(template['task_type'])
+            schedule_type_var.set(template['schedule_type'])
+
+            if template['schedule_type'] == 'interval':
+                interval_val = 60
+                if 'Cada Hora' in template['name']:
+                    interval_val = 60
+                elif '30 Minutos' in template['name']:
+                    interval_val = 30
+                elif '15 minutos' in template['name'].lower():
+                    interval_val = 15
+                interval_var.set(interval_val)
+            elif template['schedule_type'] == 'daily':
+                if '3AM' in template['name']:
+                    daily_time_var.set('03:00')
+                elif '6AM' in template['name']:
+                    daily_time_var.set('06:00')
+                elif '2AM' in template['name']:
+                    daily_time_var.set('02:00')
+                elif '8AM' in template['name']:
+                    daily_time_var.set('08:00')
+
+            for day in DAYS_OF_WEEK:
+                day_vars[day].set(True)
+            if 'Días Hábiles' in template['name']:
+                for day in ['mon', 'tue', 'wed', 'thu', 'fri']:
+                    day_vars[day].set(True)
+                for day in ['sat', 'sun']:
+                    day_vars[day].set(False)
+            elif 'Fines de' in template['name']:
+                for day in ['mon', 'tue', 'wed', 'thu', 'fri']:
+                    day_vars[day].set(False)
+                for day in ['sat', 'sun']:
+                    day_vars[day].set(True)
+
+    template_var.trace_add('write', on_template_change)
+
+    ttk.Label(dialog, text="📋 Plantilla:").pack(pady=(10, 0))
+    template_combo = ttk.Combobox(dialog, textvariable=template_var,
+                                    values=template_ids, state='readonly', width=30)
+    template_combo.pack(pady=5)
+
     ttk.Label(dialog, text="Nombre de la Tarea:").pack(pady=(10, 0))
     ttk.Entry(dialog, textvariable=task_name_var, width=40).pack(pady=5)
-    
+
     ttk.Label(dialog, text="Tipo de Tarea:").pack(pady=(10, 0))
     type_frame = ttk.Frame(dialog)
     type_frame.pack()
     for val, text in [('download', '📥 Descarga'), ('process', '⚙️ Procesar'),
                       ('monitor', '📺 Monitor'), ('detect_new', '🔔 Detectar Nuevos')]:
-        ttk.Radiobutton(type_frame, text=text, variable=task_type_var, 
-                        value=val).pack(side=tk.LEFT, padx=5)
-    
+        ttk.Radiobutton(type_frame, text=text, variable=task_type_var,
+                        value=val).pack(side=tk.LEFT, padx=3)
+
     ttk.Label(dialog, text="Tipo de Programación:").pack(pady=(10, 0))
     sched_frame = ttk.Frame(dialog)
     sched_frame.pack()
-    for val, text in [('interval', 'Intervalo'), ('daily', 'Diaria'), 
+    for val, text in [('interval', 'Intervalo'), ('daily', 'Diaria'),
                       ('multiple', 'Múltiple'), ('event', 'Por Evento')]:
         ttk.Radiobutton(sched_frame, text=text, variable=schedule_type_var,
-                        value=val).pack(side=tk.LEFT, padx=3)
-    
+                        value=val).pack(side=tk.LEFT, padx=2)
+
     ttk.Label(dialog, text="Intervalo (minutos):").pack(pady=(10, 0))
     ttk.Entry(dialog, textvariable=interval_var, width=15).pack()
-    
+
     ttk.Label(dialog, text="Hora diaria (HH:MM):").pack(pady=(10, 0))
     ttk.Entry(dialog, textvariable=daily_time_var, width=15).pack()
-    
+
+    days_frame = ttk.LabelFrame(dialog, text="📅 Días de la Semana", padding=10)
+    days_frame.pack(pady=10, fill=tk.X, padx=20)
+
+    days_grid = ttk.Frame(days_frame)
+    days_grid.pack()
+
+    for i, (day_code, day_name) in enumerate(DAYS_OF_WEEK_DISPLAY.items()):
+        col = i % 4
+        row = i // 4
+        cb = ttk.Checkbutton(days_grid, text=day_name, variable=day_vars[day_code])
+        cb.grid(row=row, column=col, padx=10, pady=2, sticky='w')
+
+    all_days_btn = ttk.Button(days_frame, text="Todos los días", command=lambda: [day_vars[d].set(True) for d in DAYS_OF_WEEK])
+    all_days_btn.pack(side=tk.LEFT, padx=5, pady=5)
+
+    weekdays_btn = ttk.Button(days_frame, text="Solo laborables", command=lambda: {
+        day_vars[d].set(d in ['mon', 'tue', 'wed', 'thu', 'fri']) for d in DAYS_OF_WEEK
+    })
+    weekdays_btn.pack(side=tk.LEFT, padx=5, pady=5)
+
+    weekend_btn = ttk.Button(days_frame, text="Solo fines de semana", command=lambda: {
+        day_vars[d].set(d in ['sat', 'sun']) for d in DAYS_OF_WEEK
+    })
+    weekend_btn.pack(side=tk.LEFT, padx=5, pady=5)
+
     options_frame = ttk.LabelFrame(dialog, text="Opciones", padding=10)
     options_frame.pack(pady=10, fill=tk.X, padx=20)
     ttk.Checkbutton(options_frame, text="Habilitada", variable=enabled_var).pack(anchor=tk.W)
-    ttk.Checkbutton(options_frame, text="Auto-integrar a KB después de procesar", 
+    ttk.Checkbutton(options_frame, text="Auto-integrar a KB después de procesar",
                     variable=auto_kb_var).pack(anchor=tk.W)
-    
+
     btn_frame = ttk.Frame(dialog)
     btn_frame.pack(pady=10)
-    
+
     def save_task():
         if not task_name_var.get():
             messagebox.showwarning("Advertencia", "Ingrese un nombre para la tarea")
             return
-        
+
+        selected_days = [day for day in DAYS_OF_WEEK if day_vars[day].get()]
+
         task = ScheduleTask(
             name=task_name_var.get(),
             task_type=task_type_var.get(),
             schedule_type=schedule_type_var.get(),
             interval_minutes=interval_var.get(),
             daily_time=daily_time_var.get(),
+            allowed_days=selected_days if selected_days else DAYS_OF_WEEK.copy(),
             enabled=enabled_var.get(),
             auto_integrate_kb=auto_kb_var.get()
         )
-        
+
         if self.schedule_manager.add_task(task):
             messagebox.showinfo("Éxito", "Tarea creada correctamente")
             dialog.destroy()
@@ -319,7 +421,7 @@ def create_new_schedule_task(self):
             refresh_schedule_stats(self)
         else:
             messagebox.showerror("Error", "No se pudo crear la tarea")
-    
+
     ttk.Button(btn_frame, text="Cancelar", command=dialog.destroy).pack(side=tk.LEFT, padx=5)
     ttk.Button(btn_frame, text="💾 Guardar", style="Primary.TButton",
                command=save_task).pack(side=tk.LEFT, padx=5)
@@ -377,44 +479,64 @@ def on_schedule_task_double_click(self, event):
 
 def _show_edit_task_dialog(self, task):
     """Muestra diálogo para editar tarea"""
+    from app.core.scheduler import DAYS_OF_WEEK, DAYS_OF_WEEK_DISPLAY
+
     dialog = tk.Toplevel(self.root)
     dialog.title(f"✏️ Editar: {task.name}")
-    dialog.geometry("400x350")
+    dialog.geometry("450x500")
     dialog.transient(self.root)
     dialog.grab_set()
-    
+
     name_var = tk.StringVar(value=task.name)
     enabled_var = tk.BooleanVar(value=task.enabled)
     interval_var = tk.IntVar(value=task.interval_minutes)
     daily_time_var = tk.StringVar(value=task.daily_time or "03:00")
-    
+
+    current_days = task.allowed_days if task.allowed_days else DAYS_OF_WEEK.copy()
+    day_vars = {day: tk.BooleanVar(value=(day in current_days)) for day in DAYS_OF_WEEK}
+
     ttk.Label(dialog, text="Nombre:").pack(pady=(10, 0))
     ttk.Entry(dialog, textvariable=name_var, width=35).pack(pady=5)
-    
+
     ttk.Label(dialog, text="Intervalo (minutos):").pack(pady=(10, 0))
     ttk.Entry(dialog, textvariable=interval_var, width=15).pack()
-    
+
     ttk.Label(dialog, text="Hora diaria (HH:MM):").pack(pady=(10, 0))
     ttk.Entry(dialog, textvariable=daily_time_var, width=15).pack()
-    
+
+    days_frame = ttk.LabelFrame(dialog, text="📅 Días de la Semana", padding=10)
+    days_frame.pack(pady=10, fill=tk.X, padx=20)
+
+    days_grid = ttk.Frame(days_frame)
+    days_grid.pack()
+
+    for i, (day_code, day_name) in enumerate(DAYS_OF_WEEK_DISPLAY.items()):
+        col = i % 4
+        row = i // 4
+        cb = ttk.Checkbutton(days_grid, text=day_name, variable=day_vars[day_code])
+        cb.grid(row=row, column=col, padx=10, pady=2, sticky='w')
+
     ttk.Checkbutton(dialog, text="Habilitada", variable=enabled_var).pack(pady=10)
-    
+
     btn_frame = ttk.Frame(dialog)
     btn_frame.pack(pady=10)
-    
+
     def save_changes():
+        selected_days = [day for day in DAYS_OF_WEEK if day_vars[day].get()]
+
         self.schedule_manager.update_task(
             task.task_id,
             name=name_var.get(),
             enabled=enabled_var.get(),
             interval_minutes=interval_var.get(),
-            daily_time=daily_time_var.get()
+            daily_time=daily_time_var.get(),
+            allowed_days=selected_days if selected_days else DAYS_OF_WEEK.copy()
         )
         messagebox.showinfo("Éxito", "Tarea actualizada")
         dialog.destroy()
         refresh_schedule_tree(self)
         refresh_schedule_stats(self)
-    
+
     ttk.Button(btn_frame, text="Cancelar", command=dialog.destroy).pack(side=tk.LEFT, padx=5)
     ttk.Button(btn_frame, text="💾 Guardar", style="Primary.TButton",
                command=save_changes).pack(side=tk.LEFT, padx=5)
