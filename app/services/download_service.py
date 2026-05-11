@@ -39,6 +39,73 @@ class DownloadService:
         self._consecutive_errors = 0
         self._last_request_time = 0
         self._batch_stats = {"new": 0, "existing": 0, "no_subs": 0, "errors": 0}
+        # Scoring IA
+        self._scoring_enabled = False
+        self._scoring_service = None
+        self._scoring_min_score = 50
+    
+    def enable_scoring(self, min_score: int = 50) -> bool:
+        """
+        Habilita el scoring IA para el flujo de descarga.
+        
+        Args:
+            min_score: Score mínimo (0-100) para descargar
+            
+        Returns:
+            True si se habilitó correctamente
+        """
+        if self._scoring_service is None:
+            try:
+                from app.services.kdp_scoring_service import create_scoring_service
+                self._scoring_service = create_scoring_service()
+                self._scoring_min_score = min_score
+                self._scoring_enabled = True
+                if self.log_callback:
+                    self.log_callback("🎯 Scoring IA habilitado (KDP Relevance Filter)")
+                return True
+            except Exception as e:
+                if self.log_callback:
+                    self.log_callback(f"⚠️ No se pudo habilitar scoring: {e}", level='warning')
+                return False
+        else:
+            self._scoring_enabled = True
+            return True
+    
+    def disable_scoring(self):
+        """Deshabilita el scoring IA."""
+        self._scoring_enabled = False
+        if self.log_callback:
+            self.log_callback("🎯 Scoring IA deshabilitado")
+    
+    def _should_download_video(self, title: str, description: str = "", 
+                              channel_name: str = "") -> tuple[bool, str]:
+        """
+        Determina si un video debe descargarse según scoring IA.
+        
+        Returns:
+            (should_download, reason)
+        """
+        if not self._scoring_enabled or self._scoring_service is None:
+            return True, "scoring_disabled"
+        
+        try:
+            score_result = self._scoring_service.score_video(
+                title=title,
+                description=description,
+                channel_name=channel_name
+            )
+            
+            if score_result.recommended_action == "download":
+                return True, f"score:{score_result.kdp_relevance_score}"
+            elif score_result.recommended_action == "review":
+                if self.log_callback:
+                    self.log_callback(f"   🔍 Revisar: {title[:50]}... (score: {score_result.kdp_relevance_score})", level='info')
+                return False, "needs_review"
+            else:
+                return False, f"skipped:{score_result.reasoning[:50]}"
+        except Exception as e:
+            # En caso de error, permitir descarga
+            return True, f"scoring_error:{e}"
 
     def _rate_limit_wait(self, base_delay=None):
         """Espera variable anti-rate-limiting con jitter."""
@@ -233,6 +300,44 @@ class DownloadService:
             video_url = f"https://www.youtube.com/watch?v={vid}"
             
             try:
+                # OBTENER METADATA PARA SCORING (sin descargar aún)
+                should_download = True
+                scoring_info = None
+                
+                if self._scoring_enabled and self._scoring_service:
+                    try:
+                        # Obtener solo metadata para scoring
+                        preview_opts = {
+                            'skip_download': True,
+                            'quiet': True,
+                            'no_warnings': True,
+                            'extract_flat': True,
+                        }
+                        with yt_dlp.YoutubeDL(preview_opts) as ydl:
+                            vid_info = ydl.extract_info(video_url, download=False)
+                            if vid_info:
+                                title = vid_info.get('title', '')
+                                channel = vid_info.get('channel', vid_info.get('uploader', ''))
+                                scoring_info = self._scoring_service.score_video(
+                                    title=title,
+                                    description='',
+                                    channel_name=channel
+                                )
+                                
+                                # Filtrar según scoring
+                                if scoring_info.recommended_action in ['skip', 'watch_later']:
+                                    if self.log_callback:
+                                        self.log_callback(f"   ⏭️ Saltado (score: {scoring_info.kdp_relevance_score}/100): {title[:50]}...")
+                                    skipped_count += 1
+                                    self._batch_stats["existing"] += 1
+                                    continue
+                                elif scoring_info.recommended_action == 'review':
+                                    if self.log_callback:
+                                        self.log_callback(f"   🔍 Revisar (score: {scoring_info.kdp_relevance_score}/100): {title[:50]}...")
+                    except Exception as e:
+                        if self.log_callback:
+                            self.log_callback(f"   ⚠️ Error en scoring: {e}", level='warning')
+                
                 result = self._download_video_subs(video_url, idx + 1, total)
                 if result == 'downloaded':
                     success_count += 1
@@ -376,6 +481,15 @@ class DownloadService:
                         title = info.get('title', video_url)[:80] if info else video_url
                         if self.log_callback:
                             self.log_callback(f"   ✅ {label}{title}")
+                        
+                        if self._scoring_enabled and self._scoring_service:
+                            score_result = self._scoring_service.score_video(
+                                title=info.get('title', ''),
+                                description=info.get('description', ''),
+                                channel_name=info.get('channel', '')
+                            )
+                            if self.log_callback:
+                                self.log_callback(f"   🎯 Relevance Score: {score_result.kdp_relevance_score}/100 ({score_result.relevance_level.value})")
                         return 'downloaded'
                     else:
                         if attempt < max_retries:

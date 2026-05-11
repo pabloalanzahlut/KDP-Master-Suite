@@ -7,6 +7,7 @@ Pestaña de monitoreo de canales para gui_app.py
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
+import json
 
 # Importar servicios de monitoreo e UI
 from app.database.db_manager import DatabaseManager
@@ -149,6 +150,40 @@ def setup_monitor_tab(self):
     ttk.Button(control_buttons, text="🔍 Verificar Ahora",
               command=self.check_now).pack(side=tk.LEFT, padx=2, fill=tk.X, expand=True)
     
+    # ========== PANEL DE PERFILES DE FILTROS ==========
+    profiles_frame = ttk.LabelFrame(right_frame, text=" 📁 Perfiles de Filtros ", padding=10)
+    profiles_frame.pack(fill=tk.X, pady=(0, 10))
+    
+    profiles_inner = ttk.Frame(profiles_frame)
+    profiles_inner.pack(fill=tk.X)
+    
+    # Selector de perfil activo
+    ttk.Label(profiles_inner, text="Perfil activo:", font=("Segoe UI", 9)).grid(row=0, column=0, sticky=tk.W, pady=2)
+    
+    profile_select_frame = ttk.Frame(profiles_inner)
+    profile_select_frame.grid(row=0, column=1, sticky=tk.EW, pady=2)
+    
+    self.profile_combo = ttk.Combobox(profile_select_frame, state="readonly", width=20)
+    self.profile_combo.pack(side=tk.LEFT, padx=(0, 5))
+    self.profile_combo.bind("<<ComboboxSelected>>", self.on_profile_selected)
+    
+    ttk.Button(profile_select_frame, text="🔄", width=3, command=self.reload_filter_profiles).pack(side=tk.LEFT)
+    
+    # Botones de gestión de perfiles
+    profile_btns = ttk.Frame(profiles_frame)
+    profile_btns.pack(fill=tk.X, pady=(5, 0))
+    
+    ttk.Button(profile_btns, text="➕ Nuevo", width=8, command=self.create_new_filter_profile).pack(side=tk.LEFT, padx=2)
+    ttk.Button(profile_btns, text="📋 Duplicar", width=8, command=self.duplicate_filter_profile).pack(side=tk.LEFT, padx=2)
+    ttk.Button(profile_btns, text="🗑️ Eliminar", width=8, style="Danger.TButton", command=self.delete_filter_profile).pack(side=tk.LEFT, padx=2)
+    ttk.Button(profile_btns, text="⭐ Activar", width=8, style="Success.TButton", command=self.activate_filter_profile).pack(side=tk.LEFT, padx=2)
+    
+    # Indicador de perfil activo
+    self.active_profile_label = ttk.Label(profiles_frame, text="", font=("Segoe UI", 8), foreground="#10b981")
+    self.active_profile_label.pack(anchor=tk.W, pady=(5, 0))
+    
+    profiles_inner.columnconfigure(1, weight=1)
+    
     # Panel de Filtros de Palabras Clave
     filter_frame = ttk.LabelFrame(right_frame, text=" 🔤 Filtros de Palabras ", padding=10)
     filter_frame.pack(fill=tk.X, pady=(0, 10))
@@ -199,6 +234,9 @@ def setup_monitor_tab(self):
     self.filter_result_label.pack(anchor=tk.W, pady=(5, 0))
     
     load_keyword_filter_config()
+    
+    # Cargar perfiles de filtros
+    self.reload_filter_profiles()
     
     # Panel de Estadísticas
     stats_frame = ttk.LabelFrame(right_frame, text=" 📊 Estadísticas ", padding=10)
@@ -1003,3 +1041,303 @@ def update_filter_status(self):
             count_i = len([k for k in include.split(",") if k.strip()])
             count_e = len([k for k in exclude.split(",") if k.strip()])
             self.log_monitor(f"Filtro activo: {count_i} incluir, {count_e} excluir, modo {self.filter_mode_var.get()}")
+
+
+# ========== MÉTODOS DE GESTIÓN DE PERFILES DE FILTROS ==========
+
+def reload_filter_profiles(self):
+    """Recarga la lista de perfiles en el combo box."""
+    try:
+        profiles = self.db_manager.get_all_filter_profiles()
+        profile_names = []
+        active_idx = 0
+        
+        for i, p in enumerate(profiles):
+            name = p['name']
+            if p.get('is_active'):
+                name = f"⭐ {name}"
+                active_idx = i
+            profile_names.append(name)
+        
+        if hasattr(self, 'profile_combo'):
+            self.profile_combo['values'] = profile_names
+            if profile_names:
+                self.profile_combo.current(active_idx)
+        
+        self.log_monitor(f"Perfiles recargados: {len(profiles)} perfiles")
+    except Exception as e:
+        self.log_monitor(f"Error recargando perfiles: {e}", "error")
+
+
+def on_profile_selected(self, event=None):
+    """Maneja la selección de un perfil del combo."""
+    try:
+        idx = self.profile_combo.current()
+        if idx < 0:
+            return
+        
+        profiles = self.db_manager.get_all_filter_profiles()
+        if idx < len(profiles):
+            profile = profiles[idx]
+            self.load_filter_profile_to_ui(profile)
+            self.log_monitor(f"Perfil cargado: {profile['name']}")
+    except Exception as e:
+        self.log_monitor(f"Error seleccionando perfil: {e}", "error")
+
+
+def load_filter_profile_to_ui(self, profile: dict):
+    """Carga los datos de un perfil en la UI."""
+    try:
+        # Cargar include keywords
+        include_kws = profile.get('include_keywords', [])
+        if isinstance(include_kws, str):
+            include_kws = json.loads(include_kws) if include_kws else []
+        self.include_keywords_var.set(", ".join(include_kws) if include_kws else "")
+        
+        # Cargar exclude keywords
+        exclude_kws = profile.get('exclude_keywords', [])
+        if isinstance(exclude_kws, str):
+            exclude_kws = json.loads(exclude_kws) if exclude_kws else []
+        self.exclude_keywords_var.set(", ".join(exclude_kws) if exclude_kws else "")
+        
+        # Cargar modo
+        mode = profile.get('mode', 'OR')
+        self.filter_mode_var.set(mode)
+        
+        # Cargar enabled
+        enabled = bool(profile.get('enabled', 0))
+        self.filter_enabled_var.set(enabled)
+        
+        # Actualizar indicador de perfil activo
+        if hasattr(self, 'active_profile_label'):
+            is_active = bool(profile.get('is_active', 0))
+            if is_active:
+                self.active_profile_label.config(text=f"⭐ Perfil activo: {profile['name']}", foreground="#10b981")
+            else:
+                self.active_profile_label.config(text=f"Perfil: {profile['name']} (inactivo)", foreground="#64748b")
+        
+        self.log_monitor(f"Datos del perfil '{profile['name']}' cargados en UI")
+    except Exception as e:
+        self.log_monitor(f"Error cargando perfil en UI: {e}", "error")
+
+
+def create_new_filter_profile(self):
+    """Crea un nuevo perfil de filtro."""
+    dialog = tk.Toplevel(self.root)
+    dialog.title("Crear Perfil de Filtro")
+    dialog.geometry("400x180")
+    dialog.transient(self.root)
+    dialog.grab_set()
+    
+    # Centrar diálogo
+    dialog.update_idletasks()
+    x = (dialog.winfo_screenwidth() // 2) - (dialog.winfo_width() // 2)
+    y = (dialog.winfo_screenheight() // 2) - (dialog.winfo_height() // 2)
+    dialog.geometry(f"+{x}+{y}")
+    
+    main_frame = ttk.Frame(dialog, padding=20)
+    main_frame.pack(fill=tk.BOTH, expand=True)
+    
+    ttk.Label(main_frame, text="Nombre del perfil:", font=("Segoe UI", 10, "bold")).pack(anchor=tk.W, pady=(0, 5))
+    name_var = tk.StringVar()
+    name_entry = ttk.Entry(main_frame, textvariable=name_var, width=40)
+    name_entry.pack(fill=tk.X, pady=(0, 15))
+    name_entry.focus()
+    
+    ttk.Label(main_frame, text="Copiar configuración del perfil actual:", font=("Segoe UI", 9)).pack(anchor=tk.W, pady=(0, 5))
+    copy_from_current = tk.BooleanVar(value=True)
+    ttk.Checkbutton(main_frame, text="Usar configuración actual como base", variable=copy_from_current).pack(anchor=tk.W, pady=(0, 15))
+    
+    btn_frame = ttk.Frame(main_frame)
+    btn_frame.pack(fill=tk.X)
+    
+    def save():
+        name = name_var.get().strip()
+        if not name:
+            messagebox.showwarning("Nombre requerido", "Por favor ingresa un nombre para el perfil.")
+            return
+        
+        try:
+            if copy_from_current.get():
+                include_kws = [k.strip() for k in self.include_keywords_var.get().split(",") if k.strip()]
+                exclude_kws = [k.strip() for k in self.exclude_keywords_var.get().split(",") if k.strip()]
+                mode = self.filter_mode_var.get()
+                enabled = self.filter_enabled_var.get()
+            else:
+                include_kws = []
+                exclude_kws = []
+                mode = "OR"
+                enabled = False
+            
+            profile_id = self.db_manager.create_filter_profile(name, include_kws, exclude_kws, mode, enabled)
+            
+            if profile_id:
+                self.log_monitor(f"Perfil '{name}' creado exitosamente")
+                self.reload_filter_profiles()
+                dialog.destroy()
+                ToastNotification.show(self.root, f"Perfil '{name}' creado", "success")
+            else:
+                messagebox.showerror("Error", "Ya existe un perfil con ese nombre.")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo crear el perfil: {e}")
+    
+    ttk.Button(btn_frame, text="✅ Crear", style="Success.TButton", command=save).pack(side=tk.LEFT, padx=5)
+    ttk.Button(btn_frame, text="❌ Cancelar", command=dialog.destroy).pack(side=tk.LEFT, padx=5)
+
+
+def duplicate_filter_profile(self):
+    """Duplica el perfil actualmente seleccionado."""
+    idx = self.profile_combo.current() if hasattr(self, 'profile_combo') else -1
+    if idx < 0:
+        messagebox.showwarning("Sin selección", "Selecciona un perfil para duplicar.")
+        return
+    
+    profiles = self.db_manager.get_all_filter_profiles()
+    if idx >= len(profiles):
+        return
+    
+    source_profile = profiles[idx]
+    
+    dialog = tk.Toplevel(self.root)
+    dialog.title("Duplicar Perfil")
+    dialog.geometry("400x150")
+    dialog.transient(self.root)
+    dialog.grab_set()
+    
+    x = (dialog.winfo_screenwidth() // 2) - (dialog.winfo_width() // 2)
+    y = (dialog.winfo_screenheight() // 2) - (dialog.winfo_height() // 2)
+    dialog.geometry(f"+{x}+{y}")
+    
+    main_frame = ttk.Frame(dialog, padding=20)
+    main_frame.pack(fill=tk.BOTH, expand=True)
+    
+    ttk.Label(main_frame, text=f"Duplicando: {source_profile['name']}", font=("Segoe UI", 10)).pack(anchor=tk.W, pady=(0, 10))
+    
+    ttk.Label(main_frame, text="Nombre para la copia:", font=("Segoe UI", 10, "bold")).pack(anchor=tk.W, pady=(0, 5))
+    name_var = tk.StringVar(value=f"{source_profile['name']} (copia)")
+    name_entry = ttk.Entry(main_frame, textvariable=name_var, width=40)
+    name_entry.pack(fill=tk.X, pady=(0, 15))
+    name_entry.select_range(0, tk.END)
+    name_entry.focus()
+    
+    btn_frame = ttk.Frame(main_frame)
+    btn_frame.pack(fill=tk.X)
+    
+    def save():
+        new_name = name_var.get().strip()
+        if not new_name:
+            messagebox.showwarning("Nombre requerido", "Por favor ingresa un nombre.")
+            return
+        
+        new_id = self.db_manager.duplicate_filter_profile(source_profile['id'], new_name)
+        if new_id:
+            self.log_monitor(f"Perfil duplicado: '{source_profile['name']}' -> '{new_name}'")
+            self.reload_filter_profiles()
+            dialog.destroy()
+            ToastNotification.show(self.root, f"Perfil duplicado como '{new_name}'", "success")
+        else:
+            messagebox.showerror("Error", "No se pudo duplicar el perfil.")
+    
+    ttk.Button(btn_frame, text="✅ Duplicar", style="Success.TButton", command=save).pack(side=tk.LEFT, padx=5)
+    ttk.Button(btn_frame, text="❌ Cancelar", command=dialog.destroy).pack(side=tk.LEFT, padx=5)
+
+
+def delete_filter_profile(self):
+    """Elimina el perfil actualmente seleccionado."""
+    idx = self.profile_combo.current() if hasattr(self, 'profile_combo') else -1
+    if idx < 0:
+        messagebox.showwarning("Sin selección", "Selecciona un perfil para eliminar.")
+        return
+    
+    profiles = self.db_manager.get_all_filter_profiles()
+    if idx >= len(profiles):
+        return
+    
+    profile = profiles[idx]
+    
+    if profile.get('is_active'):
+        messagebox.showwarning("Perfil Activo", "No puedes eliminar el perfil activo. Activa otro primero.")
+        return
+    
+    if len(profiles) <= 1:
+        messagebox.showwarning("Último Perfil", "No puedes eliminar el último perfil existente.")
+        return
+    
+    if messagebox.askyesno("Confirmar Eliminación", f"¿Eliminar el perfil '{profile['name']}'?"):
+        if self.db_manager.delete_filter_profile(profile['id']):
+            self.log_monitor(f"Perfil eliminado: {profile['name']}")
+            self.reload_filter_profiles()
+            ToastNotification.show(self.root, f"Perfil '{profile['name']}' eliminado", "success")
+        else:
+            messagebox.showerror("Error", "No se pudo eliminar el perfil.")
+
+
+def activate_filter_profile(self):
+    """Activa el perfil seleccionado."""
+    idx = self.profile_combo.current() if hasattr(self, 'profile_combo') else -1
+    if idx < 0:
+        messagebox.showwarning("Sin selección", "Selecciona un perfil para activar.")
+        return
+    
+    profiles = self.db_manager.get_all_filter_profiles()
+    if idx >= len(profiles):
+        return
+    
+    profile = profiles[idx]
+    
+    if self.db_manager.set_active_filter_profile(profile['id']):
+        # Cargar el perfil en la UI
+        self.load_filter_profile_to_ui(profile)
+        self.reload_filter_profiles()
+        self.log_monitor(f"Perfil activado: {profile['name']}")
+        ToastNotification.show(self.root, f"Perfil '{profile['name']}' activado", "success")
+    else:
+        messagebox.showerror("Error", "No se pudo activar el perfil.")
+
+
+def save_current_as_new_profile(self):
+    """Guarda la configuración actual como un nuevo perfil."""
+    dialog = tk.Toplevel(self.root)
+    dialog.title("Guardar como Nuevo Perfil")
+    dialog.geometry("400x150")
+    dialog.transient(self.root)
+    dialog.grab_set()
+    
+    x = (dialog.winfo_screenwidth() // 2) - (dialog.winfo_width() // 2)
+    y = (dialog.winfo_screenheight() // 2) - (dialog.winfo_height() // 2)
+    dialog.geometry(f"+{x}+{y}")
+    
+    main_frame = ttk.Frame(dialog, padding=20)
+    main_frame.pack(fill=tk.BOTH, expand=True)
+    
+    ttk.Label(main_frame, text="Guardar configuración actual como:", font=("Segoe UI", 10, "bold")).pack(anchor=tk.W, pady=(0, 5))
+    name_var = tk.StringVar()
+    name_entry = ttk.Entry(main_frame, textvariable=name_var, width=40)
+    name_entry.pack(fill=tk.X, pady=(0, 15))
+    name_entry.focus()
+    
+    btn_frame = ttk.Frame(main_frame)
+    btn_frame.pack(fill=tk.X)
+    
+    def save():
+        name = name_var.get().strip()
+        if not name:
+            messagebox.showwarning("Nombre requerido", "Ingresa un nombre para el perfil.")
+            return
+        
+        include_kws = [k.strip() for k in self.include_keywords_var.get().split(",") if k.strip()]
+        exclude_kws = [k.strip() for k in self.exclude_keywords_var.get().split(",") if k.strip()]
+        mode = self.filter_mode_var.get()
+        enabled = self.filter_enabled_var.get()
+        
+        profile_id = self.db_manager.create_filter_profile(name, include_kws, exclude_kws, mode, enabled)
+        if profile_id:
+            self.log_monitor(f"Configuración guardada como perfil: {name}")
+            self.reload_filter_profiles()
+            dialog.destroy()
+            ToastNotification.show(self.root, f"Perfil '{name}' creado", "success")
+        else:
+            messagebox.showerror("Error", "Ya existe un perfil con ese nombre.")
+    
+    ttk.Button(btn_frame, text="💾 Guardar", style="Success.TButton", command=save).pack(side=tk.LEFT, padx=5)
+    ttk.Button(btn_frame, text="❌ Cancelar", command=dialog.destroy).pack(side=tk.LEFT, padx=5)

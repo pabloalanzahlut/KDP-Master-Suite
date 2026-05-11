@@ -249,6 +249,33 @@ class DatabaseManager:
             # Migración v2.8: Tabla de indexación de archivos
             self._init_file_index_tables(conn)
             
+            # ==================== MÓDULO: Perfiles de Filtros ====================
+            try:
+                cursor.execute("SELECT COUNT(*) FROM filter_profiles LIMIT 1")
+            except:
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS filter_profiles (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL UNIQUE,
+                        include_keywords TEXT,
+                        exclude_keywords TEXT,
+                        mode TEXT DEFAULT 'OR',
+                        enabled INTEGER DEFAULT 0,
+                        is_active INTEGER DEFAULT 0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_filter_profiles_name ON filter_profiles(name)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_filter_profiles_active ON filter_profiles(is_active)")
+                # Crear perfil por defecto si no existe
+                cursor.execute("""
+                    INSERT OR IGNORE INTO filter_profiles (name, include_keywords, exclude_keywords, mode, enabled, is_active)
+                    VALUES ('Por Defecto', '[]', '[]', 'OR', 0, 1)
+                """)
+                logger.info("Módulo: Tabla filter_profiles creada con perfil por defecto")
+            # ==================== FIN MÓDULO: Perfiles de Filtros ====================
+            
             conn.commit()
             logger.info("Base de datos inicializada correctamente")
         except Exception as e:
@@ -2116,5 +2143,184 @@ class DatabaseManager:
             return 0
         finally:
             conn.close()
+
+    # ==================== CRUD PERFILES DE FILTROS ====================
+    
+    def get_all_filter_profiles(self) -> List[Dict]:
+        """Obtiene todos los perfiles de filtros."""
+        conn = self.get_connection()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("SELECT * FROM filter_profiles ORDER BY is_active DESC, name ASC")
+            rows = cursor.fetchall()
+            profiles = []
+            for row in rows:
+                profile = dict(row)
+                profile['include_keywords'] = json.loads(profile.get('include_keywords', '[]'))
+                profile['exclude_keywords'] = json.loads(profile.get('exclude_keywords', '[]'))
+                profiles.append(profile)
+            return profiles
+        except Exception as e:
+            logger.error(f"Error obteniendo perfiles: {e}")
+            return []
+        finally:
+            conn.close()
+    
+    def get_active_filter_profile(self) -> Optional[Dict]:
+        """Obtiene el perfil de filtro activo."""
+        conn = self.get_connection()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("SELECT * FROM filter_profiles WHERE is_active = 1 LIMIT 1")
+            row = cursor.fetchone()
+            if row:
+                profile = dict(row)
+                profile['include_keywords'] = json.loads(profile.get('include_keywords', '[]'))
+                profile['exclude_keywords'] = json.loads(profile.get('exclude_keywords', '[]'))
+                return profile
+            return None
+        except Exception as e:
+            logger.error(f"Error obteniendo perfil activo: {e}")
+            return None
+        finally:
+            conn.close()
+    
+    def create_filter_profile(self, name: str, include_keywords: List[str] = None,
+                              exclude_keywords: List[str] = None, mode: str = "OR",
+                              enabled: bool = False) -> Optional[int]:
+        """Crea un nuevo perfil de filtro."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("""
+                INSERT INTO filter_profiles (name, include_keywords, exclude_keywords, mode, enabled)
+                VALUES (?, ?, ?, ?, ?)
+            """, (name, json.dumps(include_keywords or []), json.dumps(exclude_keywords or []), mode, 1 if enabled else 0))
+            conn.commit()
+            return cursor.lastrowid
+        except sqlite3.IntegrityError:
+            logger.warning(f"Perfil '{name}' ya existe")
+            return None
+        except Exception as e:
+            logger.error(f"Error creando perfil: {e}")
+            conn.rollback()
+            return None
+        finally:
+            conn.close()
+    
+    def update_filter_profile(self, profile_id: int, **kwargs) -> bool:
+        """Actualiza un perfil de filtro existente."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        allowed_fields = ['name', 'include_keywords', 'exclude_keywords', 'mode', 'enabled']
+        updates = []
+        values = []
+        
+        for field, value in kwargs.items():
+            if field in allowed_fields:
+                if field in ['include_keywords', 'exclude_keywords']:
+                    value = json.dumps(value) if isinstance(value, list) else value
+                elif field == 'enabled':
+                    value = 1 if value else 0
+                updates.append(f"{field} = ?")
+                values.append(value)
+        
+        if not updates:
+            return False
+        
+        values.append(profile_id)
+        
+        try:
+            cursor.execute(f"""
+                UPDATE filter_profiles 
+                SET {', '.join(updates)}, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            """, values)
+            conn.commit()
+            return cursor.rowcount > 0
+        except Exception as e:
+            logger.error(f"Error actualizando perfil: {e}")
+            conn.rollback()
+            return False
+        finally:
+            conn.close()
+    
+    def delete_filter_profile(self, profile_id: int) -> bool:
+        """Elimina un perfil de filtro."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            # No eliminar si es el único perfil
+            cursor.execute("SELECT COUNT(*) FROM filter_profiles")
+            count = cursor.fetchone()[0]
+            if count <= 1:
+                logger.warning("No se puede eliminar el último perfil")
+                return False
+            
+            cursor.execute("DELETE FROM filter_profiles WHERE id = ? AND is_active = 0", (profile_id,))
+            conn.commit()
+            
+            if cursor.rowcount == 0:
+                logger.warning("No se puede eliminar un perfil activo")
+                return False
+            
+            return True
+        except Exception as e:
+            logger.error(f"Error eliminando perfil: {e}")
+            conn.rollback()
+            return False
+        finally:
+            conn.close()
+    
+    def set_active_filter_profile(self, profile_id: int) -> bool:
+        """Establece un perfil como activo (desactiva los demás)."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("UPDATE filter_profiles SET is_active = 0")
+            cursor.execute("UPDATE filter_profiles SET is_active = 1 WHERE id = ?", (profile_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+        except Exception as e:
+            logger.error(f"Error activando perfil: {e}")
+            conn.rollback()
+            return False
+        finally:
+            conn.close()
+    
+    def duplicate_filter_profile(self, profile_id: int, new_name: str) -> Optional[int]:
+        """Duplica un perfil existente con un nuevo nombre."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("SELECT * FROM filter_profiles WHERE id = ?", (profile_id,))
+            row = cursor.fetchone()
+            
+            if not row:
+                return None
+            
+            return self.create_filter_profile(
+                name=new_name,
+                include_keywords=json.loads(row['include_keywords'] or '[]'),
+                exclude_keywords=json.loads(row['exclude_keywords'] or '[]'),
+                mode=row['mode'],
+                enabled=bool(row['enabled'])
+            )
+        except Exception as e:
+            logger.error(f"Error duplicando perfil: {e}")
+            return None
+        finally:
+            conn.close()
+    
+    # ==================== FIN CRUD PERFILES DE FILTROS ====================
 
 
