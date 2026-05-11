@@ -1274,6 +1274,16 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                 )
                 # Módulo 28: Sincronizar límite de concurrencia
                 self._download_service.max_per_channel = getattr(self, 'max_downloads_per_channel', 3)
+
+                # MÓDULO: Aplicar configuración de descarga masiva
+                batch_limit = getattr(self, '_batch_limit', 50)
+                batch_offset = getattr(self, '_batch_offset', 0)
+                batch_min_dur = getattr(self, '_batch_min_duration', 0)
+                batch_max_dur = getattr(self, '_batch_max_duration', 0)
+
+                self._download_service.set_video_limit(batch_limit)
+                self._download_service.set_pagination(offset=batch_offset, limit=batch_limit)
+                self._download_service.set_duration_filter(min_seconds=batch_min_dur, max_seconds=batch_max_dur)
             except Exception as e:
                 logging.warning(f"DownloadService no disponible: {e}")
                 self._download_service = False

@@ -129,12 +129,22 @@ def setup_download_tab(self):
     
     ttk.Separator(queue_controls, orient=tk.VERTICAL).pack(side=tk.LEFT, padx=5, fill=tk.Y)
     
-    ttk.Button(queue_controls, text="✅ Todo", width=6, 
+    ttk.Button(queue_controls, text="✅ Todo", width=6,
               command=lambda: self.queue_listbox.selection_set(0, tk.END)).pack(side=tk.LEFT, padx=2)
-    ttk.Button(queue_controls, text="❌ Ninguno", width=8, 
+    ttk.Button(queue_controls, text="❌ Ninguno", width=8,
               command=lambda: self.queue_listbox.selection_clear(0, tk.END)).pack(side=tk.LEFT, padx=2)
-    
-    self.queue_count_label = ttk.Label(queue_controls, text="0 items", 
+
+    # MÓDULO: Seleccionar Solo No Procesados
+    ttk.Button(queue_controls, text="📋 No Procesados", width=12,
+              command=self.select_unprocessed_in_queue).pack(side=tk.LEFT, padx=2)
+    ToolTip(queue_controls.winfo_children()[-1], "Seleccionar solo videos no procesados")
+
+    # MÓDULO: Configuración de Límite y Paginación
+    ttk.Button(queue_controls, text="📊 Límite", width=6,
+              command=self.show_batch_limit_dialog).pack(side=tk.LEFT, padx=2)
+    ToolTip(queue_controls.winfo_children()[-1], "Configurar límite de videos y paginación")
+
+    self.queue_count_label = ttk.Label(queue_controls, text="0 items",
                                       font=("Segoe UI", 9), foreground="#94a3b8")
     self.queue_count_label.pack(side=tk.RIGHT, padx=10)
     
@@ -589,3 +599,133 @@ def manage_channels(self):
     btn_frame.pack(fill=tk.X)
     
     ttk.Button(btn_frame, text="Cerrar", command=win.destroy).pack(side=tk.RIGHT)
+
+
+# ==================== MÓDULOS DESCARGA MASIVA ====================
+
+def select_unprocessed_in_queue(self):
+    """Selecciona solo los items no procesados en la cola."""
+    if not hasattr(self, 'queue_listbox'):
+        return
+
+    # Limpiar selección actual
+    self.queue_listbox.selection_clear(0, tk.END)
+
+    # Obtener estado de cada item en la cola
+    # Los items no procesados son los que no tienen marca de check
+    unprocessed = []
+    for i in range(self.queue_listbox.size()):
+        item = self.queue_listbox.get(i)
+        # Verificar si ya fue procesado (heurística: buscar marca)
+        # Esto es un placeholder - la lógica real dependería de cómo se marquen los items
+        if "✅" not in str(item) and "❌" not in str(item):
+            unprocessed.append(i)
+
+    # Seleccionar items no procesados
+    for idx in unprocessed:
+        self.queue_listbox.selection_set(idx)
+
+    if unprocessed:
+        ToastNotification.show(self.root, f"{len(unprocessed)} items no procesados seleccionados", "info")
+    else:
+        ToastNotification.show(self.root, "Todos los items parecen estar procesados", "info")
+
+
+def show_batch_limit_dialog(self):
+    """Muestra diálogo para configurar límite de videos y paginación."""
+    dialog = tk.Toplevel(self.root)
+    dialog.title("Configurar Límite de Descarga Masiva")
+    dialog.geometry("450x350")
+    dialog.transient(self.root)
+    dialog.grab_set()
+
+    # Centrar diálogo
+    dialog.update_idletasks()
+    x = (dialog.winfo_screenwidth() // 2) - (dialog.winfo_width() // 2)
+    y = (dialog.winfo_screenheight() // 2) - (dialog.winfo_height() // 2)
+    dialog.geometry(f"+{x}+{y}")
+
+    main_frame = ttk.Frame(dialog, padding=20)
+    main_frame.pack(fill=tk.BOTH, expand=True)
+
+    # Título
+    ttk.Label(main_frame, text="Configuración de Descarga Masiva",
+              font=("Segoe UI", 12, "bold")).pack(pady=(0, 15))
+
+    # === Límite de Videos ===
+    limit_frame = ttk.LabelFrame(main_frame, text=" 📊 Límite de Videos ", padding=10)
+    limit_frame.pack(fill=tk.X, pady=(0, 10))
+
+    limit_var = tk.IntVar(value=50)
+    ttk.Label(limit_frame, text="Videos máximo por canal:").pack(anchor=tk.W)
+    ttk.Spinbox(limit_frame, from_=0, to=500, textvariable=limit_var, width=10,
+                increment=10).pack(anchor=tk.W, pady=5)
+    ttk.Label(limit_frame, text="0 = sin límite (usa con precaución)", 
+             font=("Segoe UI", 8), foreground="gray").pack(anchor=tk.W)
+
+    # === Paginación ===
+    page_frame = ttk.LabelFrame(main_frame, text=" 📄 Paginación ", padding=10)
+    page_frame.pack(fill=tk.X, pady=(0, 10))
+
+    offset_var = tk.IntVar(value=0)
+    ttk.Label(page_frame, text="Saltar primeros videos (offset):").pack(anchor=tk.W)
+    ttk.Spinbox(page_frame, from_=0, to=1000, textvariable=offset_var, width=10,
+                increment=50).pack(anchor=tk.W, pady=5)
+    ttk.Label(page_frame, text="Ej: 0 = desde inicio, 50 = omitir 50 primeros", 
+             font=("Segoe UI", 8), foreground="gray").pack(anchor=tk.W)
+
+    # === Filtro de Duración ===
+    dur_frame = ttk.LabelFrame(main_frame, text=" ⏱️ Filtro de Duración ", padding=10)
+    dur_frame.pack(fill=tk.X, pady=(0, 10))
+
+    min_var = tk.StringVar(value="0")
+    max_var = tk.StringVar(value="0")
+
+    min_frame = ttk.Frame(dur_frame)
+    min_frame.pack(fill=tk.X, pady=2)
+    ttk.Label(min_frame, text="Min (minutos):").pack(side=tk.LEFT)
+    ttk.Entry(min_frame, textvariable=min_var, width=8).pack(side=tk.LEFT, padx=5)
+
+    max_frame = ttk.Frame(dur_frame)
+    max_frame.pack(fill=tk.X, pady=2)
+    ttk.Label(max_frame, text="Max (minutos):").pack(side=tk.LEFT)
+    ttk.Entry(max_frame, textvariable=max_var, width=8).pack(side=tk.LEFT, padx=5)
+
+    ttk.Label(dur_frame, text="0 = sin límite | Filtra Shorts (<1min) y Videos Largos", 
+             font=("Segoe UI", 8), foreground="gray").pack(anchor=tk.W)
+
+    # === Botones ===
+    btn_frame = ttk.Frame(main_frame)
+    btn_frame.pack(fill=tk.X, pady=(10, 0))
+
+    def apply_config():
+        limit = limit_var.get()
+        offset = offset_var.get()
+        try:
+            min_min = int(min_var.get()) * 60 if min_var.get() else 0
+            max_min = int(max_var.get()) * 60 if max_var.get() else 0
+        except ValueError:
+            min_min = 0
+            max_min = 0
+
+        # Guardar configuración
+        self._batch_limit = limit
+        self._batch_offset = offset
+        self._batch_min_duration = min_min
+        self._batch_max_duration = max_min
+
+        # Resetear DownloadService para que use la nueva config
+        if hasattr(self, '_download_service') and self._download_service:
+            self._download_service = None
+
+        msg = f"Limite: {limit or 'sin limite'}, Offset: {offset}, Duracion: {min_var.get()}-{max_var.get()} min"
+        ToastNotification.show(self.root, f"Config aplicada: {msg}", "success")
+        dialog.destroy()
+
+    ttk.Button(btn_frame, text="✅ Aplicar", style="Success.TButton",
+               command=apply_config).pack(side=tk.LEFT, padx=5)
+    ttk.Button(btn_frame, text="❌ Cancelar",
+              command=dialog.destroy).pack(side=tk.LEFT, padx=5)
+    ttk.Button(btn_frame, text="🔄 Resetear",
+               command=lambda: [limit_var.set(50), offset_var.set(0), 
+                               min_var.set("0"), max_var.set("0")]).pack(side=tk.LEFT, padx=5)
