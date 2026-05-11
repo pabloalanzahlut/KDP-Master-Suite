@@ -19,16 +19,19 @@ import secrets
 import argparse
 import socket
 import sys
-import psutil
 import csv
 import io
 from pathlib import Path
 from datetime import datetime
 import threading
 import time
-import ctypes
-import struct
 import platform
+
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
 
 BASE_DIR = Path(__file__).parent
 SETTINGS_PATH = BASE_DIR / "settings.json"
@@ -623,16 +626,27 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         }
 
         try:
-            process = psutil.Process()
+            if (HAS_PSUTIL):
+                process = psutil.Process()
 
-            metrics['system'] = {
-                "cpu_percent": psutil.cpu_percent(interval=0.1),
-                "memory_mb": round(process.memory_info().rss / 1024 / 1024, 2),
-                "memory_percent": round(process.memory_percent(), 2),
-                "threads": process.num_threads(),
-                "platform": platform.system(),
-                "python_version": sys.version.split()[0]
-            }
+                metrics['system'] = {
+                    "cpu_percent": psutil.cpu_percent(interval=0.1),
+                    "memory_mb": round(process.memory_info().rss / 1024 / 1024, 2),
+                    "memory_percent": round(process.memory_percent(), 2),
+                    "threads": process.num_threads(),
+                    "platform": platform.system(),
+                    "python_version": sys.version.split()[0]
+                }
+            else:
+                metrics['system'] = {
+                    "cpu_percent": 0,
+                    "memory_mb": 0,
+                    "memory_percent": 0,
+                    "threads": 0,
+                    "platform": platform.system(),
+                    "python_version": sys.version.split()[0],
+                    "note": "psutil not available"
+                }
         except Exception:
             metrics['system'] = {"error": "Unable to get system metrics"}
 
@@ -1123,7 +1137,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             window.currentVideoPage = page;
             saveFilters();
             var channelId = window.currentChannelFilter || '';
-            fetch('/api/videos?page=' + page + '&per_page=15' + (channelId ? '&channel_id=' + channelId : ''), {headers: getAuthHeaders()})
+            var statusFilter = window.currentVideoStatus || '';
+            var url = '/api/videos?page=' + page + '&per_page=15';
+            if (channelId) url += '&channel_id=' + channelId;
+            if (statusFilter) url += '&status=' + statusFilter;
+            fetch(url, {headers: getAuthHeaders()})
                 .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
                 .then(function(data) {
                     var container = document.getElementById('videos-list');
