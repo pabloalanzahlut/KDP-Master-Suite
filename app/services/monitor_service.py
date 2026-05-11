@@ -137,7 +137,13 @@ class ChannelMonitorService:
         self.enable_video_cache = True  # Usar caché de videos por canal
         self.video_cache = {}  # Caché de video_ids por canal (etag_like)
         
-        # Filtro de palabras clave (thread-safe)`n        self._filter_lock = threading.Lock()`n        self.keyword_filter = KeywordFilter()`n        self._load_keyword_filter_from_db()
+        # Filtro de palabras clave (thread-safe)
+        self._filter_lock = threading.Lock()
+        self.keyword_filter = KeywordFilter()
+        self._load_keyword_filter_from_db()
+        
+        # Lock para logging de escaneos
+        self._scan_log_lock = threading.Lock()
     
     def set_detection_config(self, max_results: int = None, max_age_days: int = None):
         """Configura los parámetros de detección de videos."""
@@ -721,6 +727,7 @@ class ChannelMonitorService:
 
     def _check_single_channel(self, channel: Dict) -> int:
         """Verifica un solo canal y retorna el número de videos nuevos (Auto-Healing incl)."""
+        scan_start = time.time()
         new_videos_count = 0
         try:
             self._log(f"Verificando canal: {channel['channel_name']}", 'info')
@@ -840,11 +847,38 @@ class ChannelMonitorService:
 
             # Actualizar última verificación
             self.db.update_channel_last_checked(channel['id'])
+            
+            # MÓDULO 3: Log del escaneo completado
+            with self._scan_log_lock:
+                self.db.log_scan(
+                    channel_id=channel['id'],
+                    duration_seconds=time.time() - scan_start,
+                    videos_found=new_videos_count,
+                    errors=None,
+                    status='success'
+                )
+            
             return new_videos_count
             
         except Exception as e:
-            self._log(f"Error verificando canal {channel['channel_name']}: {e}", 'error')
+            error_msg = str(e)
+            self._log(f"Error verificando canal {channel['channel_name']}: {error_msg}", 'error')
+            
+            # MÓDULO 3: Log del escaneo con error
+            with self._scan_log_lock:
+                self.db.log_scan(
+                    channel_id=channel['id'],
+                    duration_seconds=time.time() - scan_start,
+                    videos_found=0,
+                    errors=error_msg,
+                    status='error'
+                )
+            
             return 0
+    
+    def _check_single_channel_original(self, channel: Dict) -> int:
+        """Versión original (sin timing) - mantener para compatibilidad."""
+        scan_start = time.time()
 
     def check_for_new_videos_parallel(self, channel_id: int = None) -> int:
         """Versión optimizada en paralelo de check_for_new_videos."""

@@ -218,6 +218,26 @@ class DatabaseManager:
                 logger.info("Módulo 1: Tabla video_relations creada")
             # ==================== FIN MÓDULO 1 ====================
             
+            # ==================== MÓDULO 3: Historial de Escaneos ====================
+            try:
+                cursor.execute("SELECT COUNT(*) FROM scan_history LIMIT 1")
+            except:
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS scan_history (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        channel_id INTEGER NOT NULL,
+                        scan_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        duration_seconds REAL,
+                        videos_found INTEGER DEFAULT 0,
+                        errors TEXT,
+                        status TEXT DEFAULT 'success'
+                    )
+                """)
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_scan_history_channel ON scan_history(channel_id)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_scan_history_time ON scan_history(scan_time DESC)")
+                logger.info("Módulo 3: Tabla scan_history creada")
+            # ==================== FIN MÓDULO 3 ====================
+            
             # Migración: Añadir columna ignored_by_filter a videos
             try:
                 cursor.execute("SELECT ignored_by_filter FROM videos LIMIT 1")
@@ -1065,6 +1085,69 @@ class DatabaseManager:
             return stats
         except Exception as e:
             logger.error(f"Error obteniendo estadísticas: {e}")
+            return {}
+        finally:
+            conn.close()
+
+    # ==================== MÉTODOS MÓDULO 3: Historial de Escaneos ====================
+    
+    def log_scan(self, channel_id: int, duration_seconds: float, videos_found: int, errors: str = None, status: str = 'success') -> bool:
+        """Registra un escaneo de canal en el historial."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+                INSERT INTO scan_history (channel_id, duration_seconds, videos_found, errors, status)
+                VALUES (?, ?, ?, ?, ?)
+            """, (channel_id, duration_seconds, videos_found, errors, status))
+            conn.commit()
+            return True
+        except Exception as e:
+            logger.error(f"Error registrando escaneo: {e}")
+            return False
+        finally:
+            conn.close()
+    
+    def get_recent_scans(self, limit: int = 10) -> List[Dict]:
+        """Obtiene los escaneos más recientes."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""
+                SELECT sh.*, c.channel_name
+                FROM scan_history sh
+                JOIN channels c ON sh.channel_id = c.id
+                ORDER BY sh.scan_time DESC
+                LIMIT ?
+            """, (limit,))
+            return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            logger.error(f"Error obteniendo escaneos recientes: {e}")
+            return []
+        finally:
+            conn.close()
+    
+    def get_scan_stats(self) -> Dict:
+        """Obtiene estadísticas de escaneos."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        try:
+            stats = {}
+            cursor.execute("SELECT COUNT(*) FROM scan_history")
+            stats['total_scans'] = cursor.fetchone()[0]
+            cursor.execute("SELECT SUM(duration_seconds) FROM scan_history")
+            stats['total_duration'] = cursor.fetchone()[0] or 0
+            cursor.execute("SELECT AVG(duration_seconds) FROM scan_history")
+            stats['avg_duration'] = round(cursor.fetchone()[0] or 0, 2)
+            cursor.execute("SELECT SUM(videos_found) FROM scan_history")
+            stats['total_videos_found'] = cursor.fetchone()[0] or 0
+            cursor.execute("SELECT COUNT(*) FROM scan_history WHERE status = 'success'")
+            stats['successful_scans'] = cursor.fetchone()[0]
+            cursor.execute("SELECT COUNT(*) FROM scan_history WHERE status = 'error'")
+            stats['failed_scans'] = cursor.fetchone()[0]
+            return stats
+        except Exception as e:
+            logger.error(f"Error obteniendo stats de escaneos: {e}")
             return {}
         finally:
             conn.close()

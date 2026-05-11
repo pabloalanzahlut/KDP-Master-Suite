@@ -98,6 +98,67 @@ class SettingsTab(ctk.CTkFrame):
             variable=self.notify_processing_var,
             command=self._on_settings_changed
         ).pack(anchor="w", padx=20, pady=(5, 0))
+        
+        # MÓDULO 6: Sección de Umbrales de Alerta
+        ctk.CTkLabel(
+            section,
+            text="📊 Umbrales de Alerta:",
+            font=ctk.CTkFont(size=14, weight="bold")
+        ).pack(anchor="w", pady=(15, 5))
+        
+        ctk.CTkLabel(section, text="Videos nuevos para notificación:").pack(anchor="w", padx=20)
+        
+        self.threshold_videos_var = ctk.IntVar(value=5)
+        threshold_slider = ctk.CTkSlider(
+            section,
+            from_=1,
+            to=20,
+            number_of_steps=19,
+            variable=self.threshold_videos_var,
+            command=self._on_threshold_changed
+        )
+        threshold_slider.pack(fill=ctk.X, padx=20, pady=5)
+        
+        self.threshold_label = ctk.CTkLabel(section, text=f"{self.threshold_videos_var.get()} videos")
+        self.threshold_label.pack(anchor="w", padx=20)
+        
+        ctk.CTkLabel(section, text="Ventana de tiempo (minutos):").pack(anchor="w", padx=20, pady=(10, 0))
+        
+        self.threshold_window_var = ctk.IntVar(value=30)
+        window_slider = ctk.CTkSlider(
+            section,
+            from_=5,
+            to=120,
+            number_of_steps=23,
+            variable=self.threshold_window_var,
+            command=self._on_window_changed
+        )
+        window_slider.pack(fill=ctk.X, padx=20, pady=5)
+        
+        self.window_label = ctk.CTkLabel(section, text=f"{self.threshold_window_var.get()} minutos")
+        self.window_label.pack(anchor="w", padx=20)
+    
+    def _on_threshold_changed(self, value):
+        self.threshold_label.configure(text=f"{int(value)} videos")
+    
+    def _on_window_changed(self, value):
+        self.window_label.configure(text=f"{int(value)} minutos")
+        
+        ctk.CTkLabel(section, text="Ventana de tiempo (minutos):").pack(anchor="w", padx=20, pady=(10, 0))
+        
+        self.threshold_window_var = ctk.IntVar(value=30)
+        window_slider = ctk.CTkSlider(
+            section,
+            from_=5,
+            to=120,
+            number_of_steps=23,
+            variable=self.threshold_window_var,
+            command=self._on_window_changed
+        )
+        window_slider.pack(fill=ctk.X, padx=20, pady=5)
+        
+        self.window_label = ctk.CTkLabel(section, text=f"{self.threshold_window_var.get()} minutos")
+        self.window_label.pack(anchor="w", padx=20)
     
     def _create_general_section(self, parent):
         section = ctk.CTkFrame(parent, fg_color="#2B2B2B")
@@ -170,6 +231,12 @@ class SettingsTab(ctk.CTkFrame):
             self.notify_video_var.set(notif.get("notify_on_new_video", True))
             self.notify_processing_var.set(notif.get("notify_on_processing_complete", True))
             
+            # MÓDULO 6: Cargar umbrales
+            self.threshold_videos_var.set(notif.get("threshold_videos", 5))
+            self.threshold_label.configure(text=f"{self.threshold_videos_var.get()} videos")
+            self.threshold_window_var.set(notif.get("threshold_window_minutes", 30))
+            self.window_label.configure(text=f"{self.threshold_window_var.get()} minutos")
+            
             self.input_entry.delete(0, ctk.END)
             self.input_entry.insert(0, config.get("input_dir", ""))
             
@@ -196,6 +263,9 @@ class SettingsTab(ctk.CTkFrame):
                 "cooldown_minutes": self.cooldown_var.get(),
                 "notify_on_new_video": self.notify_video_var.get(),
                 "notify_on_processing_complete": self.notify_processing_var.get(),
+                # MÓDULO 6: Umbrales de alerta
+                "threshold_videos": self.threshold_videos_var.get(),
+                "threshold_window_minutes": self.threshold_window_var.get(),
             }
             
             existing["input_dir"] = self.input_entry.get()

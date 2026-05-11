@@ -22,6 +22,9 @@ class ProcessingService:
     def __init__(self):
         self._hash_lock = threading.Lock()
         self._processed_hashes = set()
+        self._stats_lock = threading.Lock()
+        self._file_times_lock = threading.Lock()
+        self._file_start_times = {}
         if METADATA_ENRICHMENT_AVAILABLE:
             self.metadata_enricher = MetadataEnricher()
             self.metadata_parser = MetadataParser()
