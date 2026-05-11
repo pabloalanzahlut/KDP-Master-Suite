@@ -73,9 +73,11 @@ YouTube → Transcripción (VTT/SRT) → Limpieza → Base de Conocimiento (KB)
 | RF-024 | GUI con pestañas modulares | Must Have | ✅ |
 | RF-025 | Tema Dark/Light con framework centralizado | Must Have | ✅ |
 | RF-026 | Recarga en caliente de configuraciones | Should Have | ✅ |
-| RF-027 | Dashboard web para monitoreo remoto | Should Have | ❌ |
+| RF-027 | Dashboard web para monitoreo remoto (embebido + externo) | Should Have | ✅ |
 | RF-028 | Barra de progreso global y por archivo | Should Have | ✅ |
 | RF-029 | Resumen post-batch con reintento | Could Have | ✅ |
+| RF-030 | Scoring de relevancia KDP IA en flujo de descarga | Should Have | ✅ |
+| RF-031 | Perfiles múltiples de filtros por palabras clave | Could Have | ✅ |
 
 ---
 
