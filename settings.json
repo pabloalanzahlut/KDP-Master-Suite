@@ -1,21 +1,19 @@
 {
-  "input_dir": "data/transcriptions",
-  "output_dir": "outputs/transcriptions_processed",
-  "blacklist": [],
-  "channels": [],
-  "ai_provider": "none",
-  "ai_api_key": "",
-  "ai_system_prompt": "Clasifica el siguiente texto en una de estas categorías: 'Legalidad y Compliance', 'Matriz de Roles (GEM)', 'Matriz de Roles y Fases SOE', 'Fórmulas y Métricas', 'Investigación de Nichos', 'Amazon Ads y Marketing', 'Conocimiento General KDP'. Responde SOLO con el nombre de la categoría.",
-  "download_queue": [],
-  "notifications": {
-    "enable_native": false,
-    "enable_internal": true,
-    "cooldown_minutes": 5,
-    "summary_mode": false
+  "export": {
+    "format": "pdf",
+    "template": "minimal",
+    "enable_filters": true,
+    "categories": "test1, test2",
+    "days_filter": 7,
+    "incremental": true,
+    "max_entries": 100,
+    "split_threshold": 1500
   },
-  "dashboard": {
-    "port": 8000,
-    "host": "127.0.0.1",
-    "db_path": "data/channel_monitor.db"
+  "export_scheduler": {
+    "enabled": false,
+    "frequency": "daily",
+    "hour": 2,
+    "minute": 0,
+    "compression": false
   }
 }
