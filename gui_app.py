@@ -262,7 +262,8 @@ try:
 except ImportError:
     settings_tab = None
 try:
-    from app.ui.tabs import review_queue
+        from app.ui.tabs import review_queue
+        from app.ui.tabs import export_settings_tab
     review_tab = review_queue
 except ImportError:
     review_tab = None
@@ -7834,58 +7835,19 @@ Descripción: {video.get('description', '')[:800]}
             self.log(f"📁 Directorio cambiado: {path}")
 
     def _show_export_settings(self):
-        """Muestra configuración de exportación de KB."""
+        """Muestra configuración de exportación de KB usando ExportSettingsTab."""
         win = Toplevel(self.root)
-        win.title("Configurar Exportación KB")
-        win.geometry("400x350")
+        win.title("📤 Configuración de Exportación KB")
+        win.geometry("750x580")
         win.transient(self.root)
         
-        ttk.Label(win, text="Configuración de Exportación", 
-                 font=('Segoe UI', 12, 'bold')).pack(pady=10)
-        
-        settings_frame = ttk.LabelFrame(win, text="Opciones", )
-        settings_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-        
-        var_pdf = BooleanVar(value=False)
-        var_auto = BooleanVar(value=False)
-        var_split = BooleanVar(value=True)
-        
-        ttk.Checkbutton(settings_frame, text="Habilitar exportación PDF (requiere WeasyPrint)",
-                     variable=var_pdf).pack(anchor=tk.W, pady=5)
-        ttk.Checkbutton(settings_frame, text="Auto-exportar al cerrar aplicación",
-                     variable=var_auto).pack(anchor=tk.W, pady=5)
-        ttk.Checkbutton(settings_frame, text="Dividir archivo si >10MB por categoría",
-                     variable=var_split).pack(anchor=tk.W, pady=5)
-        
-        ttk.Label(settings_frame, text="Formato por defecto:").pack(anchor=tk.W, pady=(15, 5))
-        format_combo = ttk.Combobox(settings_frame, values=['HTML', 'PDF'], state='readonly', width=10)
-        format_combo.set('HTML')
-        format_combo.pack(anchor=tk.W)
-        
-        def save_settings():
-            try:
-                settings_path = Path(self.base_dir) / "dist" / "settings.json"
-                if settings_path.exists():
-                    settings = json.loads(settings_path.read_text(encoding='utf-8'))
-                else:
-                    settings = {}
-                
-                if 'export' not in settings:
-                    settings['export'] = {}
-                
-                settings['export']['pdf_enabled'] = var_pdf.get()
-                settings['export']['auto_export_on_exit'] = var_auto.get()
-                settings['export']['split_if_gt_mb'] = 10 if var_split.get() else 0
-                settings['export']['default_format'] = format_combo.get().lower()
-                
-                settings_path.write_text(json.dumps(settings, indent=2), encoding='utf-8')
-                messagebox.showinfo("Guardado", "Configuración de exportación guardada.")
-                win.destroy()
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar: {e}")
-        
-        ttk.Button(win, text="Guardar", command=save_settings).pack(pady=15)
-        ttk.Button(win, text="Cancelar", command=win.destroy).pack(pady=5)
+        try:
+            tab = export_settings_tab.ExportSettingsTab(win, self)
+            self.log("Panel de exportación KB cargado correctamente")
+        except Exception as e:
+            ttk.Label(win, text=f"Error cargando panel: {e}", 
+                     foreground="red").pack(pady=20)
+            self.logger.error(f"Error cargando ExportSettingsTab: {e}")
 
     def _save_all_settings(self):
         """Guarda todas las variables de la pestaña en config.json."""
