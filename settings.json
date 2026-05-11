@@ -15,5 +15,8 @@
     "hour": 2,
     "minute": 0,
     "compression": false
-  }
+  },
+  "dashboard_token": "0baf61ada234e358e28516911787398a",
+  "enable_sse": true,
+  "enable_auth": true
 }
