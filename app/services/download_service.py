@@ -43,6 +43,13 @@ class DownloadService:
         self._scoring_enabled = False
         self._scoring_service = None
         self._scoring_min_score = 50
+        # Configuración de descarga masiva
+        self._video_limit = 50  # Límite de videos por defecto
+        self._page_offset = 0   # Offset para paginación
+        self._min_duration = 0  # Duración mínima en segundos (0 = sin límite)
+        self._max_duration = 0  # Duración máxima en segundos (0 = sin límite)
+        self._date_from = None  # Fecha desde (YYYYMMDD)
+        self._date_to = None    # Fecha hasta (YYYYMMDD)
     
     def enable_scoring(self, min_score: int = 50) -> bool:
         """
@@ -76,6 +83,94 @@ class DownloadService:
         self._scoring_enabled = False
         if self.log_callback:
             self.log_callback("🎯 Scoring IA deshabilitado")
+    
+    # === MÉTODOS DE CONFIGURACIÓN DE DESCARGA MASIVA ===
+    
+    def set_video_limit(self, limit: int):
+        """Configura el límite de videos a procesar (0 = sin límite)."""
+        self._video_limit = max(0, limit)
+        if self.log_callback:
+            self.log_callback(f"📊 Límite de videos configurado: {limit or 'Sin límite'}")
+    
+    def set_pagination(self, offset: int = 0, limit: int = 50):
+        """
+        Configura paginación para descargas masivas.
+        
+        Args:
+            offset: Número de videos a saltar desde el inicio
+            limit: Número máximo de videos a procesar
+        """
+        self._page_offset = max(0, offset)
+        self._video_limit = max(0, limit)
+        if self.log_callback:
+            self.log_callback(f"📄 Paginación: offset={offset}, limit={limit}")
+    
+    def set_duration_filter(self, min_seconds: int = 0, max_seconds: int = 0):
+        """
+        Configura filtro de duración.
+        
+        Args:
+            min_seconds: Duración mínima en segundos (0 = sin mínimo)
+            max_seconds: Duración máxima en segundos (0 = sin máximo)
+        """
+        self._min_duration = max(0, min_seconds)
+        self._max_duration = max(0, max_seconds)
+        if self.log_callback:
+            min_str = f"{min_seconds//60}min" if min_seconds else "0"
+            max_str = f"{max_seconds//60}min" if max_seconds else "∞"
+            self.log_callback(f"⏱️ Filtro duración: {min_str} - {max_str}")
+    
+    def set_date_filter(self, date_from: str = None, date_to: str = None):
+        """
+        Configura filtro por fecha de publicación.
+        
+        Args:
+            date_from: Fecha desde en formato YYYYMMDD (ej: "20240101")
+            date_to: Fecha hasta en formato YYYYMMDD (ej: "20241231")
+        """
+        self._date_from = date_from
+        self._date_to = date_to
+        if self.log_callback:
+            self.log_callback(f"📅 Filtro fecha: {date_from or '∞'} - {date_to or '∞'}")
+    
+    def get_batch_config(self) -> dict:
+        """Retorna la configuración actual de descarga masiva."""
+        return {
+            "video_limit": self._video_limit,
+            "page_offset": self._page_offset,
+            "min_duration": self._min_duration,
+            "max_duration": self._max_duration,
+            "date_from": self._date_from,
+            "date_to": self._date_to,
+            "scoring_enabled": self._scoring_enabled
+        }
+    
+    def _filter_video_by_metadata(self, entry: dict) -> tuple[bool, str]:
+        """
+        Filtra un video según criterios de duración y fecha.
+        
+        Returns:
+            (should_include, reason)
+        """
+        if not entry:
+            return False, "empty_entry"
+        
+        # Filtrar por duración
+        duration = entry.get('duration') or 0
+        if self._min_duration > 0 and duration < self._min_duration:
+            return False, f"duration_short:{duration}s < {self._min_duration}s"
+        if self._max_duration > 0 and duration > self._max_duration:
+            return False, f"duration_long:{duration}s > {self._max_duration}s"
+        
+        # Filtrar por fecha
+        upload_date = entry.get('upload_date') or entry.get('published') or ''
+        if upload_date:
+            if self._date_from and upload_date < self._date_from:
+                return False, f"date_before:{upload_date} < {self._date_from}"
+            if self._date_to and upload_date > self._date_to:
+                return False, f"date_after:{upload_date} > {self._date_to}"
+        
+        return True, "passed"
     
     def _should_download_video(self, title: str, description: str = "", 
                               channel_name: str = "") -> tuple[bool, str]:
@@ -236,17 +331,22 @@ class DownloadService:
         """
         PASO 1: Obtiene lista de video IDs del canal
         PASO 2: Descarga subtítulos .vtt de cada video individualmente
-        Con protecciones anti-rate-limiting
+        Con protecciones anti-rate-limiting y filtros configurables
         """
         url = self._normalize_channel_url(url)
-        
+
         if self.log_callback:
-            self.log_callback(f"📺 Canal: obteniendo lista de videos...")
+            self.log_callback("Canal: obtaining video list...")
             self.log_callback(f"   URL: {url}")
-        
-        # PASO 1: Obtener lista de videos
-        video_ids = []
+
+        # PASO 1: Obtener lista de videos CON METADATA para filtrado
+        video_entries = []
+        skipped_by_filter = 0
         try:
+            # Configurar paginación
+            playlist_start = self._page_offset + 1  # yt-dlp es 1-indexed
+            playlist_end = self._page_offset + self._video_limit if self._video_limit > 0 else None
+
             list_opts = {
                 'skip_download': True,
                 'writeautomaticsub': False,
@@ -254,59 +354,74 @@ class DownloadService:
                 'writeinfojson': False,
                 'quiet': True,
                 'no_warnings': True,
-                'extract_flat': True,
-                'playlistend': 50,
+                'extract_flat': False,  # Necesitamos metadata completa para filtrado
+                'playliststart': playlist_start,
+                'playlistend': playlist_end,
             }
-            
+
+            if self.log_callback:
+                self.log_callback(f"   Pagination: start={playlist_start}, end={playlist_end or 'all'}")
+
             with yt_dlp.YoutubeDL(list_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 if self.log_callback:
-                    self.log_callback(f"   📋 Info obtenida: {type(info)}")
+                    self.log_callback(f"   Info obtained: {type(info)}")
                 if info and 'entries' in info:
                     for entry in info['entries']:
                         if entry and entry.get('id'):
-                            video_ids.append(entry['id'])
+                            # Verificar si pasa los filtros de duración/fecha
+                            should_include, reason = self._filter_video_by_metadata(entry)
+                            if should_include:
+                                video_entries.append(entry)
+                            else:
+                                skipped_by_filter += 1
+                                if self.log_callback and skipped_by_filter <= 5:
+                                    title = entry.get('title', 'Unknown')[:40]
+                                    self.log_callback(f"   Filtered ({reason}): {title}")
                 elif info and info.get('id'):
-                    video_ids.append(info['id'])
+                    should_include, _ = self._filter_video_by_metadata(info)
+                    if should_include:
+                        video_entries.append(info)
         except Exception as e:
             if self.log_callback:
-                self.log_callback(f"   ⚠️ Error obteniendo lista de videos: {e}", level='warning')
-                import traceback
-                self.log_callback(f"   📜 Trace: {traceback.format_exc()[:200]}", level='warning')
-            return False, f"Error obteniendo lista de videos: {e}"
-        
-        if not video_ids:
+                self.log_callback(f"   Warning: Error getting video list: {e}", level='warning')
+            return False, f"Error getting video list: {e}"
+
+        if not video_entries:
+            filter_msg = f" ({skipped_by_filter} filtered)" if skipped_by_filter > 0 else ""
             if self.log_callback:
-                self.log_callback(f"   ⚠️ No se encontraron videos en el canal")
-            return False, "No se encontraron videos en el canal"
-        
+                self.log_callback(f"   Warning: No videos found{filter_msg}")
+            return False, "No videos in channel after filtering"
+
+        # Extraer IDs de videos válidos
+        video_ids = [e.get('id') for e in video_entries if e.get('id')]
+
         total = len(video_ids)
         if self.log_callback:
-            self.log_callback(f"   📊 {total} videos encontrados. Descargando transcripciones...")
-            self.log_callback(f"   ⏱️ Pausas anti-bloqueo: {Config.YT_SLEEP_REQUESTS}s + jitter")
-        
+            filter_info = f" | {skipped_by_filter} filtered by duration/date" if skipped_by_filter > 0 else ""
+            self.log_callback(f"   Stats: {total} videos to process{filter_info}")
+            self.log_callback(f"   Anti-block delays: {Config.YT_SLEEP_REQUESTS}s + jitter")
+
         self._reset_batch_stats()
-        self._report_batch_progress(0, total, "discovering", f"{total} videos en canal")
-        
-        # === MODULO: PROGRESO_LOTES (INICIO) - LOOP DE DESCARGA ===
-        # PASO 2: Descargar subtítulos de cada video
+        self._report_batch_progress(0, total, "discovering", f"{total} videos in channel")
+
+        # LOOP DE DESCARGA
         success_count = 0
         no_subs_count = 0
         skipped_count = 0
         error_count = 0
         rate_limited_count = 0
-        
+
         for idx, vid in enumerate(video_ids):
             video_url = f"https://www.youtube.com/watch?v={vid}"
-            
+
             try:
-                # OBTENER METADATA PARA SCORING (sin descargar aún)
+                # Scoring y filtrado pre-descarga
                 should_download = True
                 scoring_info = None
-                
+
                 if self._scoring_enabled and self._scoring_service:
                     try:
-                        # Obtener solo metadata para scoring
                         preview_opts = {
                             'skip_download': True,
                             'quiet': True,
@@ -319,25 +434,18 @@ class DownloadService:
                                 title = vid_info.get('title', '')
                                 channel = vid_info.get('channel', vid_info.get('uploader', ''))
                                 scoring_info = self._scoring_service.score_video(
-                                    title=title,
-                                    description='',
-                                    channel_name=channel
+                                    title=title, description='', channel_name=channel
                                 )
-                                
-                                # Filtrar según scoring
                                 if scoring_info.recommended_action in ['skip', 'watch_later']:
                                     if self.log_callback:
-                                        self.log_callback(f"   ⏭️ Saltado (score: {scoring_info.kdp_relevance_score}/100): {title[:50]}...")
+                                        self.log_callback(f"   Skipped (score: {scoring_info.kdp_relevance_score}/100): {title[:50]}")
                                     skipped_count += 1
                                     self._batch_stats["existing"] += 1
                                     continue
-                                elif scoring_info.recommended_action == 'review':
-                                    if self.log_callback:
-                                        self.log_callback(f"   🔍 Revisar (score: {scoring_info.kdp_relevance_score}/100): {title[:50]}...")
                     except Exception as e:
                         if self.log_callback:
-                            self.log_callback(f"   ⚠️ Error en scoring: {e}", level='warning')
-                
+                            self.log_callback(f"   Warning: Scoring error: {e}", level='warning')
+
                 result = self._download_video_subs(video_url, idx + 1, total)
                 if result == 'downloaded':
                     success_count += 1
@@ -353,11 +461,10 @@ class DownloadService:
                     rate_limited_count += 1
                     error_count += 1
                     self._batch_stats["errors"] += 1
-                    # Pausa larga por rate limit
                     self._consecutive_errors += 1
                     wait = self._rate_limit_wait(base_delay=10)
                     if self.log_callback:
-                        self.log_callback(f"   ⏳ Rate limit detectado, esperando {wait:.1f}s...")
+                        self.log_callback(f"   Rate limit, waiting {wait:.1f}s")
                     time.sleep(wait)
                 else:
                     error_count += 1
@@ -368,24 +475,23 @@ class DownloadService:
                 self._batch_stats["errors"] += 1
                 self._consecutive_errors += 1
                 if self.log_callback:
-                    self.log_callback(f"   ❌ Error video {idx+1}/{total}: {e}", level='warning')
-            
+                    self.log_callback(f"   Error video {idx+1}/{total}: {e}", level='warning')
+
             self._report_batch_progress(idx + 1, total, "downloading", f"video {idx + 1}")
-            
-            # Pausa anti-rate-limiting entre videos
+
+            # Pausa anti-rate-limiting
             if idx < total - 1:
                 delay = self._rate_limit_wait()
                 if self.log_callback and idx % 5 == 0:
-                    self.log_callback(f"   ⏱️ Pausa: {delay:.1f}s ({idx+1}/{total} procesados, {success_count} exitosos)")
-        
+                    self.log_callback(f"   Pause: {delay:.1f}s ({idx+1}/{total}, {success_count} ok)")
+
         self._downloaded_count = success_count
-        self._report_batch_progress(total, total, "completed", f"{success_count} nuevos, {skipped_count} existentes")
-        # === MODULO: PROGRESO_LOTES (FIN) - LOOP DE DESCARGA ===
-        
-        msg = f"Canal: {success_count} subs, {no_subs_count} sin subs, {skipped_count} omitidos, {rate_limited_count} rate-limited, {error_count} errores de {total} videos"
+        self._report_batch_progress(total, total, "completed", f"{success_count} new, {skipped_count} skipped")
+
+        msg = f"Channel: {success_count} subs, {no_subs_count} no-subs, {skipped_count} skipped, {rate_limited_count} rate-limited, {error_count} errors of {total} videos"
         if self.log_callback:
-            self.log_callback(f"✅ {msg}")
-        
+            self.log_callback(f"Done: {msg}")
+
         return True, msg
 
     def _download_video_subs(self, video_url, current=0, total=0):

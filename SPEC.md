@@ -80,6 +80,11 @@ YouTube → Transcripción (VTT/SRT) → Limpieza → Base de Conocimiento (KB)
 | RF-031 | Perfiles múltiples de filtros por palabras clave | Could Have | ✅ |
 | RF-032 | Panel de clasificación IA con resultados visuales | Should Have | ✅ |
 | RF-033 | Indexación automática de archivos al inicio | Could Have | ✅ |
+| RF-034 | Límite configurable de videos por canal | Should Have | ✅ |
+| RF-035 | Filtros por duración en descarga masiva | Should Have | ✅ |
+| RF-036 | Filtros por fecha de publicación | Should Have | ✅ |
+| RF-037 | Paginación manual con offset | Should Have | ✅ |
+| RF-038 | Botón Seleccionar No Procesados en cola | Should Have | ✅ |
 
 ---
 
