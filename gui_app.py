@@ -1767,6 +1767,65 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
         scan_thread.start()
         self.new_videos_count_var.set("Sincronizando...")
 
+    def _run_background_file_indexing(self):
+        """
+        MÓDULO: Indexación automática de archivos al iniciar la aplicación.
+        Escanea directorios de datos en segundo plano para indexar archivos.
+        """
+        try:
+            from app.services.file_indexer import FileIndexer
+            from app.database.db_manager import DatabaseManager
+            
+            def indexing_task():
+                try:
+                    self.logger.info("=" * 60)
+                    self.logger.info("📁 INDEXACIÓN AUTOMÁTICA: Escaneando archivos...")
+                    self.logger.info("=" * 60)
+                    
+                    db = DatabaseManager()
+                    indexer = FileIndexer(db_manager=db)
+                    
+                    # Directorios a indexar
+                    base_dir = Path(self.base_dir)
+                    dirs_to_scan = [
+                        base_dir / "data" / "downloads",
+                        base_dir / "data" / "transcriptions",
+                        base_dir / "outputs" / "transcriptions_processed"
+                    ]
+                    
+                    total_indexed = 0
+                    for scan_dir in dirs_to_scan:
+                        if scan_dir.exists():
+                            self.logger.info(f"  📂 Indexando: {scan_dir.name}")
+                            
+                            # Usar método de escaneo si existe
+                            if hasattr(indexer, 'scan_directory'):
+                                count = indexer.scan_directory(str(scan_dir))
+                                total_indexed += count
+                            elif hasattr(indexer, 'init_background_scan'):
+                                indexer.init_background_scan(base_path=str(scan_dir))
+                                total_indexed += 1
+                            else:
+                                # Fallback: indexar manualmente
+                                for root, dirs, files in os.walk(scan_dir):
+                                    for f in files:
+                                        if f.endswith(('.vtt', '.srt', '.txt')):
+                                            file_path = os.path.join(root, f)
+                                            indexer.index_file(file_path)
+                                            total_indexed += 1
+                    
+                    self.logger.info(f"✅ Indexación completada: {total_indexed} archivos procesados")
+                    self.root.after(0, lambda: self.status_var.set(f"📁 {total_indexed} archivos indexados"))
+                    
+                except Exception as e:
+                    self.logger.error(f"Error en indexación automática: {e}")
+            
+            # Ejecutar en segundo plano
+            threading.Thread(target=indexing_task, daemon=True, name="FileIndexer").start()
+            
+        except Exception as e:
+            self.logger.warning(f"No se pudo iniciar indexación automática: {e}")
+
     # --- INICIO FUNCIONALIDAD US-038-ADAPT: LÓGICA DE INTERVALO ADAPTATIVO ---
     def _calculate_adaptive_interval(self, priority: int) -> int:
         """
