@@ -30,6 +30,7 @@ class SchedulerConfig:
     auto_start_on_launch: bool = False
     check_interval_seconds: int = 60
     max_concurrent_per_type: int = 1
+    default_timezone: str = "local"
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -86,6 +87,50 @@ CONDITION_DESCRIPTIONS = {
     'queue_empty': 'Solo ejecutar si la cola de procesamiento está vacía'
 }
 
+COMMON_TIMEZONES = {
+    'local': 'Hora local',
+    'America/New_York': 'Nueva York (UTC-5)',
+    'America/Chicago': 'Chicago (UTC-6)',
+    'America/Denver': 'Denver (UTC-7)',
+    'America/Los_Angeles': 'Los Angeles (UTC-8)',
+    'America/Mexico_City': 'Ciudad de México (UTC-6)',
+    'Europe/London': 'Londres (UTC+0)',
+    'Europe/Paris': 'París (UTC+1)',
+    'Europe/Berlin': 'Berlín (UTC+1)',
+    'Asia/Tokyo': 'Tokio (UTC+9)',
+    'Asia/Shanghai': 'Shanghái (UTC+8)',
+    'Asia/Singapore': 'Singapur (UTC+8)',
+    'Australia/Sydney': 'Sídney (UTC+11)'
+}
+
+
+def get_timezone_offset(tz_name: str) -> int:
+    """Obtiene el offset de timezone en horas"""
+    if tz_name == 'local':
+        return 0
+
+    try:
+        from zoneinfo import ZoneInfo
+        from datetime import datetime
+        tz = ZoneInfo(tz_name)
+        now = datetime.now(tz)
+        return now.utcoffset().total_seconds() // 3600
+    except Exception:
+        return 0
+
+
+def convert_to_timezone(dt: datetime, tz_name: str) -> datetime:
+    """Convierte un datetime a la zona horaria especificada"""
+    if tz_name == 'local':
+        return dt
+
+    try:
+        from zoneinfo import ZoneInfo
+        tz = ZoneInfo(tz_name)
+        return dt.astimezone(tz)
+    except Exception:
+        return dt
+
 
 @dataclass
 class ScheduleTask:
@@ -107,6 +152,7 @@ class ScheduleTask:
     auto_integrate_kb: bool = True
     max_active_tasks: int = 10
     condition: Optional[str] = None
+    timezone: str = "local"
 
     def __post_init__(self):
         if self.allowed_days is None or not self.allowed_days:
@@ -180,6 +226,10 @@ class ScheduleManager:
         self.on_task_error: Optional[Callable] = None
         self.on_log: Optional[Callable] = None
         self.on_notification: Optional[Callable] = None
+        self.on_progress: Optional[Callable[[str, int, str], None]] = None
+
+        # Progress tracking
+        self._task_progress: Dict[str, int] = {}
         
         # Servicios externos (se asignan después)
         self.download_service = None
@@ -316,17 +366,33 @@ class ScheduleManager:
         self.monitor_service = monitor_service
         self.knowledge_integrator = knowledge_integrator
     
-    def set_callbacks(self, on_task_start: Callable = None, 
+    def set_callbacks(self, on_task_start: Callable = None,
                      on_task_complete: Callable = None,
                      on_task_error: Callable = None,
                      on_log: Callable = None,
-                     on_notification: Callable = None):
+                     on_notification: Callable = None,
+                     on_progress: Callable = None):
         """Configura callbacks para eventos"""
         self.on_task_start = on_task_start
         self.on_task_complete = on_task_complete
         self.on_task_error = on_task_error
         self.on_log = on_log
         self.on_notification = on_notification
+        self.on_progress = on_progress
+
+    def report_progress(self, task_id: str, percent: int, message: str = ""):
+        """Reporta el progreso de una tarea"""
+        self._task_progress[task_id] = percent
+
+        if self.on_progress:
+            try:
+                self.on_progress(task_id, percent, message)
+            except Exception as e:
+                logger.error(f"Error en callback on_progress: {e}")
+
+    def get_task_progress(self, task_id: str) -> Optional[int]:
+        """Obtiene el progreso de una tarea"""
+        return self._task_progress.get(task_id)
     
     # ==================== GESTIÓN DE TAREAS ====================
     
