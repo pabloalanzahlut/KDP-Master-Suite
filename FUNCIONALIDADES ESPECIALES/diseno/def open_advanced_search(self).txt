@@ -1,0 +1,439 @@
+def open_advanced_search(self):
+    """
+    [US-010-ADV] Búsqueda avanzada de transcripciones - Implementación realista.
+    Sin PIL, sin animaciones complejas, usa FTS5 existente.
+    """
+    # Crear ventana modal (patrón show_about)
+    win = tk.Toplevel(self.root)
+    win.title("🔍 BÚSQUEDA AVANZADA DE DATOS DE TRANSCRIPCIÓN")
+    win.geometry("1100x700")
+    win.transient(self.root)
+    win.grab_set()
+    
+    # Centrar ventana
+    win.update_idletasks()
+    x = (self.root.winfo_screenwidth() // 2) - (1100 // 2)
+    y = (self.root.winfo_screenheight() // 2) - (700 // 2)
+    win.geometry(f"1100x700+{x}+{y}")
+    
+    # Variables de estado
+    search_var = tk.StringVar()
+    date_from_var = tk.StringVar()
+    date_to_var = tk.StringVar()
+    type_var = tk.StringVar(value="Todos")
+    status_var = tk.StringVar(value="Todos")
+    order_var = tk.StringVar(value="Nuevo primero")
+    check_all_var = tk.BooleanVar(value=True)
+    check_structure_var = tk.BooleanVar(value=True)
+    check_format_var = tk.BooleanVar(value=False)
+    check_status_var = tk.BooleanVar(value=False)
+    
+    # Paginación
+    current_page = tk.IntVar(value=1)
+    page_size = 6
+    total_results = tk.IntVar(value=0)
+    current_results = []
+    
+    is_dark = self.current_theme in ["darkly", "cyborg"]
+    bg_color = "#0f172a" if is_dark else "#f8fafc"
+    win.configure(bg=bg_color)
+    
+    # === HEADER CON BARRA DE BÚSQUEDA ===
+    header_frame = ttk.Frame(win, padding=(20, 15))
+    header_frame.pack(fill=tk.X)
+    
+    ttk.Label(header_frame, text="🔍", font=("Segoe UI", 16)).pack(side=tk.LEFT, padx=(0, 10))
+    
+    search_entry = ttk.Entry(header_frame, textvariable=search_var, width=60, font=("Segoe UI", 11))
+    search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+    search_entry.bind("<Return>", lambda e: _execute_search())
+    search_entry.focus_set()
+    
+    ttk.Button(header_frame, text="Buscar", command=lambda: _execute_search(), 
+              bootstyle="primary", width=10).pack(side=tk.LEFT, padx=(10, 5))
+    
+    ttk.Button(header_frame, text="Limpiar", command=lambda: _clear_filters(), 
+              bootstyle="secondary-outline", width=10).pack(side=tk.LEFT)
+    
+    # === CONTENEDOR PRINCIPAL ===
+    main_container = ttk.Frame(win, padding=(20, 0))
+    main_container.pack(fill=tk.BOTH, expand=True)
+    
+    # === PANEL IZQUIERDO: FILTROS ===
+    filters_panel = ttk.Frame(main_container, width=320)
+    filters_panel.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 20))
+    filters_panel.pack_propagate(False)
+    
+    # Filtro de Fecha
+    date_frame = ttk.LabelFrame(filters_panel, text=" FILTRO DE FECHA ", padding=10)
+    date_frame.pack(fill=tk.X, pady=(0, 15))
+    
+    ttk.Label(date_frame, text="Desde — Hasta", foreground="#64748b").pack(anchor=tk.W)
+    
+    date_inputs = ttk.Frame(date_frame)
+    date_inputs.pack(fill=tk.X, pady=(5, 0))
+    
+    ttk.Entry(date_inputs, textvariable=date_from_var, width=12).pack(side=tk.LEFT, padx=(0, 5))
+    ttk.Label(date_inputs, text="—").pack(side=tk.LEFT, padx=5)
+    ttk.Entry(date_inputs, textvariable=date_to_var, width=12).pack(side=tk.LEFT)
+    
+    ttk.Label(date_frame, text="Formato: YYYY-MM", font=("Segoe UI", 8), 
+             foreground="#94a3b8").pack(anchor=tk.W, pady=(5, 0))
+    
+    # Tipo de Contenido
+    type_frame = ttk.LabelFrame(filters_panel, text=" TIPO DE CONTENIDO ", padding=10)
+    type_frame.pack(fill=tk.X, pady=(0, 15))
+    
+    ttk.Combobox(type_frame, textvariable=type_var, 
+                values=["Todos", "Video", "Audio", "Transcripción"],
+                state="readonly", width=28).pack(fill=tk.X)
+    
+    # Estado de Procesado
+    status_frame = ttk.LabelFrame(filters_panel, text=" ESTADO DE PROCESADO ", padding=10)
+    status_frame.pack(fill=tk.X, pady=(0, 15))
+    
+    ttk.Combobox(status_frame, textvariable=status_var,
+                values=["Todos", "Procesado", "Pendiente", "Error"],
+                state="readonly", width=28).pack(fill=tk.X)
+    
+    # Campos a Incluir
+    fields_frame = ttk.LabelFrame(filters_panel, text=" CAMPOS A INCLUIR ", padding=10)
+    fields_frame.pack(fill=tk.X, pady=(0, 15))
+    
+    checks_grid = ttk.Frame(fields_frame)
+    checks_grid.pack(fill=tk.X)
+    
+    ttk.Checkbutton(checks_grid, text="Todos", variable=check_all_var).grid(row=0, column=0, sticky=tk.W, pady=2)
+    ttk.Checkbutton(checks_grid, text="Estructura", variable=check_structure_var).grid(row=0, column=1, sticky=tk.W, pady=2, padx=(15, 0))
+    ttk.Checkbutton(checks_grid, text="Formato", variable=check_format_var).grid(row=1, column=0, sticky=tk.W, pady=2)
+    ttk.Checkbutton(checks_grid, text="Estado", variable=check_status_var).grid(row=1, column=1, sticky=tk.W, pady=2, padx=(15, 0))
+    
+    # Orden Cronológico
+    order_frame = ttk.LabelFrame(filters_panel, text=" ORDEN CRONOLÓGICO ", padding=10)
+    order_frame.pack(fill=tk.X)
+    
+    ttk.Combobox(order_frame, textvariable=order_var,
+                values=["Nuevo primero", "Antiguo primero"],
+                state="readonly", width=28).pack(fill=tk.X)
+    
+    # Botón Aplicar
+    ttk.Button(filters_panel, text="✅ Aplicar Filtros", command=lambda: _execute_search(),
+              bootstyle="success", width=28).pack(pady=(20, 0))
+    
+    # === PANEL DERECHO: RESULTADOS ===
+    results_panel = ttk.Frame(main_container)
+    results_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    
+    # Header de resultados
+    results_header = ttk.Frame(results_panel)
+    results_header.pack(fill=tk.X, pady=(0, 10))
+    
+    ttk.Label(results_header, text="Resultados:", font=("Segoe UI", 10, "bold")).pack(side=tk.LEFT)
+    
+    results_count_lbl = ttk.Label(results_header, textvariable=total_results, 
+                                 foreground="#3b82f6", font=("Segoe UI", 10, "bold"))
+    results_count_lbl.pack(side=tk.LEFT, padx=(5, 0))
+    
+    ttk.Label(results_header, text="entradas").pack(side=tk.LEFT, padx=(0, 20))
+    
+    fts_info = ttk.Label(results_header, text="FTS5 — 0ms", foreground="#64748b", font=("Consolas", 8))
+    fts_info.pack(side=tk.LEFT)
+    
+    # Treeview de resultados
+    tree_frame = ttk.Frame(results_panel)
+    tree_frame.pack(fill=tk.BOTH, expand=True)
+    
+    columns = ("img", "title", "duration", "date", "type", "id")
+    results_tree = ttk.Treeview(tree_frame, columns=columns, show="headings", height=12)
+    
+    results_tree.heading("img", text="IMG")
+    results_tree.column("img", width=60, anchor=tk.CENTER)
+    
+    results_tree.heading("title", text="TÍTULO")
+    results_tree.column("title", width=400)
+    
+    results_tree.heading("duration", text="DURACIÓN")
+    results_tree.column("duration", width=100, anchor=tk.CENTER)
+    
+    results_tree.heading("date", text="FECHA")
+    results_tree.column("date", width=120, anchor=tk.CENTER)
+    
+    results_tree.heading("type", text="TIPO")
+    results_tree.column("type", width=100, anchor=tk.CENTER)
+    
+    results_tree.column("id", width=0, stretch=False)  # Columna oculta
+    
+    results_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    
+    scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=results_tree.yview)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    results_tree.configure(yscrollcommand=scrollbar.set)
+    
+    # Configurar tags para colores
+    results_tree.tag_configure("video", foreground="#3b82f6")
+    results_tree.tag_configure("audio", foreground="#10b981")
+    results_tree.tag_configure("transcripción", foreground="#a855f7")
+    results_tree.tag_configure("oddrow", background="#1e293b" if is_dark else "#f1f5f9")
+    results_tree.tag_configure("evenrow", background="#0f172a" if is_dark else "#ffffff")
+    
+    # Paginación
+    pagination_frame = ttk.Frame(results_panel, padding=(0, 15))
+    pagination_frame.pack(fill=tk.X)
+    
+    page_info = ttk.Label(pagination_frame, text="Mostrando 0-0 de 0 resultados · Página 0/0", 
+                         foreground="#64748b")
+    page_info.pack(side=tk.LEFT)
+    
+    page_buttons = ttk.Frame(pagination_frame)
+    page_buttons.pack(side=tk.RIGHT)
+    
+    # === FUNCIONES ===
+    
+    def _get_icon_for_type(content_type):
+        """Retorna ícono Unicode según tipo de contenido"""
+        if content_type and content_type.lower() == "video":
+            return "▶"
+        elif content_type and content_type.lower() == "audio":
+            return "♪"
+        else:
+            return "TXT"
+    
+    def _update_pagination():
+        """Actualiza botones de paginación"""
+        total_pages = max(1, (total_results.get() + page_size - 1) // page_size)
+        current = current_page.get()
+        
+        # Limpiar botones existentes
+        for widget in page_buttons.winfo_children():
+            widget.destroy()
+        
+        # Botón anterior
+        ttk.Button(page_buttons, text="←", width=3, command=lambda: _change_page(-1),
+                  bootstyle="secondary-outline").pack(side=tk.LEFT, padx=2)
+        
+        # Números de página (máx 5 visibles)
+        start_page = max(1, current - 2)
+        end_page = min(total_pages, start_page + 4)
+        
+        for p in range(start_page, end_page + 1):
+            btn_style = "primary" if p == current else "secondary-outline"
+            ttk.Button(page_buttons, text=str(p), width=3, 
+                      command=lambda page=p: _goto_page(page),
+                      bootstyle=btn_style).pack(side=tk.LEFT, padx=2)
+        
+        if total_pages > 5:
+            ttk.Label(page_buttons, text="...", padx=5).pack(side=tk.LEFT)
+        
+        # Botón siguiente
+        ttk.Button(page_buttons, text="→", width=3, command=lambda: _change_page(1),
+                  bootstyle="secondary-outline").pack(side=tk.LEFT, padx=2)
+        
+        # Actualizar label de info
+        start = (current - 1) * page_size + 1
+        end = min(current * page_size, total_results.get())
+        page_info.config(text=f"Mostrando {start}-{end} de {total_results.get()} resultados · Página {current}/{total_pages}")
+    
+    def _change_page(delta):
+        """Cambia página relativa"""
+        total_pages = max(1, (total_results.get() + page_size - 1) // page_size)
+        new_page = max(1, min(current_page.get() + delta, total_pages))
+        _goto_page(new_page)
+    
+    def _goto_page(page):
+        """Va a página específica"""
+        current_page.set(page)
+        _render_results()
+        _update_pagination()
+    
+    def _render_results():
+        """Renderiza resultados actuales con paginación"""
+        # Limpiar treeview
+        for item in results_tree.get_children():
+            results_tree.delete(item)
+        
+        if not current_results:
+            return
+        
+        # Obtener slice de resultados
+        start = (current_page.get() - 1) * page_size
+        end = start + page_size
+        page_results = current_results[start:end]
+        
+        # Insertar resultados
+        for i, row in enumerate(page_results):
+            content_type = row.get('type', 'Transcripción')
+            icon = _get_icon_for_type(content_type)
+            
+            tag = content_type.lower() if content_type.lower() in ["video", "audio", "transcripción"] else "transcripción"
+            row_tag = "oddrow" if i % 2 == 0 else "evenrow"
+            
+            results_tree.insert("", tk.END, values=(
+                icon,
+                row.get('title', '')[:80] + "..." if len(row.get('title', '')) > 80 else row.get('title', ''),
+                row.get('duration', '—'),
+                row.get('timestamp', '')[:10] if row.get('timestamp') else 'N/A',
+                content_type,
+                row.get('id', '')
+            ), tags=(tag, row_tag))
+    
+    def _execute_search():
+        """Ejecuta búsqueda contra knowledge_db con FTS5"""
+        if not self.knowledge_db:
+            messagebox.showwarning("Error", "Base de conocimiento no disponible")
+            return
+        
+        start_time = time.time()
+        query = search_var.get().strip()
+        
+        if not query:
+            messagebox.showwarning("Atención", "Ingresa un término de búsqueda")
+            return
+        
+        try:
+            # Construir query SQL con FTS5
+            sql_query = """
+                SELECT id, title, content, category, source, timestamp, type
+                FROM knowledge_entries 
+                WHERE content MATCH ?
+            """
+            params = [query]
+            
+            # Aplicar filtros adicionales
+            if date_from_var.get():
+                sql_query += " AND timestamp >= ?"
+                params.append(date_from_var.get())
+            
+            if date_to_var.get():
+                sql_query += " AND timestamp <= ?"
+                params.append(date_to_var.get())
+            
+            if type_var.get() != "Todos":
+                sql_query += " AND type = ?"
+                params.append(type_var.get())
+            
+            # Orden
+            order_clause = "DESC" if order_var.get() == "Nuevo primero" else "ASC"
+            sql_query += f" ORDER BY timestamp {order_clause}"
+            
+            # Ejecutar query
+            db_path = os.path.join(self.base_dir, "knowledge", "knowledge_base.db")
+            
+            if not os.path.exists(db_path):
+                messagebox.showwarning("Error", "Base de datos no encontrada")
+                return
+            
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute(sql_query, params)
+            
+            rows = cursor.fetchall()
+            conn.close()
+            
+            # Convertir a lista de dicts
+            current_results.clear()
+            for row in rows:
+                current_results.append({
+                    'id': row['id'],
+                    'title': row['title'],
+                    'duration': '—',  # No disponible en KB
+                    'timestamp': row['timestamp'],
+                    'type': row['type'] or 'Transcripción',
+                    'category': row['category'],
+                    'source': row['source']
+                })
+            
+            total_results.set(len(current_results))
+            current_page.set(1)
+            
+            # Calcular tiempo de búsqueda
+            elapsed_ms = (time.time() - start_time) * 1000
+            fts_info.config(text=f"FTS5 — {elapsed_ms:.0f}ms")
+            
+            _render_results()
+            _update_pagination()
+            
+            self.log(f"[SEARCH] Búsqueda avanzada: {len(current_results)} resultados para '{query}' en {elapsed_ms:.0f}ms")
+            
+        except Exception as e:
+            messagebox.showerror("Error de Búsqueda", f"No se pudo ejecutar la búsqueda:\n{str(e)}")
+            self.log(f"[SEARCH ERROR] {e}", "error")
+    
+    def _clear_filters():
+        """Resetea todos los filtros"""
+        search_var.set("")
+        date_from_var.set("")
+        date_to_var.set("")
+        type_var.set("Todos")
+        status_var.set("Todos")
+        order_var.set("Nuevo primero")
+        check_all_var.set(True)
+        check_structure_var.set(True)
+        check_format_var.set(False)
+        check_status_var.set(False)
+        total_results.set(0)
+        current_results.clear()
+        
+        for item in results_tree.get_children():
+            results_tree.delete(item)
+        
+        page_info.config(text="Mostrando 0-0 de 0 resultados · Página 0/0")
+        
+        for widget in page_buttons.winfo_children():
+            widget.destroy()
+        
+        fts_info.config(text="FTS5 — 0ms")
+    
+    def _export_to_csv():
+        """Exporta resultados a CSV"""
+        if not current_results:
+            messagebox.showwarning("Sin resultados", "No hay resultados para exportar")
+            return
+        
+        filepath = filedialog.asksaveasfilename(
+            defaultextension=".csv",
+            filetypes=[("CSV Files", "*.csv")],
+            initialfile=f"busqueda_avanzada_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        )
+        
+        if not filepath:
+            return
+        
+        try:
+            import csv
+            with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(["ID", "Título", "Duración", "Fecha", "Tipo", "Categoría", "Fuente"])
+                
+                for row in current_results:
+                    writer.writerow([
+                        row.get('id', ''),
+                        row.get('title', ''),
+                        row.get('duration', ''),
+                        row.get('timestamp', ''),
+                        row.get('type', ''),
+                        row.get('category', ''),
+                        row.get('source', '')
+                    ])
+            
+            messagebox.showinfo("Éxito", f"Exportados {len(current_results)} resultados a:\n{filepath}")
+            self.log(f"[EXPORT] Resultados exportados a {filepath}")
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo exportar:\n{str(e)}")
+    
+    # === FOOTER CON BOTÓN EXPORTAR ===
+    footer_frame = ttk.Frame(win, padding=(20, 15))
+    footer_frame.pack(fill=tk.X)
+    
+    ttk.Label(footer_frame, text="Presiona Enter para buscar", 
+             foreground="#64748b", font=("Segoe UI", 9)).pack(side=tk.LEFT)
+    
+    ttk.Button(footer_frame, text="↓ Exportar CSV", command=_export_to_csv,
+              bootstyle="success-outline").pack(side=tk.RIGHT)
+    
+    # Bindings
+    win.bind("<Escape>", lambda e: win.destroy())
+    
+    # Focus inicial en search
+    search_entry.focus_set()
