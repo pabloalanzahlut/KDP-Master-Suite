@@ -24,8 +24,36 @@ def setup_dashboard_tab(self):
     ttk.Label(frame, text="📊 Dashboard Web Remoto", font=("Segoe UI", 18, "bold")).pack(pady=(0, 10))
     ttk.Label(frame, text="Monitorea el sistema desde cualquier dispositivo en localhost.", font=("Segoe UI", 11), foreground="gray").pack(pady=(0, 30))
     
-    info_frame = ttk.LabelFrame(frame, text=" Estado del Servidor ", padding=20)
-    info_frame.pack(fill=tk.X, pady=(0, 20))
+    # ========== PANEL EMBEBIDO (INFO) ==========
+    embedded_frame = ttk.LabelFrame(frame, text=" 🌐 Modo Embebido ", padding=15)
+    embedded_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 15))
+    
+    # Instrucciones de acceso embebido
+    ttk.Label(embedded_frame, text="Para acceder desde otros dispositivos en tu red:", 
+              font=("Segoe UI", 10)).pack(anchor=tk.W, pady=(0, 5))
+    ttk.Label(embedded_frame, text="1. Asegúrate de que el servidor esté activo", 
+              font=("Segoe UI", 9), foreground="#64748b").pack(anchor=tk.W, padx=20)
+    ttk.Label(embedded_frame, text="2. Reemplaza 'localhost' por tu IP local (ej: 192.168.1.x:8000)", 
+              font=("Segoe UI", 9), foreground="#64748b").pack(anchor=tk.W, padx=20)
+    
+    # Preview de métricas (simulado embebido)
+    preview_frame = ttk.Frame(embedded_frame)
+    preview_frame.pack(fill=tk.X, pady=(15, 0))
+    
+    self.emb_active_channels = ttk.Label(preview_frame, text="Canales: --", font=("Segoe UI", 11, "bold"), foreground="#3b82f6")
+    self.emb_active_channels.pack(side=tk.LEFT, padx=15)
+    self.emb_total_videos = ttk.Label(preview_frame, text="Videos: --", font=("Segoe UI", 11, "bold"), foreground="#10b981")
+    self.emb_total_videos.pack(side=tk.LEFT, padx=15)
+    self.emb_status = ttk.Label(preview_frame, text="Estado: --", font=("Segoe UI", 11, "bold"), foreground="#64748b")
+    self.emb_status.pack(side=tk.LEFT, padx=15)
+    
+    # Botón refrescar preview
+    ttk.Button(embedded_frame, text="🔄 Refrescar Preview", 
+               command=self.refresh_embedded_preview).pack(pady=(10, 0))
+    
+    # Info frame del servidor
+    info_frame = ttk.LabelFrame(frame, text=" 🔌 Estado del Servidor ", padding=20)
+    info_frame.pack(fill=tk.X, pady=(0, 15))
     
     self.dashboard_link = ttk.Label(info_frame, text="http://localhost:8000", font=("Consolas", 14, "bold"), foreground="#3b82f6", cursor="hand2")
     self.dashboard_link.pack(pady=10)
@@ -43,10 +71,21 @@ def setup_dashboard_tab(self):
     self.dashboard_btn = ttk.Button(btn_frame, text="▶️ Iniciar Servidor Web", command=lambda: toggle_server(self), style="Success.TButton", width=25)
     self.dashboard_btn.pack(pady=5)
     
+    # Toggle para abrir automáticamente en navegador
+    self.auto_open_var = tk.BooleanVar(value=True)
+    ttk.Checkbutton(frame, text="Abrir automáticamente en navegador al iniciar", 
+                   variable=self.auto_open_var).pack(pady=5)
+    
     if is_port_in_use(8000):
         self.dashboard_process = None
         self.dashboard_btn.config(text="⏹️ Detener Servidor Web", style="Danger.TButton")
         self.dashboard_status_lbl.config(text="🟢 Puerto 8000 en uso (posiblemente activo)", foreground="#10b981")
+    
+    # Refrescar preview inicial
+    self.refresh_embedded_preview()
+    
+    # Programar actualización periódica
+    self.root.after(10000, self._schedule_preview_refresh)
 
 
 def is_port_in_use(port):
@@ -82,6 +121,13 @@ def toggle_server(self):
             self.dashboard_status_lbl.config(text="🟢 Servidor Ejecutándose", foreground="#10b981")
             self.dashboard_port_lbl.config(text="Puerto 8000 · Auto-refresh cada 30s")
             ToastNotification.show(self.root, "Dashboard Web Iniciado en http://localhost:8000", "success")
+            
+            # Abrir automáticamente en navegador si está habilitado
+            if hasattr(self, 'auto_open_var') and self.auto_open_var.get():
+                self.root.after(1500, lambda: open_url("http://localhost:8000"))
+            
+            # Actualizar preview embebido
+            self.refresh_embedded_preview()
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo iniciar: {e}")
     else:
@@ -111,3 +157,64 @@ def set_monitor_running(running: bool):
 def get_monitor_running() -> bool:
     """Obtiene el estado del monitor desde AppState."""
     return AppState.get("monitor_running", False)
+
+
+def refresh_embedded_preview(self):
+    """Refresca el preview embebido con datos del dashboard."""
+    try:
+        # Intentar obtener datos del dashboard via API local
+        import socket
+        import json
+        
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.settimeout(1)
+                s.connect(('localhost', 8000))
+            # Dashboard activo
+            self.emb_status.config(text="Estado: 🟢 Activo", foreground="#10b981")
+        except:
+            # Dashboard inactivo
+            self.emb_status.config(text="Estado: ⚫ Detenido", foreground="#64748b")
+        
+        # Obtener datos del monitor si existe
+        if hasattr(self, 'monitor_service') and self.monitor_service:
+            try:
+                stats = self.monitor_service.get_statistics()
+                channels = stats.get('active_channels', 0)
+                videos = stats.get('total_videos', 0)
+                self.emb_active_channels.config(text=f"Canales: {channels}")
+                self.emb_total_videos.config(text=f"Videos: {videos}")
+            except:
+                self.emb_active_channels.config(text="Canales: --")
+                self.emb_total_videos.config(text="Videos: --")
+        elif hasattr(self, 'db_manager') and self.db_manager:
+            try:
+                from app.services.monitor_service import ChannelMonitorService
+                temp_service = ChannelMonitorService(db_manager=self.db_manager)
+                stats = temp_service.get_statistics()
+                channels = stats.get('active_channels', 0)
+                videos = stats.get('total_videos', 0)
+                self.emb_active_channels.config(text=f"Canales: {channels}")
+                self.emb_total_videos.config(text=f"Videos: {videos}")
+            except:
+                self.emb_active_channels.config(text="Canales: --")
+                self.emb_total_videos.config(text="Videos: --")
+        else:
+            self.emb_active_channels.config(text="Canales: --")
+            self.emb_total_videos.config(text="Videos: --")
+            
+    except Exception as e:
+        self.emb_active_channels.config(text="Canales: --")
+        self.emb_total_videos.config(text="Videos: --")
+        self.emb_status.config(text="Estado: ⚠️ Error", foreground="#f59e0b")
+
+
+def _schedule_preview_refresh(self):
+    """Programa la próxima actualización del preview."""
+    try:
+        self.refresh_embedded_preview()
+    except Exception:
+        pass
+    finally:
+        # Actualizar cada 10 segundos
+        self.root.after(10000, self._schedule_preview_refresh)
