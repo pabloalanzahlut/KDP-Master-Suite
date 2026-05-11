@@ -391,5 +391,116 @@ class TestSchedulerConfig:
         assert manager.max_concurrent_per_type == 2
 
 
+class TestConditionTypes:
+    """Tests for condition types constants"""
+
+    def test_condition_types_exist(self):
+        """Test that CONDITION_TYPES exists"""
+        from app.core.scheduler import CONDITION_TYPES
+        assert isinstance(CONDITION_TYPES, dict)
+        assert 'has_pending_videos' in CONDITION_TYPES
+        assert 'disk_space' in CONDITION_TYPES
+        assert 'time_window' in CONDITION_TYPES
+        assert 'queue_empty' in CONDITION_TYPES
+
+    def test_condition_descriptions_exist(self):
+        """Test that CONDITION_DESCRIPTIONS exists"""
+        from app.core.scheduler import CONDITION_DESCRIPTIONS
+        assert isinstance(CONDITION_DESCRIPTIONS, dict)
+        assert len(CONDITION_DESCRIPTIONS) == 4
+
+
+class TestScheduleTaskCondition:
+    """Tests for ScheduleTask condition field"""
+
+    def test_task_condition_default(self):
+        """Test that condition defaults to None"""
+        from app.core.scheduler import ScheduleTask
+        task = ScheduleTask(name="Test")
+        assert task.condition is None
+
+    def test_task_condition_custom(self):
+        """Test setting custom condition"""
+        from app.core.scheduler import ScheduleTask
+        task = ScheduleTask(name="Test", condition="has_pending_videos:10")
+        assert task.condition == "has_pending_videos:10"
+
+    def test_task_condition_to_dict(self):
+        """Test that to_dict includes condition"""
+        from app.core.scheduler import ScheduleTask
+        task = ScheduleTask(name="Test", condition="disk_space:1000")
+        task_dict = task.to_dict()
+        assert 'condition' in task_dict
+        assert task_dict['condition'] == "disk_space:1000"
+
+    def test_task_condition_from_dict(self):
+        """Test that from_dict restores condition"""
+        from app.core.scheduler import ScheduleTask, TaskType
+        data = {
+            'task_id': 'test-123',
+            'name': 'Test Task',
+            'task_type': TaskType.DOWNLOAD.value,
+            'schedule_type': 'interval',
+            'interval_minutes': 60,
+            'daily_time': '03:00',
+            'multiple_times': [],
+            'allowed_days': None,
+            'condition': 'time_window:09:00-17:00',
+            'enabled': True,
+            'last_run': None,
+            'next_run': None,
+            'event_trigger': None,
+            'max_retries': 3,
+            'retry_count': 0,
+            'auto_integrate_kb': True,
+            'max_active_tasks': 10
+        }
+        task = ScheduleTask.from_dict(data)
+        assert task.condition == 'time_window:09:00-17:00'
+
+
+class TestConditionEvaluation:
+    """Tests for condition evaluation"""
+
+    def test_evaluate_empty_condition(self):
+        """Test that empty condition returns True"""
+        from app.core.scheduler import ScheduleManager
+        manager = ScheduleManager()
+        can_execute, reason = manager._evaluate_condition(None)
+        assert can_execute is True
+
+    def test_evaluate_time_window_inside(self):
+        """Test time window condition when inside range"""
+        from app.core.scheduler import ScheduleManager
+        manager = ScheduleManager()
+        now = datetime.now()
+        current_time = now.strftime('%H:%M')
+        time_range = f"{current_time}-{now.replace(hour=(now.hour + 1) % 24).strftime('%H:%M')}"
+        can_execute, reason = manager._evaluate_condition(f"time_window:{time_range}")
+        assert can_execute is True
+
+    def test_get_available_conditions(self):
+        """Test get_available_conditions method"""
+        from app.core.scheduler import ScheduleManager
+        manager = ScheduleManager()
+        conditions = manager.get_available_conditions()
+        assert 'types' in conditions
+        assert 'descriptions' in conditions
+        assert len(conditions['types']) == 4
+
+
+class TestSchedulerHistoryDB:
+    """Tests for scheduler history in database"""
+
+    def test_scheduler_manager_has_db_methods(self):
+        """Test that ScheduleManager has DB history methods"""
+        from app.core.scheduler import ScheduleManager
+        manager = ScheduleManager()
+        assert hasattr(manager, 'get_history_from_db')
+        assert hasattr(manager, 'get_history_stats_today')
+        assert callable(manager.get_history_from_db)
+        assert callable(manager.get_history_stats_today)
+
+
 if __name__ == '__main__':
     pytest.main([__file__, '-v'])
