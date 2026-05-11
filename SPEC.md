@@ -78,6 +78,8 @@ YouTube → Transcripción (VTT/SRT) → Limpieza → Base de Conocimiento (KB)
 | RF-029 | Resumen post-batch con reintento | Could Have | ✅ |
 | RF-030 | Scoring de relevancia KDP IA en flujo de descarga | Should Have | ✅ |
 | RF-031 | Perfiles múltiples de filtros por palabras clave | Could Have | ✅ |
+| RF-032 | Panel de clasificación IA con resultados visuales | Should Have | ✅ |
+| RF-033 | Indexación automática de archivos al inicio | Could Have | ✅ |
 
 ---
 
