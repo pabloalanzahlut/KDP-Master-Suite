@@ -1,4 +1,4 @@
-﻿import tkinter as tk
+import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 from typing import Dict, Optional, List, Tuple, Any
@@ -261,9 +261,10 @@ try:
     from app.ui.tabs import settings_tab
 except ImportError:
     settings_tab = None
+
 try:
-        from app.ui.tabs import review_queue
-        from app.ui.tabs import export_settings_tab
+    from app.ui.tabs import review_queue
+    from app.ui.tabs import export_settings_tab
     review_tab = review_queue
 except ImportError:
     review_tab = None
@@ -890,7 +891,8 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
                             on_new_video=lambda v: self.root.after(0, lambda: self.on_monitor_new_video(v)),
                             on_processing_complete=lambda v: self.root.after(0, lambda: self.on_monitor_processing_complete(v)),
                             on_error=lambda e: self.root.after(0, lambda: self.on_monitor_error(e)),
-                            on_log=lambda msg, level='info': self.root.after(0, lambda: self.log_monitor_activity(msg))
+                            on_log=lambda msg, level='info': self.root.after(0, lambda: self.log_monitor_activity(msg)),
+                            on_duplicate_detected=lambda d: self.root.after(0, lambda: self._show_duplicate_decision_dialog(d))
                         )
                     logging.info("[MONITOR] ChannelMonitorService inicializado correctamente")
             except Exception as e:
@@ -1522,6 +1524,7 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
 
         # Cargar configuración de IA (Enterprise Encrypted)
         self.ai_provider = defaults.get("ai_provider", "none")
+        self.ollama_model = defaults.get("ollama_model", "qwen3:8b")
         raw_api_key = defaults.get("ai_api_key", "")
         
         self.max_results_per_check = defaults.get("max_results_per_check", 50)
@@ -2216,36 +2219,42 @@ class TranscriptionProcessorApp(DownloadMixin, ProcessingMixin, MonitorMixin, Se
 
     def _show_duplicate_decision_dialog(self, duplicate_info: Dict):
         """Muestra diálogo de decisión para duplicado detectado."""
-        if not hasattr(self, 'auto_decision_engine') or not self.auto_decision_engine:
+        try:
+            if hasattr(self, 'auto_decision_engine') and self.auto_decision_engine:
+                action, is_auto = self.auto_decision_engine.check_rule(duplicate_info)
+                if is_auto:
+                    self.log(f"[AUTO] Aplicando regla: {action} para duplicado tipo {duplicate_info.get('type')}")
+                    return {'action': action, 'is_auto': True, **duplicate_info}
+            
+            from app.ui.components.duplicate_dialog import DuplicateDecisionDialog
+            
+            dialog = DuplicateDecisionDialog(
+                self.root,
+                duplicate_info,
+                callback=self._on_duplicate_decision
+            )
+            return dialog.show()
+        except Exception as e:
+            self.log(f"Error mostrando diálogo de duplicado: {e}")
             return None
-
-        action, is_auto = self.auto_decision_engine.check_rule(duplicate_info)
-
-        if is_auto:
-            self.log(f"[AUTO] Aplicando regla: {action} para duplicado tipo {duplicate_info.get('type')}")
-            return {'action': action, 'is_auto': True, **duplicate_info}
-
-        from app.ui.components.duplicate_dialog import DuplicateDecisionDialog
-        dialog = DuplicateDecisionDialog(
-            self.root,
-            duplicate_info,
-            callback=self._on_duplicate_decision
-        )
-        return dialog.show()
 
     def _on_duplicate_decision(self, decision: Dict):
         """Procesa la decisión del usuario."""
-        action = decision.get('action')
-        video_id = decision.get('video_id')
-
-        if action == 'ignore_always':
-            dup_type = decision.get('duplicate_type')
-            self.auto_decision_engine.add_rule(
-                duplicate_type=dup_type,
-                min_confidence=decision.get('confidence', 0.0),
-                action='omit_new'
-            )
-            self.log(f"[AUTO] Regla guardada: omitir {dup_type} siempre")
+        try:
+            action = decision.get('action')
+            video_id = decision.get('video_id')
+            
+            if action == 'ignore_always':
+                if hasattr(self, 'auto_decision_engine') and self.auto_decision_engine:
+                    dup_type = decision.get('duplicate_type')
+                    self.auto_decision_engine.add_rule(
+                        duplicate_type=dup_type,
+                        min_confidence=decision.get('confidence', 0.0),
+                        action='omit_new'
+                    )
+                    self.log(f"[AUTO] Regla guardada: omitir {dup_type} siempre")
+        except Exception as e:
+            self.log(f"Error procesando decisión de duplicado: {e}")
 
     def update_queue_ui(self):
         self.save_config()
@@ -8034,8 +8043,8 @@ Descripción: {video.get('description', '')[:800]}
                 self.api_key = ""
                 
             if hasattr(self, 'ollama_model_var'):
-                self.ollama_model_var.set("qwen2.5:7b")
-                self.ollama_model = "qwen2.5:7b"
+                self.ollama_model_var.set("qwen3:8b")
+                self.ollama_model = "qwen3:8b"
             
             if hasattr(self, 'max_results_var'):
                 self.max_results_var.set("50")
@@ -8071,7 +8080,7 @@ Descripción: {video.get('description', '')[:800]}
                     "output_dir": default_output,
                     "blacklist": default_blacklist,
                     "ai_provider": "ollama",
-                    "ollama_model": "qwen2.5:7b",
+                    "ollama_model": "qwen3:8b",
                     "api_key": "",
                     # --- INICIO FUNCIONALIDAD US-010-RESET: RESET FILTROS DE BÚSQUEDA ---
                     "search_keywords": "", "search_duration_min": 0,
@@ -9505,7 +9514,7 @@ Descripción: {video.get('description', '')[:800]}
         ttk.Label(frame, text="Proveedor de IA:").pack(anchor=tk.W)
         
         ai_provider_var = tk.StringVar(value=self.ai_provider)
-        provider_combo = ttk.Combobox(frame, textvariable=ai_provider_var, values=["none", "openai", "gemini"], state="readonly")
+        provider_combo = ttk.Combobox(frame, textvariable=ai_provider_var, values=["none", "ollama", "openai", "gemini"], state="readonly")
         provider_combo.pack(fill=tk.X, pady=(0, 10))
 
         ttk.Label(frame, text="Clave API (API Key):").pack(anchor=tk.W)
