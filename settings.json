@@ -1,22 +1,26 @@
 {
-  "export": {
-    "format": "pdf",
-    "template": "minimal",
-    "enable_filters": true,
-    "categories": "test1, test2",
-    "days_filter": 7,
-    "incremental": true,
-    "max_entries": 100,
-    "split_threshold": 1500
+  "input_dir": "D:\\ANEXOS KDP Y DIGITALES\\KDP_MASTER\\data\\downloads",
+  "output_dir": "D:\\ANEXOS KDP Y DIGITALES\\KDP_MASTER\\outputs\\transcriptions_processed",
+  "blacklist": [],
+  "channels": [],
+  "ai_provider": "none",
+  "ai_api_key": "",
+  "ai_system_prompt": "Clasifica el siguiente texto en una de estas categor\u00edas: 'Legalidad y Compliance', 'Matriz de Roles (GEM)', 'Matriz de Roles y Fases SOE', 'F\u00f3rmulas y M\u00e9tricas', 'Investigaci\u00f3n de Nichos', 'Amazon Ads y Marketing', 'Conocimiento General KDP'. Responde SOLO con el nombre de la categor\u00eda.",
+  "download_queue": [],
+  "notifications": {
+    "enable_native": false,
+    "enable_internal": true,
+    "cooldown_minutes": 5,
+    "summary_mode": false
   },
-  "export_scheduler": {
-    "enabled": false,
-    "frequency": "daily",
-    "hour": 2,
-    "minute": 0,
-    "compression": false
+  "dashboard": {
+    "port": 7000,
+    "host": "127.0.0.1",
+    "db_path": "data/channel_monitor.db"
   },
-  "dashboard_token": "0baf61ada234e358e28516911787398a",
+  "last_update_check": "2026-05-11T12:46:42.913673",
+  "last_checked_version": "2.4.4",
+  "dashboard_token": "9b988bb01a377f7c4578a7661ab0a3b4",
   "enable_sse": true,
   "enable_auth": true
 }
