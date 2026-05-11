@@ -72,6 +72,20 @@ DAYS_OF_WEEK_DISPLAY = {
     'thu': 'Jueves', 'fri': 'Viernes', 'sat': 'Sábado', 'sun': 'Domingo'
 }
 
+CONDITION_TYPES = {
+    'has_pending_videos': 'has_pending_videos:N',
+    'disk_space': 'disk_space:N',
+    'time_window': 'time_window:HH:MM-HH:MM',
+    'queue_empty': 'queue_empty'
+}
+
+CONDITION_DESCRIPTIONS = {
+    'has_pending_videos': 'Solo ejecutar si hay N+ videos pendientes',
+    'disk_space': 'Solo ejecutar si hay al menos N MB libres',
+    'time_window': 'Solo ejecutar entre HH:MM y HH:MM',
+    'queue_empty': 'Solo ejecutar si la cola de procesamiento está vacía'
+}
+
 
 @dataclass
 class ScheduleTask:
@@ -92,6 +106,7 @@ class ScheduleTask:
     retry_count: int = 0
     auto_integrate_kb: bool = True
     max_active_tasks: int = 10
+    condition: Optional[str] = None
 
     def __post_init__(self):
         if self.allowed_days is None or not self.allowed_days:
@@ -597,6 +612,138 @@ class ScheduleManager:
         self._running_tasks[task.task_id] = task.task_id
         return True, ""
 
+    def _evaluate_condition(self, condition: str) -> tuple[bool, str]:
+        """Evalúa una condición de ejecución
+
+        Args:
+            condition: Condición en formato "tipo:parametro"
+
+        Returns:
+            (can_execute, reason)
+        """
+        if not condition:
+            return True, ""
+
+        try:
+            if ':' in condition:
+                cond_type, param = condition.split(':', 1)
+            else:
+                cond_type = condition
+                param = None
+
+            if cond_type == 'has_pending_videos':
+                return self._check_pending_videos(param)
+            elif cond_type == 'disk_space':
+                return self._check_disk_space(param)
+            elif cond_type == 'time_window':
+                return self._check_time_window(param)
+            elif cond_type == 'queue_empty':
+                return self._check_queue_empty()
+            else:
+                return True, ""
+
+        except Exception as e:
+            self._log(f"Error evaluando condición '{condition}': {e}", 'error')
+            return True, ""
+
+    def _check_pending_videos(self, threshold: str) -> tuple[bool, str]:
+        """Verifica si hay videos pendientes"""
+        try:
+            threshold_num = int(threshold) if threshold else 5
+
+            if not self.db:
+                return True, ""
+
+            conn = self.db.get_connection()
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM videos
+                WHERE transcription_path IS NULL OR transcription_path = ''
+            """)
+            row = cursor.fetchone()
+            pending = row['count'] if row else 0
+            conn.close()
+
+            if pending >= threshold_num:
+                return True, f"Hay {pending} videos pendientes (umbral: {threshold_num})"
+            else:
+                return False, f"Solo hay {pending} videos pendientes (requiere: {threshold_num})"
+
+        except Exception as e:
+            return True, ""
+
+    def _check_disk_space(self, threshold_mb: str) -> tuple[bool, str]:
+        """Verifica espacio en disco"""
+        try:
+            threshold = int(threshold_mb) if threshold_mb else 500
+            import shutil
+            stats = shutil.disk_usage(".")
+            free_mb = stats.free / (1024 * 1024)
+
+            if free_mb >= threshold:
+                return True, f"Espacio disponible: {free_mb:.0f} MB"
+            else:
+                return False, f"Espacio insuficiente: {free_mb:.0f} MB (requiere: {threshold} MB)"
+
+        except Exception as e:
+            return True, ""
+
+    def _check_time_window(self, time_range: str) -> tuple[bool, str]:
+        """Verifica si estamos dentro del rango horario"""
+        try:
+            if not time_range or '-' not in time_range:
+                return True, ""
+
+            start_time, end_time = time_range.split('-')
+            start_hour, start_min = map(int, start_time.strip().split(':'))
+            end_hour, end_min = map(int, end_time.strip().split(':'))
+
+            now = datetime.now()
+            current_minutes = now.hour * 60 + now.minute
+            start_minutes = start_hour * 60 + start_min
+            end_minutes = end_hour * 60 + end_min
+
+            if start_minutes <= current_minutes <= end_minutes:
+                return True, f"Dentro del rango {time_range}"
+            else:
+                return False, f"Fuera del horario {time_range} (ahora: {now.strftime('%H:%M')})"
+
+        except Exception as e:
+            return True, ""
+
+    def _check_queue_empty(self) -> tuple[bool, str]:
+        """Verifica si la cola de procesamiento está vacía"""
+        try:
+            if not self.db:
+                return True, ""
+
+            conn = self.db.get_connection()
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                SELECT COUNT(*) as count FROM processing_history
+                WHERE status = 'running'
+            """)
+            row = cursor.fetchone()
+            running = row['count'] if row else 0
+            conn.close()
+
+            if running == 0:
+                return True, "Cola vacía"
+            else:
+                return False, f"Hay {running} procesos en ejecución"
+
+        except Exception as e:
+            return True, ""
+
+    def get_available_conditions(self) -> dict:
+        """Retorna las condiciones disponibles"""
+        return {
+            'types': CONDITION_TYPES,
+            'descriptions': CONDITION_DESCRIPTIONS
+        }
+
     def _release_task_lock(self, task: ScheduleTask):
         """Libera el lock de la tarea"""
         task_type_lock = self._task_type_locks.get(task.task_type)
@@ -610,12 +757,21 @@ class ScheduleManager:
             del self._running_tasks[task.task_id]
 
     def _execute_task(self, task: ScheduleTask):
-        """Ejecuta una tarea con control de exclusión mutua"""
+        """Ejecuta una tarea con control de exclusión mutua y condiciones"""
         can_execute, reason = self._can_execute_task(task)
         if not can_execute:
             self._log(f"Tarea '{task.name}' omitida: {reason}", 'warning')
             task.next_run = self._calculate_next_run(task)
             return
+
+        if task.condition:
+            condition_met, condition_reason = self._evaluate_condition(task.condition)
+            if not condition_met:
+                self._log(f"Tarea '{task.name}' omitida por condición: {condition_reason}", 'info')
+                task.next_run = self._calculate_next_run(task)
+                return
+            else:
+                self._log(f"Condición '{task.condition}' cumplida: {condition_reason}", 'info')
 
         try:
             self._execute_task_internal(task)
@@ -679,7 +835,24 @@ class ScheduleManager:
         self.execution_history.append(result)
         if len(self.execution_history) > self.max_history:
             self.execution_history.pop(0)
-        
+
+        # Persistir en base de datos
+        if self.db:
+            try:
+                self.db.save_scheduler_history(
+                    task_id=task.task_id,
+                    task_name=task.name,
+                    task_type=task.task_type,
+                    status=result.status,
+                    message=result.message,
+                    details=result.details,
+                    started_at=result.started_at,
+                    finished_at=result.finished_at,
+                    duration_seconds=result.duration_seconds
+                )
+            except Exception as e:
+                logger.error(f"Error guardando historial en BD: {e}")
+
         # Callback de completación
         if result.status == TaskStatus.COMPLETED.value:
             if self.on_task_complete:
@@ -843,7 +1016,30 @@ class ScheduleManager:
     def clear_history(self):
         """Limpia historial de ejecuciones"""
         self.execution_history.clear()
-    
+
+    def get_history_from_db(self, limit: int = 100, task_id: str = None,
+                            status: str = None) -> List[dict]:
+        """Obtiene historial de ejecuciones desde la base de datos"""
+        if not self.db:
+            return []
+
+        try:
+            return self.db.get_scheduler_history(limit, task_id, status)
+        except Exception as e:
+            logger.error(f"Error obteniendo historial desde BD: {e}")
+            return []
+
+    def get_history_stats_today(self) -> dict:
+        """Obtiene estadísticas del historial de hoy"""
+        if not self.db:
+            return {'completed': 0, 'failed': 0, 'running': 0}
+
+        try:
+            return self.db.get_scheduler_history_today()
+        except Exception as e:
+            logger.error(f"Error en estadísticas de hoy: {e}")
+            return {'completed': 0, 'failed': 0, 'running': 0}
+
     # ==================== ESTADÍSTICAS ====================
     
     def get_stats(self) -> dict:

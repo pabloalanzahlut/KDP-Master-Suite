@@ -6,8 +6,9 @@ Gestiona la persistencia de canales, videos y estado de procesamiento.
 
 import sqlite3
 import os
+import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Tuple
 import logging
 try:
@@ -327,7 +328,26 @@ class DatabaseManager:
         rows = cursor.fetchall()
         conn.close()
         return [dict(row) for row in rows]
-    
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS scheduler_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                task_id TEXT NOT NULL,
+                task_name TEXT,
+                task_type TEXT NOT NULL,
+                status TEXT NOT NULL,
+                message TEXT,
+                details TEXT,
+                started_at TIMESTAMP,
+                finished_at TIMESTAMP,
+                duration_seconds REAL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_scheduler_history_task_id ON scheduler_history(task_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_scheduler_history_started ON scheduler_history(started_at)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_scheduler_history_status ON scheduler_history(status)")
+
     def file_index_get_stats(self) -> Dict:
         """Obtiene estadísticas de la indexación."""
         conn = self.get_connection()
@@ -1905,6 +1925,112 @@ class DatabaseManager:
         except Exception as e:
             logger.error(f"Error en estadísticas del filtro: {e}")
             return {"total_ignored_videos": 0, "total_videos": 0, "filter_rate": 0}
+        finally:
+            conn.close()
+
+    def save_scheduler_history(self, task_id: str, task_name: str, task_type: str,
+                               status: str, message: str, details: dict = None,
+                               started_at: str = None, finished_at: str = None,
+                               duration_seconds: float = 0) -> bool:
+        """Guarda un resultado de ejecución de tarea en el historial"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("""
+                INSERT INTO scheduler_history
+                (task_id, task_name, task_type, status, message, details, started_at, finished_at, duration_seconds)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (task_id, task_name, task_type, status, message,
+                  json.dumps(details) if details else None,
+                  started_at, finished_at, duration_seconds))
+            conn.commit()
+            return True
+        except Exception as e:
+            logger.error(f"Error guardando historial del scheduler: {e}")
+            conn.rollback()
+            return False
+        finally:
+            conn.close()
+
+    def get_scheduler_history(self, limit: int = 100, task_id: str = None,
+                              status: str = None) -> List[Dict]:
+        """Obtiene el historial de ejecuciones del scheduler"""
+        conn = self.get_connection()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        try:
+            query = "SELECT * FROM scheduler_history WHERE 1=1"
+            params = []
+
+            if task_id:
+                query += " AND task_id = ?"
+                params.append(task_id)
+
+            if status:
+                query += " AND status = ?"
+                params.append(status)
+
+            query += " ORDER BY started_at DESC LIMIT ?"
+            params.append(limit)
+
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        except Exception as e:
+            logger.error(f"Error obteniendo historial del scheduler: {e}")
+            return []
+        finally:
+            conn.close()
+
+    def get_scheduler_history_today(self) -> Dict:
+        """Obtiene estadísticas del historial de hoy"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        try:
+            today = datetime.now().strftime('%Y-%m-%d')
+
+            cursor.execute("""
+                SELECT status, COUNT(*) as count
+                FROM scheduler_history
+                WHERE date(started_at) = ?
+                GROUP BY status
+            """, (today,))
+
+            results = cursor.fetchall()
+            stats = {'completed': 0, 'failed': 0, 'running': 0}
+
+            for row in results:
+                if row[0] == 'completed':
+                    stats['completed'] = row[1]
+                elif row[0] == 'failed':
+                    stats['failed'] = row[1]
+                elif row[0] == 'running':
+                    stats['running'] = row[1]
+
+            return stats
+        except Exception as e:
+            logger.error(f"Error en estadísticas de hoy: {e}")
+            return {'completed': 0, 'failed': 0, 'running': 0}
+        finally:
+            conn.close()
+
+    def clear_scheduler_history(self, older_than_days: int = 30) -> int:
+        """Elimina registros de historial anteriores a X días"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cutoff_date = (datetime.now() - timedelta(days=older_than_days)).strftime('%Y-%m-%d')
+            cursor.execute("DELETE FROM scheduler_history WHERE date(started_at) < ?", (cutoff_date,))
+            deleted = cursor.rowcount
+            conn.commit()
+            return deleted
+        except Exception as e:
+            logger.error(f"Error limpiando historial: {e}")
+            return 0
         finally:
             conn.close()
 
