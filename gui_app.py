@@ -68,6 +68,13 @@ try:
     from app.services.auto_decision_engine import AutoDecisionEngine
     from app.services.duplicate_export_scheduler import DuplicateExportScheduler
     from app.services.backup_service import BackupService
+
+try:
+    from app.modules.backup_system.deterministic.pre_backup import backup_preflight
+    PREFLIGHT_AVAILABLE = True
+except ImportError:
+    PREFLIGHT_AVAILABLE = False
+    backup_preflight = None
 except ImportError as e:
     print(f"Error importando servicios pro: {e}")
     try:
@@ -10217,6 +10224,25 @@ Descripción: {video.get('description', '')[:800]}
     def panic_backup(self):
         """Crea un respaldo completo de emergencia del sistema."""
         try:
+            if PREFLIGHT_AVAILABLE and backup_preflight:
+                self.log("🔍 Ejecutando validación previa al backup...")
+                preflight_ok, preflight_msg, results = backup_preflight.run_preflight_check(
+                    base_path=str(self.base_dir),
+                    destination=str(self.base_dir)
+                )
+                for check, result in results.items():
+                    status_icon = "✅" if result["status"] == "pass" else "⚠️" if result["status"] == "warning" else "❌"
+                    self.log(f"  {status_icon} {check}: {result['message']}")
+
+                if not preflight_ok:
+                    response = messagebox.askyesno(
+                        "Validación Pre-Backup",
+                        f"Algunas validaciones fallaron:\n{preflight_msg}\n\n¿Continuar con el backup de todos modos?"
+                    )
+                    if not response:
+                        self.log("❌ Backup cancelado por el usuario")
+                        return
+
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             backup_name = f"panic_backup_{timestamp}.zip"
             backup_path = os.path.join(self.base_dir, "backups", backup_name)
@@ -10241,6 +10267,10 @@ Descripción: {video.get('description', '')[:800]}
             self.logger.info(f"PÁNICO: Backup total creado en {backup_path}")
             messagebox.showinfo("Botón de Pánico", f"Backup total completado con éxito:\n{backup_name}")
             self.audit_logger.info(f"Backup de pánico activado por el usuario. Archivo: {backup_name}")
+
+            if PREFLIGHT_AVAILABLE and backup_preflight:
+                backup_preflight.release_locks()
+                self.log("🔓 Locks de backup liberados")
         except Exception as e:
             self.logger.error(f"Error en backup de pánico: {e}")
             messagebox.showerror("Error", f"Fallo al crear el backup: {e}")
