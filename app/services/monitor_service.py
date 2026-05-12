@@ -341,6 +341,37 @@ class ChannelMonitorService:
         }
         logger.info(json.dumps(log_entry))
     
+    def check_tos_updates(self, channel_id: int, video_title: str, video_description: str = "") -> bool:
+        """
+        Módulo C3: Alerta de Actualización de TOS
+        Detecta si un video menciona cambios en Términos de Servicio o políticas.
+        
+        Returns:
+            True si se detecta actualización de TOS
+        """
+        text = f"{video_title} {video_description}".lower()
+        
+        tos_keywords = [
+            "terms of service", "tos update", "terms of use",
+            "política de privacidad", "privacy policy update",
+            "cambios en los términos", "nueva política",
+            "updated terms", "new rules", "policy change",
+            "youtube policy", "community guidelines update",
+            "cambios en políticas", "actualización de políticas",
+        ]
+        
+        for keyword in tos_keywords:
+            if keyword in text:
+                self._log(f"⚠️ ALERTA TOS: Video '{video_title[:50]}...' menciona '{keyword}'", 'warning')
+                self._log_structured("tos_alert",
+                    channel_id=channel_id,
+                    keyword_found=keyword,
+                    video_title=video_title[:100]
+                )
+                return True
+        
+        return False
+    
     def _validate_youtube_url(self, url: str) -> bool:
         """Valida que la URL sea de YouTube."""
         if url.startswith('@'):
