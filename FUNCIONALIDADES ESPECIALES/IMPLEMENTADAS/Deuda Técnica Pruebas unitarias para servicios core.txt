@@ -1,0 +1,40 @@
+---
+
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+### Nivel 3: Cobertura Avanzada
+
+1. **Test DownloadService**: Mockear yt-dlp para tests de descarga sin red
+2. **Test MonitorService**: Tests del servicio de monitoreo de canales
+3. **Test KnowledgeIntegrator**: Tests de integración con knowledge base
+4. **Test Scheduler**: Tests de programación horaria
+
+### Nivel 4: Integración CI/CD
+
+5. **GitHub Actions**: Pipeline de tests automático en PRs
+6. **Pre-commit hooks**: Ejecutar tests antes de commit
+7. **Coverage report**: Añadir `pytest-cov` y reporte en PR
+
+### Nivel 5: Organización
+
+8. **Markers**: `@pytest.mark.slow`, `@pytest.mark.integration`
+9. **Categorías**: Separar tests unitarios de integración
+10. **Fixtures avanzados**: More conftest.py reusable
+
+### Nivel 6: Edge Cases
+
+11. **Error handling**: Tests de excepciones
+12. **Boundary conditions**: Valores límite
+13. **Race conditions**: Más tests de concurrencia
+
+---
+
+## Pregunta clave
+
+**¿Cuál priorizamos?**
+
+| Opción | Enfoque |
+|--------|--------|
+| A) Más cobertura | DownloadService, MonitorService, etc. |
+| B) CI/CD | GitHub Actions + coverage |
+| C) Errores/Edge | Excepciones, límites |

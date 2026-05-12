@@ -1,0 +1,55 @@
+Basándome en la funcionalidad que implementamos (clasificación IA con Ollama), aquí están los **Próximos Pasos Sugeridos**:
+
+---
+
+## 🔧 PRÓXIMOS PASOS (Mejoras opcionales para US-004)
+
+### Nivel 1 - Alta Prioridad (Inmediato)
+
+| # | Mejora | Descripción |
+|---|-------|-------------|
+| **1.1** | **Panel de Clasificación en UI** | Mostrar resultados de clasificación en pestaña "Análisis" - categoría asignada, score, tags |
+| **1.2** | **Botón de reclasificación** | Permitir corregir categoría manualmente si la IA falló |
+| **1.3** | **Estadísticas en dashboard** | Mostrar gráficos: clasificações por categoría, accuracy estimado, uso de IA vs fallback |
+
+### Nivel 2 - Media Prioridad
+
+| # | Mejora | Descripción |
+|---|-------|-------------|
+| **2.1** | **Exportación KB** | Exportar base de conocimiento a PDF/HTML profesional |
+| **2.2** | **Filtros avanzados** | Filtrar por: categoría, score ≥X, rol GEM, fecha, is_banal |
+| **2.3** | **Historial de clasificación** | Ver evolución de clasificaciones por video |
+
+### Nivel 3 - Baja Prioridad (Nice to Have)
+
+| # | Mejora | Descripción |
+|---|-------|-------------|
+| **3.1** | **Auto-clasificación automática** | Integrar en pipeline: al descargar → automáticamente clasificar |
+| **3.2** | **Benchmark de modelos** | Comparar qwen3:8b vs llama3:1 vs reglas locales |
+| **3.3** | **Prompt customization** | UI para editar system_prompt sin editar código |
+| **3.4** | **Multi-idioma** | Clasificación también en EN/PT además de ES |
+
+---
+
+## 🎯 SUGERENCIA DE PRIORIDADES
+
+| Priority | Feature | Por qué |
+|----------|---------|--------|
+| 🔴 Alta | **Panel UI de resultados** | Sin esto, el usuario no puede ver qué clasificó la IA |
+| 🔴 Alta | **Estadísticas** | Necesitas ver si el sistema está funcionando bien |
+| 🟡 Media | **Exportación KB** | Ya tienes el contenido, necesitas poder usarlo |
+| 🟡 Media | **Re-clasificación** | La IA no es perfecta, el usuario debe poder corregir |
+
+---
+
+## ❓ PREGUNTAS PARA DEFINIR SIGUIENTES PASOS
+
+1. **¿Querés que integremos la clasificación en el flujo de descarga automática?** (cuando baja un video → clasificar automáticamente)
+
+2. **¿Prefieres先去 (first) un panel simple de resultados en la UI existente o crear uno nuevo?**
+
+3. **¿Cuántos de estos features querés implementar en el próximo sprint?** (sugerencia: 1-2 para validar antes de expandir)
+
+---
+
+**¿Cuál de estos next steps te parece más valioso para comenzar?**
