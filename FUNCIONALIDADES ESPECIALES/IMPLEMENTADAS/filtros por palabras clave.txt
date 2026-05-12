@@ -1,0 +1,156 @@
+ANÁLISIS DE IMPLEMENTACIÓN: US-021 Filtros por Palabras Clave
+
+La funcionalidad ha sido implementada correctamente. A continuación el análisis detallado:
+
+---
+
+## ✅ PUNTOS FUERTES (Mantenidos)
+
+| Punto | Porqué es correcto |
+|-------|---------------------|
+| **Filtros positivos y negativos claros** | Soporte de include_keywords (lista blanca) y exclude_keywords (lista negra) para controlar exactamente qué videos pasan. |
+| **Modos de coincidencia flexibles** | Soporta OR (cualquiera de las palabras) y AND (todas las palabras) para adaptarse a distintos escenarios. |
+| **Caso-insensitive** | Todas las comparaciones se realizan en minúsculas para evitar discrepancias por uso de mayúsculas. |
+| **Prioridad de la lista negra** | Las palabras excluyentes descartan inmediatamente, reduciendo falsos positivos y riesgos de contenido no deseado. |
+| **Persistencia y métricas** | Configuraciones y contadores se guardan en BD; se mantiene un conteo de videos ignorados por filtros. |
+| **Integración con el flujo de monitoreo** | El filtrado se aplica durante la detección de videos y antes de procesarlos o notificar. |
+| **UI de configuración** | Panel en la UI para configurar incluir/excluir, modo y acciones, con pruebas y guardado. |
+| **Migraciones DB compatibles** | Nuevas tablas y columnas añadidas a través de migraciones que no rompen instalaciones existentes. |
+
+---
+
+## ⚠️ LIMITACIONES ACTUALES (Por entorno)
+
+### 1) Formato de extracción de metadatos de YouTube
+- Problema: Las palabras clave pueden depender de metadatos (p. ej., tags) que no siempre están disponibles en modo rápido (extract_flat=True).
+- Estado: El filtrado opera sobre título y descripción; el extraído de tags/IA se usa solo cuando está disponible.
+- Solución propuesta: Hacer llamadas adicionales solo si hay coincidencias parciales en duración/ventana de tiempo, para luego aplicar tags si están presentes.
+
+### 2) Semántica avanzada opcional
+- Problema: La similitud semántica (IA) requiere un servicio IA disponible.
+- Estado: Capa IA disponible solo si el servicio está configurado; si no, se usa flujo sin IA.
+- Solución propuesta: Mantener un fallback completamente local y permitir activar IA solo cuando esté disponible.
+
+### 3) Diálogo de decisión y flujo de usuario
+- Problema: El flujo de decisión para duplicados (esp. en UI) debe enlazarse con el diálogo modal.
+- Estado: El diálogo está preparado, pero requiere conexión completa a UI para activar automáticamente.
+- Solución propuesta: Enlazar DuplicateDecisionDialog con el flujo de monitor para permitir decisiones automáticas o manuales según configuración.
+
+---
+
+## 📋 ARCHIVOS MODIFICADOS/CREADOS
+
+| Archivo | Acción | Descripción |
+|---------|--------|-------------|
+| app/core/keyword_filter.py | Nuevo | Implementa KeywordFilter con lista blanca, lista negra, modo OR/AND y case-insensitive |
+| app/database/db_manager.py | Modificado | Migración DB para soportar filtros por palabras clave; añade métodos de filtro y relaciones; añade columnas/tabla necesarias |
+| app/services/monitor_service.py | Modificado | Integra el filtro en el flujo de detección; aplica filtros antes de añadir videos y actualiza contadores de omitidos |
+| app/ui/components/duplicate_dialog.py | Nuevo | (Opción adicional en este plan) Diálogo de decisión para duplicados (si se quiere enlazar con el flujo de UI) |
+| app/ui/tabs/monitor_tab.py | Modificado | Muestra métricas de duplicados y prepara soporte para decisiones; enlaza con callbacks |
+| gui_app.py | Modificado | Añadido panel de filtros por palabras clave en la UI; guarda/aplica/resetea filtros |
+| SPEC.md | Modificado | RF-021 marcado como implementado (✅) |
+
+Notas sobre integración práctica:
+- Se añadió un punto de acceso para guardar/recuperar la configuración de filtros desde la UI hacia la BD y al servicio de monitor.
+- Se expone un método de prueba de filtro en UI para validar configuraciones antes de guardarlas.
+
+---
+
+## 🎯 NUEVOS MÉTODOS Y CAMPOS
+
+### KeywordFilter (app/core/keyword_filter.py)
+- Métodos clave:
+  - __init__(include_keywords=None, exclude_keywords=None, mode="OR") – inicializa filtros.
+  - should_process(title, description="") -> (bool, str) – decide passage del filtro y devuelve razón.
+  - to_dict() / from_dict(data) – serialización/deserialización.
+  - to_json() / from_json(json_str) – serialización JSON.
+  - test_filter(test_title, test_description="") – prueba rápida del filtro.
+  - parse_keywords(keywords_str) – parsea cadenas separadas por coma.
+- Campos clave:
+  - include_keywords, exclude_keywords (listas en minúsculas)
+  - mode ("OR" | "AND")
+  - enabled (boolean)
+
+### DB Manager (app/database/db_manager.py)
+- Nuevos métodos:
+  - save_keyword_filter(include_keywords, exclude_keywords, mode, enabled) -> bool
+  - get_keyword_filter() -> Optional[Dict]
+  - increment_ignored_count(count=1) -> bool
+  - get_filter_statistics() -> Dict
+- Nueva estructura de DB:
+  - Tabla keyword_filters con campos include_keywords (JSON), exclude_keywords (JSON), mode, enabled, total_ignored, ignored_today, last_reset_date, etc.
+- Migraciones:
+  - Añadida tabla keyword_filters
+  - Añadidas columnas en videos: ignored_by_filter, filter_reason (para rastreo de por qué fue ignorado)
+  - Índices relevantes para rendimiento
+
+### Monitor Service (app/services/monitor_service.py)
+- Capacidades añadidas:
+  - Instancia de KeywordFilter y carga desde BD al inicio.
+  - Método set_keyword_filter(include_keywords, exclude_keywords, mode, enabled) para persistencia y actualización.
+  - Método get_keyword_filter_config() para exponer la configuración actual.
+  - Integración en _check_single_channel para aplicar should_process sobre cada video detectado.
+  - Conteo de videos ignorados incrementando el contador de filtros en la BD.
+  - Prueba de filtrado (test_keyword_filter) para validaciones en UI.
+
+### UI (gui_app.py)
+- Panel dedicado "Filtros por Palabras Clave" dentro del monitor, con:
+  - Opción para habilitar/deshabilitar
+  - Campos para incluir y excluir (listas separadas por coma)
+  - Selección de modo OR/AND
+  - Botones Guardar / Probar / Reset
+  - Indicador de estadísticas del filtro
+- Métodos en GUI para cargar/guardar configuración desde/para el monitor, validar entradas y mostrar resultados de pruebas.
+
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+###short-term (1-2 sprints)
+
+1. **Estadísticas de filtrado**: Mostrar cuántos videos fueron rechazados por el filtro vs totale procesadostotal filtrado (desde BD)
+2. **Historial de filtrado**: Guardar logs de qué videos fueron rechazados y por qué palabra (para auditoría) - integración con log existente
+3. **Preview masivo**: Añadir botón para probar filtro con lista de títulos de ejemplo (no uno solo, sino ~5-10) en lugar de entrada individual
+
+### Medium-term
+
+4. **Filtros por canal**: Permitir configurar filtros diferentes por canal individual (actualmente es global)
+5. **Filtros por duración**: Añadir inputs de duración mínima/máxima (ej: "solo videos de 5-20 min") - integrable con metadata existente
+6. **Filtros por fecha**: Añadir filtro por fecha de publicación (ej: "solo últimos 3 días")
+7. **Perfiles de filtro**: Guardar/recuperar múltiples configuraciones (perfil "KDP Tutoriales", perfil "Low Content", etc.)
+
+### Long-term
+
+8. **Regex/wildcards**: Soporte para expresiones regulares en keywords (ej: `kdp.*tutorial` matches "KDP Tutorial 2024")
+9. **Exportar/importar**: Guardar configuraciones de filtro a JSON para compartir
+10. **UI de configuración avanzada**: Panel visual con reglas AND/OR anidadas (filtro compuesto)
+
+---
+
+### Pregunta para ti:
+
+¿Cuál de estos te interesa más? ¿O prefieres que Prioricemos por:
+- **Utilidad inmediata** (stats + historial)?
+- **Flexibilidad** (filtros por canal + duración)?
+- **Profesional** (regex + perfiles)?
+
+---
+
+## 🧪 PRÓXIMOS PASOS (Opcionales)
+
+1. Conectar por completo el DuplicateDecisionDialog en gui_app.py para permitir decisiones automáticas en UI ante duplicados.
+2. Añadir panel de relaciones en la UI para agrupar videos relacionados.
+3. Extender filtros para aceptar filtrado por tipo de duplicado en el monitor.
+4. Generación de reportes/exportación de duplicados detectados.
+5. Añadir dashboard de deduplicación con métricas históricas.
+6. Afinar pruebas unitarias e integradas de los nuevos métodos de filtrado y migraciones.
+
+---
+
+## ✅ VEREDICTO
+
+- Motor de filtros por palabras clave implementado con éxito (positivos y negativos, OR/AND, case-insensitive).
+- Persistencia de configuración y métricas en BD.
+- Integración completa en el flujo de monitoreo para evitar procesamiento de videos no deseados.
+- UI de configuración y pruebas disponibles para validación manual.
+- RF-021 ya reflejado como implementado en SPEC.md.
+
+La funcionalidad US-021 está operativa y lista para pruebas en staging. Si quieres, puedo lanzar pruebas rápidas de integración o preparar un conjunto de casos de prueba unitarios para validar OR/AND y blacklist en diferentes escenarios.

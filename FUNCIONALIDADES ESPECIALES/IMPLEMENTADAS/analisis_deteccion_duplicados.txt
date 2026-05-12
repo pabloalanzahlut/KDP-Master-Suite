@@ -231,7 +231,7 @@ def on_monitor_duplicate_detected(self, duplicate_info):
 
 ---
 
-## 🎯 PRÓXIMOS PASOS - HECHOS
+## 🎯 PRÓXIMOS PASOS (Opcionales)
 
 1. **Conectar diálogo de decisión**: Integrar DuplicateDecisionDialog en gui_app.py para activar diálogo cuando se detecte duplicado
 2. **Panel de relaciones**: UI para ver cluster de videos relacionados (relaciones > 1)
@@ -239,9 +239,6 @@ def on_monitor_duplicate_detected(self, duplicate_info):
 4. **Exportación de duplicates**: Reporte CSV de duplicados detectados
 5. **Dashboard de deduplicación**: Métricas de-duplicación: tasa histórica, ahorro de cuota API
 6. **Auto-decisión configurable**: Permitir al usuario establecer reglas automáticas (ej: "omitir reposts siempre")
-Scheduler real para exportación automática (actualmente solo está la UI de configuración)
-Panel de administración de reglas (editar/eliminar reglas visuales)
-Gráficos visuales (matplotlib/tkinter canvas) en lugar de solo texto
 
 ---
 

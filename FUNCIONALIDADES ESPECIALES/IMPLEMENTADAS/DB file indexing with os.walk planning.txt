@@ -1,0 +1,34 @@
+## 🎯 PRÓXIMOS PASOS (Opcionales)
+
+1. **Panel de configuración UI**: Crear sección en Settings para configurar directorios a indexar, tipos de archivos, tamaño máximo para hash
+
+2. **Indexación automática al inicio**: Ejecutar `init_background_scan()` cuando la app inicia (solo archivos nuevos/modificados)
+
+3. **Dashboard de estadísticas**: Mostrar en search_tab métricas: total archivos, por tipo, último escaneo, tamaño total indexado
+
+4. **Búsqueda avanzada**: Filtros por fecha (última semana), tipo de archivo, rango de tamaño
+
+5. **Exportar índice**: Exportar lista de archivos indexados a CSV/JSON para auditoría
+
+6. **Watcher de archivos**: Monitorizar directorios con `watchdog` para detectar archivos nuevos en tiempo real y reindexar automáticamente
+
+7. **Integración con procesamiento**: Usar índice existente para evitar reprocesar archivos ya convertidos (comparar by content_hash)
+
+8. **Limpieza programada**: Botón "🗑️ Purge" para eliminar entradas huérfanas de archivos borrados
+
+9. **Historial de cambios**: Guardar en DB log de archivos añadidos/eliminados para auditoría
+
+10. **Búsqueda por管道**: Filtrar transcripciones por canal/fuente desde nombre de archivo
+
+---
+
+| Prioridad | Mejora | Impacto |
+|----------|-------|--------|
+| **P1** | Indexación auto al inicio | UX: Menos clicks |
+| **P2** | Stats dashboard | Visibilidad |
+| **P3** | Integración procesamiento | Eficiencia |
+| **P4** | Exportar índice | Auditoría |
+
+---
+
+**¿Cuáles te interesan?** Puedo profundizar en cualquier opción.

@@ -73,12 +73,14 @@ dashboard_server.py (Puerto 8000)
 
 ---
 
-## 🎯 PRÓXIMOS PASOS Dashboard Web
+## 🎯 PRÓXIMOS PASOS (Opcionales)
 
 1. **Métricas adicionales**: Agregar CPU, memoria, velocidad de descarga
 2. **Histórico**: Graficar evolución temporal de videos/canales
 3. **WebSocket**: Cambiar de polling a WebSocket para actualizaciones instantáneas
 4. **Autenticación**: Agregar login para acceso remoto seguro
+
+## 🎯 PRÓXIMOS PASOS (Opcionales) - Dashboard Web
 
 1. **Panel de métricas avanzadas**: Añadir endpoint `/api/metrics` con gráficos de velocidad de descubrimiento, distribución por estado, canales más activos
 2. **Filtros persistentes en UI**: Guardar filtros de canales/estado en `localStorage` del navegador para mantener selección entre sesiones
