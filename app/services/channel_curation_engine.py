@@ -605,6 +605,233 @@ Decides qué videos son relevantes para el objetivo del usuario."""
         elif action == "skip":
             self._learned_preferences["skipped_keywords"].update(keywords)
     
+    def detect_niche_change(self, channel_id: int, current_topics: Dict[str, int] = None) -> Dict:
+        """
+        Módulo B1: Detección de Cambio de Nicho del Canal
+        Compara la distribución actual de topics vs el histórico (últimos 30 días).
+        
+        Args:
+            channel_id: ID del canal a analizar
+            current_topics: Distribución actual de topics (dict topic: count)
+        
+        Returns:
+            {
+                "has_changed": bool,
+                "change_severity": "none"|"minor"|"major",
+                "new_topics": list,
+                "dropped_topics": list,
+                "similarity_score": 0.0-1.0
+            }
+        """
+        # Obtener topics históricos del canal desde DB
+        historical_topics = self._get_historical_topics(channel_id, days=30)
+        
+        if not historical_topics:
+            return {"has_changed": False, "change_severity": "none", "similarity_score": 1.0}
+        
+        if current_topics is None:
+            current_topics = {}
+        
+        # Calcular similaridad usando Jaccard
+        historical_set = set(historical_topics.keys())
+        current_set = set(current_topics.keys())
+        
+        if not historical_set or not current_set:
+            return {"has_changed": False, "change_severity": "none", "similarity_score": 1.0}
+        
+        intersection = len(historical_set & current_set)
+        union = len(historical_set | current_set)
+        similarity = intersection / union if union > 0 else 0.0
+        
+        # Topics nuevos y perdidos
+        new_topics = list(current_set - historical_set)
+        dropped_topics = list(historical_set - current_set)
+        
+        # Determinar severidad del cambio
+        if similarity > 0.8:
+            change_severity = "none"
+        elif similarity > 0.5:
+            change_severity = "minor"
+        else:
+            change_severity = "major"
+        
+        has_changed = similarity < 0.7
+        
+        return {
+            "has_changed": has_changed,
+            "change_severity": change_severity,
+            "new_topics": new_topics[:5],
+            "dropped_topics": dropped_topics[:5],
+            "similarity_score": round(similarity, 2)
+        }
+    
+    def predict_next_upload(self, channel_id: int) -> Dict:
+        """
+        Módulo B4: Predicción de Videos Futuros
+        Analiza frecuencia de publicación y predice próxima fecha de upload.
+        
+        Returns:
+            {
+                "next_upload_estimated": "YYYY-MM-DD" or None,
+                "confidence": 0.0-1.0,
+                "avg_days_between": float,
+                "trend": "increasing"|"stable"|"decreasing"
+            }
+        """
+        if not self.db_manager:
+            return {"error": "No hay db_manager"}
+        
+        try:
+            videos = self.db_manager.get_videos_by_channel(channel_id)
+            
+            if len(videos) < 3:
+                return {"confidence": 0.0, "reason": " datos insuficientes"}
+            
+            # Extraer fechas de publicación
+            dates = []
+            for v in videos:
+                pub = v.get('published_at') or v.get('discovered_at', '')
+                if pub:
+                    try:
+                        dt = datetime.fromisoformat(pub.replace('Z', '+00:00'))
+                        dates.append(dt)
+                    except:
+                        continue
+            
+            if len(dates) < 3:
+                return {"confidence": 0.0, "reason": " fechas no disponibles"}
+            
+            dates.sort(reverse=True)
+            
+            # Calcular intervalos
+            intervals = []
+            for i in range(len(dates) - 1):
+                diff = (dates[i] - dates[i+1]).days
+                intervals.append(diff)
+            
+            if not intervals:
+                return {"confidence": 0.0}
+            
+            avg_interval = sum(intervals) / len(intervals)
+            
+            # Determinar tendencia (últimos 5 vs anteriores)
+            if len(intervals) >= 6:
+                recent_avg = sum(intervals[:3]) / 3
+                old_avg = sum(intervals[3:6]) / 3
+                if recent_avg < old_avg * 0.8:
+                    trend = "increasing"  # Publica más frecuente
+                elif recent_avg > old_avg * 1.2:
+                    trend = "decreasing"
+                else:
+                    trend = "stable"
+            else:
+                trend = "stable"
+            
+            # Predecir próxima fecha
+            last_date = dates[0]
+            next_date = last_date + timedelta(days=int(avg_interval))
+            
+            # Calcular confianza
+            std_dev = (sum((i - avg_interval) ** 2 for i in intervals) / len(intervals)) ** 0.5
+            confidence = max(0.0, min(1.0, 1.0 - (std_dev / avg_interval))) if avg_interval > 0 else 0.5
+            
+            return {
+                "next_upload_estimated": next_date.strftime("%Y-%m-%d"),
+                "confidence": round(confidence, 2),
+                "avg_days_between": round(avg_interval, 1),
+                "trend": trend,
+                "total_analyzed": len(dates)
+            }
+        except Exception as e:
+            logger.warning(f"Error prediciendo próximo upload: {e}")
+            return {"error": str(e)}
+    
+    def benchmark_channels(self, channel_ids: List[int], comparison_metrics: List[str] = None) -> List[Dict]:
+        """
+        Módulo B5: Benchmarking vs Otros Canales
+        Compara métricas de salud y calidad entre canales del mismo nicho.
+        
+        Args:
+            channel_ids: Lista de IDs de canales a comparar
+            comparison_metrics: Métricas a comparar (default: ['health', 'relevance', 'engagement'])
+        
+        Returns:
+            Lista de diccionarios con métricas comparadas
+        """
+        if comparison_metrics is None:
+            comparison_metrics = ['health', 'relevance', 'engagement']
+        
+        results = []
+        
+        for channel_id in channel_ids:
+            try:
+                # Obtener datos del canal
+                channel = self.db_manager.get_channel(channel_id)
+                videos = self.db_manager.get_videos_by_channel(channel_id)
+                
+                if not channel:
+                    continue
+                
+                # Calcular métricas
+                total_videos = len(videos)
+                avg_relevance = sum(v.get('kdp_relevance_score', 0) for v in videos) / total_videos if total_videos > 0 else 0
+                
+                # Health score básico
+                health_score = min(100, (total_videos / 10) * 20 + avg_relevance * 0.5)
+                
+                # Engagement estimado (videos procesados / total)
+                processed = sum(1 for v in videos if v.get('status') == 'completed')
+                engagement = (processed / total_videos * 100) if total_videos > 0 else 0
+                
+                result = {
+                    "channel_id": channel_id,
+                    "channel_name": channel.get('channel_name', 'Unknown'),
+                    "total_videos": total_videos,
+                    "health_score": round(health_score, 1),
+                    "avg_relevance": round(avg_relevance, 1),
+                    "engagement_rate": round(engagement, 1),
+                    "rank": None  # Se preencherá después
+                }
+                
+                results.append(result)
+            except Exception as e:
+                logger.warning(f"Error en benchmark para canal {channel_id}: {e}")
+        
+        # Ordenar por health_score y asignar ranks
+        results.sort(key=lambda x: x['health_score'], reverse=True)
+        for i, r in enumerate(results):
+            r['rank'] = i + 1
+        
+        return results
+    
+    def _get_historical_topics(self, channel_id: int, days: int = 30) -> Dict[str, int]:
+        """Obtiene la distribución de topics históricos del canal."""
+        # Esta implementación lee desde DB si hay datos históricos
+        # Por ahora retorna un dict vacío (se填充ará con datos reales)
+        if not self.db_manager:
+            return {}
+        
+        try:
+            from datetime import timedelta
+            cutoff_date = (datetime.now() - timedelta(days=days)).isoformat()
+            
+            videos = self.db_manager.get_videos_by_channel(channel_id)
+            topics_count = {}
+            
+            for video in videos:
+                if video.get('discovered_at', '') > cutoff_date:
+                    tags = video.get('tags', '')
+                    if tags:
+                        for tag in tags.split(','):
+                            tag = tag.strip()
+                            if tag:
+                                topics_count[tag] = topics_count.get(tag, 0) + 1
+            
+            return topics_count
+        except Exception as e:
+            logger.warning(f"Error obteniendo topics históricos: {e}")
+            return {}
+    
     # ==================== PILAR 4: OPTIMIZACIÓN DE DESCARGA (31-40) ====================
     # Módulo 31: Programación Inteligente de Descarga
     # Módulo 32: Agrupación por Tema para Batch
@@ -1019,6 +1246,59 @@ Traduce solo lo más importante (no todo el texto):
             pass
         
         return "unknown"
+    
+    def detect_language_with_confidence(self, text: str, target_language: str = "es") -> tuple[str, float, bool]:
+        """
+        Módulo B6: Filtro de Idioma Estricto
+        Detecta idioma con confianza y determina si pasa el filtro.
+        
+        Args:
+            text: Texto a analizar (título + descripción)
+            target_language: Idioma objetivo requerido (default: "es")
+        
+        Returns:
+            (detected_language, confidence, passes_filter)
+            - confidence: 0.0-1.0
+            - passes_filter: True si confidence > 0.9 Y detected == target
+        """
+        # Análisis estadístico rápido
+        text_lower = text.lower()
+        
+        # Dicionarios de palabras por idioma
+        lang_patterns = {
+            "es": ["el", "la", "los", "las", "de", "que", "es", "en", "un", "por", "con", "para", "como", "este", "esta", "pero", "sobre", "todo", "tiene", "hacer", "kdp", "amazon", "publicar", "libro", "autoedición"],
+            "en": ["the", "a", "an", "is", "are", "was", "were", "be", "been", "have", "has", "had", "do", "does", "did", "will", "would", "could", "should", "publish", "book", "self", "how", "to"],
+            "pt": ["o", "a", "os", "as", "de", "da", "do", "que", "é", "em", "um", "uma", "para", "com", "por", "kdp", "amazon", "publicar", "livro"],
+            "fr": ["le", "la", "les", "de", "du", "des", "un", "une", "est", "sont", "pour", "avec", "que", "qui", "publish", "livre"],
+            "de": ["der", "die", "das", "und", "ist", "nicht", "ein", "eine", "zu", "den", "von", "publish", "buch"],
+        }
+        
+        scores = {}
+        words = text_lower.split()[:50]  # Solo primeras 50 palabras para velocidad
+        
+        for lang, keywords in lang_patterns.items():
+            score = sum(1 for w in words if w in keywords)
+            scores[lang] = score
+        
+        if not scores:
+            return "unknown", 0.0, False
+        
+        # Encontrar idioma con mayor score
+        max_lang = max(scores, key=scores.get)
+        max_score = scores[max_lang]
+        
+        # Calcular confianza basada en diferencia con el segundo mejor
+        sorted_scores = sorted(scores.values(), reverse=True)
+        if len(sorted_scores) > 1:
+            diff = sorted_scores[0] - sorted_scores[1]
+            confidence = min(1.0, diff / 5.0 + 0.5)  # Min 50%, escala hasta 100%
+        else:
+            confidence = 0.5
+        
+        # Filtro estricto: confianza > 90% Y coincide con target
+        passes_filter = confidence > 0.9 and max_lang == target_language
+        
+        return max_lang, confidence, passes_filter
 
 
 # ==================== EXPORT FUNCTIONS ====================
