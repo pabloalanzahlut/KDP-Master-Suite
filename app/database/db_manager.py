@@ -85,6 +85,7 @@ class DatabaseManager:
                     discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     kdp_relevance_score INTEGER DEFAULT 0,
                     last_scored_at TIMESTAMP,
+                    is_reference_material BOOLEAN DEFAULT 0,
                     FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE
                 )
             """)
@@ -2421,6 +2422,72 @@ class DatabaseManager:
             return {'total': 0, 'avg_score': 0, 'high_relevance': 0, 'low_relevance': 0}
         finally:
             conn.close()
+    
+    # ==================== MATERIAL DE REFERENCIA (C4) ====================
+    
+    def set_video_reference_material(self, video_id: str, is_reference: bool = True) -> bool:
+        """
+        Módulo C4: Marcado de Material de Referencia
+        Marca un video como material de referencia técnica densa.
+        
+        Args:
+            video_id: ID del video
+            is_reference: True para marcar, False para desmarcar
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("""
+                UPDATE videos 
+                SET is_reference_material = ?
+                WHERE video_id = ?
+            """, (1 if is_reference else 0, video_id))
+            conn.commit()
+            return cursor.rowcount > 0
+        except Exception as e:
+            logger.error(f"Error estableciendo material de referencia: {e}")
+            return False
+        finally:
+            conn.close()
+    
+    def get_reference_videos(self, channel_id: int = None) -> List[Dict]:
+        """
+        Obtiene videos marcados como material de referencia.
+        
+        Args:
+            channel_id: Filtrar por canal (None = todos)
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            if channel_id:
+                cursor.execute("""
+                    SELECT v.*, c.channel_name
+                    FROM videos v
+                    JOIN channels c ON v.channel_id = c.id
+                    WHERE v.is_reference_material = 1 AND v.channel_id = ?
+                    ORDER BY v.discovered_at DESC
+                """, (channel_id,))
+            else:
+                cursor.execute("""
+                    SELECT v.*, c.channel_name
+                    FROM videos v
+                    JOIN channels c ON v.channel_id = c.id
+                    WHERE v.is_reference_material = 1
+                    ORDER BY v.discovered_at DESC
+                """)
+            
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        except Exception as e:
+            logger.error(f"Error obteniendo videos de referencia: {e}")
+            return []
+        finally:
+            conn.close()
+    
+    # ==================== FIN MATERIAL DE REFERENCIA ====================
     
     # ==================== FIN CRUD SCORING KDP ====================
 

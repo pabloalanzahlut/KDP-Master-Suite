@@ -487,9 +487,11 @@ Analizas densidad informativa, originalidad, y aplicabilidad práctica."""
         # Credibilidad
         metadata.credibility_score = min(100, 100 - metadata.clickbait_score)
         
-        # Controversia
-        controversial_keywords = ["best", "worst", "scam", "truth", "exposed"]
-        metadata.is_controversial = any(k in metadata.title.lower() for k in controversial_keywords)
+        # Controversia [Módulo C5]
+        metadata.is_controversial = self._detect_controversy(metadata.title, metadata.description)
+        
+        # Engagement ratio estimado (likes/dislikes ratio)
+        metadata.engagement_ratio = self._estimate_engagement_ratio(metadata)
         
         # Series educativa
         series_patterns = ["part ", "chapter ", "episode ", "lesson "]
@@ -831,6 +833,72 @@ Decides qué videos son relevantes para el objetivo del usuario."""
         except Exception as e:
             logger.warning(f"Error obteniendo topics históricos: {e}")
             return {}
+    
+    def _detect_controversy(self, title: str, description: str = "") -> bool:
+        """
+        Módulo C5: Detección de Controversia/Polarización mejorada
+        Analiza título y descripción para detectar temas polarizantes.
+        
+        Returns:
+            True si el contenido es potencialmente controversial
+        """
+        text = f"{title} {description}".lower()
+        
+        # Keywords de alta controversia en contexto KDP/nEGOCIOS
+        high_controversy = [
+            "scam", "fraud", "estafa", "fraude", "con", "rip off",
+            "truth about", "real truth", "no te束", "mentira",
+            "exposed", "revealed", "secret exposed", "secret scam",
+            "don't buy", "never buy", "warning", "alerta",
+            "illegal", "ilegal", "lawsuits", "demanda",
+        ]
+        
+        # Keywords de polarización media
+        medium_controversy = [
+            "best vs", "worst", "compared to", "review vs",
+            "is it worth", "worth it", "real review",
+            "make money", "income", "earn", "ganar dinero",
+        ]
+        
+        # Verificar alta controversia (directamente controversial)
+        for kw in high_controversy:
+            if kw in text:
+                return True
+        
+        # Verificar polarización media (contar coincidencias)
+        polar_count = sum(1 for kw in medium_controversy if kw in text)
+        if polar_count >= 2:
+            return True
+        
+        return False
+    
+    def _estimate_engagement_ratio(self, metadata: VideoMetadata) -> float:
+        """
+        Estima el ratio de engagement (likes/dislikes) basado en señales.
+        
+        Returns:
+            Ratio estimado 0.0 - 10.0 (10 = muy engagement)
+        """
+        score = 5.0  # Base neutral
+        
+        # Señales positivas de engagement
+        positive_signals = ["tutorial", "how to", "guide", "steps", "complete"]
+        if any(s in metadata.title.lower() for s in positive_signals):
+            score += 2.0
+        
+        # Señales de engagement bajo
+        low_signals = ["short", "preview", "trailer"]
+        if any(s in metadata.title.lower() for s in low_signals):
+            score -= 1.5
+        
+        # Ajuste por duración
+        if metadata.estimated_words:
+            if metadata.estimated_words > 10000:
+                score += 1.0  # Contenido largo = más engagement
+            elif metadata.estimated_words < 3000:
+                score -= 1.0  # Contenido corto = menos engagement
+        
+        return max(1.0, min(10.0, score))
     
     # ==================== PILAR 4: OPTIMIZACIÓN DE DESCARGA (31-40) ====================
     # Módulo 31: Programación Inteligente de Descarga

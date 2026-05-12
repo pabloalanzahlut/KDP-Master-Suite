@@ -58,6 +58,22 @@ class DownloadService:
         self._proxy_enabled = False
         # Módulo A4: Check de Licencia
         self._license_check_enabled = True
+        # Módulo C1: Rotación de User-Agent
+        self._user_agents = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/120.0.0.0",
+            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0",
+        ]
+        self._user_agent_index = 0
+        self._request_count = 0
+        self._rotation_interval = 50  # Cambiar cada 50 peticiones
     
     def enable_scoring(self, min_score: int = 50, db_manager=None) -> bool:
         """
@@ -334,6 +350,23 @@ class DownloadService:
         proxy = self._proxy_list[self._proxy_index]
         self._proxy_index = (self._proxy_index + 1) % len(self._proxy_list)
         return proxy
+    
+    def _get_next_user_agent(self) -> str:
+        """
+        Módulo C1: Rotación de User-Agent
+        Obtiene el siguiente user-agent de la lista (rotación cada N peticiones).
+        
+        Returns:
+            User-Agent string
+        """
+        self._request_count += 1
+        
+        # Rotar cada N peticiones
+        if self._request_count >= self._rotation_interval:
+            self._user_agent_index = (self._user_agent_index + 1) % len(self._user_agents)
+            self._request_count = 0
+        
+        return self._user_agents[self._user_agent_index]
     
     def _apply_proxy_config(self, ydl_opts: dict):
         """Aplica configuración de proxy al opts de yt-dlp."""
@@ -703,6 +736,8 @@ class DownloadService:
             'progress_hooks': [self._progress_hook],
             'sleep_interval': Config.YT_SLEEP_INTERVAL,
             'max_sleep_interval': Config.YT_MAX_SLEEP_INTERVAL,
+            # Módulo C1: Rotación de User-Agent
+            'http_headers': {'User-Agent': self._get_next_user_agent()},
         }
         
         for attempt in range(max_retries + 1):
