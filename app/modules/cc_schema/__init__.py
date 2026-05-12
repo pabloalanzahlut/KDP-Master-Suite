@@ -30,6 +30,12 @@ Módulos FASE 4 (Completados 16-20):
 - manifest_generator: Generador de manifest de extracción
 - atomic_persistence: Persistencia atómica de transcripción
 
+Módulos FASE HARDENING (Completados 41-44):
+- rate_limit_enforcer: Limitador de rate entre módulos
+- circuit_breaker: Previene cascadas de errores
+- health_checker: Monitor de salud de módulos
+- config_validator: Validador de configs antes de ejecutar
+
 Autor: KDP_MASTER AI Team
 Fecha: 2026-05-12
 """
@@ -142,6 +148,39 @@ from .atomic_persistence import (
     AtomicPersistenceManager,
     PersistedTranscription,
     TransactionState,
+)
+
+from .rate_limit_enforcer import (
+    RateLimitEnforcer,
+    RateLimitConfig,
+    RateLimitMetrics,
+    RateLimitRegistry,
+    create_rate_limiter,
+)
+
+from .circuit_breaker import (
+    CircuitBreaker,
+    CircuitConfig,
+    CircuitMetrics,
+    CircuitState,
+    CircuitOpenError,
+    CircuitBreakerRegistry,
+    create_circuit_breaker,
+)
+
+from .health_checker import (
+    HealthChecker,
+    HealthCheck,
+    HealthStatus,
+    SystemHealth,
+    create_health_checker,
+)
+
+from .config_validator import (
+    ConfigValidator,
+    ValidationLevel,
+    ValidationResult,
+    create_config_validator,
 )
 
 
@@ -277,9 +316,13 @@ __all__ = [
     'create_fts5_validator',
     'create_manifest_generator',
     'create_persistence_manager',
+    'create_rate_limiter',
+    'create_circuit_breaker',
+    'create_health_checker',
+    'create_config_validator',
 ]
 
-__version__ = '4.0.0'
+__version__ = '4.4.0'
 __all_modules__ = [
     'cc_availability_validator',
     'parallel_subtitle_fetcher',
@@ -298,5 +341,9 @@ __all_modules__ = [
     'retry_handler',
     'fts5_validator',
     'manifest_generator',
-    'atomic_persistence'
+    'atomic_persistence',
+    'rate_limit_enforcer',
+    'circuit_breaker',
+    'health_checker',
+    'config_validator'
 ]
