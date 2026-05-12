@@ -222,3 +222,68 @@ class ProcessingService:
             return enriched
         except Exception as e:
             return {"error": str(e)}
+    
+    def predict_compression_ratio(self, text: str, metadata: dict = None) -> float:
+        """
+        Módulo B3: Compresión Predictiva
+        Estima el ratio de compresión basado en densidad de keywords y estructura.
+        
+        Args:
+            text: Texto de la transcripción
+            metadata: Metadatos opcionales del video (duración, etc.)
+        
+        Returns:
+            Ratio de compresión estimado (0.0 - 1.0)
+            - 1.0 = Sin compresión (texto muy denso)
+            - 0.5 = 50% de reducción esperada
+            - 0.1 = 90% de reducción (mucho relleno)
+        """
+        if not text:
+            return 1.0
+        
+        # Densidad de keywords KDP de alta relevancia
+        kdp_keywords = [
+            'kdp', 'amazon', 'publish', 'book', 'ebook', 'autor', ' royalty',
+            'isbn', 'editorial', 'impresión', 'baja', 'alta', 'precio', 'ventas',
+            'marketing', 'promoción', 'trámite', 'formal', 'legal', 'impuesto',
+            'derechos', 'contrato', 'edición', 'portada', 'descripción', 'keywords'
+        ]
+        
+        text_lower = text.lower()
+        words = text_lower.split()
+        
+        # Contar keywords de alta relevancia
+        keyword_count = sum(1 for w in words if w in kdp_keywords)
+        keyword_density = keyword_count / len(words) if words else 0
+        
+        # Detectar "relleno" (fluff)
+        filler_words = ['bueno', 'entonces', 'básicamente', 'literally', 'actually',
+                       'you know', 'like', 'just', 'maybe', 'perhaps', 'so', 'well']
+        filler_count = sum(1 for w in words if w in filler_words)
+        filler_ratio = filler_count / len(words) if words else 0
+        
+        # Calcular ratio de compresión
+        # Alta densidad de keywords + bajo filler = alta compresión posible
+        base_ratio = 0.8  # Ratio base
+        
+        # Ajustar por densidad de keywords
+        if keyword_density > 0.05:
+            base_ratio = 0.9  # Mucho contenido valioso
+        elif keyword_density > 0.02:
+            base_ratio = 0.7
+        else:
+            base_ratio = 0.5  # Bajo contenido valioso
+        
+        # Reducir si hay mucho filler
+        if filler_ratio > 0.1:
+            base_ratio *= 0.8
+        
+        # Ajustar por duración si hay metadata
+        if metadata:
+            duration = metadata.get('duration', 0)
+            if duration > 7200:  # > 2 horas
+                base_ratio *= 0.9  # Videos largos suelen tener más estructura
+            elif duration < 300:  # < 5 minutos
+                base_ratio *= 1.0  # Videos cortos = contenido denso
+        
+        return max(0.1, min(1.0, base_ratio))
