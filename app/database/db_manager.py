@@ -83,6 +83,8 @@ class DatabaseManager:
                     tags TEXT,
                     published_at TIMESTAMP,
                     discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    kdp_relevance_score INTEGER DEFAULT 0,
+                    last_scored_at TIMESTAMP,
                     FOREIGN KEY (channel_id) REFERENCES channels(id) ON DELETE CASCADE
                 )
             """)
@@ -785,25 +787,55 @@ class DatabaseManager:
         finally:
             conn.close()
 
-    def get_videos_by_channel(self, channel_id: int) -> List[Dict]:
-        """Obtiene todos los videos de un canal."""
+    def get_videos_by_channel(self, channel_id: int, limit: int = None, offset: int = 0) -> List[Dict]:
+        """Obtiene los videos de un canal con soporte de paginación.
+        
+        Args:
+            channel_id: ID del canal
+            limit: Número máximo de videos a retornar (None = todos)
+            offset: Número de videos a omitir desde el inicio
+        """
         conn = self.get_connection()
         cursor = conn.cursor()
         
         try:
-            cursor.execute("""
-                SELECT v.*, ph.status, ph.processed_at
-                FROM videos v
-                LEFT JOIN processing_history ph ON v.id = ph.video_id
-                WHERE v.channel_id = ?
-                ORDER BY v.discovered_at DESC
-""", (channel_id,))
+            if limit is not None:
+                cursor.execute("""
+                    SELECT v.*, ph.status, ph.processed_at
+                    FROM videos v
+                    LEFT JOIN processing_history ph ON v.id = ph.video_id
+                    WHERE v.channel_id = ?
+                    ORDER BY v.discovered_at DESC
+                    LIMIT ? OFFSET ?
+                """, (channel_id, limit, offset))
+            else:
+                cursor.execute("""
+                    SELECT v.*, ph.status, ph.processed_at
+                    FROM videos v
+                    LEFT JOIN processing_history ph ON v.id = ph.video_id
+                    WHERE v.channel_id = ?
+                    ORDER BY v.discovered_at DESC
+                """, (channel_id,))
 
             rows = cursor.fetchall()
             return [dict(row) for row in rows]
         except Exception as e:
             logger.error(f"Error obteniendo videos: {e}")
             return []
+        finally:
+            conn.close()
+    
+    def count_videos_by_channel(self, channel_id: int) -> int:
+        """Cuenta el total de videos de un canal."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("SELECT COUNT(*) FROM videos WHERE channel_id = ?", (channel_id,))
+            return cursor.fetchone()[0]
+        except Exception as e:
+            logger.error(f"Error contando videos: {e}")
+            return 0
         finally:
             conn.close()
 
@@ -2321,6 +2353,77 @@ class DatabaseManager:
         finally:
             conn.close()
     
+    # ==================== CRUD SCORING KDP ====================
+    
+    def update_video_kdp_score(self, video_id: str, kdp_score: int) -> bool:
+        """Actualiza el score de relevancia KDP de un video."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("""
+                UPDATE videos 
+                SET kdp_relevance_score = ?, last_scored_at = CURRENT_TIMESTAMP
+                WHERE video_id = ?
+            """, (kdp_score, video_id))
+            conn.commit()
+            return cursor.rowcount > 0
+        except Exception as e:
+            logger.error(f"Error actualizando kdp_relevance_score: {e}")
+            return False
+        finally:
+            conn.close()
+    
+    def get_videos_by_kdp_score(self, min_score: int = 0, max_score: int = 100) -> List[Dict]:
+        """Obtiene videos filtrados por rango de score KDP."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("""
+                SELECT v.*, c.channel_name, c.channel_url
+                FROM videos v
+                JOIN channels c ON v.channel_id = c.id
+                WHERE v.kdp_relevance_score BETWEEN ? AND ?
+                ORDER BY v.kdp_relevance_score DESC
+            """, (min_score, max_score))
+            
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        except Exception as e:
+            logger.error(f"Error obteniendo videos por score: {e}")
+            return []
+        finally:
+            conn.close()
+    
+    def get_curation_stats(self) -> Dict:
+        """Obtiene estadísticas de curación del canal."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("""
+                SELECT 
+                    COUNT(*) as total,
+                    AVG(kdp_relevance_score) as avg_score,
+                    MIN(kdp_relevance_score) as min_score,
+                    MAX(kdp_relevance_score) as max_score,
+                    SUM(CASE WHEN kdp_relevance_score >= 70 THEN 1 ELSE 0 END) as high_relevance,
+                    SUM(CASE WHEN kdp_relevance_score < 40 THEN 1 ELSE 0 END) as low_relevance
+                FROM videos
+                WHERE kdp_relevance_score > 0
+            """)
+            
+            row = cursor.fetchone()
+            return dict(row) if row else {'total': 0, 'avg_score': 0, 'high_relevance': 0, 'low_relevance': 0}
+        except Exception as e:
+            logger.error(f"Error obteniendo stats de curación: {e}")
+            return {'total': 0, 'avg_score': 0, 'high_relevance': 0, 'low_relevance': 0}
+        finally:
+            conn.close()
+    
+    # ==================== FIN CRUD SCORING KDP ====================
+
     # ==================== FIN CRUD PERFILES DE FILTROS ====================
 
 

@@ -27,7 +27,7 @@ class DownloadService:
     MODO SOLO VERIFICAR (optimize=True):
     - Solo comprueba que la URL responde
     """
-    def __init__(self, input_dir, optimize, secure_mode, ffmpeg_location, progress_callback=None, log_callback=None, batch_progress_callback=None):
+    def __init__(self, input_dir, optimize, secure_mode, ffmpeg_location, progress_callback=None, log_callback=None, batch_progress_callback=None, db_manager=None):
         self.input_dir = input_dir
         self.optimize = optimize
         self.secure_mode = secure_mode
@@ -35,6 +35,7 @@ class DownloadService:
         self.progress_callback = progress_callback
         self.log_callback = log_callback
         self.batch_progress_callback = batch_progress_callback
+        self.db_manager = db_manager
         self._downloaded_count = 0
         self._consecutive_errors = 0
         self._last_request_time = 0
@@ -50,17 +51,27 @@ class DownloadService:
         self._max_duration = 0  # Duración máxima en segundos (0 = sin límite)
         self._date_from = None  # Fecha desde (YYYYMMDD)
         self._date_to = None    # Fecha hasta (YYYYMMDD)
+        # Módulos A3, A6: Validación de Región + Proxy Rotativo
+        self._geo_check_enabled = True
+        self._proxy_list = []
+        self._proxy_index = 0
+        self._proxy_enabled = False
+        # Módulo A4: Check de Licencia
+        self._license_check_enabled = True
     
-    def enable_scoring(self, min_score: int = 50) -> bool:
+    def enable_scoring(self, min_score: int = 50, db_manager=None) -> bool:
         """
         Habilita el scoring IA para el flujo de descarga.
         
         Args:
             min_score: Score mínimo (0-100) para descargar
+            db_manager: Instancia de DBManager para persistir scores
             
         Returns:
             True si se habilitó correctamente
         """
+        if db_manager:
+            self.db_manager = db_manager
         if self._scoring_service is None:
             try:
                 from app.services.kdp_scoring_service import create_scoring_service
@@ -201,7 +212,148 @@ class DownloadService:
         except Exception as e:
             # En caso de error, permitir descarga
             return True, f"scoring_error:{e}"
-
+    
+    # ==================== MÓDULOS A3, A4, A6: VALIDACIÓN ====================
+    
+    def _check_geo_restriction(self, video_url: str) -> tuple[bool, str]:
+        """
+        Módulo A3: Validación de Región (Geo-Block)
+        Verifica si el video está bloqueado por región.
+        
+        Returns:
+            (is_available, reason)
+        """
+        if not self._geo_check_enabled:
+            return True, "geo_check_disabled"
+        
+        try:
+            opts = {
+                'quiet': True,
+                'no_warnings': True,
+                'extract_flat': True,
+                'skip_download': True,
+            }
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = ydl.extract_info(video_url, download=False)
+                
+                if not info:
+                    return False, "video_info_unavailable"
+                
+                # yt-dlp detecta restricciones de región en 'availability'
+                availability = info.get('availability', '')
+                
+                # Verificar restricciones conocidas
+                restricted = ['private', 'members_only', 'needs_auth', 'unlisted']
+                if availability in restricted:
+                    return False, f"geo_restricted:{availability}"
+                
+                # Verificar si hay mensajes de restricción en descripción
+                description = info.get('description', '') or ''
+                geo_keywords = ['not available in your country', 'geo-blocked', 'unavailable in your region']
+                if any(kw in description.lower() for kw in geo_keywords):
+                    return False, "geo_restricted:description"
+                
+                return True, "geo_ok"
+        except Exception as e:
+            error_str = str(e).lower()
+            if 'geo' in error_str or 'region' in error_str or 'country' in error_str:
+                return False, f"geo_blocked:{e}"
+            # Si hay error pero no es de geo, permitir descarga (fallback)
+            return True, f"geo_check_error:{e}"
+    
+    def _check_video_license(self, video_url: str) -> tuple[bool, str]:
+        """
+        Módulo A4: Check de Licencia (Creative Commons)
+        Verifica el tipo de licencia del video.
+        
+        Returns:
+            (is_allowed, reason) - False si licencia restrictiva
+        """
+        if not self._license_check_enabled:
+            return True, "license_check_disabled"
+        
+        try:
+            opts = {
+                'quiet': True,
+                'no_warnings': True,
+                'extract_flat': True,
+                'skip_download': True,
+            }
+            with yt_dlp.YoutubeDL(opts) as ydl:
+                info = ydl.extract_info(video_url, download=False)
+                
+                if not info:
+                    return True, "license_unknown"
+                
+                # Verificar licencia
+                license_ = info.get('license', '') or ''
+                
+                # Licencias restrictivas que bloqueamos
+                restrictive_licenses = [
+                    'youtube',
+                    'standard youtube',
+                ]
+                
+                if license_.lower() in restrictive_licenses:
+                    # YouTube Standard - permitir pero marcar
+                    return True, "license_standard"
+                
+                # Creative Commons - permitido
+                if 'cc' in license_.lower() or 'creative commons' in license_.lower():
+                    return True, "license_cc"
+                
+                return True, "license_ok"
+        except Exception as e:
+            # Si no se puede determinar, permitir
+            return True, f"license_check_error:{e}"
+    
+    def set_proxy_list(self, proxy_list: list):
+        """
+        Módulo A6: Proxy Rotativo
+        Configura lista de proxies para rotación.
+        
+        Args:
+            proxy_list: Lista de URLs de proxy (e.g., ['http://ip:port', ...])
+        """
+        self._proxy_list = proxy_list
+        self._proxy_enabled = bool(proxy_list)
+        self._proxy_index = 0
+        if self.log_callback and self._proxy_enabled:
+            self.log_callback(f"🔄 Proxy rotativo habilitado: {len(proxy_list)} proxies")
+    
+    def _get_next_proxy(self) -> str:
+        """
+        Obtiene el siguiente proxy de la lista (rotación circular).
+        
+        Returns:
+            URL del proxy o empty string si no hay proxy configurado
+        """
+        if not self._proxy_enabled or not self._proxy_list:
+            return ""
+        
+        proxy = self._proxy_list[self._proxy_index]
+        self._proxy_index = (self._proxy_index + 1) % len(self._proxy_list)
+        return proxy
+    
+    def _apply_proxy_config(self, ydl_opts: dict):
+        """Aplica configuración de proxy al opts de yt-dlp."""
+        if self._proxy_enabled and self._proxy_list:
+            proxy = self._get_next_proxy()
+            if proxy:
+                ydl_opts['proxy'] = proxy
+                if self.log_callback:
+                    self.log_callback(f"   🌐 Usando proxy: {proxy[:50]}...")
+    
+    def enable_geo_check(self, enabled: bool = True):
+        """Habilita/deshabilita validación de geo-restricciones."""
+        self._geo_check_enabled = enabled
+    
+    def enable_license_check(self, enabled: bool = True):
+        """Habilita/deshabilita validación de licencias."""
+        self._license_check_enabled = enabled
+    
+    # ==================== FIN MÓDULOS DE VALIDACIÓN ====================
+    
     def _rate_limit_wait(self, base_delay=None):
         """Espera variable anti-rate-limiting con jitter."""
         if base_delay is None:
@@ -596,6 +748,14 @@ class DownloadService:
                             )
                             if self.log_callback:
                                 self.log_callback(f"   🎯 Relevance Score: {score_result.kdp_relevance_score}/100 ({score_result.relevance_level.value})")
+                            if self.db_manager and info:
+                                video_id = info.get('id', '')
+                                if video_id:
+                                    try:
+                                        self.db_manager.update_video_kdp_score(video_id, score_result.kdp_relevance_score)
+                                    except Exception as e:
+                                        if self.log_callback:
+                                            self.log_callback(f"   ⚠️ Error guardando score: {e}", level='warning')
                         return 'downloaded'
                     else:
                         if attempt < max_retries:
