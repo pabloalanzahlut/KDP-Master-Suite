@@ -23,6 +23,13 @@ Módulos FASE 3 (Completados 11-15):
 - structure_validator: Validador de estructura de párrafos
 - language_detector: Detector de idioma automático
 
+Módulos FASE 4 (Completados 16-20):
+- noise_cleaner: Protocolo de limpieza de ruido
+- retry_handler: Sistema de reintentos con backoff
+- fts5_validator: Validador de compatibilidad FTS5
+- manifest_generator: Generador de manifest de extracción
+- atomic_persistence: Persistencia atómica de transcripción
+
 Autor: KDP_MASTER AI Team
 Fecha: 2026-05-12
 """
@@ -108,6 +115,35 @@ from .language_detector import (
     MultiLanguageSegmenter,
 )
 
+from .noise_cleaner import (
+    NoiseCleaner,
+    NoiseType,
+    CleaningResult,
+)
+
+from .retry_handler import (
+    RetryHandler,
+    RetryConfig,
+    RetryResult,
+    RetryStrategy,
+)
+
+from .fts5_validator import (
+    FTS5Validator,
+    FTS5ValidationResult,
+)
+
+from .manifest_generator import (
+    ManifestGenerator,
+    ExtractionMetadata,
+)
+
+from .atomic_persistence import (
+    AtomicPersistenceManager,
+    PersistedTranscription,
+    TransactionState,
+)
+
 
 def create_validator():
     return CCAvailabilityValidator()
@@ -149,6 +185,21 @@ def create_structure_validator(strict=False):
 
 def create_detector():
     return LanguageDetector()
+
+def create_cleaner(aggressive=False):
+    return NoiseCleaner(aggressive=aggressive)
+
+def create_retry_handler(config=None):
+    return RetryHandler(config=config)
+
+def create_fts5_validator():
+    return FTS5Validator()
+
+def create_manifest_generator(output_dir=None):
+    return ManifestGenerator(output_dir=output_dir)
+
+def create_persistence_manager(db_path=None):
+    return AtomicPersistenceManager(db_path=db_path)
 
 
 __all__ = [
@@ -194,6 +245,20 @@ __all__ = [
     'LanguageInfo',
     'DetectionResult',
     'MultiLanguageSegmenter',
+    'NoiseCleaner',
+    'NoiseType',
+    'CleaningResult',
+    'RetryHandler',
+    'RetryConfig',
+    'RetryResult',
+    'RetryStrategy',
+    'FTS5Validator',
+    'FTS5ValidationResult',
+    'ManifestGenerator',
+    'ExtractionMetadata',
+    'AtomicPersistenceManager',
+    'PersistedTranscription',
+    'TransactionState',
     'create_validator',
     'create_fetcher',
     'create_space_validator',
@@ -207,9 +272,14 @@ __all__ = [
     'create_compressor',
     'create_structure_validator',
     'create_detector',
+    'create_cleaner',
+    'create_retry_handler',
+    'create_fts5_validator',
+    'create_manifest_generator',
+    'create_persistence_manager',
 ]
 
-__version__ = '3.0.0'
+__version__ = '4.0.0'
 __all_modules__ = [
     'cc_availability_validator',
     'parallel_subtitle_fetcher',
@@ -223,5 +293,10 @@ __all_modules__ = [
     'ocr_fallback',
     'log_compressor',
     'structure_validator',
-    'language_detector'
+    'language_detector',
+    'noise_cleaner',
+    'retry_handler',
+    'fts5_validator',
+    'manifest_generator',
+    'atomic_persistence'
 ]
