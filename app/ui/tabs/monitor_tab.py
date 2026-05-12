@@ -699,7 +699,7 @@ def refresh_channels_list(self):
 
 
 def show_channel_videos(self, event):
-    """Muestra los videos de un canal en un diálogo."""
+    """Muestra los videos de un canal en un diálogo con virtualización (Lazy Loading)."""
     selection = self.channels_tree.selection()
     if not selection:
         return
@@ -718,12 +718,28 @@ def show_channel_videos(self, event):
     main_frame = ttk.Frame(dialog, padding=10)
     main_frame.pack(fill=tk.BOTH, expand=True)
     
-    # TreeView de videos
+    # Variables de paginación
+    PAGE_SIZE = 50
+    current_offset = 0
+    total_videos = self.db_manager.count_videos_by_channel(channel_id)
+    videos_loaded = []
+    
+    # Frame de información
+    info_frame = ttk.Frame(main_frame)
+    info_frame.pack(fill=tk.X, pady=(0, 10))
+    
+    info_label = ttk.Label(info_frame, text=f"Videos: 0/{total_videos}", font=("Segoe UI", 10))
+    info_label.pack(side=tk.LEFT)
+    
+    # TreeView de videos con scrollbar
+    tree_frame = ttk.Frame(main_frame)
+    tree_frame.pack(fill=tk.BOTH, expand=True)
+    
     videos_tree = ttk.Treeview(
-        main_frame,
+        tree_frame,
         columns=("id", "titulo", "estado", "fecha"),
         show="headings",
-        height=20
+        height=15
     )
     
     videos_tree.heading("id", text="ID")
@@ -736,37 +752,115 @@ def show_channel_videos(self, event):
     videos_tree.column("estado", width=100, anchor=tk.CENTER)
     videos_tree.column("fecha", width=150, anchor=tk.CENTER)
     
-    videos_tree.pack(fill=tk.BOTH, expand=True)
+    videos_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
     
-    # Cargar videos
-    videos = self.db_manager.get_videos_by_channel(channel_id)
+    scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=videos_tree.yview)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    videos_tree.configure(yscrollcommand=scrollbar.set)
     
-    for video in videos:
+    # Función para formatear estado
+    def format_estado(status):
         estado_map = {
             'pending': '⏳ Pendiente',
             'processing': '🔄 Procesando',
             'completed': '✅ Completado',
             'failed': '❌ Fallido'
         }
-        estado = estado_map.get(video.get('status', 'pending'), 'Desconocido')
-        
-        fecha = video.get('discovered_at', '')
+        return estado_map.get(status, 'Desconocido')
+    
+    # Función para formatear fecha
+    def format_fecha(fecha):
         if fecha:
             try:
                 dt = datetime.fromisoformat(fecha)
-                fecha = dt.strftime("%Y-%m-%d %H:%M")
+                return dt.strftime("%Y-%m-%d %H:%M")
             except:
                 pass
-        
-        videos_tree.insert("", tk.END, values=(
-            video['id'],
-            video.get('title', 'Sin título'),
-            estado,
-            fecha
-        ))
+        return ''
     
-    # Botón cerrar
-    ttk.Button(main_frame, text="Cerrar", command=dialog.destroy).pack(pady=(10, 0))
+    # Función para cargar videos
+    def load_videos(offset=0, clear=False):
+        nonlocal current_offset, videos_loaded
+        
+        if clear:
+            videos_tree.delete(*videos_tree.get_children())
+            videos_loaded = []
+            current_offset = 0
+        
+        videos = self.db_manager.get_videos_by_channel(channel_id, limit=PAGE_SIZE, offset=offset)
+        
+        for video in videos:
+            videos_tree.insert("", tk.END, values=(
+                video['id'],
+                video.get('title', 'Sin título'),
+                format_estado(video.get('status', 'pending')),
+                format_fecha(video.get('discovered_at', ''))
+            ))
+            videos_loaded.append(video['id'])
+        
+        current_offset = offset + len(videos)
+        info_label.config(text=f"Videos: {len(videos_loaded)}/{total_videos}")
+        
+        # Habilitar/deshabilitar botón cargar más
+        if current_offset >= total_videos:
+            load_more_btn.config(state=tk.DISABLED)
+        else:
+            load_more_btn.config(state=tk.NORMAL)
+    
+    # Scroll Infinito con Buffer - detectar cuando llega al final
+    def on_scroll(*args):
+        videos_tree.yview(*args)
+        # Detectar si llegó al final ( Scrollbar.get() retorna (start, end) )
+        try:
+            _, ypos = videos_tree.yview()
+            if ypos >= 0.95 and current_offset < total_videos:
+                # Usuario llegó al 95% del scroll y hay más videos
+                load_videos(offset=current_offset)
+        except:
+            pass
+    
+    videos_tree.configure(yscrollcommand=on_scroll)
+    
+    # Frame de botones
+    btn_frame = ttk.Frame(main_frame)
+    btn_frame.pack(fill=tk.X, pady=(10, 0))
+    
+    # Botón "Cargar Más" (Módulo A2: Botón Cargar Más Manual)
+    def load_more():
+        load_videos(offset=current_offset)
+    
+    load_more_btn = ttk.Button(btn_frame, text="📥 Cargar Más (+50)", command=load_more)
+    load_more_btn.pack(side=tk.LEFT, padx=2)
+    
+    # Estimación de espacio (Módulo A5)
+    def estimate_space():
+        if videos_loaded:
+            avg_duration = 600  # 10 min promedio en segundos
+            est_mb = len(videos_loaded) * avg_duration * 0.5 / 1024
+            messagebox.showinfo("💾 Estimación", 
+                f"~{len(videos_loaded)} videos\n~{est_mb:.1f} MB estimados")
+    
+    ttk.Button(btn_frame, text="💾 Estimar Espacio", command=estimate_space).pack(side=tk.LEFT, padx=2)
+    
+    # Botón de exportar
+    def export_list():
+        videos = self.db_manager.get_videos_by_channel(channel_id)
+        filename = f"videos_{channel_name.replace(' ', '_')}.csv"
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write("ID,Titulo,Estado,Fecha\n")
+                for v in videos:
+                    f.write(f"{v['id']},\"{v.get('title', '')}\",{v.get('status', '')},{v.get('discovered_at', '')}\n")
+            messagebox.showinfo("✅", f"Exportado a {filename}")
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+    
+    ttk.Button(btn_frame, text="📊 Exportar CSV", command=export_list).pack(side=tk.LEFT, padx=2)
+    
+    ttk.Button(btn_frame, text="Cerrar", command=dialog.destroy).pack(side=tk.RIGHT)
+    
+    # Carga inicial de los primeros 50 videos
+    load_videos(offset=0, clear=True)
 
 
 def start_monitor(self):
