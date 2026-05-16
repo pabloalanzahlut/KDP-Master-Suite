@@ -212,6 +212,26 @@ def setup_download_tab(self):
     
     ttk.Separator(params_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=15)
     
+    ttk.Label(params_frame, text="🎯 Scoring IA (KDP):", font=("Segoe UI", 10, "bold")).pack(anchor=tk.W, pady=(0, 10))
+    
+    self.scoring_enabled_var = tk.BooleanVar(value=False)
+    cb_scoring = ttk.Checkbutton(params_frame, text="✅ Habilitar Scoring IA",
+                                 variable=self.scoring_enabled_var)
+    cb_scoring.pack(anchor=tk.W, pady=5)
+    ToolTip(cb_scoring, "Filtrar videos por relevancia KDP antes de descargar")
+    
+    scoring_frame = ttk.Frame(params_frame)
+    scoring_frame.pack(anchor=tk.W, pady=(5, 10))
+    
+    ttk.Label(scoring_frame, text="Min Score:").pack(side=tk.LEFT, padx=(0, 5))
+    self.scoring_min_var = tk.IntVar(value=50)
+    scoring_scale = ttk.Scale(scoring_frame, from_=0, to=100, variable=self.scoring_min_var,
+                              orient=tk.HORIZONTAL, length=120)
+    scoring_scale.pack(side=tk.LEFT, padx=5)
+    ttk.Label(scoring_frame, textvariable=self.scoring_min_var, width=3).pack(side=tk.LEFT)
+    
+    ttk.Separator(params_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=10)
+    
     ttk.Label(params_frame, text="Acciones Rápidas:", font=("Segoe UI", 10, "bold")).pack(anchor=tk.W, pady=(0, 10))
     
     ttk.Button(params_frame, text="📂 Ver Descargas", 
@@ -384,8 +404,15 @@ def start_download(self):
         secure_mode=self.secure_mode_var.get(),
         ffmpeg_location=os.path.join(self.base_dir, 'bin'),
         progress_callback=update_progress,
-        log_callback=log_to_gui
+        log_callback=log_to_gui,
+        db_manager=getattr(self, 'db_manager', None)
     )
+    
+    if self.scoring_enabled_var.get():
+        download_service.enable_scoring(
+            min_score=self.scoring_min_var.get(),
+            db_manager=getattr(self, 'db_manager', None)
+        )
 
     def run_dl():
         success, msg = download_service.perform_download(url)
@@ -482,8 +509,15 @@ def start_queue_download(self):
         ffmpeg_location=os.path.join(self.base_dir, 'bin'),
         progress_callback=update_progress,
         log_callback=log_to_gui,
-        batch_progress_callback=on_batch_progress
+        batch_progress_callback=on_batch_progress,
+        db_manager=getattr(self, 'db_manager', None)
     )
+    
+    if self.scoring_enabled_var.get():
+        download_service.enable_scoring(
+            min_score=self.scoring_min_var.get(),
+            db_manager=getattr(self, 'db_manager', None)
+        )
 
     # === MODULO: PROGRESO_LOTES (INICIO) - RUN_QUEUE ===
     def run_queue():

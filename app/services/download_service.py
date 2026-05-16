@@ -58,6 +58,10 @@ class DownloadService:
         self._proxy_enabled = False
         # Módulo A4: Check de Licencia
         self._license_check_enabled = True
+        # IA Orchestrator - Módulo Central de IA
+        self._ia_orchestrator = None
+        self._ia_analysis_enabled = False
+        self._ia_min_density_score = 5.0
         # Módulo C1: Rotación de User-Agent
         self._user_agents = [
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -110,6 +114,85 @@ class DownloadService:
         self._scoring_enabled = False
         if self.log_callback:
             self.log_callback("🎯 Scoring IA deshabilitado")
+
+    def enable_ia_analysis(self, min_density_score: float = 5.0) -> bool:
+        """
+        Habilita análisis IA post-descarga.
+        
+        Args:
+            min_density_score: Score mínimo de densidad para procesar (1-10)
+            
+        Returns:
+            True si se habilitó correctamente
+        """
+        try:
+            if self._ia_orchestrator is None:
+                from app.services.ia_orchestrator import create_orchestrator
+                self._ia_orchestrator = create_orchestrator()
+            
+            self._ia_analysis_enabled = True
+            self._ia_min_density_score = min_density_score
+            
+            if self.log_callback:
+                self.log_callback(f"🤖 Análisis IA habilitado (densidad mínima: {min_density_score})")
+            return True
+        except Exception as e:
+            if self.log_callback:
+                self.log_callback(f"⚠️ No se pudo habilitar análisis IA: {e}", level='warning')
+            return False
+    
+    def disable_ia_analysis(self):
+        """Deshabilita el análisis IA."""
+        self._ia_analysis_enabled = False
+        if self.log_callback:
+            self.log_callback("🤖 Análisis IA deshabilitado")
+    
+    def analyze_transcription_ia(self, video_id: str, url: str, transcript_text: str) -> dict:
+        """
+        Analiza transcripción con módulos IA.
+        
+        Args:
+            video_id: ID del video
+            url: URL del video
+            transcript_text: Texto de la transcripción
+            
+        Returns:
+            Dict con resultados del análisis
+        """
+        if not self._ia_analysis_enabled or not self._ia_orchestrator:
+            return {'enabled': False}
+        
+        try:
+            result = self._ia_orchestrator.analyze_video(
+                video_id=video_id,
+                url=url,
+                transcript=transcript_text
+            )
+            
+            should_process = result.density_score >= self._ia_min_density_score
+            
+            if self.log_callback:
+                tags_str = ', '.join(result.tags[:3]) if result.tags else 'none'
+                self.log_callback(f"   📊 IA: density={result.density_score:.1f}, type={result.content_type}, tags=[{tags_str}]")
+            
+            return {
+                'enabled': True,
+                'video_id': video_id,
+                'density_score': result.density_score,
+                'is_signal': result.is_signal,
+                'content_type': result.content_type,
+                'tags': result.tags,
+                'manual_priority': result.manual_priority,
+                'is_plagiarism': result.is_plagiarism,
+                'action': result.action_recommendation,
+                'processing_time_ms': result.processing_time_ms,
+                'should_process': should_process,
+                'modules_used': result.modules_used
+            }
+        except Exception as e:
+            if self.log_callback:
+                self.log_callback(f"   ⚠️ Error análisis IA: {e}", level='warning')
+            return {'enabled': True, 'error': str(e)}
     
     # === MÉTODOS DE CONFIGURACIÓN DE DESCARGA MASIVA ===
     
@@ -791,6 +874,45 @@ class DownloadService:
                                     except Exception as e:
                                         if self.log_callback:
                                             self.log_callback(f"   ⚠️ Error guardando score: {e}", level='warning')
+                        
+                        # Análisis IA post-descarga
+                        if self._ia_analysis_enabled and self._ia_orchestrator:
+                            vid_id = info.get('id', '') if info else ''
+                            if vid_id and channel:
+                                try:
+                                    vtt_files = list(Path(self.input_dir) / channel / f"*[{vid_id}]*.vtt")
+                                    if vtt_files:
+                                        vtt_file = vtt_files[0]
+                                        with open(vtt_file, 'r', encoding='utf-8', errors='ignore') as f:
+                                            transcript_text = f.read()
+                                        
+                                        ia_result = self.analyze_transcription_ia(
+                                            video_id=vid_id,
+                                            url=video_url,
+                                            transcript_text=transcript_text
+                                        )
+                                        
+                                        if self.db_manager and ia_result.get('enabled'):
+                                            try:
+                                                self.db_manager.execute("""
+                                                    INSERT OR REPLACE INTO ia_analysis_results 
+                                                    (video_id, density_score, content_type, tags, action, processing_time_ms)
+                                                    VALUES (?, ?, ?, ?, ?, ?)
+                                                """, (
+                                                    vid_id,
+                                                    ia_result.get('density_score', 0),
+                                                    ia_result.get('content_type', 'unknown'),
+                                                    ','.join(ia_result.get('tags', [])[:10]),
+                                                    ia_result.get('action', 'review'),
+                                                    ia_result.get('processing_time_ms', 0)
+                                                ))
+                                            except Exception as e:
+                                                if self.log_callback:
+                                                    self.log_callback(f"   ⚠️ Error guardando análisis IA: {e}", level='warning')
+                                except Exception as e:
+                                    if self.log_callback:
+                                        self.log_callback(f"   ⚠️ Error en análisis IA: {e}", level='warning')
+                        
                         return 'downloaded'
                     else:
                         if attempt < max_retries:
