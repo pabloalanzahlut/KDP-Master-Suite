@@ -19,6 +19,7 @@ from pathlib import Path
 from app.ui.components.notifications import ToastNotification
 from app.ui.components.tooltips import ToolTip
 from app.services.download_service import DownloadService
+from app.services.queue_intelligence import QueueIntelligence, QueueItem, ClearStrategy, QueueItemStatus
 
 
 def setup_download_tab(self):
@@ -393,11 +394,211 @@ def remove_from_queue(self):
 
 def clear_queue(self):
     if not self.download_queue: return
-    if messagebox.askyesno("Confirmar", "¿Vaciar toda la cola de descargas?"):
-        self.download_queue = []
-        self.update_queue_ui()
-        self.save_config()
-        self.log("[!] Cola vaciada.")
+    self._show_enhanced_clear_dialog()
+
+
+def _show_enhanced_clear_dialog(self):
+    """Modal de vaciado mejorado con opciones inteligentes."""
+    if not hasattr(self, '_queue_intelligence'):
+        self._queue_intelligence = QueueIntelligence()
+    
+    qi = self._queue_intelligence
+    
+    items = self._convert_queue_to_queue_items()
+    analysis = qi.analyze_queue(items)
+    
+    dialog = tk.Toplevel(self.root)
+    dialog.title("🔥 Vaciar Cola de Descargas")
+    dialog.geometry("600x700")
+    dialog.transient(self.root)
+    dialog.grab_set()
+    
+    dialog.update_idletasks()
+    x = (dialog.winfo_screenwidth() // 2) - (dialog.winfo_width() // 2)
+    y = (dialog.winfo_screenheight() // 2) - (dialog.winfo_height() // 2)
+    dialog.geometry(f"+{x}+{y}")
+    
+    main_frame = ttk.Frame(dialog, padding=15)
+    main_frame.pack(fill=tk.BOTH, expand=True)
+    
+    ttk.Label(main_frame, text="🧹 VACIADO INTELIGENTE DE COLA",
+              font=("Segoe UI", 14, "bold")).pack(pady=(0, 10))
+    
+    summary_frame = ttk.LabelFrame(main_frame, text="📊 Resumen de la Cola", padding=10)
+    summary_frame.pack(fill=tk.X, pady=(0, 10))
+    
+    total = analysis.get("total", 0)
+    failed = analysis.get("failed_count", 0)
+    pending = analysis.get("pending_count", 0)
+    completed = analysis.get("completed_count", 0)
+    protected = analysis.get("protected_count", 0)
+    size_mb = analysis.get("total_size_mb", 0)
+    
+    summary_text = f"Total: {total} items | Fallidos: {failed} | Pendientes: {pending} | Completados: {completed} | Protegidos: {protected}"
+    ttk.Label(summary_frame, text=summary_text).pack()
+    
+    impact_frame = ttk.LabelFrame(main_frame, text="💾 Impacto Estimado", padding=10)
+    impact_frame.pack(fill=tk.X, pady=(0, 10))
+    
+    estimated_mb = size_mb * 0.7
+    estimated_min = (estimated_mb * 0.5) / 60
+    impact_text = f"Espacio a liberar: ~{estimated_mb:.1f} MB ({estimated_mb/1024:.2f} GB) | Tiempo de procesamiento: ~{estimated_min:.1f} min"
+    ttk.Label(impact_frame, text=impact_text, foreground="blue").pack()
+    
+    filter_frame = ttk.LabelFrame(main_frame, text="🎯 Seleccionar qué vaciar", padding=10)
+    filter_frame.pack(fill=tk.X, pady=(0, 10))
+    
+    strategy_var = tk.StringVar(value="all")
+    
+    ttk.Radiobutton(filter_frame, text=f"Todo ({total} items)", variable=strategy_var, value="all").pack(anchor=tk.W, pady=2)
+    ttk.Radiobutton(filter_frame, text=f"Solo fallidos ({failed} items)", variable=strategy_var, value="failed_only").pack(anchor=tk.W, pady=2)
+    ttk.Radiobutton(filter_frame, text=f"Solo pendientes ({pending} items)", variable=strategy_var, value="pending_only").pack(anchor=tk.W, pady=2)
+    ttk.Radiobutton(filter_frame, text=f"Solo completados ({completed} items)", variable=strategy_var, value="completed_only").pack(anchor=tk.W, pady=2)
+    
+    percent_frame = ttk.Frame(filter_frame)
+    percent_frame.pack(fill=tk.X, pady=5)
+    ttk.Radiobutton(percent_frame, text="Más antiguos ", variable=strategy_var, value="oldest").pack(side=tk.LEFT)
+    self._clear_percent_var = tk.StringVar(value="50")
+    percent_combo = ttk.Combobox(percent_frame, textvariable=self._clear_percent_var, values=["50", "75"], width=5, state="readonly")
+    percent_combo.pack(side=tk.LEFT)
+    ttk.Label(percent_frame, text="%").pack(side=tk.LEFT)
+    
+    protect_frame = ttk.LabelFrame(main_frame, text="⭐ Protección", padding=10)
+    protect_frame.pack(fill=tk.X, pady=(0, 10))
+    
+    protect_marked_var = tk.BooleanVar(value=True)
+    ttk.Checkbutton(protect_frame, text="Proteger items marcados como importantes", variable=protect_marked_var).pack(anchor=tk.W)
+    
+    protect_enriched_var = tk.BooleanVar(value=True)
+    ttk.Checkbutton(protect_frame, text="Proteger items con metadata enriquecida", variable=protect_enriched_var).pack(anchor=tk.W)
+    
+    if protected > 0:
+        ttk.Label(protect_frame, text=f"⚠️ {protected} items protegidos actualmente", foreground="orange").pack(anchor=tk.W, pady=(5, 0))
+    
+    options_frame = ttk.LabelFrame(main_frame, text="⚙️ Opciones Adicionales", padding=10)
+    options_frame.pack(fill=tk.X, pady=(0, 10))
+    
+    snapshot_var = tk.BooleanVar(value=True)
+    ttk.Checkbutton(options_frame, text="📸 Generar Snapshot (backup JSON)", variable=snapshot_var).pack(anchor=tk.W)
+    
+    export_var = tk.BooleanVar(value=False)
+    ttk.Checkbutton(options_frame, text="📊 Exportar CSV antes de vaciar", variable=export_var).pack(anchor=tk.W)
+    
+    audit_var = tk.BooleanVar(value=True)
+    ttk.Checkbutton(options_frame, text="📋 Registro de auditoría", variable=audit_var).pack(anchor=tk.W)
+    
+    btn_frame = ttk.Frame(main_frame)
+    btn_frame.pack(fill=tk.X, pady=(10, 0))
+    
+    def execute_clear():
+        strategy_map = {
+            "all": ClearStrategy.ALL,
+            "failed_only": ClearStrategy.FAILED_ONLY,
+            "pending_only": ClearStrategy.PENDING_ONLY,
+            "completed_only": ClearStrategy.COMPLETED_ONLY,
+            "oldest": ClearStrategy.OLDEST_50 if self._clear_percent_var.get() == "50" else ClearStrategy.OLDEST_75
+        }
+        
+        strategy = strategy_map.get(strategy_var.get(), ClearStrategy.ALL)
+        
+        options = {
+            "protect_marked": protect_marked_var.get(),
+            "protect_enriched": protect_enriched_var.get(),
+            "generate_snapshot": snapshot_var.get(),
+            "export_csv": export_var.get(),
+            "log_audit": audit_var.get(),
+            "enable_undo": True
+        }
+        
+        result = qi.clear_queue(items, strategy, options)
+        
+        if result.success:
+            self.download_queue = []
+            self.update_queue_ui()
+            self.save_config()
+            
+            msg = f"✅ Cola vaciada: {result.cleared_count} items eliminados"
+            if result.protected_count > 0:
+                msg += f", {result.protected_count} protegidos"
+            if result.snapshot_path:
+                msg += f"\n📸 Snapshot: {result.snapshot_path}"
+            if result.export_path:
+                msg += f"\n📊 Exportado: {result.export_path}"
+            
+            self.log(f"[!] {msg}")
+            ToastNotification.show(self.root, msg, "success")
+            
+            self._show_undo_button(qi)
+        else:
+            messagebox.showerror("Error", f"Error al vaciar cola: {result.error_message}")
+        
+        dialog.destroy()
+    
+    ttk.Button(btn_frame, text="❌ Cancelar", command=dialog.destroy).pack(side=tk.RIGHT, padx=5)
+    ttk.Button(btn_frame, text="🔥 Vaciar Ahora", command=execute_clear, style="Danger.TButton").pack(side=tk.RIGHT, padx=5)
+
+
+def _convert_queue_to_queue_items(self):
+    """Convierte la cola actual a objetos QueueItem."""
+    items = []
+    for url in self.download_queue:
+        item = QueueItem(url=url, status=QueueItemStatus.PENDING)
+        if hasattr(self, 'queue_item_metadata'):
+            meta = self.queue_item_metadata.get(url, {})
+            item.title = meta.get('title', '')
+            item.channel = meta.get('channel', '')
+            item.duration_seconds = meta.get('duration', 0)
+            item.file_size_mb = meta.get('size_mb', 0)
+            item.is_protected = meta.get('is_protected', False)
+            item.metadata_enriched = meta.get('has_metadata', False)
+        items.append(item)
+    return items
+
+
+def _show_undo_button(self, qi):
+    """Muestra botón de undo después de vaciar."""
+    trash_status = qi.get_trash_status()
+    
+    if trash_status.get('has_items') and not trash_status.get('is_expired'):
+        remaining = int(trash_status.get('remaining_seconds', 0))
+        
+        undo_dialog = tk.Toplevel(self.root)
+        undo_dialog.title("♻️ Recuperar")
+        undo_dialog.geometry("350x120")
+        undo_dialog.transient(self.root)
+        
+        x = (undo_dialog.winfo_screenwidth() // 2) - (undo_dialog.winfo_width() // 2)
+        y = (undo_dialog.winfo_screenheight() // 2) - (undo_dialog.winfo_height() // 2)
+        undo_dialog.geometry(f"+{x}+{y}")
+        
+        frame = ttk.Frame(undo_dialog, padding=20)
+        frame.pack(fill=tk.BOTH, expand=True)
+        
+        ttk.Label(frame, text=f"¿Te arrepientes? Tienes {remaining}s para recuperar.",
+                  font=("Segoe UI", 10)).pack(pady=(0, 10))
+        
+        def restore_and_close():
+            restored = qi.undo_last_clear()
+            if restored:
+                for item in restored:
+                    if hasattr(item, 'url'):
+                        self.download_queue.append(item.url)
+                self.update_queue_ui()
+                self.save_config()
+                self.log("[♻️] Items restaurados de la papelera")
+                ToastNotification.show(self.root, f"✅ {len(restored)} items restaurados", "success")
+            undo_dialog.destroy()
+        
+        def dismiss():
+            undo_dialog.destroy()
+        
+        ttk.Button(frame, text="♻️ Restaurar", command=restore_and_close).pack(side=tk.LEFT, padx=5)
+        ttk.Button(frame, text="Descartar", command=dismiss).pack(side=tk.LEFT, padx=5)
+        
+        def auto_close():
+            undo_dialog.destroy()
+        
+        self.root.after(remaining * 1000 + 1000, auto_close)
 
 
 def update_queue_ui(self):
