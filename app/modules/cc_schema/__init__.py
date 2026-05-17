@@ -48,6 +48,18 @@ Módulos FASE URL INTELLIGENCE - Lista 1 (Completados 1-10):
 - user_agent_rotator: Rota User-Agents para evitar detección de bot
 - connection_pool: Pool de conexiones HTTP reutilizables
 
+Módulos FASE URL INTELLIGENCE - Lista 1 (Completados 11-20):
+- rate_limit_detector: Detecta rate limiting 429
+- proxy_config: Valida configuración de proxy
+- response_time: Mide latencia de respuesta HTTP
+- content_type_validator: Valida Content-Type de respuesta
+- captcha_detector: Detecta CAPTCHA en páginas
+- login_requirement: Detecta requisitos de autenticación
+- age_restriction: Verifica restricción de edad
+- region_restriction: Detecta bloqueos geográficos
+- privacy_status: Verifica privacidad (público/privado)
+- embed_restriction: Detecta restricciones de embed
+
 Autor: KDP_MASTER AI Team
 Fecha: 2026-05-17
 """
@@ -266,6 +278,76 @@ from .connection_pool import (
     create_connection_pool,
 )
 
+from .rate_limit_detector import (
+    RateLimitDetector,
+    RateLimitInfo,
+    create_rate_limit_detector,
+)
+
+from .proxy_config import (
+    ProxyConfigValidator,
+    ProxyConfig,
+    ProxyStatus,
+    ProxyValidationResult,
+    create_proxy_config_validator,
+)
+
+from .response_time import (
+    ResponseTimeMeasurer,
+    ResponseSpeed,
+    ResponseTimeResult,
+    create_response_time_measurer,
+)
+
+from .content_type_validator import (
+    ContentTypeValidator,
+    ContentTypeStatus,
+    ContentTypeResult,
+    create_content_type_validator,
+)
+
+from .captcha_detector import (
+    CaptchaDetector,
+    CaptchaStatus,
+    CaptchaResult,
+    create_captcha_detector,
+)
+
+from .login_requirement import (
+    LoginRequirementDetector,
+    LoginStatus,
+    LoginResult,
+    create_login_requirement_detector,
+)
+
+from .age_restriction import (
+    AgeRestrictionChecker,
+    AgeRestrictionStatus,
+    AgeRestrictionResult,
+    create_age_restriction_checker,
+)
+
+from .region_restriction import (
+    RegionRestrictionValidator,
+    RegionRestrictionStatus,
+    RegionRestrictionResult,
+    create_region_restriction_validator,
+)
+
+from .privacy_status import (
+    PrivacyStatusChecker,
+    PrivacyStatus,
+    PrivacyResult,
+    create_privacy_status_checker,
+)
+
+from .embed_restriction import (
+    EmbedRestrictionDetector,
+    EmbedStatus,
+    EmbedRestrictionResult,
+    create_embed_restriction_detector,
+)
+
 
 def create_validator():
     return CCAvailabilityValidator()
@@ -352,6 +434,36 @@ def create_user_agent_rotator(mobile_weight: float = 0.1, rotation_strategy: str
 
 def create_connection_pool(pool_size: int = 10, max_retries: int = 3):
     return ConnectionPool(pool_size=pool_size, max_retries=max_retries)
+
+def create_rate_limit_detector(requests_limit: int = 100, time_window: int = 60):
+    return RateLimitDetector(requests_limit=requests_limit, time_window=time_window)
+
+def create_proxy_config_validator():
+    return ProxyConfigValidator()
+
+def create_response_time_measurer(timeout: float = 10.0, slow_threshold_ms: int = 3000):
+    return ResponseTimeMeasurer(timeout=timeout, slow_threshold_ms=slow_threshold_ms)
+
+def create_content_type_validator():
+    return ContentTypeValidator()
+
+def create_captcha_detector():
+    return CaptchaDetector()
+
+def create_login_requirement_detector():
+    return LoginRequirementDetector()
+
+def create_age_restriction_checker():
+    return AgeRestrictionChecker()
+
+def create_region_restriction_validator():
+    return RegionRestrictionValidator()
+
+def create_privacy_status_checker():
+    return PrivacyStatusChecker()
+
+def create_embed_restriction_detector():
+    return EmbedRestrictionDetector()
 
 
 __all__ = [
@@ -442,6 +554,36 @@ __all__ = [
     'ConnectionPool',
     'PoolStats',
     'ConnectionPoolRegistry',
+    'RateLimitDetector',
+    'RateLimitInfo',
+    'ProxyConfigValidator',
+    'ProxyConfig',
+    'ProxyStatus',
+    'ProxyValidationResult',
+    'ResponseTimeMeasurer',
+    'ResponseSpeed',
+    'ResponseTimeResult',
+    'ContentTypeValidator',
+    'ContentTypeStatus',
+    'ContentTypeResult',
+    'CaptchaDetector',
+    'CaptchaStatus',
+    'CaptchaResult',
+    'LoginRequirementDetector',
+    'LoginStatus',
+    'LoginResult',
+    'AgeRestrictionChecker',
+    'AgeRestrictionStatus',
+    'AgeRestrictionResult',
+    'RegionRestrictionValidator',
+    'RegionRestrictionStatus',
+    'RegionRestrictionResult',
+    'PrivacyStatusChecker',
+    'PrivacyStatus',
+    'PrivacyResult',
+    'EmbedRestrictionDetector',
+    'EmbedStatus',
+    'EmbedRestrictionResult',
     'create_validator',
     'create_fetcher',
     'create_space_validator',
@@ -474,6 +616,16 @@ __all__ = [
     'create_redirect_chain',
     'create_user_agent_rotator',
     'create_connection_pool',
+    'create_rate_limit_detector',
+    'create_proxy_config_validator',
+    'create_response_time_measurer',
+    'create_content_type_validator',
+    'create_captcha_detector',
+    'create_login_requirement_detector',
+    'create_age_restriction_checker',
+    'create_region_restriction_validator',
+    'create_privacy_status_checker',
+    'create_embed_restriction_detector',
 ]
 
 __version__ = '4.5.0'
@@ -510,4 +662,14 @@ __all_modules__ = [
     'redirect_chain',
     'user_agent_rotator',
     'connection_pool',
+    'rate_limit_detector',
+    'proxy_config',
+    'response_time',
+    'content_type_validator',
+    'captcha_detector',
+    'login_requirement',
+    'age_restriction',
+    'region_restriction',
+    'privacy_status',
+    'embed_restriction',
 ]
