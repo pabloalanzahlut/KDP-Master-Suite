@@ -36,8 +36,20 @@ Módulos FASE HARDENING (Completados 41-44):
 - health_checker: Monitor de salud de módulos
 - config_validator: Validador de configs antes de ejecutar
 
+Módulos FASE URL INTELLIGENCE - Lista 1 (Completados 1-10):
+- syntax_validator: Validador de sintaxis RFC 3986
+- video_id_extractor: Extrae IDs de video de diferentes formatos
+- domain_whitelist: Valida dominios permitidos
+- dns_resolver: Resuelve DNS con timeout configurable
+- http_head_validator: HEAD request para verificar disponibilidad
+- ssl_validator: Valida certificados SSL
+- http_status_interpreter: Interpreta códigos HTTP
+- redirect_chain: Sigue redirecciones hasta URL final
+- user_agent_rotator: Rota User-Agents para evitar detección de bot
+- connection_pool: Pool de conexiones HTTP reutilizables
+
 Autor: KDP_MASTER AI Team
-Fecha: 2026-05-12
+Fecha: 2026-05-17
 """
 
 from .cc_availability_validator import (
@@ -183,6 +195,77 @@ from .config_validator import (
     create_config_validator,
 )
 
+from .syntax_validator import (
+    URLSyntaxValidator,
+    URLSyntaxStatus,
+    SyntaxValidationResult,
+    create_syntax_validator,
+)
+
+from .video_id_extractor import (
+    VideoIDExtractor,
+    Platform,
+    VideoIDResult,
+    create_video_id_extractor,
+)
+
+from .domain_whitelist import (
+    DomainWhitelist,
+    DomainStatus,
+    DomainValidationResult,
+    create_domain_whitelist,
+)
+
+from .dns_resolver import (
+    DNSResolver,
+    DNSStatus,
+    DNSResult,
+    create_dns_resolver,
+)
+
+from .http_head_validator import (
+    HTTPHeadValidator,
+    HTTPValidationStatus,
+    HTTPHeadResult,
+    create_http_head_validator,
+)
+
+from .ssl_validator import (
+    SSLValidator,
+    SSLStatus,
+    SSLValidationResult,
+    create_ssl_validator,
+)
+
+from .http_status_interpreter import (
+    HTTPStatusInterpreter,
+    HTTPStatusCategory,
+    RecommendedAction,
+    HTTPStatusInterpretation,
+    create_http_status_interpreter,
+)
+
+from .redirect_chain import (
+    RedirectChain,
+    RedirectType,
+    RedirectHop,
+    RedirectChainResult,
+    create_redirect_chain,
+)
+
+from .user_agent_rotator import (
+    UserAgentRotator,
+    UserAgentInfo,
+    create_user_agent_rotator,
+)
+
+from .connection_pool import (
+    ConnectionPool,
+    PoolStats,
+    ConnectionPoolRegistry,
+    create_connection_pool,
+)
+
 
 def create_validator():
     return CCAvailabilityValidator()
@@ -239,6 +322,36 @@ def create_manifest_generator(output_dir=None):
 
 def create_persistence_manager(db_path=None):
     return AtomicPersistenceManager(db_path=db_path)
+
+def create_syntax_validator(strict: bool = False):
+    return URLSyntaxValidator(strict_mode=strict)
+
+def create_video_id_extractor():
+    return VideoIDExtractor()
+
+def create_domain_whitelist(whitelist=None, allow_subdomains=True):
+    return DomainWhitelist(whitelist=whitelist, allow_subdomains=allow_subdomains)
+
+def create_dns_resolver(timeout: float = 3.0, cache_ttl: int = 300):
+    return DNSResolver(timeout=timeout, cache_ttl=cache_ttl)
+
+def create_http_head_validator(timeout: float = 10.0, follow_redirects: bool = True):
+    return HTTPHeadValidator(timeout=timeout, follow_redirects=follow_redirects)
+
+def create_ssl_validator(timeout: float = 5.0, warning_days: int = 30):
+    return SSLValidator(timeout=timeout, warning_days=warning_days)
+
+def create_http_status_interpreter():
+    return HTTPStatusInterpreter()
+
+def create_redirect_chain(max_hops: int = 10, timeout: float = 10.0):
+    return RedirectChain(max_hops=max_hops, timeout=timeout)
+
+def create_user_agent_rotator(mobile_weight: float = 0.1, rotation_strategy: str = "round_robin"):
+    return UserAgentRotator(mobile_weight=mobile_weight, rotation_strategy=rotation_strategy)
+
+def create_connection_pool(pool_size: int = 10, max_retries: int = 3):
+    return ConnectionPool(pool_size=pool_size, max_retries=max_retries)
 
 
 __all__ = [
@@ -298,6 +411,37 @@ __all__ = [
     'AtomicPersistenceManager',
     'PersistedTranscription',
     'TransactionState',
+    'URLSyntaxValidator',
+    'URLSyntaxStatus',
+    'SyntaxValidationResult',
+    'VideoIDExtractor',
+    'Platform',
+    'VideoIDResult',
+    'DomainWhitelist',
+    'DomainStatus',
+    'DomainValidationResult',
+    'DNSResolver',
+    'DNSStatus',
+    'DNSResult',
+    'HTTPHeadValidator',
+    'HTTPValidationStatus',
+    'HTTPHeadResult',
+    'SSLValidator',
+    'SSLStatus',
+    'SSLValidationResult',
+    'HTTPStatusInterpreter',
+    'HTTPStatusCategory',
+    'RecommendedAction',
+    'HTTPStatusInterpretation',
+    'RedirectChain',
+    'RedirectType',
+    'RedirectHop',
+    'RedirectChainResult',
+    'UserAgentRotator',
+    'UserAgentInfo',
+    'ConnectionPool',
+    'PoolStats',
+    'ConnectionPoolRegistry',
     'create_validator',
     'create_fetcher',
     'create_space_validator',
@@ -320,9 +464,19 @@ __all__ = [
     'create_circuit_breaker',
     'create_health_checker',
     'create_config_validator',
+    'create_syntax_validator',
+    'create_video_id_extractor',
+    'create_domain_whitelist',
+    'create_dns_resolver',
+    'create_http_head_validator',
+    'create_ssl_validator',
+    'create_http_status_interpreter',
+    'create_redirect_chain',
+    'create_user_agent_rotator',
+    'create_connection_pool',
 ]
 
-__version__ = '4.4.0'
+__version__ = '4.5.0'
 __all_modules__ = [
     'cc_availability_validator',
     'parallel_subtitle_fetcher',
@@ -345,5 +499,15 @@ __all_modules__ = [
     'rate_limit_enforcer',
     'circuit_breaker',
     'health_checker',
-    'config_validator'
+    'config_validator',
+    'syntax_validator',
+    'video_id_extractor',
+    'domain_whitelist',
+    'dns_resolver',
+    'http_head_validator',
+    'ssl_validator',
+    'http_status_interpreter',
+    'redirect_chain',
+    'user_agent_rotator',
+    'connection_pool',
 ]
