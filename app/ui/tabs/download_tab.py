@@ -91,6 +91,14 @@ def setup_download_tab(self):
     ttk.Button(btn_container, text="⭐", command=self.manage_channels, width=4).pack(side=tk.LEFT, padx=2)
     ToolTip(btn_container.winfo_children()[-1], "Gestionar canales favoritos")
     
+    ttk.Button(btn_container, text="🔍", command=self.verify_url_quick, width=4).pack(side=tk.LEFT, padx=2)
+    ToolTip(btn_container.winfo_children()[-1], "Verificar disponibilidad y CC del video")
+    
+    self.cc_indicator_var = tk.StringVar(value="")
+    self.cc_indicator_label = ttk.Label(btn_container, textvariable=self.cc_indicator_var, 
+                                         font=("Segoe UI", 10), foreground="#94a3b8")
+    self.cc_indicator_label.pack(side=tk.LEFT, padx=(5, 0))
+    
     action_frame = ttk.Frame(drop_zone_frame)
     action_frame.pack(fill=tk.X, pady=(15, 0))
     
@@ -100,6 +108,49 @@ def setup_download_tab(self):
     ToolTip(self.btn_direct_download, "Descargar inmediatamente sin añadir a la cola")
     
     ttk.Button(action_frame, text="➕ Añadir a Cola", command=self.add_to_queue, style="Primary.TButton").pack(side=tk.LEFT)
+    
+    ttk.Label(action_frame, text="  Filtros:").pack(side=tk.LEFT, padx=(15, 5))
+    
+    self.filter_lang_var = tk.StringVar(value="Todos")
+    lang_combo = ttk.Combobox(action_frame, textvariable=self.filter_lang_var, 
+                              values=["Todos", "es", "en", "pt", "fr", "de", "it", "ja", "ko", "zh"], 
+                              width=6, state="readonly")
+    lang_combo.pack(side=tk.LEFT, padx=2)
+    ToolTip(lang_combo, "Filtrar por idioma de subtítulos")
+    
+    self.filter_quality_var = tk.StringVar(value="Std")
+    quality_combo = ttk.Combobox(action_frame, textvariable=self.filter_quality_var,
+                                 values=["Std", "Alta", "Media", "Baja"], 
+                                 width=6, state="readonly")
+    quality_combo.pack(side=tk.LEFT, padx=2)
+    ToolTip(quality_combo, "Filtrar por calidad de subtítulos")
+    
+    self.filter_duration_var = tk.StringVar(value="Any")
+    dur_combo = ttk.Combobox(action_frame, textvariable=self.filter_duration_var,
+                              values=["Any", "<5min", "5-20min", "20-60min", ">60min"], 
+                              width=7, state="readonly")
+    dur_combo.pack(side=tk.LEFT, padx=2)
+    ToolTip(dur_combo, "Filtrar por duración del video")
+    
+    scoring_inline_frame = ttk.Frame(drop_zone_frame)
+    scoring_inline_frame.pack(fill=tk.X, pady=(10, 0))
+    
+    self.quick_scoring_var = tk.BooleanVar(value=False)
+    ttk.Checkbutton(scoring_inline_frame, text="🎯 Scoring IA", 
+                   variable=self.quick_scoring_var).pack(side=tk.LEFT, padx=(0, 10))
+    ToolTip(scoring_inline_frame.winfo_children()[-1], "Activar filtrado por relevancia KDP")
+    
+    ttk.Label(scoring_inline_frame, text="Min:").pack(side=tk.LEFT, padx=(5, 2))
+    self.quick_min_score_var = tk.IntVar(value=50)
+    score_scale = ttk.Scale(scoring_inline_frame, from_=0, to=100, variable=self.quick_min_score_var,
+                            orient=tk.HORIZONTAL, length=100)
+    score_scale.pack(side=tk.LEFT, padx=2)
+    ttk.Label(scoring_inline_frame, textvariable=self.quick_min_score_var, width=3).pack(side=tk.LEFT)
+    
+    self.scoring_status_var = tk.StringVar(value="")
+    self.scoring_status_label = ttk.Label(scoring_inline_frame, textvariable=self.scoring_status_var,
+                                          font=("Segoe UI", 9), foreground="#94a3b8")
+    self.scoring_status_label.pack(side=tk.LEFT, padx=(15, 0))
     
     # ===== SECCIÓN DE COLA Y PARÁMETROS =====
     bottom_container = ttk.Frame(main_container)
@@ -573,6 +624,182 @@ def paste_from_clipboard(self):
             ToastNotification.show(self.root, "📋 URL pegada con éxito", "success")
     except Exception:
         pass
+
+
+def verify_url_quick(self):
+    """Módulo 1: Verifica disponibilidad y CC del video."""
+    url = self.url_var.get().strip()
+    if not url:
+        ToastNotification.show(self.root, "⚠️ Ingresa una URL primero", "warning")
+        return
+    
+    if url.startswith("@"):
+        url = f"https://www.youtube.com/{url}"
+    
+    self.status_var.set("Verificando URL...")
+    
+    def run_verification():
+        try:
+            from app.core.pre_download_validator import get_pre_download_validator
+            validator = get_pre_download_validator(timeout=10)
+            
+            video_data = {"url": url, "webpage_url": url}
+            results = validator.validate_all(video_data, check_availability=True, user_country="unknown")
+            
+            cc_result = None
+            avail_result = None
+            geo_result = None
+            license_result = None
+            
+            for r in results:
+                if r.validation_type == "availability":
+                    avail_result = r
+                elif r.validation_type == "geo_restriction":
+                    geo_result = r
+                elif r.validation_type == "license":
+                    license_result = r
+            
+            def update_ui():
+                self.status_var.set("Listo")
+                
+                if avail_result and not avail_result.is_valid:
+                    self.cc_indicator_var.set("❌ No disponible")
+                    self.cc_indicator_label.config(foreground="#ef4444")
+                    messagebox.showwarning("No Disponible", avail_result.message)
+                    return
+                
+                if geo_result and not geo_result.is_valid:
+                    self.cc_indicator_var.set("🌍 Restringido")
+                    self.cc_indicator_label.config(foreground="#f59e0b")
+                    messagebox.showwarning("Restringido", geo_result.message)
+                    return
+                
+                is_cc = license_result and license_result.details and license_result.details.get("is_cc", False)
+                
+                if is_cc:
+                    self.cc_indicator_var.set("✅ CC Disponible")
+                    self.cc_indicator_label.config(foreground="#22c55e")
+                else:
+                    self.cc_indicator_var.set("📄 Std")
+                    self.cc_indicator_label.config(foreground="#94a3b8")
+                
+                msg = f"✅ URL válida\n"
+                msg += f"Licencia: {license_result.message if license_result else 'N/A'}"
+                if is_cc:
+                    msg += "\n🎯 Apto para KDP (Creative Commons)"
+                ToastNotification.show(self.root, msg, "success")
+            
+            self.root.after(0, update_ui)
+            
+        except Exception as e:
+            self.root.after(0, lambda: self.status_var.set("Error"))
+            self.root.after(0, lambda: self.cc_indicator_var.set("⚠️ Error"))
+            self.root.after(0, lambda: self.cc_indicator_label.config(foreground="#f59e0b"))
+            self.log(f"[ERROR] Verificación URL: {e}", "error")
+    
+    threading.Thread(target=run_verification, daemon=True).start()
+
+
+def show_channel_preview(self):
+    """Módulo 5: Preview rápido del canal (modal)."""
+    url = self.url_var.get().strip()
+    if not url:
+        ToastNotification.show(self.root, "⚠️ Ingresa una URL de canal (@canal o URL)", "warning")
+        return
+    
+    if not url.startswith("@") and "youtube.com" not in url.lower():
+        messagebox.showwarning("URL inválida", "Ingresa un @canal o URL de YouTube")
+        return
+    
+    channel_id = url.replace("@", "").strip()
+    if "youtube.com" in url.lower():
+        if "/channel/" in url:
+            channel_id = url.split("/channel/")[-1].split("/")[0]
+        elif "/@" in url:
+            channel_id = url.split("/@")[-1].split("/")[0]
+    
+    dialog = tk.Toplevel(self.root)
+    dialog.title(f"📊 Preview: @{channel_id}")
+    dialog.geometry("500x400")
+    dialog.transient(self.root)
+    dialog.grab_set()
+    
+    main_frame = ttk.Frame(dialog, padding=20)
+    main_frame.pack(fill=tk.BOTH, expand=True)
+    
+    ttk.Label(main_frame, text=f"Cargando info de @{channel_id}...", 
+              font=("Segoe UI", 11)).pack(pady=20)
+    
+    progress = ttk.Progressbar(main_frame, mode='indeterminate', length=300)
+    progress.pack(pady=10)
+    progress.start(10)
+    
+    def load_channel_info():
+        try:
+            channel_info = {"name": f"@{channel_id}", "videos": 0, "subscribers": "N/A", "last_video": "N/A"}
+            
+            if hasattr(self, 'db_manager') and self.db_manager:
+                videos = self.db_manager.search_videos(f"%{channel_id}%")
+                channel_info["videos"] = len(videos) if videos else 0
+                
+                channels = self.db_manager.get_all_channels(active_only=False)
+                for c in channels:
+                    if channel_id in (c.get('channel_url', '') or ''):
+                        channel_info["name"] = c.get('channel_name', channel_id)
+                        break
+            
+            def update_ui():
+                progress.stop()
+                progress.pack_forget()
+                
+                for w in main_frame.winfo_children():
+                    w.destroy()
+                
+                ttk.Label(main_frame, text=f"📺 {channel_info['name']}", 
+                         font=("Segoe UI", 14, "bold")).pack(pady=(0, 15))
+                
+                info_frame = ttk.LabelFrame(main_frame, text=" 📈 Estadísticas ", padding=15)
+                info_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+                
+                ttk.Label(info_frame, text=f"Videos en BD: {channel_info['videos']}", 
+                         font=("Segoe UI", 10)).pack(anchor=tk.W, pady=5)
+                ttk.Label(info_frame, text=f"Suscriptores: {channel_info['subscribers']}", 
+                         font=("Segoe UI", 10)).pack(anchor=tk.W, pady=5)
+                ttk.Label(info_frame, text=f"Último video: {channel_info['last_video']}", 
+                         font=("Segoe UI", 10)).pack(anchor=tk.W, pady=5)
+                
+                btn_frame = ttk.Frame(main_frame)
+                btn_frame.pack(pady=15)
+                ttk.Button(btn_frame, text="Cerrar", command=dialog.destroy).pack()
+            
+            dialog.after(0, update_ui)
+            
+        except Exception as e:
+            dialog.after(0, lambda: [progress.stop(), messagebox.showerror("Error", str(e))])
+    
+    threading.Thread(target=load_channel_info, daemon=True).start()
+
+
+def get_channel_stats(self, url: str) -> dict:
+    """Módulo 6: Obtiene stats del canal para tooltips."""
+    stats = {"videos": 0, "processed": 0, "pending": 0, "last_update": "Nunca"}
+    
+    try:
+        if hasattr(self, 'db_manager') and self.db_manager:
+            channel_id = url.replace("@", "").strip()
+            videos = self.db_manager.search_videos(f"%{channel_id}%")
+            if videos:
+                stats["videos"] = len(videos)
+                stats["processed"] = sum(1 for v in videos if v.get("processed", False))
+                stats["pending"] = stats["videos"] - stats["processed"]
+                
+                dates = [v.get("created_at") for v in videos if v.get("created_at")]
+                if dates:
+                    stats["last_update"] = max(dates)
+    except:
+        pass
+    
+    return stats
 
 
 def manage_channels(self):
