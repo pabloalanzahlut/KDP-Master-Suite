@@ -60,6 +60,18 @@ Módulos FASE URL INTELLIGENCE - Lista 1 (Completados 11-20):
 - privacy_status: Verifica privacidad (público/privado)
 - embed_restriction: Detecta restricciones de embed
 
+Módulos FASE URL INTELLIGENCE - Lista 1 (Completados 21-30):
+- duration_parser: Extrae duración del video
+- file_size_estimator: Calcula tamaño estimado
+- upload_date: Verifica fecha de publicación
+- view_count: Obtiene contador de visualizaciones
+- channel_existence: Verifica que el canal exista
+- channel_status: Verifica si el canal está verificado
+- subtitle_availability: Verifica disponibilidad de CC
+- subtitle_language: Detecta idiomas de subtítulos
+- format_availability: Verifica formatos disponibles
+- quality_options: Detecta calidades disponibles
+
 Autor: KDP_MASTER AI Team
 Fecha: 2026-05-17
 """
@@ -348,6 +360,71 @@ from .embed_restriction import (
     create_embed_restriction_detector,
 )
 
+from .duration_parser import (
+    VideoDurationParser,
+    DurationResult,
+    create_video_duration_parser,
+)
+
+from .file_size_estimator import (
+    FileSizeEstimator,
+    FileSizeEstimate,
+    create_file_size_estimator,
+)
+
+from .upload_date import (
+    UploadDateValidator,
+    RecencyStatus,
+    UploadDateResult,
+    create_upload_date_validator,
+)
+
+from .view_count import (
+    ViewCountVerifier,
+    ViewCountResult,
+    create_view_count_verifier,
+)
+
+from .channel_existence import (
+    ChannelExistenceValidator,
+    ChannelStatus,
+    ChannelExistenceResult,
+    create_channel_existence_validator,
+)
+
+from .channel_status import (
+    ChannelStatusChecker,
+    VerificationStatus,
+    ChannelStatusResult,
+    create_channel_status_checker,
+)
+
+from .subtitle_availability import (
+    SubtitleAvailabilityChecker,
+    SubtitleAvailabilityStatus,
+    SubtitleAvailabilityResult,
+    create_subtitle_availability_checker,
+)
+
+from .subtitle_language import (
+    SubtitleLanguageDetector,
+    SubtitleLanguageResult,
+    create_subtitle_language_detector,
+)
+
+from .format_availability import (
+    FormatAvailabilityChecker,
+    FormatType,
+    FormatAvailabilityResult,
+    create_format_availability_checker,
+)
+
+from .quality_options import (
+    QualityOptionsDetector,
+    QualityOptionsResult,
+    create_quality_options_detector,
+)
+
 
 def create_validator():
     return CCAvailabilityValidator()
@@ -464,6 +541,36 @@ def create_privacy_status_checker():
 
 def create_embed_restriction_detector():
     return EmbedRestrictionDetector()
+
+def create_video_duration_parser(min_duration: int = 30, max_duration: int = 14400):
+    return VideoDurationParser(min_duration=min_duration, max_duration=max_duration)
+
+def create_file_size_estimator(default_quality: str = '720p'):
+    return FileSizeEstimator(default_quality=default_quality)
+
+def create_upload_date_validator(recent_days: int = 30, old_days: int = 365):
+    return UploadDateValidator(recent_days=recent_days, old_days=old_days)
+
+def create_view_count_verifier(min_views: int = 100, suspicious_threshold: int = 10):
+    return ViewCountVerifier(min_views=min_views, suspicious_threshold=suspicious_threshold)
+
+def create_channel_existence_validator():
+    return ChannelExistenceValidator()
+
+def create_channel_status_checker():
+    return ChannelStatusChecker()
+
+def create_subtitle_availability_checker():
+    return SubtitleAvailabilityChecker()
+
+def create_subtitle_language_detector(target_languages=None):
+    return SubtitleLanguageDetector(target_languages=target_languages)
+
+def create_format_availability_checker():
+    return FormatAvailabilityChecker()
+
+def create_quality_options_detector(min_quality: str = '480p'):
+    return QualityOptionsDetector(min_quality=min_quality)
 
 
 __all__ = [
@@ -584,6 +691,31 @@ __all__ = [
     'EmbedRestrictionDetector',
     'EmbedStatus',
     'EmbedRestrictionResult',
+    'VideoDurationParser',
+    'DurationResult',
+    'FileSizeEstimator',
+    'FileSizeEstimate',
+    'UploadDateValidator',
+    'RecencyStatus',
+    'UploadDateResult',
+    'ViewCountVerifier',
+    'ViewCountResult',
+    'ChannelExistenceValidator',
+    'ChannelStatus',
+    'ChannelExistenceResult',
+    'ChannelStatusChecker',
+    'VerificationStatus',
+    'ChannelStatusResult',
+    'SubtitleAvailabilityChecker',
+    'SubtitleAvailabilityStatus',
+    'SubtitleAvailabilityResult',
+    'SubtitleLanguageDetector',
+    'SubtitleLanguageResult',
+    'FormatAvailabilityChecker',
+    'FormatType',
+    'FormatAvailabilityResult',
+    'QualityOptionsDetector',
+    'QualityOptionsResult',
     'create_validator',
     'create_fetcher',
     'create_space_validator',
@@ -626,9 +758,19 @@ __all__ = [
     'create_region_restriction_validator',
     'create_privacy_status_checker',
     'create_embed_restriction_detector',
+    'create_video_duration_parser',
+    'create_file_size_estimator',
+    'create_upload_date_validator',
+    'create_view_count_verifier',
+    'create_channel_existence_validator',
+    'create_channel_status_checker',
+    'create_subtitle_availability_checker',
+    'create_subtitle_language_detector',
+    'create_format_availability_checker',
+    'create_quality_options_detector',
 ]
 
-__version__ = '4.5.0'
+__version__ = '4.6.0'
 __all_modules__ = [
     'cc_availability_validator',
     'parallel_subtitle_fetcher',
@@ -672,4 +814,14 @@ __all_modules__ = [
     'region_restriction',
     'privacy_status',
     'embed_restriction',
+    'duration_parser',
+    'file_size_estimator',
+    'upload_date',
+    'view_count',
+    'channel_existence',
+    'channel_status',
+    'subtitle_availability',
+    'subtitle_language',
+    'format_availability',
+    'quality_options',
 ]
